@@ -1,6 +1,9 @@
 import { DescribeOptions } from './types.ts';
 
-// Define the build function with type annotations
+/**
+ * 
+ *  Builds a custom component with the given tag name and description options
+ */ 
 export function build(tagName: string, description: DescribeOptions): void {
   class CustomComponent extends HTMLElement {
       constructor() {
