@@ -1,4 +1,7 @@
 {
+  "name": "@ra9/tan-compose",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
   "compilerOptions": {
     "strict": true,
     "lib": ["dom", "esnext"]
