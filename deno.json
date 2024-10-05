@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
-    "lib": ["dom", "es2017"]
+    "lib": ["dom", "esnext"]
   },
   "tasks": {
     "build:js": "deno run -A src/index.ts dist/bundle.js",
