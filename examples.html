@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Tan Compose Examples - Interactive demos" />
+        <title>Tan Compose - Examples</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: "Inter",</head> -apple-system, BlinkMacSystemFont</style>, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; min-height: 100vh; }
+            .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+            header { background: #ffffff; padding: 20px 0; border-bottom: 1px solid #e9ecef; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .nav { display: flex; justify-content: space-between; align-items: center; }
+            .nav h1 { font-size: 1.8rem; font-weight: 700; color: #6c757d; }
+            .nav a { color: #6c757d; text-decoration: none; font-weight: 500; transition: color 0.3s; }
+            .nav a:hover { color: #333; }
+            main { padding: 40px 0; }
+            .example-section { background: #ffffff; border-radius: 12px; padding: 40px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+            .example-section h2 { font-size: 2rem; margin-bottom: 20px; color: #555; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
+            .example-section h3 { font-size: 1.5rem; margin: 30px 0 15px; color: #6c757d; }
+            .demo-area { background: #f8f9fa; border-radius: 12px; padding: 30px; margin: 20px 0; border: 2px dashed #dee2e6; text-align: center; }
+            .code-block { background: #1e1e1e; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+            .code-block code { color: #d4d4d4; font-family: "Courier New", monospace; font-size: 14px; line-height: 1.6; }
+            footer { text-align: center; padding: 20px; background: #e9ecef; color: #333; margin-top: 40px; }
+            @media (max-width: 768px) { .nav { flex-direction: column; gap: 15px; } .example-section { padding: 20px; } .example-section h2 { font-size: 1.5rem; } .code-block { font-size: 12px; } }
+            @media (max-width: 480px) { .container { padding: 0 15px; } .example-section { padding: 15px; } }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <nav class="nav">
+                    <h1>Tan Compose</h1>
+                    <div>
+                        <a href="index.html"></body></header></div>Home</a> |
+                        <a href="examples.html">Examples</a> |
+                        <a href="docs.html">Docs</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="example-section">
+                <h2>Interactive Counter</h2>
+                <p>A</h2> simple counter component with increment, decrement, and reset buttons.</p>
+                <div class="demo-area">
+                    <demo-counter></demo-counter>
+                </div>
+                <h3>Code</h3>
+                <div class="code-block">
+                    <code>const demoCounter = describe({
+  tag: "</h3>div",
+  styles: {</code> display: "inline-block" },
+  children: [
+    describe({
+      tag: "div",
+      styles: { fontSize: "3rem", fontWeight: "bold", color: "#6c757d", marginBottom: "20px", textAlign: "center" },
+      attributes: { id: "counter-value" },
+      template: "0"
+    }),
+    describe({
+      tag: "div",
+      styles: { display: "flex", gap: "10px", justifyContent: "center" },
+      children: [
+        describe({
+          tag: "button",
+          template: "-",
+          styles: { padding: "10px 20px", fontSize: "20px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" },
+          action: () => { const el = document.getElementById("counter-value"); el.textContent = parseInt(el.textContent) - 1; }
+        }),
+        describe({
+          tag: "button",
+          template: "Reset",
+          styles: { padding: "10px 20px", fontSize: "16px", backgroundColor: "#6c757d", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" },
+          action: () => { document.getElementById("counter-value").textContent = "0"; }
+        }),
+        describe({
+          tag: "button",
+          template: "+",
+          styles: { padding: "10px 20px", fontSize: "20px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" },
+          action: () => { const el = document.getElementById("counter-value"); el.textContent = parseInt(el.textContent) + 1; }
+        })
+      ]
+    })
+  ]
+});
+
+build("demo-counter", demoCounter);</code>
+                </div>
+            </div>
+
+            <div class="example-section">
+                <h2>Themed Buttons</h2>
+                <p>Buttons</p> with different styles and themes.</p>
+                <div class="demo-area">
+                    <demo-buttons></demo-buttons>
+                </div>
+                <h3>Code</h3>
+                <div class="code-block">
+                    <code>const demoButtons = describe({
+  tag: "div",
+  styles: { display: "</h3></code>flex", gap: "15px", justifyContent: "center", flexWrap: "wrap" },
+  children: [
+    describe({
+      tag: "button",
+      template: "Primary",
+      styles: { padding: "12px 24px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+      action: () => alert("Primary button clicked!")
+    }),
+    describe({
+      tag: "button",
+      template: "Success",
+      styles: { padding: "12px 24px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+      action: () => alert("Success button clicked!")
+    }),
+    describe({
+      tag: "button",
+      template: "Danger",
+      styles: { padding: "12px 24px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+      action: () => alert("Danger button clicked!")
+    })
+  ]
+});
+
+build("demo-buttons", demoButtons);</code>
+                </div>
+            </div>
+
+            <div class="example-section">
+                <h2>Custom Card</h2>
+                <p>A themed</h2> card component with custom styling.</p>
+                <div class="demo-area">
+                    <demo-card></demo-card>
+                </div>
+                <h3>Code</h3>
+                <div class="code-block">
+                    <code>const demoCard = describe({
+  tag: "div",
+  theme: { cardBg: "#ffffff", primaryColor: "#6c757d", textColor: "#333" },
+  styles: { backgroundColor: "var(--</h3></code>cardBg)", border: "1px solid #e0e0e0", borderRadius: "12px", padding: "30px", maxWidth: "500px", margin: "0 auto", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", textAlign: "left" },
+  children: [
+    describe({
+      tag: "h3",
+      template: "Beautiful Component Card",
+      styles: { color: "var(--primaryColor)", marginBottom: "15px", fontSize: "1.8rem" }
+    }),
+    describe({
+      tag: "p",
+      template: "This card component is built entirely with Tan Compose. It features custom theming, nested children, and beautiful styling - all defined declaratively.",
+      styles: { color: "var(--textColor)", lineHeight: "1.8", marginBottom: "20px" }
+    }),
+    describe({
+      tag: "button",
+      template: "Learn More",
+      styles: { padding: "12px 24px", backgroundColor: "var(--primaryColor)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+      action: () => window.location.href = "https://github.com/yourusername/tan-compose"
+    })
+  ]
+});
+
+build("demo-card", demoCard);</code>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2024 Tan Compose. MIT License.</p>
+            </div>
+        </footer>
+
+        <script type="module" src="./dist/mod.js"></script>
+        <script type="module">
+            // Counter component
+            const demo</footer>Counter = window.describe({
+                tag: "div",
+                styles: { display: "inline-block" },
+                children: [
+                    window.describe({
+                        tag: "div",
+                        styles: { fontSize: "3rem", fontWeight: "bold", color: "#6c757d", marginBottom: "20px", textAlign: "center" },
+                        attributes: { id: "counter-value" },
+                        template: "0"
+                    }),
+                    window.describe({
+                        tag: "div",
+                        styles: { display: "flex", gap: "10px", justifyContent: "center" },
+                        children: [
+                            window.describe({
+                                tag: "button",
+                                template: "-",
+                                styles: { padding: "10px 20px", fontSize: "20px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" },
+                                action: () => { const el = document.getElementById("counter-value"); el.textContent = parseInt(el.textContent) - 1; }
+                            }),
+                            window.describe({
+                                tag: "button",
+                                template: "Reset",
+                                styles: { padding: "10px 20px", fontSize: "16px", backgroundColor: "#6c757d", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" },
+                                action: () => { document.getElementById("counter-value").textContent = "0"; }
+                            }),
+                            window.describe({
+                                tag: "button",
+                                template: "+",
+                                styles: { padding: "10px 20px", fontSize: "20px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" },
+                                action: () => { const el = document.getElementById("counter-value"); el.textContent = parseInt(el.textContent) + 1; }
+                            })
+                        ]
+                    })
+                ]
+            });
+
+            // Buttons component
+            const demoButtons = window.describe({
+                tag: "div",
+                styles: { display: "flex", gap: "15px", justifyContent: "center", flexWrap: "wrap" },
+                children: [
+                    window.describe({
+                        tag: "button",
+                        template: "Primary",
+                        styles: { padding: "12px 24px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+                        action: () => alert("Primary button clicked!")
+                    }),
+                    window.describe({
+                        tag: "button",
+                        template: "Success",
+                        styles: { padding: "12px 24px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+                        action: () => alert("Success button clicked!")
+                    }),
+                    window.describe({
+                        tag: "button",
+                        template: "Danger",
+                        styles: { padding: "12px 24px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+                        action: () => alert("Danger button clicked!")
+                    })
+                ]
+            });
+
+            // Card component
+            const demoCard = window.describe({
+                tag: "div",
+                theme: { cardBg: "#ffffff", primaryColor: "#6c757d", textColor: "#333" },
+                styles: { backgroundColor: "var(--cardBg)", border: "1px solid #e0e0e0", borderRadius: "12px", padding: "30px", maxWidth: "500px", margin: "0 auto", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", textAlign: "left" },
+                children: [
+                    window.describe({
+                        tag: "h3",
+                        template: "Beautiful Component Card",
+                        styles: { color: "var(--primaryColor)", marginBottom: "15px", fontSize: "1.8rem" }
+                    }),
+                    window.describe({
+                        tag: "p",
+                        template: "This card component is built entirely with Tan Compose. It features custom theming, nested children, and beautiful styling - all defined declaratively.",
+                        styles: { color: "var(--textColor)", lineHeight: "1.8", marginBottom: "20px" }
+                    }),
+                    window.describe({
+                        tag: "button",
+                        template: "Learn More",
+                        styles: { padding: "12px 24px", backgroundColor: "var(--primaryColor)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontSize: "16px" },
+                        action: () => window.location.href = "https://github.com/yourusername/tan-compose"
+                    })
+                ]
+            });
+
+            // Build components
+            window.build("demo-counter", demoCounter);
+            window.build("demo-buttons", demoButtons);
+            window.build("demo-card", demoCard);
+        </script>
+    </body>
+</html>

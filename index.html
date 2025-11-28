@@ -1,257 +1,293 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta
-      name="description"
-      content="Tan Compose - A lightweight library for building reusable web components with declarative syntax"
-    >
-    <title>Tan Compose - Build Reusable Web Components</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
-      rel="stylesheet"
-    >
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="Tan Compose - A lightweight library for building reusable web components with declarative syntax"
+        />
+        <title>Tan Compose - Build Reusable Web Components</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-      body {
-        font-family:
-          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
-        line-height: 1.6;
-        color: #333;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-      }
+            body {
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Roboto,
+                    sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background: #f5f5f5;
+                min-height: 100vh;
+            }
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-      }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
 
-      header {
-        padding: 80px 0 60px;
-        text-align: center;
-        color: white;
-      }
+            header {
+                padding: 80px 0 60px;
+                text-align: center;
+                color: white;
+            }
 
-      h1 {
-        font-size: 3.5rem;
-        font-weight: 900;
-        margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-      }
+            h1 {
+                font-size: 3.5rem;
+                font-weight: 900;
+                margin-bottom: 20px;
+                color: #333;
+            }
 
-      .tagline {
-        font-size: 1.5rem;
-        font-weight: 300;
-        margin-bottom: 40px;
-        opacity: 0.95;
-      }
+            .tagline {
+                font-size: 1.5rem;
+                font-weight: 300;
+                margin-bottom: 40px;
+                opacity: 0.95;
+            }
 
-      .cta-buttons {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 40px;
-      }
+            .cta-buttons {
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 40px;
+            }
 
-      .section {
-        background: white;
-        border-radius: 16px;
-        padding: 60px 40px;
-        margin: 40px auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      }
+            .section {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 60px 40px;
+                margin: 40px auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            }
 
-      .section h2 {
-        font-size: 2.5rem;
-        margin-bottom: 30px;
-        color: #667eea;
-        text-align: center;
-      }
+            .section h2 {
+                font-size: 2.5rem;
+                margin-bottom: 30px;
+                color: #555;
+                text-align: center;
+            }
 
-      .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-        margin-top: 40px;
-      }
+            .features-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 30px;
+                margin-top: 40px;
+            }
 
-      .code-section {
-        background: #1e1e1e;
-        border-radius: 12px;
-        padding: 30px;
-        margin: 30px 0;
-        overflow-x: auto;
-      }
+            .code-section {
+                background: #1e1e1e;
+                border-radius: 12px;
+                padding: 30px;
+                margin: 30px 0;
+                overflow-x: auto;
+            }
 
-      .code-section pre {
-        color: #d4d4d4;
-        font-family: "Courier New", monospace;
-        font-size: 14px;
-        line-height: 1.6;
-      }
+            .code-section pre {
+                color: #d4d4d4;
+                font-family: "Courier New", monospace;
+                font-size: 14px;
+                line-height: 1.6;
+            }
 
-      .code-section code {
-        color: #ce9178;
-      }
+            .code-section code {
+                color: #ce9178;
+            }
 
-      .demo-area {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 30px;
-        margin: 30px 0;
-        border: 2px dashed #dee2e6;
-        text-align: center;
-      }
+            .demo-area {
+                background: #f8f9fa;
+                border-radius: 12px;
+                padding: 30px;
+                margin: 30px 0;
+                border: 2px dashed #dee2e6;
+                text-align: center;
+            }
 
-      footer {
-        text-align: center;
-        padding: 40px 20px;
-        color: white;
-        margin-top: 60px;
-      }
+            footer {
+                text-align: center;
+                padding: 40px 20px;
+                color: #333;
+                background: #e9ecef;
+                margin-top: 60px;
+            }
 
-      .footer-links {
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-        margin-top: 20px;
-        flex-wrap: wrap;
-      }
+            .footer-links {
+                display: flex;
+                gap: 30px;
+                justify-content: center;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
 
-      .footer-links a {
-        color: white;
-        text-decoration: none;
-        opacity: 0.9;
-        transition: opacity 0.3s;
-      }
+            .footer-links a {
+                color: #333;
+                text-decoration: none;
+                opacity: 0.9;
+                transition: opacity 0.3s;
+            }
 
-      .footer-links a:hover {
-        opacity: 1;
-        text-decoration: underline;
-      }
+            .footer-links a:hover {
+                opacity: 1;
+                text-decoration: underline;
+            }
 
-      @media (max-width: 768px) {
-        h1 {
-          font-size: 2.5rem;
-        }
+            @media (max-width: 1024px) {
+                .features-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
 
-        .tagline {
-          font-size: 1.2rem;
-        }
+            @media (max-width: 768px) {
+                h1 {
+                    font-size: 2.5rem;
+                }
 
-        .section {
-          padding: 40px 20px;
-        }
+                .tagline {
+                    font-size: 1.2rem;
+                }
 
-        .features-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="container">
-        <h1>Tan Compose</h1>
-        <p class="tagline">
-          Build production-ready web components with declarative syntax
-        </p>
-        <p style="font-size: 1.1rem; opacity: 0.9">
-          Lightweight • Type-safe • Zero dependencies
-        </p>
+                .section {
+                    padding: 40px 20px;
+                }
 
-        <div class="cta-buttons">
-          <hero-button
-            data-variant="primary"
-            data-link="https://github.com/yourusername/tan-compose"
-          >
-            Get Started
-          </hero-button>
-          <hero-button data-variant="secondary" data-link="#examples">
-            View Examples
-          </hero-button>
-          <hero-button
-            data-variant="outline"
-            data-link="https://github.com/yourusername/tan-compose"
-          >
-            GitHub
-          </hero-button>
-        </div>
-      </div>
-    </header>
+                .features-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
 
-    <main class="container">
-      <!-- Features Section -->
-      <section class="section">
-        <h2>Why Tan Compose?</h2>
-        <div class="features-grid">
-          <feature-card
-            data-icon="⚡"
-            data-title="Lightning Fast"
-            data-description="Minimal overhead with native Web Components API"
-          >
-          </feature-card>
-          <feature-card
-            data-icon="🎨"
-            data-title="Fully Customizable"
-            data-description="Theme with CSS variables and custom styles"
-          >
-          </feature-card>
-          <feature-card
-            data-icon="🔒"
-            data-title="Encapsulated"
-            data-description="Shadow DOM ensures style isolation"
-          >
-          </feature-card>
-          <feature-card
-            data-icon="♻️"
-            data-title="Reusable"
-            data-description="Build once, use everywhere"
-          >
-          </feature-card>
-          <feature-card
-            data-icon="🎯"
-            data-title="Type Safe"
-            data-description="Full TypeScript support"
-          >
-          </feature-card>
-          <feature-card
-            data-icon="🚀"
-            data-title="Production Ready"
-            data-description="Memory-safe with proper lifecycle management"
-          >
-          </feature-card>
-        </div>
-      </section>
+            @media (max-width: 480px) {
+                h1 {
+                    font-size: 2rem;
+                }
 
-      <!-- Quick Start Section -->
-      <section class="section" id="quickstart">
-        <h2>Quick Start</h2>
+                .tagline {
+                    font-size: 1rem;
+                }
 
-        <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
-          Installation
-        </h3>
-        <div class="code-section">
-          <pre><code>npm install tan-compose</code></pre>
-        </div>
+                .section {
+                    padding: 30px 15px;
+                }
 
-        <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
-          Create Your First Component
-        </h3>
-        <div class="code-section">
-          <pre>
+                .cta-buttons {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .footer-links {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <h1>Tan Compose</h1>
+                <p class="tagline">
+                    Build production-ready web components with declarative
+                    syntax
+                </p>
+                <p style="font-size: 1.1rem; opacity: 0.9">
+                    Lightweight • Type-safe • Zero dependencies
+                </p>
+
+                <div class="cta-buttons">
+                    <hero-button
+                        data-variant="primary"
+                        data-link="https://github.com/yourusername/tan-compose"
+                    >
+                        Get Started
+                    </hero-button>
+                    <hero-button data-variant="secondary" data-link="#examples">
+                        View Examples
+                    </hero-button>
+                    <hero-button
+                        data-variant="outline"
+                        data-link="https://github.com/yourusername/tan-compose"
+                    >
+                        GitHub
+                    </hero-button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <!-- Features Section -->
+            <section class="section">
+                <h2>Why Tan Compose?</h2>
+                <div class="features-grid">
+                    <feature-card
+                        data-icon="⚡"
+                        data-title="Lightning Fast"
+                        data-description="Minimal overhead with native Web Components API"
+                    >
+                    </feature-card>
+                    <feature-card
+                        data-icon="🎨"
+                        data-title="Fully Customizable"
+                        data-description="Theme with CSS variables and custom styles"
+                    >
+                    </feature-card>
+                    <feature-card
+                        data-icon="🔒"
+                        data-title="Encapsulated"
+                        data-description="Shadow DOM ensures style isolation"
+                    >
+                    </feature-card>
+                    <feature-card
+                        data-icon="♻️"
+                        data-title="Reusable"
+                        data-description="Build once, use everywhere"
+                    >
+                    </feature-card>
+                    <feature-card
+                        data-icon="🎯"
+                        data-title="Type Safe"
+                        data-description="Full TypeScript support"
+                    >
+                    </feature-card>
+                    <feature-card
+                        data-icon="🚀"
+                        data-title="Production Ready"
+                        data-description="Memory-safe with proper lifecycle management"
+                    >
+                    </feature-card>
+                </div>
+            </section>
+
+            <!-- Quick Start Section -->
+            <section class="section" id="quickstart">
+                <h2>Quick Start</h2>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
+                    Installation
+                </h3>
+                <div class="code-section">
+                    <pre><code>npm install tan-compose</code></pre>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
+                    Create Your First Component
+                </h3>
+                <div class="code-section">
+                    <pre>
 <code>import { describe, build } from 'tan-compose';
 
 const button = describe({
@@ -268,392 +304,418 @@ const button = describe({
 });
 
 build('my-button', button);</code></pre>
-        </div>
+                </div>
 
-        <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
-          Use It
-        </h3>
-        <div class="code-section">
-          <pre><code>&lt;my-button&gt;Click Me&lt;/my-button&gt;</code></pre>
-        </div>
-      </section>
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
+                    Use It
+                </h3>
+                <div class="code-section">
+                    <pre><code>&lt;my-button&gt;Click Me&lt;/my-button&gt;</code></pre>
+                </div>
+            </section>
 
-      <!-- Live Demo Section -->
-      <section class="section" id="examples">
-        <h2>Live Demo</h2>
-        <p style="text-align: center; margin-bottom: 30px; color: #666">
-          Try these interactive components built with Tan Compose
-        </p>
+            <!-- Live Demo Section -->
+            <section class="section" id="examples">
+                <h2>Live Demo</h2>
+                <p style="text-align: center; margin-bottom: 30px; color: #666">
+                    Try these interactive components built with Tan Compose
+                </p>
 
-        <div class="demo-area">
-          <h3 style="margin-bottom: 20px; color: #333">Interactive Counter</h3>
-          <demo-counter></demo-counter>
-        </div>
+                <div class="demo-area">
+                    <h3 style="margin-bottom: 20px; color: #333">
+                        Interactive Counter
+                    </h3>
+                    <demo-counter></demo-counter>
+                </div>
 
-        <div class="demo-area">
-          <h3 style="margin-bottom: 20px; color: #333">Themed Buttons</h3>
-          <demo-buttons></demo-buttons>
-        </div>
+                <div class="demo-area">
+                    <h3 style="margin-bottom: 20px; color: #333">
+                        Themed Buttons
+                    </h3>
+                    <demo-buttons></demo-buttons>
+                </div>
 
-        <div class="demo-area">
-          <h3 style="margin-bottom: 20px; color: #333">Custom Card</h3>
-          <demo-card></demo-card>
-        </div>
-      </section>
+                <div class="demo-area">
+                    <h3 style="margin-bottom: 20px; color: #333">
+                        Custom Card
+                    </h3>
+                    <demo-card></demo-card>
+                </div>
+            </section>
 
-      <!-- API Section -->
-      <section class="section">
-        <h2>Core API</h2>
+            <!-- API Section -->
+            <section class="section">
+                <h2>Core API</h2>
 
-        <div style="margin: 30px 0">
-          <h3 style="color: #555; margin-bottom: 15px">
-            build(tagName, description)
-          </h3>
-          <p style="color: #666; margin-bottom: 20px">
-            Registers a new custom element with the browser.
-          </p>
+                <div style="margin: 30px 0">
+                    <h3 style="color: #555; margin-bottom: 15px">
+                        build(tagName, description)
+                    </h3>
+                    <p style="color: #666; margin-bottom: 20px">
+                        Registers a new custom element with the browser.
+                    </p>
 
-          <h3 style="color: #555; margin-bottom: 15px">describe(options)</h3>
-          <p style="color: #666; margin-bottom: 20px">
-            Creates a component description with properties like:
-          </p>
-          <ul style="color: #666; margin-left: 40px; line-height: 2">
-            <li><strong>tag</strong> - HTML element type</li>
-            <li><strong>theme</strong> - CSS variables for theming</li>
-            <li><strong>styles</strong> - Inline styles object</li>
-            <li><strong>template</strong> - HTML template string</li>
-            <li><strong>children</strong> - Nested components</li>
-            <li><strong>action</strong> - Event handler</li>
-            <li><strong>beforeMount / afterMount</strong> - Lifecycle hooks</li>
-            <li><strong>emit</strong> - Custom events</li>
-          </ul>
-        </div>
-      </section>
-    </main>
+                    <h3 style="color: #555; margin-bottom: 15px">
+                        describe(options)
+                    </h3>
+                    <p style="color: #666; margin-bottom: 20px">
+                        Creates a component description with properties like:
+                    </p>
+                    <ul style="color: #666; margin-left: 40px; line-height: 2">
+                        <li><strong>tag</strong> - HTML element type</li>
+                        <li>
+                            <strong>theme</strong> - CSS variables for theming
+                        </li>
+                        <li><strong>styles</strong> - Inline styles object</li>
+                        <li>
+                            <strong>template</strong> - HTML template string
+                        </li>
+                        <li><strong>children</strong> - Nested components</li>
+                        <li><strong>action</strong> - Event handler</li>
+                        <li>
+                            <strong>beforeMount / afterMount</strong> -
+                            Lifecycle hooks
+                        </li>
+                        <li><strong>emit</strong> - Custom events</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
 
-    <footer>
-      <div class="container">
-        <p>&copy; 2024 Tan Compose. MIT License.</p>
-        <div class="footer-links">
-          <a href="https://github.com/yourusername/tan-compose">GitHub</a>
-          <a href="https://github.com/yourusername/tan-compose/issues"
-          >Issues</a>
-          <a href="examples/">Examples</a>
-          <a href="https://www.npmjs.com/package/tan-compose">NPM</a>
-        </div>
-      </div>
-    </footer>
+        <footer>
+            <div class="container">
+                <p>&copy; 2024 Tan Compose. MIT License.</p>
+                <div class="footer-links">
+                    <a href="https://github.com/yourusername/tan-compose"
+                        >GitHub</a
+                    >
+                    <a href="https://github.com/yourusername/tan-compose/issues"
+                        >Issues</a
+                    >
+                    <a href="examples.html">Examples</a>
+                    <a href="docs.html">Docs</a>
+                    <a href="https://www.npmjs.com/package/tan-compose">NPM</a>
+                </div>
+            </div>
+        </footer>
 
-    <script type="module">
-      import { build, describe } from "./mod.ts";
+        <script type="module">
+            import { build, describe } from "./dist/mod.js";
 
-      // Hero Button Component
-      const heroButton = describe({
-        tag: "a",
-        theme: {
-          primaryBg: "#ffffff",
-          primaryText: "#667eea",
-          secondaryBg: "#764ba2",
-          secondaryText: "#ffffff",
-          outlineBorder: "#ffffff",
-          outlineText: "#ffffff",
-        },
-        styles: {
-          display: "inline-block",
-          padding: "15px 35px",
-          fontSize: "18px",
-          fontWeight: "600",
-          borderRadius: "50px",
-          textDecoration: "none",
-          transition: "all 0.3s ease",
-          border: "2px solid transparent",
-          cursor: "pointer",
-        },
-        afterMount: function () {
-          const variant = this.getAttribute("data-variant") ||
-            "primary";
-          const link = this.getAttribute("data-link") || "#";
-
-          this.setAttribute("href", link);
-
-          if (variant === "primary") {
-            this.style.backgroundColor = "var(--primaryBg)";
-            this.style.color = "var(--primaryText)";
-          } else if (variant === "secondary") {
-            this.style.backgroundColor = "var(--secondaryBg)";
-            this.style.color = "var(--secondaryText)";
-          } else if (variant === "outline") {
-            this.style.backgroundColor = "transparent";
-            this.style.color = "var(--outlineText)";
-            this.style.borderColor = "var(--outlineBorder)";
-          }
-
-          this.addEventListener("mouseenter", () => {
-            this.style.transform = "translateY(-2px)";
-            this.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
-          });
-
-          this.addEventListener("mouseleave", () => {
-            this.style.transform = "translateY(0)";
-            this.style.boxShadow = "none";
-          });
-        },
-      });
-
-      // Feature Card Component
-      const featureCard = describe({
-        tag: "div",
-        theme: {
-          cardBg: "#f8f9fa",
-          iconColor: "#667eea",
-          titleColor: "#333",
-          textColor: "#666",
-        },
-        styles: {
-          backgroundColor: "var(--cardBg)",
-          padding: "30px",
-          borderRadius: "12px",
-          textAlign: "center",
-          transition: "transform 0.3s ease, box-shadow 0.3s ease",
-          border: "1px solid #e9ecef",
-        },
-        afterMount: function () {
-          const icon = this.getAttribute("data-icon") || "✨";
-          const title = this.getAttribute("data-title") || "Feature";
-          const description = this.getAttribute("data-description") ||
-            "";
-
-          this.shadowRoot.querySelector(".container").innerHTML = `
-          <div style="font-size: 3rem; margin-bottom: 15px; color: var(--iconColor);">${icon}</div>
-          <h3 style="font-size: 1.5rem; margin-bottom: 10px; color: var(--titleColor);">${title}</h3>
-          <p style="color: var(--textColor); line-height: 1.6;">${description}</p>
-        `;
-
-          this.addEventListener("mouseenter", () => {
-            this.style.transform = "translateY(-5px)";
-            this.style.boxShadow =
-              "0 10px 30px rgba(102, 126, 234, 0.2)";
-          });
-
-          this.addEventListener("mouseleave", () => {
-            this.style.transform = "translateY(0)";
-            this.style.boxShadow = "none";
-          });
-        },
-      });
-
-      // Demo Counter Component
-      const demoCounter = describe({
-        tag: "div",
-        styles: {
-          display: "inline-block",
-        },
-        children: [
-          describe({
-            tag: "div",
-            styles: {
-              fontSize: "3rem",
-              fontWeight: "bold",
-              color: "#667eea",
-              marginBottom: "20px",
-              textAlign: "center",
-            },
-            attributes: { id: "counter-value" },
-            template: "0",
-          }),
-          describe({
-            tag: "div",
-            styles: {
-              display: "flex",
-              gap: "10px",
-              justifyContent: "center",
-            },
-            children: [
-              describe({
-                tag: "button",
-                template: "-",
+            // Hero Button Component
+            const heroButton = describe({
+                tag: "a",
+                theme: {
+                    primaryBg: "#ffffff",
+                    primaryText: "#333333",
+                    secondaryBg: "#6c757d",
+                    secondaryText: "#ffffff",
+                    outlineBorder: "#333333",
+                    outlineText: "#333333",
+                },
                 styles: {
-                  padding: "10px 20px",
-                  fontSize: "20px",
-                  backgroundColor: "#dc3545",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
+                    display: "inline-block",
+                    padding: "15px 35px",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    borderRadius: "50px",
+                    textDecoration: "none",
+                    transition: "all 0.3s ease",
+                    border: "2px solid transparent",
+                    cursor: "pointer",
                 },
-                action: function () {
-                  const display = document.getElementById(
-                    "counter-value",
-                  );
-                  const current = parseInt(display.textContent);
-                  display.textContent = current - 1;
+                afterMount: function () {
+                    const variant =
+                        this.getAttribute("data-variant") || "primary";
+                    const link = this.getAttribute("data-link") || "#";
+
+                    this.setAttribute("href", link);
+
+                    if (variant === "primary") {
+                        this.style.backgroundColor = "var(--primaryBg)";
+                        this.style.color = "var(--primaryText)";
+                        this.style.border = "1px solid #ddd";
+                    } else if (variant === "secondary") {
+                        this.style.backgroundColor = "var(--secondaryBg)";
+                        this.style.color = "var(--secondaryText)";
+                    } else if (variant === "outline") {
+                        this.style.backgroundColor = "transparent";
+                        this.style.color = "var(--outlineText)";
+                        this.style.borderColor = "var(--outlineBorder)";
+                    }
+
+                    this.addEventListener("mouseenter", () => {
+                        this.style.transform = "translateY(-2px)";
+                        this.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
+                    });
+
+                    this.addEventListener("mouseleave", () => {
+                        this.style.transform = "translateY(0)";
+                        this.style.boxShadow = "none";
+                    });
                 },
-              }),
-              describe({
-                tag: "button",
-                template: "Reset",
+            });
+
+            // Feature Card Component
+            const featureCard = describe({
+                tag: "div",
+                theme: {
+                    cardBg: "#ffffff",
+                    iconColor: "#6c757d",
+                    titleColor: "#333",
+                    textColor: "#666",
+                },
                 styles: {
-                  padding: "10px 20px",
-                  fontSize: "16px",
-                  backgroundColor: "#6c757d",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
+                    backgroundColor: "var(--cardBg)",
+                    padding: "30px",
+                    borderRadius: "12px",
+                    textAlign: "center",
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                    border: "1px solid #e9ecef",
                 },
-                action: function () {
-                  const display = document.getElementById(
-                    "counter-value",
-                  );
-                  display.textContent = "0";
+                afterMount: function () {
+                    const icon = this.getAttribute("data-icon") || "✨";
+                    const title = this.getAttribute("data-title") || "Feature";
+                    const description =
+                        this.getAttribute("data-description") || "";
+
+                    this.shadowRoot.querySelector(".container").innerHTML = `
+                    <div style="font-size: 3rem; margin-bottom: 15px; color: var(--iconColor);">${icon}</div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 10px; color: var(--titleColor);">${title}</h3>
+                    <p style="color: var(--textColor); line-height: 1.6;">${description}</p>
+                  `;
+
+                    this.addEventListener("mouseenter", () => {
+                        this.style.transform = "translateY(-5px)";
+                        this.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.1)";
+                    });
+
+                    this.addEventListener("mouseleave", () => {
+                        this.style.transform = "translateY(0)";
+                        this.style.boxShadow = "none";
+                    });
                 },
-              }),
-              describe({
-                tag: "button",
-                template: "+",
+            });
+
+            // Demo Counter Component
+            const demoCounter = describe({
+                tag: "div",
                 styles: {
-                  padding: "10px 20px",
-                  fontSize: "20px",
-                  backgroundColor: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
+                    display: "inline-block",
                 },
-                action: function () {
-                  const display = document.getElementById(
-                    "counter-value",
-                  );
-                  const current = parseInt(display.textContent);
-                  display.textContent = current + 1;
+                children: [
+                    describe({
+                        tag: "div",
+                        styles: {
+                            fontSize: "3rem",
+                            fontWeight: "bold",
+                            color: "#6c757d",
+                            marginBottom: "20px",
+                            textAlign: "center",
+                        },
+                        attributes: { id: "counter-value" },
+                        template: "0",
+                    }),
+                    describe({
+                        tag: "div",
+                        styles: {
+                            display: "flex",
+                            gap: "10px",
+                            justifyContent: "center",
+                        },
+                        children: [
+                            describe({
+                                tag: "button",
+                                template: "-",
+                                styles: {
+                                    padding: "10px 20px",
+                                    fontSize: "20px",
+                                    backgroundColor: "#dc3545",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                },
+                                action: function () {
+                                    const display =
+                                        document.getElementById(
+                                            "counter-value",
+                                        );
+                                    const current = parseInt(
+                                        display.textContent,
+                                    );
+                                    display.textContent = current - 1;
+                                },
+                            }),
+                            describe({
+                                tag: "button",
+                                template: "Reset",
+                                styles: {
+                                    padding: "10px 20px",
+                                    fontSize: "16px",
+                                    backgroundColor: "#6c757d",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                },
+                                action: function () {
+                                    const display =
+                                        document.getElementById(
+                                            "counter-value",
+                                        );
+                                    display.textContent = "0";
+                                },
+                            }),
+                            describe({
+                                tag: "button",
+                                template: "+",
+                                styles: {
+                                    padding: "10px 20px",
+                                    fontSize: "20px",
+                                    backgroundColor: "#28a745",
+                                    color: "white",
+                                    border: "none",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                },
+                                action: function () {
+                                    const display =
+                                        document.getElementById(
+                                            "counter-value",
+                                        );
+                                    const current = parseInt(
+                                        display.textContent,
+                                    );
+                                    display.textContent = current + 1;
+                                },
+                            }),
+                        ],
+                    }),
+                ],
+            });
+
+            // Demo Buttons Component
+            const demoButtons = describe({
+                tag: "div",
+                styles: {
+                    display: "flex",
+                    gap: "15px",
+                    justifyContent: "center",
+                    flexWrap: "wrap",
                 },
-              }),
-            ],
-          }),
-        ],
-      });
+                children: [
+                    describe({
+                        tag: "button",
+                        template: "Primary",
+                        styles: {
+                            padding: "12px 24px",
+                            backgroundColor: "#007bff",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                        },
+                        action: () => alert("Primary button clicked!"),
+                    }),
+                    describe({
+                        tag: "button",
+                        template: "Success",
+                        styles: {
+                            padding: "12px 24px",
+                            backgroundColor: "#28a745",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                        },
+                        action: () => alert("Success button clicked!"),
+                    }),
+                    describe({
+                        tag: "button",
+                        template: "Danger",
+                        styles: {
+                            padding: "12px 24px",
+                            backgroundColor: "#dc3545",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                        },
+                        action: () => alert("Danger button clicked!"),
+                    }),
+                ],
+            });
 
-      // Demo Buttons Component
-      const demoButtons = describe({
-        tag: "div",
-        styles: {
-          display: "flex",
-          gap: "15px",
-          justifyContent: "center",
-          flexWrap: "wrap",
-        },
-        children: [
-          describe({
-            tag: "button",
-            template: "Primary",
-            styles: {
-              padding: "12px 24px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-            },
-            action: () => alert("Primary button clicked!"),
-          }),
-          describe({
-            tag: "button",
-            template: "Success",
-            styles: {
-              padding: "12px 24px",
-              backgroundColor: "#28a745",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-            },
-            action: () => alert("Success button clicked!"),
-          }),
-          describe({
-            tag: "button",
-            template: "Danger",
-            styles: {
-              padding: "12px 24px",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-            },
-            action: () => alert("Danger button clicked!"),
-          }),
-        ],
-      });
+            // Demo Card Component
+            const demoCard = describe({
+                tag: "div",
+                theme: {
+                    cardBg: "#ffffff",
+                    primaryColor: "#6c757d",
+                    textColor: "#333",
+                },
+                styles: {
+                    backgroundColor: "var(--cardBg)",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "12px",
+                    padding: "30px",
+                    maxWidth: "500px",
+                    margin: "0 auto",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    textAlign: "left",
+                },
+                children: [
+                    describe({
+                        tag: "h3",
+                        template: "Beautiful Component Card",
+                        styles: {
+                            color: "var(--primaryColor)",
+                            marginBottom: "15px",
+                            fontSize: "1.8rem",
+                        },
+                    }),
+                    describe({
+                        tag: "p",
+                        template:
+                            "This card component is built entirely with Tan Compose. It features custom theming, nested children, and beautiful styling - all defined declaratively.",
+                        styles: {
+                            color: "var(--textColor)",
+                            lineHeight: "1.8",
+                            marginBottom: "20px",
+                        },
+                    }),
+                    describe({
+                        tag: "button",
+                        template: "Learn More",
+                        styles: {
+                            padding: "12px 24px",
+                            backgroundColor: "var(--primaryColor)",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                        },
+                        action: () => {
+                            window.location.href =
+                                "https://github.com/yourusername/tan-compose";
+                        },
+                    }),
+                ],
+            });
 
-      // Demo Card Component
-      const demoCard = describe({
-        tag: "div",
-        theme: {
-          cardBg: "#ffffff",
-          primaryColor: "#667eea",
-          textColor: "#333",
-        },
-        styles: {
-          backgroundColor: "var(--cardBg)",
-          border: "1px solid #e0e0e0",
-          borderRadius: "12px",
-          padding: "30px",
-          maxWidth: "500px",
-          margin: "0 auto",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          textAlign: "left",
-        },
-        children: [
-          describe({
-            tag: "h3",
-            template: "Beautiful Component Card",
-            styles: {
-              color: "var(--primaryColor)",
-              marginBottom: "15px",
-              fontSize: "1.8rem",
-            },
-          }),
-          describe({
-            tag: "p",
-            template:
-              "This card component is built entirely with Tan Compose. It features custom theming, nested children, and beautiful styling - all defined declaratively.",
-            styles: {
-              color: "var(--textColor)",
-              lineHeight: "1.8",
-              marginBottom: "20px",
-            },
-          }),
-          describe({
-            tag: "button",
-            template: "Learn More",
-            styles: {
-              padding: "12px 24px",
-              backgroundColor: "var(--primaryColor)",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "16px",
-            },
-            action: () => {
-              window.location.href =
-                "https://github.com/yourusername/tan-compose";
-            },
-          }),
-        ],
-      });
-
-      // Build all components
-      build("hero-button", heroButton);
-      build("feature-card", featureCard);
-      build("demo-counter", demoCounter);
-      build("demo-buttons", demoButtons);
-      build("demo-card", demoCard);
-    </script>
-  </body>
+            // Build all components
+            build("hero-button", heroButton);
+            build("feature-card", featureCard);
+            build("demo-counter", demoCounter);
+            build("demo-buttons", demoButtons);
+            build("demo-card", demoCard);
+        </script>
+    </body>
 </html>
