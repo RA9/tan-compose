@@ -12,6 +12,9 @@
   "lint": {
     "exclude": ["dist/"]
   },
+  "fmt": {
+    "exclude": ["*.html"]
+  },
   "imports": {
     "@std/assert": "jsr:@std/assert@1",
     "esbuild": "https://deno.land/x/esbuild@v0.20.2/mod.js",
