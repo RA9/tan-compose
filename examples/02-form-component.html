@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Component Example - Tan Compose</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+    .demo-section {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Form Component Example</h1>
+
+  <div class="demo-section">
+    <h2>Contact Form</h2>
+    <p>A complete form built with nested components:</p>
+    <tan-form></tan-form>
+  </div>
+
+  <script type="module">
+    import { describe, build } from '../mod.ts';
+
+    const formComponent = describe({
+      tag: 'form',
+      theme: {
+        primaryColor: '#007bff',
+        secondaryColor: '#6c757d',
+        spacing: '15px'
+      },
+      styles: {
+        padding: "30px",
+        border: "1px solid #e0e0e0",
+        borderRadius: "8px",
+        maxWidth: "500px",
+        backgroundColor: "#fff",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+      },
+      children: [
+        describe({
+          tag: 'h3',
+          template: 'Contact Us',
+          styles: {
+            marginTop: "0",
+            marginBottom: "20px",
+            color: "#333"
+          }
+        }),
+        describe({
+          tag: 'div',
+          className: 'form-group',
+          styles: { marginBottom: "var(--spacing)" },
+          children: [
+            describe({
+              tag: 'label',
+              template: 'Full Name:',
+              styles: {
+                display: "block",
+                marginBottom: "5px",
+                fontWeight: "bold",
+                color: "#555"
+              }
+            }),
+            describe({
+              tag: 'input',
+              attributes: {
+                name: 'fullName',
+                placeholder: 'Enter your full name',
+                type: 'text',
+                required: 'true'
+              },
+              styles: {
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                fontSize: "14px",
+                boxSizing: "border-box"
+              }
+            })
+          ]
+        }),
+        describe({
+          tag: 'div',
+          className: 'form-group',
+          styles: { marginBottom: "var(--spacing)" },
+          children: [
+            describe({
+              tag: 'label',
+              template: 'Email:',
+              styles: {
+                display: "block",
+                marginBottom: "5px",
+                fontWeight: "bold",
+                color: "#555"
+              }
+            }),
+            describe({
+              tag: 'input',
+              attributes: {
+                name: 'email',
+                type: 'email',
+                placeholder: 'Enter your email',
+                required: 'true'
+              },
+              styles: {
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                fontSize: "14px",
+                boxSizing: "border-box"
+              }
+            })
+          ]
+        }),
+        describe({
+          tag: 'div',
+          className: 'form-group',
+          styles: { marginBottom: "var(--spacing)" },
+          children: [
+            describe({
+              tag: 'label',
+              template: 'Message:',
+              styles: {
+                display: "block",
+                marginBottom: "5px",
+                fontWeight: "bold",
+                color: "#555"
+              }
+            }),
+            describe({
+              tag: 'textarea',
+              attributes: {
+                name: 'message',
+                placeholder: 'Enter your message',
+                rows: '4'
+              },
+              styles: {
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                fontSize: "14px",
+                boxSizing: "border-box",
+                fontFamily: "Arial, sans-serif"
+              }
+            })
+          ]
+        }),
+        describe({
+          tag: 'div',
+          styles: {
+            display: "flex",
+            gap: "10px",
+            marginTop: "20px"
+          },
+          children: [
+            describe({
+              tag: 'button',
+              attributes: { type: 'submit' },
+              template: 'Submit',
+              action: (event) => {
+                event.preventDefault();
+                const form = event.target.closest('form');
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                console.log("Form submitted with data:", data);
+                alert("Form submitted! Check the console for data.");
+              },
+              styles: {
+                backgroundColor: 'var(--primaryColor)',
+                color: 'white',
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: "16px",
+                flex: "1"
+              }
+            }),
+            describe({
+              tag: 'button',
+              attributes: { type: 'button' },
+              template: 'Reset',
+              action: (event) => {
+                const form = event.target.closest('form');
+                form.reset();
+                alert("Form reset!");
+              },
+              styles: {
+                backgroundColor: 'var(--secondaryColor)',
+                color: 'white',
+                padding: '12px 24px',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: "16px",
+                flex: "1"
+              }
+            })
+          ]
+        })
+      ]
+    });
+
+    build("tan-form", formComponent);
+  </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examples - Tan Compose</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .intro {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+      font-size: 1.2rem;
+    }
+
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .example-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .example-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .example-card h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+    }
+
+    .example-card p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .example-number {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .back-link:hover {
+      background: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../index.html" class="back-link">← Back to Home</a>
+
+    <h1>Tan Compose Examples</h1>
+    <p class="intro">
+      Explore these interactive examples to learn how to build components with Tan Compose
+    </p>
+
+    <div class="examples-grid">
+      <a href="01-basic-button.html" class="example-card">
+        <div class="example-number">1</div>
+        <h2>Basic Button</h2>
+        <p>Learn how to create a simple reusable button component with custom styling and click handlers.</p>
+      </a>
+
+      <a href="02-form-component.html" class="example-card">
+        <div class="example-number">2</div>
+        <h2>Form Component</h2>
+        <p>Build a complete form with nested input fields, labels, and buttons demonstrating component composition.</p>
+      </a>
+
+      <a href="03-themed-components.html" class="example-card">
+        <div class="example-number">3</div>
+        <h2>Themed Components</h2>
+        <p>Discover how to use CSS variables for consistent theming across multiple components.</p>
+      </a>
+
+      <a href="04-lifecycle-hooks.html" class="example-card">
+        <div class="example-number">4</div>
+        <h2>Lifecycle Hooks</h2>
+        <p>Understand component lifecycle with beforeMount and afterMount hooks for initialization logic.</p>
+      </a>
+
+      <a href="05-event-emission.html" class="example-card">
+        <div class="example-number">5</div>
+        <h2>Event Emission</h2>
+        <p>Master custom event emission for component communication and building interactive UIs.</p>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,19 +1,31 @@
-name: Publish
+name: Publish to JSR
+
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Publish package
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Verify types
+        run: deno check build.ts
+
+      - name: Run tests
+        run: deno test --allow-all
+
+      - name: Publish to JSR
         run: npx jsr publish

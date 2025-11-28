@@ -1,21 +1,33 @@
 # Tan Compose
 
-`Tan Compose` is a lightweight library that turns DDL (Declarative Definition Language) into reusable web components. It allows you to create fully customizable and extendable web components with built-in support for theming, event emission, and encapsulation using the Shadow DOM.
+`Tan Compose` is a lightweight, production-ready library that turns DDL (Declarative Definition Language) into reusable web components. It allows you to create fully customizable and extendable web components with built-in support for theming, event emission, reactivity, and encapsulation using the Shadow DOM.
 
 ## Features
 
-- **Declarative Component Definition**: Easily describe web components using a JSON-like structure.
-- **Theming and Styling**: Apply styles through CSS variables and inline styles.
-- **Shadow DOM Encapsulation**: Prevent style leakage and ensure component encapsulation.
-- **Event Emitters**: Communicate between child and parent components via custom events.
-- **Recursive Component Building**: Nest and compose components in a declarative way.
+- **Declarative Component Definition**: Easily describe web components using a JSON-like structure
+- **Component Registry**: Prevents duplicate registrations and allows component reusability
+- **Theming and Styling**: Apply styles through CSS variables and inline styles with proper Shadow DOM encapsulation
+- **Shadow DOM Encapsulation**: Prevent style leakage and ensure component isolation
+- **Event Emitters**: Communicate between child and parent components via custom events
+- **Reactive Attributes**: Components automatically update when attributes change
+- **State Management**: Built-in state management with `setState` and `getState` methods
+- **Lifecycle Hooks**: `beforeMount` and `afterMount` hooks for component lifecycle management
+- **Memory Leak Prevention**: Automatic cleanup of event listeners and resources
+- **Recursive Component Building**: Nest and compose components in a declarative way
+- **Template Support**: Use HTML templates for component content
 
 ## Installation
 
 Install the package via npm:
 
 ```bash
-npm install tan-compose
+npx jsr add  @ra9/tan-compose
+```
+
+Or use with Deno:
+
+```typescript
+import { describe, build } from "https://deno.land/x/tan_compose/mod.ts";
 ```
 
 ## Usage
@@ -29,153 +41,357 @@ import { describe, build } from "tan-compose";
 
 const formBtn = describe({
   tag: "button",
-  action: (event) => console.log(event),
+  action: (event) => console.log("Button clicked!", event),
   className: "my-button",
   styles: { margin: "10px", padding: "5px" },
-  parent: "body",
 });
 
 build("tan-btn", formBtn);
 ```
 
-Use it in HTML
+Use it in HTML:
 
 ```html
 <tan-btn>Click Here</tan-btn>
 ```
 
-### Nested Components Example (Form with Inputs)
+### Using Templates
 
-Let's build a form with multiple nested components: labels, inputs, buttons, and a textarea.
+Create components with HTML templates:
+
+```javascript
+const card = describe({
+  tag: "div",
+  className: "card",
+  template: `
+    <h2>Card Title</h2>
+    <p>This is a card component with template support.</p>
+  `,
+  styles: {
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    padding: "20px",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+  }
+});
+
+build("tan-card", card);
+```
+
+```html
+<tan-card></tan-card>
+```
+
+### Nested Components Example
+
+Build complex UIs by nesting components:
 
 ```javascript
 import { describe, build } from 'tan-compose';
 
-// Form structure with themed styles and event emitters
-const form = describe({
-    tag: 'form',
-    theme: {
-        primaryColor: 'blue',
-        secondaryColor: 'gray',
-        buttonPadding: '10px'
-    },
-    styles: { padding: "20px", border: "1px solid #ccc", width: "300px" },
-    emit: [
-        {
-            name: 'formSubmitted',
-            handler: (e) => { console.log("Form submitted:", e.detail); }
-        },
-        {
-            name: 'formCancelled',
-            handler: (e) => { console.log("Form cancelled:", e.detail); }
-        }
-    ],
-    children: [
+const formComponent = describe({
+  tag: 'form',
+  theme: {
+    primaryColor: '#007bff',
+    secondaryColor: '#6c757d',
+    spacing: '10px'
+  },
+  styles: { 
+    padding: "20px", 
+    border: "1px solid #e0e0e0", 
+    borderRadius: "8px",
+    maxWidth: "400px",
+    backgroundColor: "#fff"
+  },
+  children: [
+    describe({
+      tag: 'div',
+      className: 'form-group',
+      styles: { marginBottom: "var(--spacing)" },
+      children: [
         describe({
-            tag: 'label',
-            styles: { display: "block", marginBottom: "10px" },
-            children: [
-                { tag: 'span', innerHTML: 'Full Name: ' },
-                describe({
-                    tag: 'input',
-                    attributes: { name: 'fullName', placeholder: 'Enter Full Name' }
-                })
-            ]
+          tag: 'label',
+          template: 'Full Name:',
+          styles: { display: "block", marginBottom: "5px", fontWeight: "bold" }
         }),
         describe({
-            tag: 'label',
-            styles: { display: "block", marginBottom: "10px" },
-            children: [
-                { tag: 'span', innerHTML: 'Email: ' },
-                describe({
-                    tag: 'input',
-                    attributes: { name: 'email', type: 'email', placeholder: 'Enter Email' }
-                })
-            ]
-        }),
-        describe({
-            tag: 'label',
-            styles: { display: "block", marginBottom: "10px" },
-            children: [
-                { tag: 'span', innerHTML: 'Bio: ' },
-                describe({
-                    tag: 'textarea',
-                    attributes: { name: 'bio', placeholder: 'Enter your bio' }
-                })
-            ]
-        }),
-        describe({
-            tag: 'div',
-            styles: { marginTop: "20px", display: "flex", justifyContent: "space-between" },
-            children: [
-                describe({
-                    tag: 'button',
-                    attributes: { type: 'submit' },
-                    action: (event) => {
-                        event.preventDefault();
-                        event.target.emitEvent('formSubmitted', { message: "Form Submitted Successfully!" });
-                    },
-                    styles: { backgroundColor: 'var(--primaryColor)', padding: 'var(--buttonPadding)', color: 'white' },
-                    innerHTML: 'Submit'
-                }),
-                describe({
-                    tag: 'button',
-                    attributes: { type: 'button' },
-                    action: (event) => {
-                        event.preventDefault();
-                        event.target.emitEvent('formCancelled', { message: "Form Submission Cancelled" });
-                    },
-                    styles: { backgroundColor: 'var(--secondaryColor)', padding: 'var(--buttonPadding)', color: 'white' },
-                    innerHTML: 'Cancel'
-                })
-            ]
+          tag: 'input',
+          attributes: { 
+            name: 'fullName', 
+            placeholder: 'Enter your full name',
+            type: 'text'
+          },
+          styles: {
+            width: "100%",
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px"
+          }
         })
-    ]
+      ]
+    }),
+    describe({
+      tag: 'div',
+      className: 'form-group',
+      styles: { marginBottom: "var(--spacing)" },
+      children: [
+        describe({
+          tag: 'label',
+          template: 'Email:',
+          styles: { display: "block", marginBottom: "5px", fontWeight: "bold" }
+        }),
+        describe({
+          tag: 'input',
+          attributes: { 
+            name: 'email', 
+            type: 'email', 
+            placeholder: 'Enter your email'
+          },
+          styles: {
+            width: "100%",
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px"
+          }
+        })
+      ]
+    }),
+    describe({
+      tag: 'button',
+      attributes: { type: 'submit' },
+      template: 'Submit',
+      action: (event) => {
+        event.preventDefault();
+        console.log("Form submitted!");
+      },
+      styles: { 
+        backgroundColor: 'var(--primaryColor)', 
+        color: 'white',
+        padding: '10px 20px',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer'
+      }
+    })
+  ]
 });
 
-// Build the form component with shadow DOM and event emission
-build("tan-form", form);
+build("tan-form", formComponent);
 ```
-
-Use it in HTML
 
 ```html
 <tan-form></tan-form>
 ```
 
-### Theming Example
+### Lifecycle Hooks
 
-You can easily apply theming using CSS variables:
+Use `beforeMount` and `afterMount` hooks:
 
 ```javascript
-const button = describe({
-    tag: 'button',
-    theme: {
-        primaryColor: 'red'
-    },
-    styles: { backgroundColor: 'var(--primaryColor)' },
-    innerHTML: 'Themed Button'
+const component = describe({
+  tag: 'div',
+  template: '<p>Component with lifecycle hooks</p>',
+  beforeMount: () => {
+    console.log("Component is about to mount");
+  },
+  afterMount: () => {
+    console.log("Component has mounted");
+  }
 });
 
-build('themed-btn', button);
+build("lifecycle-component", component);
 ```
 
-Use it in HTML
+### Custom Event Emission
+
+Create components that emit custom events:
+
+```javascript
+const counterBtn = describe({
+  tag: 'button',
+  template: 'Increment Counter',
+  emit: [
+    {
+      name: 'counterChanged',
+      handler: (e) => {
+        console.log("Counter value:", e.detail.count);
+      }
+    }
+  ],
+  action: function(event) {
+    // Emit custom event
+    this.emitEvent('counterChanged', { count: Math.random() });
+  }
+});
+
+build("counter-btn", counterBtn);
+```
+
+```html
+<counter-btn></counter-btn>
+```
+
+### Theming with CSS Variables
+
+Apply consistent theming across components:
+
+```javascript
+const themedButton = describe({
+  tag: 'button',
+  theme: {
+    primaryColor: '#ff6b6b',
+    hoverColor: '#ff5252',
+    textColor: '#ffffff'
+  },
+  template: 'Themed Button',
+  styles: { 
+    backgroundColor: 'var(--primaryColor)',
+    color: 'var(--textColor)',
+    padding: '12px 24px',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s'
+  }
+});
+
+build('themed-btn', themedButton);
+```
 
 ```html
 <themed-btn></themed-btn>
 ```
 
-### API
+### Reactive Attributes
 
-`describe(component)`
+Components automatically re-render when attributes change:
+
+```javascript
+const dynamicText = describe({
+  tag: 'div',
+  attributes: { 'data-text': 'Initial text' },
+  template: 'Check the console on attribute change'
+});
+
+build('dynamic-text', dynamicText);
+```
+
+```html
+<dynamic-text data-text="Initial"></dynamic-text>
+
+<script>
+  // Change attribute dynamically
+  const el = document.querySelector('dynamic-text');
+  setTimeout(() => {
+    el.setAttribute('data-text', 'Updated text');
+  }, 2000);
+</script>
+```
+
+### State Management
+
+Use built-in state management:
+
+```javascript
+const statefulComponent = describe({
+  tag: 'div',
+  template: '<button>Click to update state</button>',
+  afterMount: function() {
+    this.setState('count', 0);
+    
+    this.querySelector('button').addEventListener('click', () => {
+      const count = this.getState('count') + 1;
+      this.setState('count', count);
+      console.log('Current count:', count);
+    });
+  }
+});
+
+build('stateful-component', statefulComponent);
+```
+
+## API Reference
+
+### `build(tagName: string, description: DescribeOptions): void`
+
+Registers a new custom element with the given tag name.
+
+**Parameters:**
+- `tagName`: The custom element tag name (must contain a hyphen)
+- `description`: Component description object
+
+### `describe(options: DescribeOptions): DescribeOptions`
+
 Creates a component description object.
 
-- tag: HTML tag to create (default: div).
-- theme: Object of CSS variables for theming.
-- styles: Object of inline styles.
-- className: CSS class names.
-- attributes: HTML attributes to set.
-- children: Array of child components.
-- action: Event handler for actions like click.
-- emit: Array of event
+**Options:**
+- `tag?: string` - HTML tag to create (default: 'div')
+- `theme?: Record<string, string>` - CSS variables for theming
+- `styles?: Record<string, string>` - Inline styles
+- `className?: string` - CSS class names
+- `attributes?: Record<string, string>` - HTML attributes
+- `template?: string` - HTML template content
+- `children?: DescribeOptions[]` - Array of child components
+- `action?: (event: Event) => void` - Click event handler
+- `emit?: EventEmitter[]` - Custom event emitters
+- `beforeMount?: () => void` - Hook called before component mounts
+- `afterMount?: () => void` - Hook called after component mounts
+
+### Component Methods
+
+Custom components have these methods available:
+
+- `emitEvent(eventName: string, data: any)` - Emit a custom event
+- `setState(key: string, value: any)` - Set state value
+- `getState(key: string): any` - Get state value
+- `render()` - Manually trigger re-render
+
+### Helper Functions
+
+- `isComponentRegistered(tagName: string): boolean` - Check if component is registered
+- `getRegisteredComponents(): string[]` - Get all registered component names
+
+## Advanced Features
+
+### Preventing Duplicate Registration
+
+The library automatically prevents duplicate component registrations:
+
+```javascript
+build('my-component', describe({ tag: 'div' }));
+build('my-component', describe({ tag: 'div' })); // Warning logged, skips re-registration
+```
+
+### Memory Management
+
+All event listeners are automatically cleaned up when components are removed from the DOM, preventing memory leaks.
+
+## Examples
+
+See the `/examples` folder for complete working examples:
+- Basic Button Component
+- Form with Validation
+- Themed Dashboard
+- Interactive Card Component
+- State Management Example
+
+## Browser Support
+
+Works in all modern browsers that support:
+- Custom Elements v1
+- Shadow DOM v1
+- ES6 Classes
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Links
+
+- [GitHub Repository](https://github.com/ra9/tan-compose)
+- [Documentation](https://ra9.github.io/tan-compose)
+- [Issue Tracker](https://github.com/ra9/tan-compose/issues)
