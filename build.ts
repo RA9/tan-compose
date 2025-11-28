@@ -1,4 +1,5 @@
-import { DescribeOptions } from "./types.ts";
+/// <reference lib="dom" />
+import type { DescribeOptions } from "./types.ts";
 
 // Component registry to prevent duplicate registrations
 const componentRegistry = new Map<string, typeof HTMLElement>();
@@ -7,19 +8,25 @@ const componentRegistry = new Map<string, typeof HTMLElement>();
  * Builds a custom component with the given tag name and description options
  * Handles component registration, lifecycle, reactivity, and proper cleanup
  */
-export function build(tagName: string, description: DescribeOptions): void {
+export function build(tagName: string, description: DescribeOptions): string {
   // Check if component already registered
   if (componentRegistry.has(tagName)) {
     console.warn(
       `Component "${tagName}" is already registered. Skipping re-registration.`,
     );
-    return;
+    return tagName;
+  }
+
+  // Check if HTMLElement is available (e.g., in browser environment)
+  if (typeof HTMLElement === "undefined") {
+    console.warn("HTMLElement not available, skipping component registration");
+    return tagName;
   }
 
   class CustomComponent extends HTMLElement {
     private isInitialized = false;
     private cleanupFunctions: Array<() => void> = [];
-    private state: Map<string, any> = new Map();
+    private state: Map<string, unknown> = new Map();
     private container: HTMLElement | null = null;
 
     // Define observed attributes for reactivity
@@ -140,11 +147,11 @@ export function build(tagName: string, description: DescribeOptions): void {
     }
 
     // State management
-    setState(key: string, value: any) {
+    setState(key: string, value: unknown) {
       this.state.set(key, value);
     }
 
-    getState(key: string): any {
+    getState(key: string): unknown {
       return this.state.get(key);
     }
 
@@ -176,7 +183,7 @@ export function build(tagName: string, description: DescribeOptions): void {
     }
 
     // Custom event emitter method
-    emitEvent(eventName: string, data: any) {
+    emitEvent(eventName: string, data: unknown) {
       const event = new CustomEvent(eventName, {
         detail: data,
         bubbles: true,
@@ -189,6 +196,8 @@ export function build(tagName: string, description: DescribeOptions): void {
   // Register component in registry and define custom element
   componentRegistry.set(tagName, CustomComponent);
   customElements.define(tagName, CustomComponent);
+
+  return tagName;
 }
 
 /**

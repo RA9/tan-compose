@@ -1,4 +1,4 @@
-import { DescribeOptions } from './types.ts';
+import type { DescribeOptions } from "./types.ts";
 
 /**
  * Describes a component with options

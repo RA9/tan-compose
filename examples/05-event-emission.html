@@ -1,177 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Event Emission Example - Tan Compose</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 10px;
-    }
-    .demo-section {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      margin: 20px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    #event-log {
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: 6px;
-      padding: 15px;
-      margin-top: 20px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .event-entry {
-      padding: 8px;
-      margin: 5px 0;
-      background: #fff;
-      border-left: 4px solid #007bff;
-      border-radius: 4px;
-    }
-    #counter-display {
-      font-size: 48px;
-      font-weight: bold;
-      text-align: center;
-      color: #007bff;
-      margin: 20px 0;
-    }
-  </style>
-</head>
-<body>
-  <h1>Event Emission Example</h1>
-
-  <div class="demo-section">
-    <h2>Custom Event Counter</h2>
-    <p>Click the button to increment the counter and emit custom events:</p>
-
-    <div id="counter-display">0</div>
-
-    <div style="text-align: center;">
-      <counter-btn>Increment Counter</counter-btn>
-    </div>
-
-    <div id="event-log">
-      <strong>Event Log:</strong>
-    </div>
-  </div>
-
-  <div class="demo-section">
-    <h2>Notification System</h2>
-    <p>Components can emit events that other parts of the application listen to:</p>
-
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <notify-btn data-type="info">Info Notification</notify-btn>
-      <notify-btn data-type="success">Success Notification</notify-btn>
-      <notify-btn data-type="warning">Warning Notification</notify-btn>
-      <notify-btn data-type="error">Error Notification</notify-btn>
-    </div>
-
-    <div id="notification-area" style="margin-top: 20px;"></div>
-  </div>
-
-  <script type="module">
-    import { describe, build } from '../mod.ts';
-
-    let counter = 0;
-    const counterDisplay = document.getElementById('counter-display');
-    const eventLog = document.getElementById('event-log');
-
-    function logEvent(eventName, data) {
-      const entry = document.createElement('div');
-      entry.className = 'event-entry';
-      entry.innerHTML = `<strong>${eventName}</strong>: ${JSON.stringify(data)}`;
-      eventLog.appendChild(entry);
-      eventLog.scrollTop = eventLog.scrollHeight;
-    }
-
-    // Counter button with custom event emission
-    const counterBtn = describe({
-      tag: 'button',
-      styles: {
-        backgroundColor: '#007bff',
-        color: 'white',
-        padding: '15px 30px',
-        border: 'none',
-        borderRadius: '8px',
-        cursor: 'pointer',
-        fontSize: '18px',
-        fontWeight: 'bold'
-      },
-      emit: [
-        {
-          name: 'counterChanged',
-          handler: (e) => {
-            counter = e.detail.count;
-            counterDisplay.textContent = counter;
-            logEvent('counterChanged', e.detail);
-          }
-        }
-      ],
-      action: function(event) {
-        this.emitEvent('counterChanged', {
-          count: counter + 1,
-          timestamp: new Date().toISOString()
-        });
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Emission Example - Tan Compose</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
       }
-    });
+      h1 {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+      .demo-section {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      #event-log {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+        margin-top: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .event-entry {
+        padding: 8px;
+        margin: 5px 0;
+        background: #fff;
+        border-left: 4px solid #007bff;
+        border-radius: 4px;
+      }
+      #counter-display {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: center;
+        color: #007bff;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Event Emission Example</h1>
 
-    // Notification button system
-    const notificationColors = {
-      info: '#17a2b8',
-      success: '#28a745',
-      warning: '#ffc107',
-      error: '#dc3545'
-    };
+    <div class="demo-section">
+      <h2>Custom Event Counter</h2>
+      <p>Click the button to increment the counter and emit custom events:</p>
 
-    const notifyBtn = describe({
-      tag: 'button',
-      styles: {
-        backgroundColor: '#6c757d',
-        color: 'white',
-        padding: '10px 20px',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontSize: '14px'
-      },
-      emit: [
-        {
-          name: 'notification',
-          handler: (e) => {
-            showNotification(e.detail.type, e.detail.message);
-          }
-        }
-      ],
-      afterMount: function() {
-        const type = this.getAttribute('data-type') || 'info';
-        this.style.backgroundColor = notificationColors[type];
+      <div id="counter-display">0</div>
 
-        this.addEventListener('click', function() {
-          this.emitEvent('notification', {
-            type: type,
-            message: `This is a ${type} notification!`,
-            timestamp: Date.now()
+      <div style="text-align: center">
+        <counter-btn>Increment Counter</counter-btn>
+      </div>
+
+      <div id="event-log">
+        <strong>Event Log:</strong>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Notification System</h2>
+      <p>
+        Components can emit events that other parts of the application listen
+        to:
+      </p>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap">
+        <notify-btn data-type="info">Info Notification</notify-btn>
+        <notify-btn data-type="success">Success Notification</notify-btn>
+        <notify-btn data-type="warning">Warning Notification</notify-btn>
+        <notify-btn data-type="error">Error Notification</notify-btn>
+      </div>
+
+      <div id="notification-area" style="margin-top: 20px"></div>
+    </div>
+
+    <script type="module">
+      import { build, describe } from "../mod.ts";
+
+      let counter = 0;
+      const counterDisplay = document.getElementById("counter-display");
+      const eventLog = document.getElementById("event-log");
+
+      function logEvent(eventName, data) {
+        const entry = document.createElement("div");
+        entry.className = "event-entry";
+        entry.innerHTML = `<strong>${eventName}</strong>: ${
+          JSON.stringify(data)
+        }`;
+        eventLog.appendChild(entry);
+        eventLog.scrollTop = eventLog.scrollHeight;
+      }
+
+      // Counter button with custom event emission
+      const counterBtn = describe({
+        tag: "button",
+        styles: {
+          backgroundColor: "#007bff",
+          color: "white",
+          padding: "15px 30px",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          fontSize: "18px",
+          fontWeight: "bold",
+        },
+        emit: [
+          {
+            name: "counterChanged",
+            handler: (e) => {
+              counter = e.detail.count;
+              counterDisplay.textContent = counter;
+              logEvent("counterChanged", e.detail);
+            },
+          },
+        ],
+        action: function (event) {
+          this.emitEvent("counterChanged", {
+            count: counter + 1,
+            timestamp: new Date().toISOString(),
           });
-        });
-      }
-    });
+        },
+      });
 
-    function showNotification(type, message) {
-      const notificationArea = document.getElementById('notification-area');
-      const notification = document.createElement('div');
-      notification.style.cssText = `
+      // Notification button system
+      const notificationColors = {
+        info: "#17a2b8",
+        success: "#28a745",
+        warning: "#ffc107",
+        error: "#dc3545",
+      };
+
+      const notifyBtn = describe({
+        tag: "button",
+        styles: {
+          backgroundColor: "#6c757d",
+          color: "white",
+          padding: "10px 20px",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+          fontSize: "14px",
+        },
+        emit: [
+          {
+            name: "notification",
+            handler: (e) => {
+              showNotification(e.detail.type, e.detail.message);
+            },
+          },
+        ],
+        afterMount: function () {
+          const type = this.getAttribute("data-type") || "info";
+          this.style.backgroundColor = notificationColors[type];
+
+          this.addEventListener("click", function () {
+            this.emitEvent("notification", {
+              type: type,
+              message: `This is a ${type} notification!`,
+              timestamp: Date.now(),
+            });
+          });
+        },
+      });
+
+      function showNotification(type, message) {
+        const notificationArea = document.getElementById(
+          "notification-area",
+        );
+        const notification = document.createElement("div");
+        notification.style.cssText = `
         background: ${notificationColors[type]};
         color: white;
         padding: 15px;
@@ -179,44 +186,44 @@
         margin: 10px 0;
         animation: slideIn 0.3s ease-out;
       `;
-      notification.innerHTML = `
+        notification.innerHTML = `
         <strong>${type.toUpperCase()}</strong>: ${message}
       `;
 
-      notificationArea.appendChild(notification);
+        notificationArea.appendChild(notification);
 
-      // Auto remove after 3 seconds
-      setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease-out';
-        setTimeout(() => notification.remove(), 300);
-      }, 3000);
-    }
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          notification.style.animation = "slideOut 0.3s ease-out";
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
 
-    build('counter-btn', counterBtn);
-    build('notify-btn', notifyBtn);
-  </script>
+      build("counter-btn", counterBtn);
+      build("notify-btn", notifyBtn);
+    </script>
 
-  <style>
-    @keyframes slideIn {
-      from {
-        transform: translateX(-100%);
-        opacity: 0;
+    <style>
+      @keyframes slideIn {
+        from {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
       }
-      to {
-        transform: translateX(0);
-        opacity: 1;
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
       }
-    }
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-    }
-  </style>
-</body>
+    </style>
+  </body>
 </html>

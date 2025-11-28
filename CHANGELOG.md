@@ -3,11 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.3] - 2024-11-28
 
 ### Added
+
 - Component registry to prevent duplicate registrations
 - Memory leak prevention with automatic cleanup of event listeners
 - Reactive attribute observation system with `attributeChangedCallback`
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions for CI/CD, version bumping, and JSR publishing
 
 ### Fixed
+
 - Memory leaks from uncleaned event listeners in child elements
 - Component re-registration crashes
 - Closure over description object causing memory bloat
@@ -32,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Broken recursive child building
 
 ### Changed
+
 - Refactored `build()` function for production readiness
 - Improved `buildElement()` with cleanup function tracking
 - Better lifecycle management with `isInitialized` flag
@@ -41,11 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.2] - 2024-XX-XX
 
 ### Added
+
 - Initial GitHub Actions workflow for publishing
 
 ## [0.1.1] - 2024-XX-XX
 
 ### Added
+
 - Basic component building functionality
 - Shadow DOM support
 - Theme system with CSS variables
@@ -54,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2024-XX-XX
 
 ### Added
+
 - Initial release
 - Basic `build()` and `describe()` functions
 - Support for nested components

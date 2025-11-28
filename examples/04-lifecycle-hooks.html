@@ -1,125 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lifecycle Hooks Example - Tan Compose</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 10px;
-    }
-    .demo-section {
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      margin: 20px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    #console-output {
-      background: #1e1e1e;
-      color: #00ff00;
-      padding: 15px;
-      border-radius: 6px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      max-height: 300px;
-      overflow-y: auto;
-      margin-top: 20px;
-    }
-    .log-entry {
-      margin: 5px 0;
-    }
-  </style>
-</head>
-<body>
-  <h1>Lifecycle Hooks Example</h1>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lifecycle Hooks Example - Tan Compose</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      h1 {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+      .demo-section {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      #console-output {
+        background: #1e1e1e;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 20px;
+      }
+      .log-entry {
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lifecycle Hooks Example</h1>
 
-  <div class="demo-section">
-    <h2>Component Lifecycle</h2>
-    <p>Watch the console output below to see lifecycle hooks in action:</p>
+    <div class="demo-section">
+      <h2>Component Lifecycle</h2>
+      <p>Watch the console output below to see lifecycle hooks in action:</p>
 
-    <div style="margin: 20px 0;">
-      <button id="add-component">Add Component</button>
-      <button id="remove-component">Remove Component</button>
+      <div style="margin: 20px 0">
+        <button id="add-component">Add Component</button>
+        <button id="remove-component">Remove Component</button>
+      </div>
+
+      <div id="component-container"></div>
+
+      <div id="console-output">
+        <div class="log-entry">
+          > Console ready. Click "Add Component" to see lifecycle hooks...
+        </div>
+      </div>
     </div>
 
-    <div id="component-container"></div>
+    <script type="module">
+      import { build, describe } from "../mod.ts";
 
-    <div id="console-output">
-      <div class="log-entry">> Console ready. Click "Add Component" to see lifecycle hooks...</div>
-    </div>
-  </div>
+      const consoleOutput = document.getElementById("console-output");
 
-  <script type="module">
-    import { describe, build } from '../mod.ts';
-
-    const consoleOutput = document.getElementById('console-output');
-
-    function log(message) {
-      const entry = document.createElement('div');
-      entry.className = 'log-entry';
-      entry.textContent = `> ${new Date().toLocaleTimeString()}: ${message}`;
-      consoleOutput.appendChild(entry);
-      consoleOutput.scrollTop = consoleOutput.scrollHeight;
-    }
-
-    // Component with lifecycle hooks
-    const lifecycleComponent = describe({
-      tag: 'div',
-      theme: {
-        bgColor: '#e3f2fd',
-        borderColor: '#2196f3'
-      },
-      styles: {
-        backgroundColor: 'var(--bgColor)',
-        border: '2px solid var(--borderColor)',
-        borderRadius: '8px',
-        padding: '20px',
-        margin: '10px 0'
-      },
-      template: '<p>I am a component with lifecycle hooks! Check the console output.</p>',
-      beforeMount: () => {
-        log('⚡ beforeMount: Component is about to be mounted');
-      },
-      afterMount: () => {
-        log('✅ afterMount: Component has been mounted successfully');
+      function log(message) {
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        entry.textContent = `> ${
+          new Date().toLocaleTimeString()
+        }: ${message}`;
+        consoleOutput.appendChild(entry);
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
       }
-    });
 
-    build('lifecycle-component', lifecycleComponent);
+      // Component with lifecycle hooks
+      const lifecycleComponent = describe({
+        tag: "div",
+        theme: {
+          bgColor: "#e3f2fd",
+          borderColor: "#2196f3",
+        },
+        styles: {
+          backgroundColor: "var(--bgColor)",
+          border: "2px solid var(--borderColor)",
+          borderRadius: "8px",
+          padding: "20px",
+          margin: "10px 0",
+        },
+        template:
+          "<p>I am a component with lifecycle hooks! Check the console output.</p>",
+        beforeMount: () => {
+          log("⚡ beforeMount: Component is about to be mounted");
+        },
+        afterMount: () => {
+          log("✅ afterMount: Component has been mounted successfully");
+        },
+      });
 
-    // Add/Remove component handlers
-    const container = document.getElementById('component-container');
-    let componentCount = 0;
+      build("lifecycle-component", lifecycleComponent);
 
-    document.getElementById('add-component').addEventListener('click', () => {
-      componentCount++;
-      const component = document.createElement('lifecycle-component');
-      component.id = `component-${componentCount}`;
-      component.innerHTML = `Component #${componentCount}`;
-      container.appendChild(component);
-      log(`📦 Component #${componentCount} added to DOM`);
-    });
+      // Add/Remove component handlers
+      const container = document.getElementById("component-container");
+      let componentCount = 0;
 
-    document.getElementById('remove-component').addEventListener('click', () => {
-      const lastComponent = container.lastElementChild;
-      if (lastComponent) {
-        const id = lastComponent.id;
-        container.removeChild(lastComponent);
-        log(`🗑️ ${id} removed from DOM (disconnectedCallback fired)`);
-      } else {
-        log('⚠️ No components to remove');
-      }
-    });
-  </script>
-</body>
+      document.getElementById("add-component").addEventListener(
+        "click",
+        () => {
+          componentCount++;
+          const component = document.createElement(
+            "lifecycle-component",
+          );
+          component.id = `component-${componentCount}`;
+          component.innerHTML = `Component #${componentCount}`;
+          container.appendChild(component);
+          log(`📦 Component #${componentCount} added to DOM`);
+        },
+      );
+
+      document.getElementById("remove-component").addEventListener(
+        "click",
+        () => {
+          const lastComponent = container.lastElementChild;
+          if (lastComponent) {
+            const id = lastComponent.id;
+            container.removeChild(lastComponent);
+            log(
+              `🗑️ ${id} removed from DOM (disconnectedCallback fired)`,
+            );
+          } else {
+            log("⚠️ No components to remove");
+          }
+        },
+      );
+    </script>
+  </body>
 </html>

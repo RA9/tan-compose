@@ -1,19 +1,31 @@
 # Tan Compose
 
-`Tan Compose` is a lightweight, production-ready library that turns DDL (Declarative Definition Language) into reusable web components. It allows you to create fully customizable and extendable web components with built-in support for theming, event emission, reactivity, and encapsulation using the Shadow DOM.
+`Tan Compose` is a lightweight, production-ready library that turns DDL
+(Declarative Definition Language) into reusable web components. It allows you to
+create fully customizable and extendable web components with built-in support
+for theming, event emission, reactivity, and encapsulation using the Shadow DOM.
 
 ## Features
 
-- **Declarative Component Definition**: Easily describe web components using a JSON-like structure
-- **Component Registry**: Prevents duplicate registrations and allows component reusability
-- **Theming and Styling**: Apply styles through CSS variables and inline styles with proper Shadow DOM encapsulation
-- **Shadow DOM Encapsulation**: Prevent style leakage and ensure component isolation
-- **Event Emitters**: Communicate between child and parent components via custom events
-- **Reactive Attributes**: Components automatically update when attributes change
-- **State Management**: Built-in state management with `setState` and `getState` methods
-- **Lifecycle Hooks**: `beforeMount` and `afterMount` hooks for component lifecycle management
+- **Declarative Component Definition**: Easily describe web components using a
+  JSON-like structure
+- **Component Registry**: Prevents duplicate registrations and allows component
+  reusability
+- **Theming and Styling**: Apply styles through CSS variables and inline styles
+  with proper Shadow DOM encapsulation
+- **Shadow DOM Encapsulation**: Prevent style leakage and ensure component
+  isolation
+- **Event Emitters**: Communicate between child and parent components via custom
+  events
+- **Reactive Attributes**: Components automatically update when attributes
+  change
+- **State Management**: Built-in state management with `setState` and `getState`
+  methods
+- **Lifecycle Hooks**: `beforeMount` and `afterMount` hooks for component
+  lifecycle management
 - **Memory Leak Prevention**: Automatic cleanup of event listeners and resources
-- **Recursive Component Building**: Nest and compose components in a declarative way
+- **Recursive Component Building**: Nest and compose components in a declarative
+  way
 - **Template Support**: Use HTML templates for component content
 
 ## Installation
@@ -27,7 +39,7 @@ npx jsr add  @ra9/tan-compose
 Or use with Deno:
 
 ```typescript
-import { describe, build } from "https://deno.land/x/tan_compose/mod.ts";
+import { build, describe } from "https://deno.land/x/tan_compose/mod.ts";
 ```
 
 ## Usage
@@ -37,7 +49,7 @@ import { describe, build } from "https://deno.land/x/tan_compose/mod.ts";
 Create a simple button component using Tan Compose.
 
 ```javascript
-import { describe, build } from "tan-compose";
+import { build, describe } from "tan-compose";
 
 const formBtn = describe({
   tag: "button",
@@ -71,8 +83,8 @@ const card = describe({
     border: "1px solid #ddd",
     borderRadius: "8px",
     padding: "20px",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-  }
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+  },
 });
 
 build("tan-card", card);
@@ -87,93 +99,93 @@ build("tan-card", card);
 Build complex UIs by nesting components:
 
 ```javascript
-import { describe, build } from 'tan-compose';
+import { build, describe } from "tan-compose";
 
 const formComponent = describe({
-  tag: 'form',
+  tag: "form",
   theme: {
-    primaryColor: '#007bff',
-    secondaryColor: '#6c757d',
-    spacing: '10px'
+    primaryColor: "#007bff",
+    secondaryColor: "#6c757d",
+    spacing: "10px",
   },
-  styles: { 
-    padding: "20px", 
-    border: "1px solid #e0e0e0", 
+  styles: {
+    padding: "20px",
+    border: "1px solid #e0e0e0",
     borderRadius: "8px",
     maxWidth: "400px",
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
   children: [
     describe({
-      tag: 'div',
-      className: 'form-group',
+      tag: "div",
+      className: "form-group",
       styles: { marginBottom: "var(--spacing)" },
       children: [
         describe({
-          tag: 'label',
-          template: 'Full Name:',
-          styles: { display: "block", marginBottom: "5px", fontWeight: "bold" }
+          tag: "label",
+          template: "Full Name:",
+          styles: { display: "block", marginBottom: "5px", fontWeight: "bold" },
         }),
         describe({
-          tag: 'input',
-          attributes: { 
-            name: 'fullName', 
-            placeholder: 'Enter your full name',
-            type: 'text'
+          tag: "input",
+          attributes: {
+            name: "fullName",
+            placeholder: "Enter your full name",
+            type: "text",
           },
           styles: {
             width: "100%",
             padding: "8px",
             border: "1px solid #ddd",
-            borderRadius: "4px"
-          }
-        })
-      ]
+            borderRadius: "4px",
+          },
+        }),
+      ],
     }),
     describe({
-      tag: 'div',
-      className: 'form-group',
+      tag: "div",
+      className: "form-group",
       styles: { marginBottom: "var(--spacing)" },
       children: [
         describe({
-          tag: 'label',
-          template: 'Email:',
-          styles: { display: "block", marginBottom: "5px", fontWeight: "bold" }
+          tag: "label",
+          template: "Email:",
+          styles: { display: "block", marginBottom: "5px", fontWeight: "bold" },
         }),
         describe({
-          tag: 'input',
-          attributes: { 
-            name: 'email', 
-            type: 'email', 
-            placeholder: 'Enter your email'
+          tag: "input",
+          attributes: {
+            name: "email",
+            type: "email",
+            placeholder: "Enter your email",
           },
           styles: {
             width: "100%",
             padding: "8px",
             border: "1px solid #ddd",
-            borderRadius: "4px"
-          }
-        })
-      ]
+            borderRadius: "4px",
+          },
+        }),
+      ],
     }),
     describe({
-      tag: 'button',
-      attributes: { type: 'submit' },
-      template: 'Submit',
+      tag: "button",
+      attributes: { type: "submit" },
+      template: "Submit",
       action: (event) => {
         event.preventDefault();
         console.log("Form submitted!");
       },
-      styles: { 
-        backgroundColor: 'var(--primaryColor)', 
-        color: 'white',
-        padding: '10px 20px',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer'
-      }
-    })
-  ]
+      styles: {
+        backgroundColor: "var(--primaryColor)",
+        color: "white",
+        padding: "10px 20px",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      },
+    }),
+  ],
 });
 
 build("tan-form", formComponent);
@@ -189,14 +201,14 @@ Use `beforeMount` and `afterMount` hooks:
 
 ```javascript
 const component = describe({
-  tag: 'div',
-  template: '<p>Component with lifecycle hooks</p>',
+  tag: "div",
+  template: "<p>Component with lifecycle hooks</p>",
   beforeMount: () => {
     console.log("Component is about to mount");
   },
   afterMount: () => {
     console.log("Component has mounted");
-  }
+  },
 });
 
 build("lifecycle-component", component);
@@ -208,20 +220,20 @@ Create components that emit custom events:
 
 ```javascript
 const counterBtn = describe({
-  tag: 'button',
-  template: 'Increment Counter',
+  tag: "button",
+  template: "Increment Counter",
   emit: [
     {
-      name: 'counterChanged',
+      name: "counterChanged",
       handler: (e) => {
         console.log("Counter value:", e.detail.count);
-      }
-    }
+      },
+    },
   ],
-  action: function(event) {
+  action: function (event) {
     // Emit custom event
-    this.emitEvent('counterChanged', { count: Math.random() });
-  }
+    this.emitEvent("counterChanged", { count: Math.random() });
+  },
 });
 
 build("counter-btn", counterBtn);
@@ -237,25 +249,25 @@ Apply consistent theming across components:
 
 ```javascript
 const themedButton = describe({
-  tag: 'button',
+  tag: "button",
   theme: {
-    primaryColor: '#ff6b6b',
-    hoverColor: '#ff5252',
-    textColor: '#ffffff'
+    primaryColor: "#ff6b6b",
+    hoverColor: "#ff5252",
+    textColor: "#ffffff",
   },
-  template: 'Themed Button',
-  styles: { 
-    backgroundColor: 'var(--primaryColor)',
-    color: 'var(--textColor)',
-    padding: '12px 24px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s'
-  }
+  template: "Themed Button",
+  styles: {
+    backgroundColor: "var(--primaryColor)",
+    color: "var(--textColor)",
+    padding: "12px 24px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+  },
 });
 
-build('themed-btn', themedButton);
+build("themed-btn", themedButton);
 ```
 
 ```html
@@ -268,12 +280,12 @@ Components automatically re-render when attributes change:
 
 ```javascript
 const dynamicText = describe({
-  tag: 'div',
-  attributes: { 'data-text': 'Initial text' },
-  template: 'Check the console on attribute change'
+  tag: "div",
+  attributes: { "data-text": "Initial text" },
+  template: "Check the console on attribute change",
 });
 
-build('dynamic-text', dynamicText);
+build("dynamic-text", dynamicText);
 ```
 
 ```html
@@ -281,9 +293,9 @@ build('dynamic-text', dynamicText);
 
 <script>
   // Change attribute dynamically
-  const el = document.querySelector('dynamic-text');
+  const el = document.querySelector("dynamic-text");
   setTimeout(() => {
-    el.setAttribute('data-text', 'Updated text');
+    el.setAttribute("data-text", "Updated text");
   }, 2000);
 </script>
 ```
@@ -294,20 +306,20 @@ Use built-in state management:
 
 ```javascript
 const statefulComponent = describe({
-  tag: 'div',
-  template: '<button>Click to update state</button>',
-  afterMount: function() {
-    this.setState('count', 0);
-    
-    this.querySelector('button').addEventListener('click', () => {
-      const count = this.getState('count') + 1;
-      this.setState('count', count);
-      console.log('Current count:', count);
+  tag: "div",
+  template: "<button>Click to update state</button>",
+  afterMount: function () {
+    this.setState("count", 0);
+
+    this.querySelector("button").addEventListener("click", () => {
+      const count = this.getState("count") + 1;
+      this.setState("count", count);
+      console.log("Current count:", count);
     });
-  }
+  },
 });
 
-build('stateful-component', statefulComponent);
+build("stateful-component", statefulComponent);
 ```
 
 ## API Reference
@@ -317,6 +329,7 @@ build('stateful-component', statefulComponent);
 Registers a new custom element with the given tag name.
 
 **Parameters:**
+
 - `tagName`: The custom element tag name (must contain a hyphen)
 - `description`: Component description object
 
@@ -325,6 +338,7 @@ Registers a new custom element with the given tag name.
 Creates a component description object.
 
 **Options:**
+
 - `tag?: string` - HTML tag to create (default: 'div')
 - `theme?: Record<string, string>` - CSS variables for theming
 - `styles?: Record<string, string>` - Inline styles
@@ -348,7 +362,8 @@ Custom components have these methods available:
 
 ### Helper Functions
 
-- `isComponentRegistered(tagName: string): boolean` - Check if component is registered
+- `isComponentRegistered(tagName: string): boolean` - Check if component is
+  registered
 - `getRegisteredComponents(): string[]` - Get all registered component names
 
 ## Advanced Features
@@ -358,17 +373,19 @@ Custom components have these methods available:
 The library automatically prevents duplicate component registrations:
 
 ```javascript
-build('my-component', describe({ tag: 'div' }));
-build('my-component', describe({ tag: 'div' })); // Warning logged, skips re-registration
+build("my-component", describe({ tag: "div" }));
+build("my-component", describe({ tag: "div" })); // Warning logged, skips re-registration
 ```
 
 ### Memory Management
 
-All event listeners are automatically cleaned up when components are removed from the DOM, preventing memory leaks.
+All event listeners are automatically cleaned up when components are removed
+from the DOM, preventing memory leaks.
 
 ## Examples
 
 See the `/examples` folder for complete working examples:
+
 - Basic Button Component
 - Form with Validation
 - Themed Dashboard
@@ -378,6 +395,7 @@ See the `/examples` folder for complete working examples:
 ## Browser Support
 
 Works in all modern browsers that support:
+
 - Custom Elements v1
 - Shadow DOM v1
 - ES6 Classes

@@ -1,6 +1,7 @@
 # GitHub Actions Workflows Documentation
 
-This project uses GitHub Actions for automated CI/CD, version management, and publishing.
+This project uses GitHub Actions for automated CI/CD, version management, and
+publishing.
 
 ## Workflows Overview
 
@@ -11,6 +12,7 @@ This project uses GitHub Actions for automated CI/CD, version management, and pu
 **Purpose:** Continuous Integration - runs tests and builds on every push
 
 **Steps:**
+
 - Checkout code
 - Setup Deno
 - Check code formatting (`deno fmt --check`)
@@ -28,6 +30,7 @@ This project uses GitHub Actions for automated CI/CD, version management, and pu
 **Purpose:** Automated version bumping with semantic versioning
 
 **How to Use:**
+
 1. Go to Actions tab in GitHub
 2. Select "Version Bump" workflow
 3. Click "Run workflow"
@@ -40,6 +43,7 @@ This project uses GitHub Actions for automated CI/CD, version management, and pu
    - Create a GitHub Release
 
 **Version Bumping Rules:**
+
 - `patch`: 0.1.3 → 0.1.4 (bug fixes)
 - `minor`: 0.1.3 → 0.2.0 (new features, backward compatible)
 - `major`: 0.1.3 → 1.0.0 (breaking changes)
@@ -51,17 +55,22 @@ This project uses GitHub Actions for automated CI/CD, version management, and pu
 **Purpose:** Automatically publish package to JSR (JavaScript Registry)
 
 **Steps:**
+
 - Checkout code
 - Setup Deno
 - Verify types with `deno check`
 - Run tests
 - Publish to JSR with `npx jsr publish`
 
-**Note:** This workflow runs automatically after the version bump workflow creates a tag.
+**Note:** This workflow runs automatically after the version bump workflow
+creates a tag.
 
 **Requirements:**
-- Package scope and name configured in `deno.json` (already set: `@ra9/tan-compose`)
-- The workflow uses GitHub Actions OIDC for authentication (no manual token needed)
+
+- Package scope and name configured in `deno.json` (already set:
+  `@ra9/tan-compose`)
+- The workflow uses GitHub Actions OIDC for authentication (no manual token
+  needed)
 
 ### 4. Deploy to GitHub Pages (`deploy.yml`)
 
@@ -70,6 +79,7 @@ This project uses GitHub Actions for automated CI/CD, version management, and pu
 **Purpose:** Deploy documentation and landing page to GitHub Pages
 
 **Steps:**
+
 - Checkout code
 - Setup GitHub Pages
 - Upload site files
@@ -114,7 +124,8 @@ git push origin main --tags
 
 ### JSR Publishing Setup
 
-JSR has first-class support for publishing from GitHub Actions using OIDC authentication.
+JSR has first-class support for publishing from GitHub Actions using OIDC
+authentication.
 
 1. **Create your package scope on JSR:**
    - Go to [jsr.io](https://jsr.io)
@@ -147,27 +158,32 @@ Each workflow has specific permissions:
 - **CI:** `contents: read` (read-only)
 - **Version Bump:** `contents: write` (can commit and push)
 - **Publish:** `contents: read`, `id-token: write` (can publish to JSR)
-- **Deploy:** `contents: read`, `pages: write`, `id-token: write` (can deploy to Pages)
+- **Deploy:** `contents: read`, `pages: write`, `id-token: write` (can deploy to
+  Pages)
 
 ## Troubleshooting
 
 ### Publish fails with authentication error
+
 - Verify that the GitHub repository is linked to your JSR scope
 - Check that `id-token: write` permission is set in the workflow
 - Ensure the package scope in `deno.json` matches your JSR scope
 - Test locally with `npx jsr publish --dry-run` before pushing
 
 ### Version bump doesn't create tag
+
 - Check that the workflow has `contents: write` permission
 - Verify git configuration in workflow is correct
 - Check workflow logs for specific errors
 
 ### Tests fail in CI
+
 - Run tests locally first: `deno test --allow-all`
 - Check that all file paths are correct
 - Verify Deno version compatibility
 
 ### Build artifacts not uploading
+
 - Check the `dist/` directory is created by build task
 - Verify `deno task bundle` runs successfully
 - Review workflow logs for artifact upload step
