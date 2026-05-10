@@ -1,7 +1,7 @@
 import * as esbuild from "esbuild";
 import { denoPlugins } from "@luca/esbuild-deno-loader";
 
-esbuild.build({
+await esbuild.build({
   plugins: [...denoPlugins()],
   entryPoints: ["mod.ts"],
   outdir: "dist/",
