@@ -14,25 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="../dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-      }
-
       * {
         margin: 0;
         padding: 0;
@@ -44,14 +27,17 @@
       }
 
       body {
-        font-family:
-          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         font-size: 16px;
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
+      }
+
+      code {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.92em;
       }
 
       .wrap {
@@ -66,80 +52,17 @@
         padding: 0 24px;
       }
 
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-      }
-
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-      }
-
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-
-      .topbar nav {
-        display: flex;
-        gap: 22px;
-        align-items: center;
-      }
-
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-      }
-
-      .topbar nav a:hover,
-      .topbar nav a[aria-current="page"] {
-        color: var(--accent);
-      }
-
       header.post-head {
         padding: 56px 0 12px;
       }
 
       .post-eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
 
@@ -152,9 +75,9 @@
       }
 
       .article-meta {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.82rem;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
       }
 
       article {
@@ -162,7 +85,7 @@
       }
 
       article p {
-        color: var(--ink);
+        color: var(--tc-color-ink, #14171f);
         font-size: 1.02rem;
         line-height: 1.72;
         margin: 0 0 18px;
@@ -170,7 +93,7 @@
 
       article p.lede {
         font-size: 1.12rem;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         margin-bottom: 24px;
       }
 
@@ -188,48 +111,21 @@
       }
 
       article a {
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         text-decoration: underline;
-        text-decoration-color: var(--rule-strong);
+        text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
       }
 
       article a:hover {
-        text-decoration-color: var(--accent);
-      }
-
-      article code {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.92em;
+        text-decoration-color: var(--tc-color-accent, #a16939);
       }
 
       article p code,
       article li code {
-        background: var(--accent-soft);
-        color: var(--accent-hover);
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
         padding: 1px 6px;
         border-radius: 4px;
-      }
-
-      pre.code {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.84rem;
-        line-height: 1.7;
-        padding: 22px 24px;
-        border-radius: 10px;
-        overflow-x: auto;
-        margin: 0 0 22px;
-      }
-
-      pre.code .c-comment {
-        color: var(--code-comment);
-      }
-      pre.code .c-keyword {
-        color: var(--code-keyword);
-      }
-      pre.code .c-string {
-        color: var(--code-string);
       }
 
       article ul {
@@ -244,46 +140,12 @@
       hr.rule {
         border: none;
         height: 1px;
-        background: var(--rule);
+        background: var(--tc-color-rule, #ece5d3);
         margin: 36px 0 24px;
       }
 
       .closing {
-        color: var(--ink-soft);
-      }
-
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 32px 0 56px;
-        margin-top: 32px;
-      }
-
-      footer .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      footer p {
-        color: var(--ink-muted);
-        font-size: 0.9rem;
-      }
-
-      footer .links {
-        display: flex;
-        gap: 22px;
-      }
-
-      footer .links a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-
-      footer .links a:hover {
-        color: var(--accent);
+        color: var(--tc-color-ink-soft, #4a5061);
       }
 
       @media (max-width: 720px) {
@@ -294,40 +156,16 @@
         article {
           padding: 12px 0 36px;
         }
-
-        .topbar nav .nav-hide-sm {
-          display: none;
-        }
       }
+
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="wrap topbar-inner">
-        <a class="brand" href="../index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav aria-label="Primary">
-          <a href="../docs.html" class="nav-hide-sm">Docs</a>
-          <a href="../examples.html" class="nav-hide-sm">Examples</a>
-          <a href="../playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./index.html" aria-current="page">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            class="nav-hide-sm"
-            target="_blank"
-            rel="noopener"
-          >JSR</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >GitHub</a>
-        </nav>
-      </div>
-    </header>
+    <site-nav active="blog" version="v1.1.0" base="../"></site-nav>
 
     <main>
       <header class="post-head">
@@ -355,11 +193,9 @@
             this:
           </p>
 
-          <pre
-            class="code"
-          >afterMount() {
-  <span class="c-keyword">this</span>.shadowRoot.querySelector(<span class="c-string">".search"</span>).focus();
-}</pre>
+          <tc-code language="ts">afterMount() {
+  <span class="tc-kw">this</span>.shadowRoot.querySelector(<span class="tc-str">".search"</span>).focus();
+}</tc-code>
 
           <p>
             Two problems. The selector is a string buried in a closure, so
@@ -368,15 +204,13 @@
             Now:
           </p>
 
-          <pre
-            class="code"
-          >build(<span class="c-string">"search-box"</span>, describe({
-  refs: { input: <span class="c-string">".search"</span> },
+          <tc-code language="ts">build(<span class="tc-str">"search-box"</span>, describe({
+  refs: { input: <span class="tc-str">".search"</span> },
   template: `&lt;input class="search" /&gt;`,
   afterMount() {
-    (<span class="c-keyword">this</span>.refs.input <span class="c-keyword">as</span> HTMLInputElement)?.focus();
+    (<span class="tc-kw">this</span>.refs.input <span class="tc-kw">as</span> HTMLInputElement)?.focus();
   },
-}));</pre>
+}));</tc-code>
 
           <p>
             <code>refs</code> is a name → selector map declared once. After
@@ -399,23 +233,21 @@
 
           <p>The fix is two lines of config:</p>
 
-          <pre
-            class="code"
-          >build(<span class="c-string">"tc-input"</span>, describe({
-  formAssociated: <span class="c-keyword">true</span>,
-  props: { value: { type: <span class="c-string">"string"</span>, default: <span class="c-string">""</span> } },
-  refs: { input: <span class="c-string">".q"</span> },
+          <tc-code language="ts">build(<span class="tc-str">"tc-input"</span>, describe({
+  formAssociated: <span class="tc-kw">true</span>,
+  props: { value: { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">""</span> } },
+  refs: { input: <span class="tc-str">".q"</span> },
   template: ({ props }) =&gt;
     `&lt;input class="q" value="${props.value}" /&gt;`,
   events: {
-    <span class="c-string">"input .q"</span>: (e, ctx) =&gt; {
-      ctx.host.value = (e.target <span class="c-keyword">as</span> HTMLInputElement).value;
+    <span class="tc-str">"input .q"</span>: (e, ctx) =&gt; {
+      ctx.host.value = (e.target <span class="tc-kw">as</span> HTMLInputElement).value;
     },
   },
   formResetCallback() {
-    (<span class="c-keyword">this</span> <span class="c-keyword">as</span> <span class="c-keyword">unknown</span> <span class="c-keyword">as</span> { value: <span class="c-keyword">string</span> }).value = <span class="c-string">""</span>;
+    (<span class="tc-kw">this</span> <span class="tc-kw">as</span> <span class="tc-kw">unknown</span> <span class="tc-kw">as</span> { value: <span class="tc-kw">string</span> }).value = <span class="tc-str">""</span>;
   },
-}));</pre>
+}));</tc-code>
 
           <p>
             What that does for you, automatically:
@@ -460,14 +292,12 @@
             <code>shadowRoot.adoptedStyleSheets</code>:
           </p>
 
-          <pre
-            class="code"
-          ><span class="c-comment">// Once per build():</span>
-<span class="c-keyword">const</span> sheet = <span class="c-keyword">new</span> CSSStyleSheet();
-sheet.replaceSync(<span class="c-string">":host { --brand: tomato; }"</span>);
+          <tc-code language="ts"><span class="tc-com">// Once per build():</span>
+<span class="tc-kw">const</span> sheet = <span class="tc-kw">new</span> CSSStyleSheet();
+sheet.replaceSync(<span class="tc-str">":host { --brand: tomato; }"</span>);
 
-<span class="c-comment">// Per instance:</span>
-shadow.adoptedStyleSheets = [sheet];</pre>
+<span class="tc-com">// Per instance:</span>
+shadow.adoptedStyleSheets = [sheet];</tc-code>
 
           <p>
             Same CSS, same theming. One <code>CSSStyleSheet</code>
@@ -510,26 +340,6 @@ shadow.adoptedStyleSheets = [sheet];</pre>
       </article>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="../docs.html">Docs</a>
-          <a href="../examples.html">Examples</a>
-          <a href="../playground.html">Playground</a>
-          <a href="./index.html">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >JSR</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >GitHub</a>
-        </div>
-      </div>
-    </footer>
+    <site-footer base="../"></site-footer>
   </body>
 </html>

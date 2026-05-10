@@ -14,27 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="../dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-        --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-        --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-      }
-
       * {
         margin: 0;
         padding: 0;
@@ -46,15 +27,18 @@
       }
 
       body {
-        font-family:
-          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         font-size: 16px;
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+      }
+
+      code {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.92em;
       }
 
       .wrap {
@@ -63,90 +47,18 @@
         padding: 0 24px;
       }
 
-      /* Top nav */
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-        -webkit-backdrop-filter: saturate(180%) blur(8px);
-      }
-
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-        display: inline-block;
-      }
-
-      .topbar nav {
-        display: flex;
-        gap: 22px;
-        align-items: center;
-      }
-
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-        transition: color 0.15s ease;
-      }
-
-      .topbar nav a:hover,
-      .topbar nav a:focus-visible,
-      .topbar nav a.active,
-      .topbar nav a[aria-current="page"] {
-        color: var(--accent);
-      }
-
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-
       /* Article header */
       .article-head {
         padding: 88px 0 32px;
       }
 
       .eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 14px;
       }
 
@@ -161,17 +73,17 @@
       .article-subtitle {
         font-size: 1.18rem;
         line-height: 1.5;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         margin-bottom: 22px;
         max-width: 620px;
       }
 
       .article-meta {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.82rem;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
         padding-bottom: 28px;
-        border-bottom: 1px solid var(--rule);
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
       }
 
       /* Article body */
@@ -195,11 +107,11 @@
         font-size: 1.05rem;
         font-weight: 600;
         margin: 28px 0 10px;
-        color: var(--ink);
+        color: var(--tc-color-ink, #14171f);
       }
 
       article p {
-        color: var(--ink);
+        color: var(--tc-color-ink, #14171f);
         font-size: 1.02rem;
         line-height: 1.72;
         margin: 0 0 18px;
@@ -207,7 +119,7 @@
 
       article p.lede {
         font-size: 1.12rem;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         line-height: 1.7;
         margin: 0 0 22px;
       }
@@ -215,12 +127,12 @@
       article hr.rule {
         border: none;
         height: 1px;
-        background: var(--rule);
+        background: var(--tc-color-rule, #ece5d3);
         margin: 36px 0 24px;
       }
 
       article p.closing {
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         font-size: 1rem;
         margin: 0 0 28px;
       }
@@ -230,22 +142,22 @@
       }
 
       article a {
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         text-decoration: underline;
-        text-decoration-color: var(--rule-strong);
+        text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
         text-underline-offset: 3px;
         text-decoration-thickness: 1px;
         transition: text-decoration-color 0.15s ease;
       }
 
       article a:hover {
-        text-decoration-color: var(--accent);
+        text-decoration-color: var(--tc-color-accent, #a16939);
       }
 
       article ul {
         margin: 0 0 20px;
         padding-left: 22px;
-        color: var(--ink);
+        color: var(--tc-color-ink, #14171f);
       }
 
       article ul li {
@@ -255,79 +167,18 @@
       }
 
       article code {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.88em;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
         padding: 1px 6px;
         border-radius: 4px;
       }
 
-      /* Code blocks */
-      pre.code {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.85rem;
-        line-height: 1.65;
-        padding: 22px 24px;
-        border-radius: 10px;
-        overflow-x: auto;
-        margin: 0 0 22px;
-      }
-
-      pre.code .c-comment {
-        color: var(--code-comment);
-      }
-      pre.code .c-keyword {
-        color: var(--code-keyword);
-      }
-      pre.code .c-string {
-        color: var(--code-string);
-      }
-
       .pull {
-        border-left: 3px solid var(--accent);
+        border-left: 3px solid var(--tc-color-accent, #a16939);
         padding: 2px 0 2px 20px;
         margin: 24px 0;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         font-style: italic;
-      }
-
-      /* Footer */
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 36px 0 56px;
-        margin-top: 32px;
-      }
-
-      footer .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      footer p {
-        color: var(--ink-muted);
-        font-size: 0.9rem;
-      }
-
-      footer .links {
-        display: flex;
-        gap: 22px;
-        flex-wrap: wrap;
-      }
-
-      footer .links a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-
-      footer .links a:hover {
-        color: var(--accent);
       }
 
       /* Responsive */
@@ -344,44 +195,16 @@
           font-size: 1.35rem;
           margin: 36px 0 12px;
         }
-
-        .topbar nav {
-          gap: 14px;
-        }
-
-        .topbar nav .nav-hide-sm {
-          display: none;
-        }
       }
+
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="topbar-inner">
-        <a class="brand" href="../index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav aria-label="Primary">
-          <a href="../docs.html" class="nav-hide-sm">Docs</a>
-          <a href="../examples.html" class="nav-hide-sm">Examples</a>
-          <a href="../playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./index.html" aria-current="page">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            class="nav-hide-sm"
-            target="_blank"
-            rel="noopener"
-          >JSR</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >GitHub</a>
-        </nav>
-      </div>
-    </header>
+    <site-nav active="blog" version="v1.1.0" base="../"></site-nav>
 
     <main>
       <header class="article-head">
@@ -441,11 +264,9 @@
           </p>
 
           <h2>The pitch in three lines</h2>
-          <pre
-            class="code"
-          ><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
-build(<span class="c-string">"hello-world"</span>, describe({ template: <span class="c-string">"&lt;p&gt;hi&lt;/p&gt;"</span> }));
-<span class="c-comment">// &lt;hello-world&gt;&lt;/hello-world&gt; works everywhere</span></pre>
+          <tc-code language="ts"><span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
+build(<span class="tc-str">"hello-world"</span>, describe({ template: <span class="tc-str">"&lt;p&gt;hi&lt;/p&gt;"</span> }));
+<span class="tc-com">// &lt;hello-world&gt;&lt;/hello-world&gt; works everywhere</span></tc-code>
           <p>
             No build step. No JSX. No compiler. No runtime besides the browser.
             About 5 KB on the wire after gzip. The output is a real custom
@@ -506,13 +327,11 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             <code>JSON.parse</code>. v0.3 lets you declare the shape once and
             stop thinking about it:
           </p>
-          <pre
-            class="code"
-          >props: {
-  count: { type: <span class="c-string">"number"</span>, default: <span class="c-keyword">0</span> },
-  items: { type: <span class="c-string">"json"</span>,   default: [] },
-  open:  { type: <span class="c-string">"boolean"</span>, reflect: <span class="c-keyword">true</span> },
-}</pre>
+          <tc-code language="ts">props: {
+  count: { type: <span class="tc-str">"number"</span>, default: <span class="tc-kw">0</span> },
+  items: { type: <span class="tc-str">"json"</span>,   default: [] },
+  open:  { type: <span class="tc-str">"boolean"</span>, reflect: <span class="tc-kw">true</span> },
+}</tc-code>
           <p>
             The initial value comes from the matching attribute on the host
             element (string-coerced into the declared type), or the
@@ -539,12 +358,10 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
           </p>
 
           <h3>Event delegation</h3>
-          <pre
-            class="code"
-          >events: {
-  <span class="c-string">"click .row-delete"</span>: (event, ctx) =&gt; ctx.emit(<span class="c-string">"delete"</span>, { id: event.target.dataset.id }),
-  <span class="c-string">"input .search"</span>:    (event, ctx) =&gt; ctx.setState({ q: event.target.value }),
-}</pre>
+          <tc-code language="ts">events: {
+  <span class="tc-str">"click .row-delete"</span>: (event, ctx) =&gt; ctx.emit(<span class="tc-str">"delete"</span>, { id: event.target.dataset.id }),
+  <span class="tc-str">"input .search"</span>:    (event, ctx) =&gt; ctx.setState({ q: event.target.value }),
+}</tc-code>
           <p>
             One listener is attached per event type at the shadow-container
             level. When an event fires, the library walks the composed path and
@@ -585,18 +402,16 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             columns as JSON props, expose a search input, paginate at ten per
             page, and highlight the column being sorted. The shape:
           </p>
-          <pre
-            class="code"
-          ><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
+          <tc-code language="ts"><span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
 
-<span class="c-keyword">const</span> table = describe({
+<span class="tc-kw">const</span> table = describe({
   props: {
-    rows:    { type: <span class="c-string">"json"</span>, default: [] },
-    columns: { type: <span class="c-string">"json"</span>, default: [] },
+    rows:    { type: <span class="tc-str">"json"</span>, default: [] },
+    columns: { type: <span class="tc-str">"json"</span>, default: [] },
   },
-  state: { q: <span class="c-string">""</span>, page: <span class="c-keyword">0</span>, sort: <span class="c-keyword">null</span>, dir: <span class="c-string">"asc"</span> },
-  <span class="c-comment">// ...events, children below</span>
-});</pre>
+  state: { q: <span class="tc-str">""</span>, page: <span class="tc-kw">0</span>, sort: <span class="tc-kw">null</span>, dir: <span class="tc-str">"asc"</span> },
+  <span class="tc-com">// ...events, children below</span>
+});</tc-code>
           <p>
             The header is a single child describe that maps over
             <code>props.columns</code> with a function template. Each
@@ -605,19 +420,17 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             current sort. No per-cell click handlers — one delegated listener
             does the whole header:
           </p>
-          <pre
-            class="code"
-          >events: {
-  <span class="c-string">"click th"</span>: (e, ctx) =&gt; {
-    <span class="c-keyword">const</span> col = e.target.closest(<span class="c-string">"th"</span>).dataset.col;
-    <span class="c-keyword">const</span> { sort, dir } = ctx.getState();
+          <tc-code language="ts">events: {
+  <span class="tc-str">"click th"</span>: (e, ctx) =&gt; {
+    <span class="tc-kw">const</span> col = e.target.closest(<span class="tc-str">"th"</span>).dataset.col;
+    <span class="tc-kw">const</span> { sort, dir } = ctx.getState();
     ctx.setState({
       sort: col,
-      dir: sort === col &amp;&amp; dir === <span class="c-string">"asc"</span> ? <span class="c-string">"desc"</span> : <span class="c-string">"asc"</span>,
+      dir: sort === col &amp;&amp; dir === <span class="tc-str">"asc"</span> ? <span class="tc-str">"desc"</span> : <span class="tc-str">"asc"</span>,
     });
   },
-  <span class="c-string">"input .search"</span>: (e, ctx) =&gt; ctx.setState({ q: e.target.value, page: <span class="c-keyword">0</span> }),
-}</pre>
+  <span class="tc-str">"input .search"</span>: (e, ctx) =&gt; ctx.setState({ q: e.target.value, page: <span class="tc-kw">0</span> }),
+}</tc-code>
           <p>
             The body is the place keyed rendering earns its keep. A
             <code>for:</code> block iterates the filtered + sorted + paginated
@@ -626,19 +439,17 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             physical <code>&lt;tr&gt;</code> elements are reused as the user
             types. Only the cells whose textContent changed get touched:
           </p>
-          <pre
-            class="code"
-          >{
+          <tc-code language="ts">{
   for: {
     items: (ctx) =&gt; visibleRows(ctx),
     key:   (row)  =&gt; row.id,
     render: (row, ctx) =&gt; describe({
-      tag: <span class="c-string">"tr"</span>,
+      tag: <span class="tc-str">"tr"</span>,
       template: ({ props }) =&gt; props.columns
-        .map((c) =&gt; <span class="c-string">`&lt;td&gt;</span>${row[c.id]}<span class="c-string">&lt;/td&gt;`</span>).join(<span class="c-string">""</span>),
+        .map((c) =&gt; <span class="tc-str">`&lt;td&gt;</span>${row[c.id]}<span class="tc-str">&lt;/td&gt;`</span>).join(<span class="tc-str">""</span>),
     }),
   },
-}</pre>
+}</tc-code>
           <p>
             The empty state is a sibling describe with an
             <code>if: (ctx) =&gt; visibleRows(ctx).length === 0</code>. The row
@@ -647,12 +458,10 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             of it. Register with
             <code>build("my-table", table)</code> and use it from any HTML page:
           </p>
-          <pre
-            class="code"
-          >&lt;my-table
-  rows=<span class="c-string">'[{"id":1,"name":"Ada","role":"eng"}, ...]'</span>
-  columns=<span class="c-string">'[{"id":"name","label":"Name"}, {"id":"role","label":"Role"}]'</span>
-&gt;&lt;/my-table&gt;</pre>
+          <tc-code language="html">&lt;my-table
+  rows=<span class="tc-str">'[{"id":1,"name":"Ada","role":"eng"}, ...]'</span>
+  columns=<span class="tc-str">'[{"id":"name","label":"Name"}, {"id":"role","label":"Role"}]'</span>
+&gt;&lt;/my-table&gt;</tc-code>
           <p>
             That's it. No JSX. No bundler. The whole table re-renders on every
             keystroke and reuses the existing 10 row nodes — keystrokes feel
@@ -665,13 +474,11 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             component models can't. A few quick paths in:
           </p>
           <h3>Plain HTML</h3>
-          <pre
-            class="code"
-          >&lt;script type=<span class="c-string">"module"</span>&gt;
-  <span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"https://esm.sh/jsr/@ra9/tan-compose"</span>;
-  <span class="c-comment">// register your components here</span>
+          <tc-code language="html">&lt;script type=<span class="tc-str">"module"</span>&gt;
+  <span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"https://esm.sh/jsr/@ra9/tan-compose"</span>;
+  <span class="tc-com">// register your components here</span>
 &lt;/script&gt;
-&lt;my-table rows=<span class="c-string">"[...]"</span> columns=<span class="c-string">"[...]"</span>&gt;&lt;/my-table&gt;</pre>
+&lt;my-table rows=<span class="tc-str">"[...]"</span> columns=<span class="tc-str">"[...]"</span>&gt;&lt;/my-table&gt;</tc-code>
           <h3>React / Next</h3>
           <p>
             Import the module for its side effect (the
@@ -680,15 +487,13 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
             stringifies props it doesn't recognize. For complex props, set them
             imperatively:
           </p>
-          <pre
-            class="code"
-          ><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-components"</span>;
+          <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-components"</span>;
 
-<span class="c-keyword">function</span> Page({ rows }) {
-  <span class="c-keyword">const</span> ref = useRef(<span class="c-keyword">null</span>);
-  useEffect(() =&gt; { <span class="c-keyword">if</span> (ref.current) ref.current.rows = rows; }, [rows]);
-  <span class="c-keyword">return</span> &lt;my-table ref={ref} /&gt;;
-}</pre>
+<span class="tc-kw">function</span> Page({ rows }) {
+  <span class="tc-kw">const</span> ref = useRef(<span class="tc-kw">null</span>);
+  useEffect(() =&gt; { <span class="tc-kw">if</span> (ref.current) ref.current.rows = rows; }, [rows]);
+  <span class="tc-kw">return</span> &lt;my-table ref={ref} /&gt;;
+}</tc-code>
           <h3>Vue</h3>
           <p>
             Vue treats unknown elements as custom elements out of the box and
@@ -756,26 +561,6 @@ build(<span class="c-string">"hello-world"</span>, describe({ template: <span cl
       </article>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="../docs.html">Docs</a>
-          <a href="../examples.html">Examples</a>
-          <a href="../playground.html">Playground</a>
-          <a href="./index.html">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >JSR</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >GitHub</a>
-        </div>
-      </div>
-    </footer>
+    <site-footer base="../"></site-footer>
   </body>
 </html>

@@ -14,24 +14,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="../dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-      }
       * {
         margin: 0;
         padding: 0;
@@ -41,14 +25,16 @@
         scroll-behavior: smooth;
       }
       body {
-        font-family:
-          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         font-size: 16px;
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
+      }
+      code {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.92em;
       }
       .wrap {
         max-width: 880px;
@@ -61,71 +47,16 @@
         padding: 0 24px;
       }
 
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-      }
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-      }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-      }
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-      .topbar nav {
-        display: flex;
-        gap: 22px;
-        align-items: center;
-      }
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-      }
-      .topbar nav a:hover, .topbar nav a[aria-current="page"] {
-        color: var(--accent);
-      }
-
       header.post-head {
         padding: 56px 0 12px;
       }
       .post-eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
       h1 {
@@ -136,23 +67,23 @@
         margin-bottom: 14px;
       }
       .article-meta {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.82rem;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
       }
 
       article {
         padding: 24px 0 56px;
       }
       article p {
-        color: var(--ink);
+        color: var(--tc-color-ink, #14171f);
         font-size: 1.02rem;
         line-height: 1.72;
         margin: 0 0 18px;
       }
       article p.lede {
         font-size: 1.12rem;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         margin-bottom: 24px;
       }
       article h2 {
@@ -167,43 +98,18 @@
         margin: 24px 0 8px;
       }
       article a {
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         text-decoration: underline;
-        text-decoration-color: var(--rule-strong);
+        text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
       }
       article a:hover {
-        text-decoration-color: var(--accent);
-      }
-      article code {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.92em;
+        text-decoration-color: var(--tc-color-accent, #a16939);
       }
       article p code, article li code {
-        background: var(--accent-soft);
-        color: var(--accent-hover);
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
         padding: 1px 6px;
         border-radius: 4px;
-      }
-
-      pre.code {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.84rem;
-        line-height: 1.7;
-        padding: 22px 24px;
-        border-radius: 10px;
-        overflow-x: auto;
-        margin: 0 0 22px;
-      }
-      pre.code .c-comment {
-        color: var(--code-comment);
-      }
-      pre.code .c-keyword {
-        color: var(--code-keyword);
-      }
-      pre.code .c-string {
-        color: var(--code-string);
       }
 
       article ul {
@@ -215,50 +121,21 @@
       }
 
       .pull {
-        border-left: 3px solid var(--accent);
+        border-left: 3px solid var(--tc-color-accent, #a16939);
         padding: 4px 0 4px 18px;
         margin: 24px 0;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         font-size: 0.98rem;
       }
 
       hr.rule {
         border: none;
         height: 1px;
-        background: var(--rule);
+        background: var(--tc-color-rule, #ece5d3);
         margin: 36px 0 24px;
       }
       .closing {
-        color: var(--ink-soft);
-      }
-
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 32px 0 56px;
-        margin-top: 32px;
-      }
-      footer .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-      footer p {
-        color: var(--ink-muted);
-        font-size: 0.9rem;
-      }
-      footer .links {
-        display: flex;
-        gap: 22px;
-      }
-      footer .links a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-      footer .links a:hover {
-        color: var(--accent);
+        color: var(--tc-color-ink-soft, #4a5061);
       }
 
       @media (max-width: 720px) {
@@ -268,34 +145,16 @@
         article {
           padding: 12px 0 36px;
         }
-        .topbar nav .nav-hide-sm {
-          display: none;
-        }
       }
+
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="wrap topbar-inner">
-        <a class="brand" href="../index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav aria-label="Primary">
-          <a href="../docs.html" class="nav-hide-sm">Docs</a>
-          <a href="../components.html" class="nav-hide-sm">Components</a>
-          <a href="../examples.html" class="nav-hide-sm">Examples</a>
-          <a href="../playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./index.html" aria-current="page">Blog</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >GitHub</a>
-        </nav>
-      </div>
-    </header>
+    <site-nav active="blog" version="v1.1.0" base="../"></site-nav>
 
     <main>
       <header class="post-head">
@@ -338,9 +197,7 @@
             chrome:
           </p>
 
-          <pre
-            class="code"
-          >&lt;!doctype html&gt;
+          <tc-code language="html">&lt;!doctype html&gt;
 &lt;html&gt;
 &lt;head&gt;
   &lt;meta charset="utf-8" /&gt;
@@ -369,7 +226,7 @@
   &lt;tc-modal id="m"&gt;&lt;/tc-modal&gt;
   &lt;div id="toasts" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px;"&gt;&lt;/div&gt;
 &lt;/body&gt;
-&lt;/html&gt;</pre>
+&lt;/html&gt;</tc-code>
 
           <p>
             That's the entire visible structure. Stats grid, form, table, modal,
@@ -383,14 +240,12 @@
             this with a fetch. The shape:
           </p>
 
-          <pre
-            class="code"
-          ><span class="c-keyword">let</span> tasks = [
-  { id: 1, title: <span class="c-string">"Audit auth flow"</span>,    priority: <span class="c-string">"high"</span>,   due: <span class="c-string">"2026-05-12"</span>, done: <span class="c-keyword">false</span> },
-  { id: 2, title: <span class="c-string">"Update onboarding copy"</span>, priority: <span class="c-string">"medium"</span>, due: <span class="c-string">"2026-05-15"</span>, done: <span class="c-keyword">false</span> },
-  { id: 3, title: <span class="c-string">"Renew certs"</span>,        priority: <span class="c-string">"low"</span>,    due: <span class="c-string">"2026-05-08"</span>, done: <span class="c-keyword">true</span>  },
+          <tc-code language="ts"><span class="tc-kw">let</span> tasks = [
+  { id: 1, title: <span class="tc-str">"Audit auth flow"</span>,    priority: <span class="tc-str">"high"</span>,   due: <span class="tc-str">"2026-05-12"</span>, done: <span class="tc-kw">false</span> },
+  { id: 2, title: <span class="tc-str">"Update onboarding copy"</span>, priority: <span class="tc-str">"medium"</span>, due: <span class="tc-str">"2026-05-15"</span>, done: <span class="tc-kw">false</span> },
+  { id: 3, title: <span class="tc-str">"Renew certs"</span>,        priority: <span class="tc-str">"low"</span>,    due: <span class="tc-str">"2026-05-08"</span>, done: <span class="tc-kw">true</span>  },
 ];
-<span class="c-keyword">let</span> nextId = 4;</pre>
+<span class="tc-kw">let</span> nextId = 4;</tc-code>
 
           <p>
             One <code>tasks</code> array. One <code>nextId</code>
@@ -404,51 +259,49 @@
             handle their own re-renders internally; we just update their props.
           </p>
 
-          <pre
-            class="code"
-          ><span class="c-keyword">const</span> tbl = document.getElementById(<span class="c-string">"tbl"</span>);
+          <tc-code language="ts"><span class="tc-kw">const</span> tbl = document.getElementById(<span class="tc-str">"tbl"</span>);
 tbl.columns = [
-  { key: <span class="c-string">"title"</span>,    label: <span class="c-string">"Title"</span>,    sortable: <span class="c-keyword">true</span> },
-  { key: <span class="c-string">"priority"</span>, label: <span class="c-string">"Priority"</span>, sortable: <span class="c-keyword">true</span> },
-  { key: <span class="c-string">"due"</span>,      label: <span class="c-string">"Due"</span>,      sortable: <span class="c-keyword">true</span> },
-  { key: <span class="c-string">"status"</span>,   label: <span class="c-string">"Status"</span> },
+  { key: <span class="tc-str">"title"</span>,    label: <span class="tc-str">"Title"</span>,    sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">"priority"</span>, label: <span class="tc-str">"Priority"</span>, sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">"due"</span>,      label: <span class="tc-str">"Due"</span>,      sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">"status"</span>,   label: <span class="tc-str">"Status"</span> },
 ];
 
-<span class="c-keyword">const</span> sel = document.getElementById(<span class="c-string">"f-priority"</span>);
+<span class="tc-kw">const</span> sel = document.getElementById(<span class="tc-str">"f-priority"</span>);
 sel.options = [
-  { value: <span class="c-string">"low"</span>,    label: <span class="c-string">"Low"</span>    },
-  { value: <span class="c-string">"medium"</span>, label: <span class="c-string">"Medium"</span> },
-  { value: <span class="c-string">"high"</span>,   label: <span class="c-string">"High"</span>   },
+  { value: <span class="tc-str">"low"</span>,    label: <span class="tc-str">"Low"</span>    },
+  { value: <span class="tc-str">"medium"</span>, label: <span class="tc-str">"Medium"</span> },
+  { value: <span class="tc-str">"high"</span>,   label: <span class="tc-str">"High"</span>   },
 ];
-sel.value = <span class="c-string">"medium"</span>;
+sel.value = <span class="tc-str">"medium"</span>;
 
-<span class="c-keyword">function</span> render() {
-  <span class="c-comment">// table rows = derived view of tasks</span>
+<span class="tc-kw">function</span> render() {
+  <span class="tc-com">// table rows = derived view of tasks</span>
   tbl.rows = tasks.map(t =&gt; ({
     ...t,
-    status: t.done ? <span class="c-string">"✓ done"</span> : isOverdue(t) ? <span class="c-string">"⚠ overdue"</span> : <span class="c-string">"open"</span>,
+    status: t.done ? <span class="tc-str">"✓ done"</span> : isOverdue(t) ? <span class="tc-str">"⚠ overdue"</span> : <span class="tc-str">"open"</span>,
   }));
 
-  <span class="c-comment">// stats</span>
-  <span class="c-keyword">const</span> total = tasks.length;
-  <span class="c-keyword">const</span> done = tasks.filter(t =&gt; t.done).length;
-  <span class="c-keyword">const</span> open = total - done;
-  <span class="c-keyword">const</span> overdue = tasks.filter(t =&gt; !t.done &amp;&amp; isOverdue(t)).length;
+  <span class="tc-com">// stats</span>
+  <span class="tc-kw">const</span> total = tasks.length;
+  <span class="tc-kw">const</span> done = tasks.filter(t =&gt; t.done).length;
+  <span class="tc-kw">const</span> open = total - done;
+  <span class="tc-kw">const</span> overdue = tasks.filter(t =&gt; !t.done &amp;&amp; isOverdue(t)).length;
 
-  document.getElementById(<span class="c-string">"s-total"</span>).value   = String(total);
-  document.getElementById(<span class="c-string">"s-done"</span>).value    = String(done);
-  document.getElementById(<span class="c-string">"s-open"</span>).value    = String(open);
-  <span class="c-keyword">const</span> overdueEl = document.getElementById(<span class="c-string">"s-overdue"</span>);
+  document.getElementById(<span class="tc-str">"s-total"</span>).value   = String(total);
+  document.getElementById(<span class="tc-str">"s-done"</span>).value    = String(done);
+  document.getElementById(<span class="tc-str">"s-open"</span>).value    = String(open);
+  <span class="tc-kw">const</span> overdueEl = document.getElementById(<span class="tc-str">"s-overdue"</span>);
   overdueEl.value = String(overdue);
-  overdueEl.trend = overdue &gt; 0 ? <span class="c-string">"down"</span> : <span class="c-string">"neutral"</span>;
-  overdueEl.delta = overdue &gt; 0 ? <span class="c-string">"needs attention"</span> : <span class="c-string">""</span>;
+  overdueEl.trend = overdue &gt; 0 ? <span class="tc-str">"down"</span> : <span class="tc-str">"neutral"</span>;
+  overdueEl.delta = overdue &gt; 0 ? <span class="tc-str">"needs attention"</span> : <span class="tc-str">""</span>;
 }
 
-<span class="c-keyword">function</span> isOverdue(t) {
-  <span class="c-keyword">return</span> t.due &amp;&amp; <span class="c-keyword">new</span> Date(t.due) &lt; <span class="c-keyword">new</span> Date();
+<span class="tc-kw">function</span> isOverdue(t) {
+  <span class="tc-kw">return</span> t.due &amp;&amp; <span class="tc-kw">new</span> Date(t.due) &lt; <span class="tc-kw">new</span> Date();
 }
 
-render();</pre>
+render();</tc-code>
 
           <p>
             Notice what we're <em>not</em> doing: there's no
@@ -465,27 +318,25 @@ render();</pre>
             Listen for the form's submit, push to the array, re-render, toast.
           </p>
 
-          <pre
-            class="code"
-          >document.getElementById(<span class="c-string">"new-task"</span>).addEventListener(<span class="c-string">"submit"</span>, (e) =&gt; {
+          <tc-code language="ts">document.getElementById(<span class="tc-str">"new-task"</span>).addEventListener(<span class="tc-str">"submit"</span>, (e) =&gt; {
   e.preventDefault();
-  <span class="c-keyword">const</span> data = <span class="c-keyword">new</span> FormData(e.target);
-  <span class="c-keyword">const</span> title = data.get(<span class="c-string">"title"</span>);
-  <span class="c-keyword">if</span> (!title) <span class="c-keyword">return</span>;
+  <span class="tc-kw">const</span> data = <span class="tc-kw">new</span> FormData(e.target);
+  <span class="tc-kw">const</span> title = data.get(<span class="tc-str">"title"</span>);
+  <span class="tc-kw">if</span> (!title) <span class="tc-kw">return</span>;
   tasks = [
     ...tasks,
     {
       id: nextId++,
       title,
-      priority: data.get(<span class="c-string">"priority"</span>) || <span class="c-string">"medium"</span>,
-      due: data.get(<span class="c-string">"due"</span>) || <span class="c-string">""</span>,
-      done: <span class="c-keyword">false</span>,
+      priority: data.get(<span class="tc-str">"priority"</span>) || <span class="tc-str">"medium"</span>,
+      due: data.get(<span class="tc-str">"due"</span>) || <span class="tc-str">""</span>,
+      done: <span class="tc-kw">false</span>,
     },
   ];
   e.target.reset();
   render();
-  toast(<span class="c-string">"success"</span>, <span class="c-string">"Task added"</span>);
-});</pre>
+  toast(<span class="tc-str">"success"</span>, <span class="tc-str">"Task added"</span>);
+});</tc-code>
 
           <p>
             <code>FormData</code> works because every form field —
@@ -513,12 +364,10 @@ render();</pre>
             modal:
           </p>
 
-          <pre
-            class="code"
-          ><span class="c-keyword">const</span> modal = document.getElementById(<span class="c-string">"m"</span>);
-<span class="c-keyword">let</span> selected = <span class="c-keyword">null</span>;
+          <tc-code language="ts"><span class="tc-kw">const</span> modal = document.getElementById(<span class="tc-str">"m"</span>);
+<span class="tc-kw">let</span> selected = <span class="tc-kw">null</span>;
 
-tbl.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; {
+tbl.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; {
   selected = e.detail.row;
   modal.title = selected.title;
   modal.innerHTML = `
@@ -531,12 +380,12 @@ tbl.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; {
       &lt;tc-button variant="danger"  id="m-delete"&gt;Delete&lt;/tc-button&gt;
     &lt;/div&gt;
   `;
-  modal.open = <span class="c-keyword">true</span>;
+  modal.open = <span class="tc-kw">true</span>;
 });
 
-<span class="c-keyword">function</span> variantFor(p) {
-  <span class="c-keyword">return</span> p === <span class="c-string">"high"</span> ? <span class="c-string">"danger"</span> : p === <span class="c-string">"medium"</span> ? <span class="c-string">"warning"</span> : <span class="c-string">"info"</span>;
-}</pre>
+<span class="tc-kw">function</span> variantFor(p) {
+  <span class="tc-kw">return</span> p === <span class="tc-str">"high"</span> ? <span class="tc-str">"danger"</span> : p === <span class="tc-str">"medium"</span> ? <span class="tc-str">"warning"</span> : <span class="tc-str">"info"</span>;
+}</tc-code>
 
           <p>
             We rebuild the modal's inner HTML each time so the buttons reflect
@@ -544,26 +393,24 @@ tbl.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; {
             route by id — one listener handles all three buttons:
           </p>
 
-          <pre
-            class="code"
-          >modal.addEventListener(<span class="c-string">"click"</span>, (e) =&gt; {
-  <span class="c-keyword">const</span> id = e.target.id;
-  <span class="c-keyword">if</span> (!id || !selected) <span class="c-keyword">return</span>;
-  <span class="c-keyword">if</span> (id === <span class="c-string">"m-close"</span>) {
-    modal.open = <span class="c-keyword">false</span>;
-  } <span class="c-keyword">else</span> <span class="c-keyword">if</span> (id === <span class="c-string">"m-toggle"</span>) {
+          <tc-code language="ts">modal.addEventListener(<span class="tc-str">"click"</span>, (e) =&gt; {
+  <span class="tc-kw">const</span> id = e.target.id;
+  <span class="tc-kw">if</span> (!id || !selected) <span class="tc-kw">return</span>;
+  <span class="tc-kw">if</span> (id === <span class="tc-str">"m-close"</span>) {
+    modal.open = <span class="tc-kw">false</span>;
+  } <span class="tc-kw">else</span> <span class="tc-kw">if</span> (id === <span class="tc-str">"m-toggle"</span>) {
     tasks = tasks.map(t =&gt; t.id === selected.id ? { ...t, done: !t.done } : t);
-    modal.open = <span class="c-keyword">false</span>;
+    modal.open = <span class="tc-kw">false</span>;
     render();
-    toast(<span class="c-string">"info"</span>, selected.done ? <span class="c-string">"Re-opened."</span> : <span class="c-string">"Marked done."</span>);
-  } <span class="c-keyword">else</span> <span class="c-keyword">if</span> (id === <span class="c-string">"m-delete"</span>) {
-    <span class="c-keyword">if</span> (!confirm(<span class="c-string">`Delete "${selected.title}"?`</span>)) <span class="c-keyword">return</span>;
+    toast(<span class="tc-str">"info"</span>, selected.done ? <span class="tc-str">"Re-opened."</span> : <span class="tc-str">"Marked done."</span>);
+  } <span class="tc-kw">else</span> <span class="tc-kw">if</span> (id === <span class="tc-str">"m-delete"</span>) {
+    <span class="tc-kw">if</span> (!confirm(<span class="tc-str">`Delete "${selected.title}"?`</span>)) <span class="tc-kw">return</span>;
     tasks = tasks.filter(t =&gt; t.id !== selected.id);
-    modal.open = <span class="c-keyword">false</span>;
+    modal.open = <span class="tc-kw">false</span>;
     render();
-    toast(<span class="c-string">"warning"</span>, <span class="c-string">"Task deleted"</span>);
+    toast(<span class="tc-str">"warning"</span>, <span class="tc-str">"Task deleted"</span>);
   }
-});</pre>
+});</tc-code>
 
           <p>
             Setting <code>modal.open = false</code> closes the dialog. Pressing
@@ -577,22 +424,20 @@ tbl.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; {
             One helper that creates a toast, opens it, and removes it on close.
           </p>
 
-          <pre
-            class="code"
-          ><span class="c-keyword">const</span> toastsHost = document.getElementById(<span class="c-string">"toasts"</span>);
+          <tc-code language="ts"><span class="tc-kw">const</span> toastsHost = document.getElementById(<span class="tc-str">"toasts"</span>);
 
-<span class="c-keyword">function</span> toast(variant, message) {
-  <span class="c-keyword">const</span> t = document.createElement(<span class="c-string">"tc-toast"</span>);
+<span class="tc-kw">function</span> toast(variant, message) {
+  <span class="tc-kw">const</span> t = document.createElement(<span class="tc-str">"tc-toast"</span>);
   t.variant = variant;
   t.message = message;
   t.duration = 3000;
   toastsHost.appendChild(t);
-  requestAnimationFrame(() =&gt; { t.open = <span class="c-keyword">true</span>; });
-  t.addEventListener(<span class="c-string">"tc-toast-close"</span>, () =&gt; {
-    <span class="c-comment">// let the slide-out animation finish before removing the node</span>
+  requestAnimationFrame(() =&gt; { t.open = <span class="tc-kw">true</span>; });
+  t.addEventListener(<span class="tc-str">"tc-toast-close"</span>, () =&gt; {
+    <span class="tc-com">// let the slide-out animation finish before removing the node</span>
     setTimeout(() =&gt; t.remove(), 200);
   });
-}</pre>
+}</tc-code>
 
           <p>
             That's the whole feature. Auto-dismiss is built in via the
@@ -659,26 +504,6 @@ tbl.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; {
       </article>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="../docs.html">Docs</a>
-          <a href="../components.html">Components</a>
-          <a href="../playground.html">Playground</a>
-          <a href="./index.html">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose-kit"
-            target="_blank"
-            rel="noopener"
-          >JSR</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-          >GitHub</a>
-        </div>
-      </div>
-    </footer>
+    <site-footer base="../"></site-footer>
   </body>
 </html>
