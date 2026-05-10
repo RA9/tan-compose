@@ -3,6 +3,14 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.1.2] - 2026-05-10
+
+### Documentation
+
+- Added a proper `kit/README.md` with install, component list grouped by
+  category, theming overview, framework-interop notes, and worked examples. Now
+  visible on the JSR package page.
+
 ## [1.1.1] - 2026-05-10
 
 ### Fixed
