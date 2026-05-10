@@ -30,13 +30,19 @@ for theming, event emission, reactivity, and encapsulation using the Shadow DOM.
 
 ## Installation
 
-Install the package via npm:
+With Deno (JSR):
 
 ```bash
-npx jsr add  @ra9/tan-compose
+deno add jsr:@ra9/tan-compose
 ```
 
-Or use with Deno:
+With npm/Node bundlers (via JSR):
+
+```bash
+npx jsr add @ra9/tan-compose
+```
+
+Or import directly from a URL with Deno:
 
 ```typescript
 import { build, describe } from "https://deno.land/x/tan_compose/mod.ts";
@@ -276,17 +282,22 @@ build("themed-btn", themedButton);
 
 ### Reactive Attributes
 
-Components automatically re-render when attributes change:
+Declare which attributes should trigger re-renders via `observedAttributes`:
 
 ```javascript
 const dynamicText = describe({
   tag: "div",
+  observedAttributes: ["data-text"],
   attributes: { "data-text": "Initial text" },
-  template: "Check the console on attribute change",
+  template: "Check the DOM on attribute change",
 });
 
 build("dynamic-text", dynamicText);
 ```
+
+> **Breaking change in 0.2.0:** Reactivity is now opt-in. In 0.1.x, every key of
+> `attributes` was implicitly observed; you must now list them explicitly in
+> `observedAttributes`.
 
 ```html
 <dynamic-text data-text="Initial"></dynamic-text>
@@ -348,17 +359,20 @@ Creates a component description object.
 - `children?: DescribeOptions[]` - Array of child components
 - `action?: (event: Event) => void` - Click event handler
 - `emit?: EventEmitter[]` - Custom event emitters
-- `beforeMount?: () => void` - Hook called before component mounts
-- `afterMount?: () => void` - Hook called after component mounts
+- `observedAttributes?: string[]` - Attribute names that trigger re-renders
+- `beforeMount?: () => void` - Hook called before first render
+- `afterMount?: () => void` - Hook called after the element is connected
+- `unmount?: () => void` - Hook called when the element is disconnected
 
 ### Component Methods
 
 Custom components have these methods available:
 
 - `emitEvent(eventName: string, data: any)` - Emit a custom event
-- `setState(key: string, value: any)` - Set state value
-- `getState(key: string): any` - Get state value
-- `render()` - Manually trigger re-render
+- `setState(key: string, value: any)` - Set a state value (triggers re-render if
+  the value changed)
+- `getState<T>(key: string): T | undefined` - Get a state value
+- `render()` - Manually trigger a re-render
 
 ### Helper Functions
 

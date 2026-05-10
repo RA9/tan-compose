@@ -9,7 +9,8 @@
     "jsr:@std/json@~0.213.1": "0.213.1",
     "jsr:@std/jsonc@0.213": "0.213.1",
     "jsr:@std/path@0.213": "0.213.1",
-    "npm:esbuild@0.20": "0.20.2"
+    "npm:esbuild@0.20": "0.20.2",
+    "npm:happy-dom@15": "15.11.7"
   },
   "jsr": {
     "@luca/esbuild-deno-loader@0.9.0": {
@@ -169,6 +170,9 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
+    "entities@4.5.0": {
+      "integrity": "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="
+    },
     "esbuild@0.20.2": {
       "integrity": "sha512-WdOOppmUNU+IbZ0PaDiTst80zjnrOkyJNHoKupIcVyU8Lvla3Ugx94VzkQ32Ijqd7UhHJy75gNWDMUekcrSJ6g==",
       "optionalDependencies": [
@@ -198,6 +202,20 @@
       ],
       "scripts": true,
       "bin": true
+    },
+    "happy-dom@15.11.7": {
+      "integrity": "sha512-KyrFvnl+J9US63TEzwoiJOQzZBJY7KgBushJA8X61DMbNsH+2ONkDuLDnCnwUiPTF42tLoEmrPyoqbenVA5zrg==",
+      "dependencies": [
+        "entities",
+        "webidl-conversions",
+        "whatwg-mimetype"
+      ]
+    },
+    "webidl-conversions@7.0.0": {
+      "integrity": "sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g=="
+    },
+    "whatwg-mimetype@3.0.0": {
+      "integrity": "sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q=="
     }
   },
   "remote": {
@@ -209,7 +227,8 @@
   "workspace": {
     "dependencies": [
       "jsr:@luca/esbuild-deno-loader@0.9",
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "npm:happy-dom@15"
     ]
   }
 }

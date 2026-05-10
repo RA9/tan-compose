@@ -3,112 +3,747 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Tan Compose Documentation" />
+        <meta
+            name="description"
+            content="Tan Compose Documentation - API reference, lifecycle, reactivity, and migration guide"
+        />
         <title>Tan Compose - Documentation</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; min-height: 100vh; }
-            .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-            header { background: #ffffff; padding: 20px 0; border-bottom: 1px solid #e9ecef; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            .nav { display: flex; justify-content: space-between; align-items: center; }
-            .nav h1 { font-size: 1.8rem; font-weight: 700; color: #6c757d; }
-            .nav a { color: #6c757d; text-decoration: none; font-weight: 500; transition: color 0.3s; }
-            .nav a:hover { color: #333; }
-            main { padding: 40px 0; }
-            .doc-section { background: #ffffff; border-radius: 12px; padding: 40px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-            .doc-section h2 { font-size: 2rem; margin-bottom: 20px; color: #555; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
-            .doc-section h3 { font-size: 1.5rem; margin: 30px 0 15px; color: #6c757d; }
-            .code-block { background: #1e1e1e; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
-            .code-block code { color: #d4d4d4; font-family: "Courier New", monospace; font-size: 14px; line-height: 1.6; }
-            footer { text-align: center; padding: 20px; background: #e9ecef; color: #333; margin-top: 40px; }
-            @media (max-width: 768px) { .nav { flex-direction: column; gap: 15px; } .doc-section { padding: 20px; } .doc-section h2 { font-size: 1.5rem; } .code-block { font-size: 12px; } }
-            @media (max-width: 480px) { .container { padding: 0 15px; } .doc-section { padding: 15px; } }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            :root {
+                --bg: #faf7f2;
+                --surface: #ffffff;
+                --ink: #1f2330;
+                --ink-soft: #4a5061;
+                --muted: #6b7280;
+                --border: #ece7dc;
+                --accent: #5b6cf0;
+                --accent-soft: #eef0ff;
+                --code-bg: #1a1d29;
+                --code-fg: #e5e7eb;
+                --code-keyword: #c084fc;
+                --code-string: #fbbf24;
+                --shadow-sm: 0 1px 2px rgba(20, 24, 40, 0.04);
+                --shadow-md: 0 4px 16px rgba(20, 24, 40, 0.06);
+                --radius: 12px;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family:
+                    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, sans-serif;
+                line-height: 1.65;
+                color: var(--ink);
+                background: var(--bg);
+                min-height: 100vh;
+                font-feature-settings: "cv11", "ss01";
+                -webkit-font-smoothing: antialiased;
+            }
+
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+
+            /* Sticky nav */
+            header.site-nav {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: rgba(250, 247, 242, 0.85);
+                backdrop-filter: saturate(180%) blur(12px);
+                -webkit-backdrop-filter: saturate(180%) blur(12px);
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px 0;
+                gap: 16px;
+            }
+
+            .nav-brand {
+                font-size: 1.15rem;
+                font-weight: 800;
+                color: var(--ink);
+                letter-spacing: -0.01em;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .version-pill {
+                display: inline-block;
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 8px;
+                background: var(--accent-soft);
+                color: var(--accent);
+                border-radius: 999px;
+                letter-spacing: 0.02em;
+            }
+
+            .nav-links {
+                display: flex;
+                gap: 22px;
+                align-items: center;
+            }
+
+            .nav-links a {
+                color: var(--ink-soft);
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.95rem;
+                transition: color 0.2s ease;
+            }
+
+            .nav-links a:hover,
+            .nav-links a:focus-visible {
+                color: var(--accent);
+            }
+
+            .nav-links a:focus-visible {
+                outline: 2px solid var(--accent);
+                outline-offset: 4px;
+                border-radius: 4px;
+            }
+
+            main {
+                padding: 56px 0 80px;
+            }
+
+            .doc-hero {
+                margin-bottom: 48px;
+            }
+
+            .doc-hero h1 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                color: var(--ink);
+                margin-bottom: 12px;
+            }
+
+            .doc-hero p {
+                font-size: 1.125rem;
+                color: var(--ink-soft);
+                max-width: 720px;
+            }
+
+            section.doc-section {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 36px 40px;
+                margin-bottom: 28px;
+                box-shadow: var(--shadow-sm);
+            }
+
+            section.doc-section h2 {
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: var(--ink);
+                margin-bottom: 16px;
+                letter-spacing: -0.01em;
+                scroll-margin-top: 80px;
+            }
+
+            section.doc-section h3 {
+                font-size: 1.15rem;
+                font-weight: 600;
+                color: var(--ink);
+                margin: 28px 0 12px;
+            }
+
+            section.doc-section p {
+                color: var(--ink-soft);
+                margin-bottom: 14px;
+            }
+
+            section.doc-section ul {
+                margin: 8px 0 16px 22px;
+                color: var(--ink-soft);
+            }
+
+            section.doc-section li {
+                margin-bottom: 6px;
+            }
+
+            code {
+                font-family:
+                    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+                    Monaco, Consolas, monospace;
+                font-size: 0.88em;
+            }
+
+            p code,
+            li code,
+            td code {
+                background: var(--accent-soft);
+                color: var(--accent);
+                padding: 1px 6px;
+                border-radius: 4px;
+                font-size: 0.85em;
+            }
+
+            .code-block {
+                background: var(--code-bg);
+                border-radius: 10px;
+                padding: 20px 22px;
+                margin: 16px 0 8px;
+                overflow-x: auto;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .code-block pre {
+                margin: 0;
+            }
+
+            .code-block code {
+                color: var(--code-fg);
+                background: transparent;
+                padding: 0;
+                font-size: 0.875rem;
+                line-height: 1.7;
+                white-space: pre;
+            }
+
+            /* API tables */
+            table.api {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 14px 0 8px;
+                font-size: 0.92rem;
+            }
+
+            table.api th,
+            table.api td {
+                text-align: left;
+                padding: 10px 12px;
+                border-bottom: 1px solid var(--border);
+                vertical-align: top;
+            }
+
+            table.api th {
+                font-weight: 600;
+                color: var(--ink);
+                background: #f7f3ec;
+                font-size: 0.82rem;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+
+            table.api td {
+                color: var(--ink-soft);
+            }
+
+            table.api td:first-child {
+                white-space: nowrap;
+                font-family:
+                    "JetBrains Mono", ui-monospace, monospace;
+                color: var(--ink);
+                font-weight: 500;
+            }
+
+            .signature {
+                display: inline-block;
+                background: var(--accent-soft);
+                color: var(--accent);
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-family:
+                    "JetBrains Mono", ui-monospace, monospace;
+                font-size: 0.92rem;
+                font-weight: 500;
+                margin: 6px 0 12px;
+            }
+
+            .callout {
+                background: #fffaf0;
+                border-left: 3px solid #d4a64a;
+                border-radius: 6px;
+                padding: 14px 18px;
+                margin: 18px 0;
+                color: var(--ink-soft);
+                font-size: 0.95rem;
+            }
+
+            .callout strong {
+                color: var(--ink);
+            }
+
+            footer {
+                text-align: center;
+                padding: 32px 20px;
+                color: var(--muted);
+                border-top: 1px solid var(--border);
+                background: var(--surface);
+                font-size: 0.9rem;
+            }
+
+            footer a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+
+            footer a:hover {
+                text-decoration: underline;
+            }
+
+            @media (max-width: 768px) {
+                .nav {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+
+                .nav-links {
+                    flex-wrap: wrap;
+                    gap: 16px;
+                }
+
+                .doc-hero h1 {
+                    font-size: 1.9rem;
+                }
+
+                section.doc-section {
+                    padding: 24px 20px;
+                }
+
+                section.doc-section h2 {
+                    font-size: 1.35rem;
+                }
+
+                .code-block {
+                    padding: 16px;
+                }
+
+                .code-block code {
+                    font-size: 0.8rem;
+                }
+
+                table.api {
+                    font-size: 0.85rem;
+                }
+
+                table.api th,
+                table.api td {
+                    padding: 8px 6px;
+                }
+            }
         </style>
     </head>
     <body>
-        <header>
+        <header class="site-nav">
             <div class="container">
-                <nav class="nav">
-                    <h1>Tan Compose</h1>
-                    <div>
-                        <a href="index.html">Home</a> |
-                        <a href="examples.html">Examples<</div>a> |
-                        <a href="docs.html">Docs</a>
+                <nav class="nav" aria-label="Primary">
+                    <div class="nav-brand">
+                        Tan Compose
+                        <span class="version-pill" aria-label="Version 0.2.0">v0.2.0</span>
+                    </div>
+                    <div class="nav-links">
+                        <a href="index.html">Home</a>
+                        <a href="examples.html">Examples</a>
+                        <a href="docs.html" aria-current="page">Docs</a>
+                        <a
+                            href="https://github.com/ra9/tan-compose"
+                            target="_blank"
+                            rel="noopener"
+                            >GitHub</a
+                        >
                     </div>
                 </nav>
             </div>
         </header>
 
         <main class="container">
-            <div class="doc-section">
-                <h2>Getting Started</h2>
-                <p>Welcome to Tan Compose! Build reusable web components with declarative syntax.</p>
+            <div class="doc-hero">
+                <h1>Documentation</h1>
+                <p>
+                    Everything you need to build production-ready Web Components
+                    with Tan Compose &mdash; declarative syntax, Shadow DOM
+                    isolation, theming via CSS variables, and reactive state.
+                </p>
+            </div>
 
-                <</h2>h3>Installation</h3>
+            <!-- Introduction -->
+            <section class="doc-section" id="introduction">
+                <h2>Introduction</h2>
+                <p>
+                    <strong>Tan Compose</strong> is a lightweight, zero-dependency
+                    library for authoring native Web Components with a
+                    declarative API. You describe a component once with
+                    <code>describe()</code> and register it with
+                    <code>build()</code>; the library handles Shadow DOM setup,
+                    theming via CSS custom properties, inline styles, lifecycle
+                    hooks, attribute reactivity, custom events, and slots.
+                </p>
+            </section>
+
+            <!-- Installation -->
+            <section class="doc-section" id="installation">
+                <h2>Installation</h2>
+                <p>Install from JSR for Deno or Node:</p>
                 <div class="code-block">
-                    <code>npm install tan-compose</</code>code>
+                    <pre><code># Deno
+deno add jsr:@ra9/tan-compose
+
+# Node / npm
+npx jsr add @ra9/tan-compose</code></pre>
                 </div>
 
-                <h3>Basic Usage</h3>
+                <h3>CDN / Deno import</h3>
+                <p>You can also import directly in Deno or the browser:</p>
                 <div class="code-block">
-                    <code>import { describe, build } from 'tan-compose';
+                    <pre><code>import { build, describe } from "https://deno.land/x/tan_compose/mod.ts";</code></pre>
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section class="doc-section" id="quick-start">
+                <h2>Quick Start</h2>
+                <p>
+                    Describe a component, then register it under a custom tag
+                    name. Custom tag names must be lowercase and contain a
+                    hyphen.
+                </p>
+                <div class="code-block">
+                    <pre><code>import { build, describe } from "@ra9/tan-compose";
 
 const button = describe({
-  tag: 'button',
-  template: 'Click me!',
+  tag: "button",
+  template: "Click me",
   styles: {
-    padding: '10px 20px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px'
+    padding: "10px 20px",
+    backgroundColor: "#5b6cf0",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
   },
-  action: () => alert('Button clicked!')
+  action: () =&gt; alert("Hello, Tan Compose!"),
 });
 
-build('my-button', button);</code>
+build("my-button", button);</code></pre>
                 </div>
-            </div>
 
-            <div class="doc-section">
+                <p>Then use it in HTML like any native element:</p>
+                <div class="code-block">
+                    <pre><code>&lt;my-button&gt;&lt;/my-button&gt;</code></pre>
+                </div>
+            </section>
+
+            <!-- API Reference -->
+            <section class="doc-section" id="api">
                 <h2>API Reference</h2>
 
-                <h</h2>3>describe(options)</h3>
-                <p>Creates a component description object.</p>
-                <p</p>><strong>Parameters:</strong></p>
-                <ul>
-                    <li><</ul>code>tag</code> - HTML element type</li>
-                    <li><code></code>template</code> - Inner HTML content</li>
-                    <li><code>styles</code> - CSS styles object</li>
-                    <li><code>theme</code></code> - CSS custom properties</li></code>
-                    <li><code>children</code> - Nested components</li</code>>
-                    <li><code>action</code> - Click handler</li>
-                    <li><code>attributes</code</code>> - HTML attributes</li></code>
-                    <li><code>beforeMount/afterMount</code> - Lifecycle hooks</li>
-                    <li><code</code>>emit</code> - Custom events</li>
-                </ul>
+                <h3 id="describe">describe(options)</h3>
+                <div class="signature">
+                    describe(options: DescribeOptions) =&gt; DescribeOptions
+                </div>
+                <p>
+                    Validates and returns a component description. As of
+                    <strong>v0.2.0</strong>, this function throws on invalid
+                    options (missing <code>tag</code>, malformed
+                    <code>observedAttributes</code>, etc.).
+                </p>
 
-                <h3>build(tagName, description)</h3</h3>>
-                <p>Registers a custom element.</p>
-                <p><strong>Parameters:</strong></p>
-                <ul>
-                    <li><code>tagName</code> - Custom element name</li</p></ul></code>>
-                    <li><code>description</code> - Component description</li>
-                </ul>
-            </div>
+                <h3 id="build">build(tagName, description)</h3>
+                <div class="signature">
+                    build(tagName: string, description: DescribeOptions) =&gt;
+                    string
+                </div>
+                <p>
+                    Registers a custom element with the browser&rsquo;s
+                    <code>CustomElementRegistry</code> and returns the
+                    registered tag name. The <code>tagName</code> must be
+                    lowercase and contain a hyphen
+                    (e.g.&nbsp;<code>my-button</code>); otherwise
+                    <code>build()</code> throws.
+                </p>
 
-            <div class="doc-section">
-                <h2>Examples<</code></h2>h2>
-                <p>See the <a href="examples.html">examples page</a> for interactive demos.</p>
-            </div>
+                <h3 id="is-registered">isComponentRegistered(tagName)</h3>
+                <div class="signature">
+                    isComponentRegistered(tagName: string) =&gt; boolean
+                </div>
+                <p>
+                    Returns <code>true</code> if a component with the given tag
+                    name has already been registered.
+                </p>
+
+                <h3 id="registry">getRegisteredComponents()</h3>
+                <div class="signature">
+                    getRegisteredComponents() =&gt; string[]
+                </div>
+                <p>
+                    Returns an array of every tag name registered through
+                    <code>build()</code> in the current document.
+                </p>
+
+                <h3 id="describe-options">DescribeOptions</h3>
+                <p>The full shape accepted by <code>describe()</code>:</p>
+                <table class="api" aria-label="DescribeOptions fields">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>tag</td>
+                            <td>string</td>
+                            <td>&mdash;</td>
+                            <td>HTML element used internally inside the Shadow DOM root (required).</td>
+                        </tr>
+                        <tr>
+                            <td>theme</td>
+                            <td>Record&lt;string, string&gt;</td>
+                            <td><code>{}</code></td>
+                            <td>CSS custom properties exposed as <code>--name</code> variables on the host.</td>
+                        </tr>
+                        <tr>
+                            <td>styles</td>
+                            <td>Record&lt;string, string&gt;</td>
+                            <td><code>{}</code></td>
+                            <td>Inline styles applied to the component&rsquo;s root element (camelCase keys).</td>
+                        </tr>
+                        <tr>
+                            <td>className</td>
+                            <td>string</td>
+                            <td><code>""</code></td>
+                            <td>Class name added to the root element.</td>
+                        </tr>
+                        <tr>
+                            <td>attributes</td>
+                            <td>Record&lt;string, string&gt;</td>
+                            <td><code>{}</code></td>
+                            <td>Static HTML attributes set on the root element.</td>
+                        </tr>
+                        <tr>
+                            <td>template</td>
+                            <td>string</td>
+                            <td><code>""</code></td>
+                            <td>Inner HTML rendered inside the root element.</td>
+                        </tr>
+                        <tr>
+                            <td>children</td>
+                            <td>DescribeOptions[]</td>
+                            <td><code>[]</code></td>
+                            <td>Nested component descriptions composed inside the root.</td>
+                        </tr>
+                        <tr>
+                            <td>action</td>
+                            <td>(event: Event) =&gt; void</td>
+                            <td>&mdash;</td>
+                            <td>Click handler attached to the root element.</td>
+                        </tr>
+                        <tr>
+                            <td>emit</td>
+                            <td>Record&lt;string, EventInit&gt;</td>
+                            <td><code>{}</code></td>
+                            <td>Custom events the component dispatches; consumed via <code>emitEvent()</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>beforeMount</td>
+                            <td>(this: HTMLElement) =&gt; void</td>
+                            <td>&mdash;</td>
+                            <td>Lifecycle hook called before the Shadow DOM is constructed.</td>
+                        </tr>
+                        <tr>
+                            <td>afterMount</td>
+                            <td>(this: HTMLElement) =&gt; void</td>
+                            <td>&mdash;</td>
+                            <td>Lifecycle hook called after the component is connected to the DOM.</td>
+                        </tr>
+                        <tr>
+                            <td>unmount</td>
+                            <td>(this: HTMLElement) =&gt; void</td>
+                            <td>&mdash;</td>
+                            <td><strong>New in 0.2.0.</strong> Lifecycle hook called on <code>disconnectedCallback</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>observedAttributes</td>
+                            <td>string[]</td>
+                            <td><code>[]</code></td>
+                            <td><strong>New in 0.2.0.</strong> Explicit list of attributes that should trigger re-renders when changed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 id="instance-methods">Component instance methods</h3>
+                <p>Available as <code>this</code> inside lifecycle hooks and actions:</p>
+                <table class="api" aria-label="Component instance methods">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>setState(key, value)</td>
+                            <td>void</td>
+                            <td>Stores a value in component state. <strong>In 0.2.0 this triggers an automatic re-render.</strong></td>
+                        </tr>
+                        <tr>
+                            <td>getState(key)</td>
+                            <td>unknown</td>
+                            <td>Reads the current value for a state key.</td>
+                        </tr>
+                        <tr>
+                            <td>emitEvent(name, data)</td>
+                            <td>void</td>
+                            <td>Dispatches a <code>CustomEvent</code> declared in <code>emit</code>, with <code>detail = data</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>render()</td>
+                            <td>void</td>
+                            <td>Manually re-renders the Shadow DOM. Rarely needed since <code>setState</code> handles this.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Lifecycle -->
+            <section class="doc-section" id="lifecycle">
+                <h2>Lifecycle</h2>
+                <p>
+                    Tan Compose components follow a deterministic lifecycle.
+                    Hooks run in the order below:
+                </p>
+                <ol style="margin: 8px 0 14px 22px; color: var(--ink-soft);">
+                    <li><code>beforeMount</code> &mdash; runs before the Shadow DOM is constructed. Use it to read attributes or seed state.</li>
+                    <li>DOM construction &mdash; the Shadow DOM, root element, theme variables, styles, and children are built.</li>
+                    <li>Mounted &mdash; the element is connected (<code>connectedCallback</code>).</li>
+                    <li><code>afterMount</code> &mdash; runs after the component is in the DOM. Safe place to attach listeners or call <code>setState</code>.</li>
+                    <li>Updates &mdash; an attribute change in <code>observedAttributes</code> or a <code>setState</code> call triggers a re-render.</li>
+                    <li><code>unmount</code> &mdash; runs on <code>disconnectedCallback</code>. Use it to clean up timers and listeners.</li>
+                </ol>
+                <div class="callout">
+                    <strong>Tip:</strong> avoid mutating the Shadow DOM
+                    directly inside <code>afterMount</code> &mdash; prefer
+                    <code>setState</code> so subsequent updates stay
+                    consistent.
+                </div>
+            </section>
+
+            <!-- Reactivity -->
+            <section class="doc-section" id="reactivity">
+                <h2>Reactivity</h2>
+                <p>
+                    There are two ways to update a Tan Compose component after
+                    it has mounted:
+                </p>
+                <ul>
+                    <li>
+                        <strong>State</strong> &mdash; call
+                        <code>this.setState(key, value)</code>. As of
+                        <strong>0.2.0</strong>, every <code>setState</code>
+                        call triggers an automatic re-render of the Shadow DOM.
+                    </li>
+                    <li>
+                        <strong>Attributes</strong> &mdash; declare them
+                        explicitly in <code>observedAttributes</code>. Only
+                        attributes listed there will trigger a re-render when
+                        changed via <code>setAttribute()</code> or directly in
+                        markup.
+                    </li>
+                </ul>
+                <div class="code-block">
+                    <pre><code>const counter = describe({
+  tag: "div",
+  observedAttributes: ["count"],
+  template: "0",
+  afterMount() {
+    this.setState("count", Number(this.getAttribute("count") ?? 0));
+  },
+});
+
+build("my-counter", counter);</code></pre>
+                </div>
+            </section>
+
+            <!-- Migration -->
+            <section class="doc-section" id="migration">
+                <h2>Migration: 0.1.x &rarr; 0.2.0</h2>
+                <p>
+                    Version 0.2.0 is a minor release with breaking changes.
+                    Review each item below before upgrading:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Attribute reactivity is now opt-in.</strong>
+                        Add a string array to <code>observedAttributes</code>
+                        to receive re-renders. The old behavior of inferring
+                        observed attributes from the <code>attributes</code>
+                        keys has been removed.
+                    </li>
+                    <li>
+                        <strong><code>setState</code> auto-renders.</strong>
+                        You no longer need to call <code>render()</code>
+                        manually after updating state.
+                    </li>
+                    <li>
+                        <strong><code>describe()</code> validates input.</strong>
+                        Invalid options (missing <code>tag</code>, non-array
+                        <code>observedAttributes</code>, non-function lifecycle
+                        hooks) now throw at description time.
+                    </li>
+                    <li>
+                        <strong><code>build()</code> validates the tag name.</strong>
+                        The first argument must be lowercase and contain a
+                        hyphen. Names like <code>MyButton</code> or
+                        <code>button</code> are rejected.
+                    </li>
+                    <li>
+                        <strong>New <code>unmount</code> lifecycle hook.</strong>
+                        Pair it with <code>afterMount</code> for cleanup on
+                        <code>disconnectedCallback</code>.
+                    </li>
+                </ul>
+            </section>
         </main>
 
         <footer>
             <div class="container">
-                <p>&copy; 2024 Tan Compose. MIT License.</p>
+                <p>
+                    &copy; 2026 Tan Compose &middot; MIT License &middot;
+                    <a
+                        href="https://github.com/ra9/tan-compose"
+                        target="_blank"
+                        rel="noopener"
+                        >GitHub</a
+                    >
+                    &middot;
+                    <a
+                        href="https://jsr.io/@ra9/tan-compose"
+                        target="_blank"
+                        rel="noopener"
+                        >JSR</a
+                    >
+                </p>
             </div>
         </footer>
     </body>

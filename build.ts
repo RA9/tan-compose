@@ -1,15 +1,29 @@
 /// <reference lib="dom" />
 import type { DescribeOptions } from "./types.ts";
 
-// Component registry to prevent duplicate registrations
-const componentRegistry = new Map<string, typeof HTMLElement>();
+// Registry maps tag name to constructor; prevents duplicate registration.
+const componentRegistry = new Map<string, CustomElementConstructor>();
+
+const TAG_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 
 /**
- * Builds a custom component with the given tag name and description options
- * Handles component registration, lifecycle, reactivity, and proper cleanup
+ * Registers a custom element with the given tag name and description.
+ *
+ * Lifecycle ordering:
+ *   constructor (shadow root + theme/style sheets attached)
+ *     → connectedCallback → beforeMount → render → afterMount
+ *   attribute change / setState → render
+ *   disconnectedCallback → unmount → cleanup
+ *
+ * Returns the registered tag name.
  */
 export function build(tagName: string, description: DescribeOptions): string {
-  // Check if component already registered
+  if (typeof tagName !== "string" || !TAG_NAME_PATTERN.test(tagName)) {
+    throw new TypeError(
+      `build(): "${tagName}" is not a valid custom element name (must be lowercase and contain a hyphen).`,
+    );
+  }
+
   if (componentRegistry.has(tagName)) {
     console.warn(
       `Component "${tagName}" is already registered. Skipping re-registration.`,
@@ -17,273 +31,251 @@ export function build(tagName: string, description: DescribeOptions): string {
     return tagName;
   }
 
-  // Check if HTMLElement is available (e.g., in browser environment)
-  if (typeof HTMLElement === "undefined") {
-    console.warn("HTMLElement not available, skipping component registration");
+  if (
+    typeof HTMLElement === "undefined" || typeof customElements === "undefined"
+  ) {
+    console.warn(
+      "HTMLElement or customElements not available; skipping component registration.",
+    );
     return tagName;
   }
 
-  class CustomComponent extends HTMLElement {
-    private isInitialized = false;
-    private cleanupFunctions: Array<() => void> = [];
-    private state: Map<string, unknown> = new Map();
-    private container: HTMLElement | null = null;
+  const observed = description.observedAttributes ?? [];
 
-    // Define observed attributes for reactivity
-    static get observedAttributes() {
-      return description.attributes ? Object.keys(description.attributes) : [];
+  class CustomComponent extends HTMLElement {
+    private isMounted = false;
+    private mountCleanups: Array<() => void> = [];
+    private renderCleanups: Array<() => void> = [];
+    private state: Map<string, unknown> = new Map();
+    private container: HTMLElement;
+    private hostStyleEl: HTMLStyleElement | null = null;
+    private hostThemeEl: HTMLStyleElement | null = null;
+
+    static get observedAttributes(): string[] {
+      return observed;
     }
 
     constructor() {
       super();
-
-      // Initialize Shadow DOM for component encapsulation
       const shadow = this.attachShadow({ mode: "open" });
 
-      // Apply theme using CSS Variables in a style tag
       if (description.theme) {
-        const themeStyle = document.createElement("style");
-        let cssVariables = ":host {";
-        Object.entries(description.theme).forEach(([key, value]) => {
-          cssVariables += `--${key}: ${value}; `;
-        });
-        cssVariables += "}";
-        themeStyle.textContent = cssVariables;
-        shadow.appendChild(themeStyle);
+        this.hostThemeEl = document.createElement("style");
+        this.hostThemeEl.textContent = buildThemeCss(description.theme);
+        shadow.appendChild(this.hostThemeEl);
       }
 
-      // Apply component styles via style tag for better encapsulation
       if (description.styles) {
-        const componentStyle = document.createElement("style");
-        const styleRules = Object.entries(description.styles)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join("; ");
-        componentStyle.textContent = `.container { ${styleRules} }`;
-        shadow.appendChild(componentStyle);
+        this.hostStyleEl = document.createElement("style");
+        this.hostStyleEl.textContent = buildContainerCss(description.styles);
+        shadow.appendChild(this.hostStyleEl);
       }
 
-      // Create container for content
       this.container = document.createElement("div");
       this.container.className = description.className
         ? `container ${description.className}`
         : "container";
-
-      // Set attributes on host element if any
-      if (description.attributes) {
-        setAttributes(this, description.attributes);
-      }
-
-      // Render template if provided
-      if (description.template) {
-        this.container.innerHTML = description.template;
-      }
-
-      // Create child elements recursively
-      if (description.children && description.children.length > 0) {
-        description.children.forEach((childDesc) => {
-          const childElement = buildElement(childDesc, this.cleanupFunctions);
-          this.container!.appendChild(childElement);
-        });
-      }
-
-      // Append slot for projected content
-      const slotContent = document.createElement("slot");
-      this.container.appendChild(slotContent);
-
       shadow.appendChild(this.container);
 
-      // Setup event emission with cleanup tracking
+      if (description.attributes) {
+        applyAttributes(this, description.attributes);
+      }
+    }
+
+    connectedCallback(): void {
+      if (this.isMounted) return;
+
+      try {
+        description.beforeMount?.call(this);
+      } catch (err) {
+        console.error(`[tan-compose] beforeMount threw for <${tagName}>:`, err);
+      }
+
+      this.renderInternal();
+
+      if (description.action) {
+        const handler = description.action;
+        this.addEventListener("click", handler);
+        this.mountCleanups.push(() =>
+          this.removeEventListener("click", handler)
+        );
+      }
+
       if (description.emit) {
-        description.emit.forEach((event) => {
-          this.addEventListener(event.name, event.handler);
-          this.cleanupFunctions.push(() => {
-            this.removeEventListener(event.name, event.handler);
-          });
-        });
+        for (const evt of description.emit) {
+          this.addEventListener(evt.name, evt.handler);
+          this.mountCleanups.push(() =>
+            this.removeEventListener(evt.name, evt.handler)
+          );
+        }
+      }
+
+      this.isMounted = true;
+
+      try {
+        description.afterMount?.call(this);
+      } catch (err) {
+        console.error(`[tan-compose] afterMount threw for <${tagName}>:`, err);
       }
     }
 
-    connectedCallback() {
-      if (!this.isInitialized) {
-        this.isInitialized = true;
-
-        // Execute beforeMount hook
-        if (description.beforeMount) {
-          description.beforeMount();
-        }
-
-        // Execute afterMount hook
-        if (description.afterMount) {
-          description.afterMount();
-        }
-
-        // Handle click or other event action if provided
-        if (description.action) {
-          this.addEventListener("click", description.action);
-          this.cleanupFunctions.push(() => {
-            this.removeEventListener("click", description.action!);
-          });
-        }
+    disconnectedCallback(): void {
+      try {
+        description.unmount?.call(this);
+      } catch (err) {
+        console.error(`[tan-compose] unmount threw for <${tagName}>:`, err);
       }
+      this.runCleanups(this.mountCleanups);
+      this.runCleanups(this.renderCleanups);
+      this.isMounted = false;
     }
 
-    disconnectedCallback() {
-      // Execute all cleanup functions
-      this.cleanupFunctions.forEach((cleanup) => cleanup());
-      this.cleanupFunctions = [];
-      this.isInitialized = false;
-    }
-
-    // Attribute change observer for reactivity
     attributeChangedCallback(
       name: string,
       oldValue: string | null,
       newValue: string | null,
-    ) {
-      if (oldValue !== newValue) {
-        this.setState(name, newValue);
-        this.render();
-      }
+    ): void {
+      if (oldValue === newValue) return;
+      this.state.set(name, newValue);
+      if (this.isMounted) this.renderInternal();
     }
 
-    // State management
-    setState(key: string, value: unknown) {
+    setState(key: string, value: unknown): void {
+      const prev = this.state.get(key);
+      if (Object.is(prev, value)) return;
       this.state.set(key, value);
+      if (this.isMounted) this.renderInternal();
     }
 
-    getState(key: string): unknown {
-      return this.state.get(key);
+    getState<T = unknown>(key: string): T | undefined {
+      return this.state.get(key) as T | undefined;
     }
 
-    // Re-render component with current state
-    render() {
-      if (!this.container) return;
+    render(): void {
+      this.renderInternal();
+    }
 
-      // Clear current content (except slot)
-      const slot = this.container.querySelector("slot");
-      this.container.innerHTML = "";
+    emitEvent(eventName: string, data: unknown): void {
+      this.dispatchEvent(
+        new CustomEvent(eventName, {
+          detail: data,
+          bubbles: true,
+          composed: true,
+        }),
+      );
+    }
 
-      // Re-render template
+    private renderInternal(): void {
+      this.runCleanups(this.renderCleanups);
+
+      this.container.replaceChildren();
+
       if (description.template) {
         this.container.innerHTML = description.template;
       }
 
-      // Re-append slot
-      if (slot) {
-        this.container.appendChild(slot);
+      if (description.children) {
+        for (const childDesc of description.children) {
+          const childEl = buildElement(childDesc, this.renderCleanups);
+          this.container.appendChild(childEl);
+        }
       }
 
-      // Re-render children
-      if (description.children && description.children.length > 0) {
-        description.children.forEach((childDesc) => {
-          const childElement = buildElement(childDesc, this.cleanupFunctions);
-          this.container!.insertBefore(childElement, slot);
-        });
-      }
+      this.container.appendChild(document.createElement("slot"));
     }
 
-    // Custom event emitter method
-    emitEvent(eventName: string, data: unknown) {
-      const event = new CustomEvent(eventName, {
-        detail: data,
-        bubbles: true,
-        composed: true,
-      });
-      this.dispatchEvent(event);
+    private runCleanups(list: Array<() => void>): void {
+      while (list.length > 0) {
+        const fn = list.pop();
+        try {
+          fn?.();
+        } catch (err) {
+          console.error(`[tan-compose] cleanup threw for <${tagName}>:`, err);
+        }
+      }
     }
   }
 
-  // Register component in registry and define custom element
   componentRegistry.set(tagName, CustomComponent);
   customElements.define(tagName, CustomComponent);
-
   return tagName;
 }
 
-/**
- * Helper function to build a child element from description options
- * Properly tracks cleanup functions to prevent memory leaks
- */
 function buildElement(
   description: DescribeOptions,
-  cleanupFunctions: Array<() => void>,
+  cleanups: Array<() => void>,
 ): HTMLElement {
   const element = document.createElement(description.tag || "div");
 
-  // Apply inline styles
   if (description.styles) {
-    const styleString = Object.entries(description.styles)
-      .map(([key, value]) => `${key}: ${value}`)
+    element.style.cssText = Object.entries(description.styles)
+      .map(([k, v]) => `${k}: ${v}`)
       .join("; ");
-    element.style.cssText = styleString;
   }
 
-  // Set class if available
   if (description.className) {
     element.className = description.className;
   }
 
-  // Set attributes if any
   if (description.attributes) {
-    setAttributes(element, description.attributes);
+    applyAttributes(element, description.attributes);
   }
 
-  // Render template if provided
   if (description.template) {
     element.innerHTML = description.template;
   }
 
-  // Create child elements recursively
-  if (description.children && description.children.length > 0) {
-    description.children.forEach((childDesc) => {
-      const childElement = buildElement(childDesc, cleanupFunctions);
-      element.appendChild(childElement);
-    });
+  if (description.children) {
+    for (const childDesc of description.children) {
+      element.appendChild(buildElement(childDesc, cleanups));
+    }
   }
 
-  // Handle click or other event action with cleanup tracking
   if (description.action) {
-    element.addEventListener("click", description.action);
-    cleanupFunctions.push(() => {
-      element.removeEventListener("click", description.action!);
-    });
+    const handler = description.action;
+    element.addEventListener("click", handler);
+    cleanups.push(() => element.removeEventListener("click", handler));
   }
 
-  // Setup event emission with cleanup tracking
   if (description.emit) {
-    description.emit.forEach((event) => {
-      element.addEventListener(event.name, event.handler);
-      cleanupFunctions.push(() => {
-        element.removeEventListener(event.name, event.handler);
-      });
-    });
+    for (const evt of description.emit) {
+      element.addEventListener(evt.name, evt.handler);
+      cleanups.push(() => element.removeEventListener(evt.name, evt.handler));
+    }
   }
 
   return element;
 }
 
-/**
- * Helper function to set attributes on elements
- */
-function setAttributes(
+function applyAttributes(
   element: HTMLElement,
   attributes: Record<string, string>,
 ): void {
-  Object.entries(attributes).forEach(([attr, value]) => {
+  for (const [attr, value] of Object.entries(attributes)) {
     element.setAttribute(attr, value);
-  });
+  }
 }
 
-/**
- * Check if a component is already registered
- */
+function buildThemeCss(theme: Record<string, string>): string {
+  const vars = Object.entries(theme)
+    .map(([key, value]) => `--${key}: ${value};`)
+    .join(" ");
+  return `:host { ${vars} }`;
+}
+
+function buildContainerCss(styles: Record<string, string>): string {
+  const rules = Object.entries(styles)
+    .map(([key, value]) => `${key}: ${value};`)
+    .join(" ");
+  return `.container { ${rules} }`;
+}
+
+/** Returns true if a component with the given tag name has been registered. */
 export function isComponentRegistered(tagName: string): boolean {
   return componentRegistry.has(tagName);
 }
 
-/**
- * Get all registered component names
- */
+/** Returns the list of all registered tag names. */
 export function getRegisteredComponents(): string[] {
   return Array.from(componentRegistry.keys());
 }

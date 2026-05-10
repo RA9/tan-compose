@@ -69,9 +69,7 @@
       function log(message) {
         const entry = document.createElement("div");
         entry.className = "log-entry";
-        entry.textContent = `> ${
-          new Date().toLocaleTimeString()
-        }: ${message}`;
+        entry.textContent = `> ${new Date().toLocaleTimeString()}: ${message}`;
         consoleOutput.appendChild(entry);
         consoleOutput.scrollTop = consoleOutput.scrollHeight;
       }

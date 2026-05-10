@@ -1,0 +1,6 @@
+.DS_Store
+coverage/
+*.lcov
+node_modules/
+.env
+.env.local

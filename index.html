@@ -30,9 +30,10 @@
                     Roboto,
                     sans-serif;
                 line-height: 1.6;
-                color: #333;
-                background: #f5f5f5;
+                color: #1f2330;
+                background: #faf7f2;
                 min-height: 100vh;
+                -webkit-font-smoothing: antialiased;
             }
 
             .container {
@@ -42,23 +43,62 @@
             }
 
             header {
-                padding: 80px 0 60px;
+                padding: 90px 0 80px;
                 text-align: center;
-                color: white;
+                color: #ffffff;
+                background:
+                    radial-gradient(
+                        ellipse at top,
+                        rgba(255, 255, 255, 0.18) 0%,
+                        rgba(255, 255, 255, 0) 60%
+                    ),
+                    linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                position: relative;
+                overflow: hidden;
+            }
+
+            header::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: -1px;
+                height: 60px;
+                background: linear-gradient(
+                    to bottom,
+                    rgba(250, 247, 242, 0),
+                    #faf7f2
+                );
+                pointer-events: none;
+            }
+
+            .version-pill {
+                display: inline-block;
+                font-size: 0.78rem;
+                font-weight: 600;
+                padding: 4px 12px;
+                margin-bottom: 18px;
+                background: rgba(255, 255, 255, 0.18);
+                color: #ffffff;
+                border: 1px solid rgba(255, 255, 255, 0.35);
+                border-radius: 999px;
+                letter-spacing: 0.04em;
+                backdrop-filter: blur(6px);
             }
 
             h1 {
                 font-size: 3.5rem;
                 font-weight: 900;
                 margin-bottom: 20px;
-                color: #333;
+                color: #ffffff;
+                letter-spacing: -0.02em;
             }
 
             .tagline {
                 font-size: 1.5rem;
                 font-weight: 300;
-                margin-bottom: 40px;
-                opacity: 0.95;
+                margin-bottom: 16px;
+                color: rgba(255, 255, 255, 0.95);
             }
 
             .cta-buttons {
@@ -71,17 +111,29 @@
 
             .section {
                 background: #ffffff;
+                border: 1px solid #ece7dc;
                 border-radius: 16px;
                 padding: 60px 40px;
                 margin: 40px auto;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+                box-shadow: 0 12px 40px rgba(20, 24, 40, 0.06);
             }
 
             .section h2 {
-                font-size: 2.5rem;
+                font-size: 2.25rem;
                 margin-bottom: 30px;
-                color: #555;
+                color: #1f2330;
                 text-align: center;
+                font-weight: 800;
+                letter-spacing: -0.01em;
+            }
+
+            .section h3 {
+                color: #1f2330;
+                font-weight: 700;
+            }
+
+            .section p {
+                color: #4a5061;
             }
 
             .features-grid {
@@ -111,19 +163,24 @@
             }
 
             .demo-area {
-                background: #f8f9fa;
+                background: #faf7f2;
                 border-radius: 12px;
-                padding: 30px;
-                margin: 30px 0;
-                border: 2px dashed #dee2e6;
+                padding: 40px 30px;
+                margin: 32px 0;
+                border: 2px dashed #d9d2c3;
                 text-align: center;
+            }
+
+            .demo-area + .demo-area {
+                margin-top: 28px;
             }
 
             footer {
                 text-align: center;
                 padding: 40px 20px;
-                color: #333;
-                background: #e9ecef;
+                color: #1f2330;
+                background: #ffffff;
+                border-top: 1px solid #ece7dc;
                 margin-top: 60px;
             }
 
@@ -136,14 +193,15 @@
             }
 
             .footer-links a {
-                color: #333;
+                color: #4a5061;
                 text-decoration: none;
-                opacity: 0.9;
-                transition: opacity 0.3s;
+                font-weight: 500;
+                transition: color 0.2s ease;
             }
 
-            .footer-links a:hover {
-                opacity: 1;
+            .footer-links a:hover,
+            .footer-links a:focus-visible {
+                color: #5b6cf0;
                 text-decoration: underline;
             }
 
@@ -154,6 +212,10 @@
             }
 
             @media (max-width: 768px) {
+                header {
+                    padding: 70px 0 60px;
+                }
+
                 h1 {
                     font-size: 2.5rem;
                 }
@@ -172,6 +234,10 @@
             }
 
             @media (max-width: 480px) {
+                header {
+                    padding: 56px 0 50px;
+                }
+
                 h1 {
                     font-size: 2rem;
                 }
@@ -186,7 +252,12 @@
 
                 .cta-buttons {
                     flex-direction: column;
-                    gap: 15px;
+                    align-items: stretch;
+                    gap: 12px;
+                }
+
+                .cta-buttons hero-button {
+                    width: 100%;
                 }
 
                 .footer-links {
@@ -199,13 +270,14 @@
     <body>
         <header>
             <div class="container">
+                <span class="version-pill" aria-label="Version 0.2.0">v0.2.0</span>
                 <h1>Tan Compose</h1>
                 <p class="tagline">
                     Build production-ready web components with declarative
                     syntax
                 </p>
-                <p style="font-size: 1.1rem; opacity: 0.9">
-                    Lightweight • Type-safe • Zero dependencies
+                <p style="font-size: 1.05rem; color: rgba(255, 255, 255, 0.85); margin-bottom: 32px;">
+                    Lightweight &middot; Type-safe &middot; Zero dependencies
                 </p>
 
                 <div class="cta-buttons">
@@ -276,14 +348,18 @@
             <section class="section" id="quickstart">
                 <h2>Quick Start</h2>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #1f2330">
                     Installation
                 </h3>
                 <div class="code-section">
-                    <pre><code>npm install tan-compose</code></pre>
+                    <pre><code># Deno
+deno add jsr:@ra9/tan-compose
+
+# Node / npm
+npx jsr add @ra9/tan-compose</code></pre>
                 </div>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #1f2330">
                     Create Your First Component
                 </h3>
                 <div class="code-section">
@@ -306,7 +382,7 @@ const button = describe({
 build('my-button', button);</code></pre>
                 </div>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #555">
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #1f2330">
                     Use It
                 </h3>
                 <div class="code-section">
@@ -317,26 +393,26 @@ build('my-button', button);</code></pre>
             <!-- Live Demo Section -->
             <section class="section" id="examples">
                 <h2>Live Demo</h2>
-                <p style="text-align: center; margin-bottom: 30px; color: #666">
+                <p style="text-align: center; margin-bottom: 30px; color: #4a5061">
                     Try these interactive components built with Tan Compose
                 </p>
 
                 <div class="demo-area">
-                    <h3 style="margin-bottom: 20px; color: #333">
+                    <h3 style="margin-bottom: 20px; color: #1f2330">
                         Interactive Counter
                     </h3>
                     <demo-counter></demo-counter>
                 </div>
 
                 <div class="demo-area">
-                    <h3 style="margin-bottom: 20px; color: #333">
+                    <h3 style="margin-bottom: 20px; color: #1f2330">
                         Themed Buttons
                     </h3>
                     <demo-buttons></demo-buttons>
                 </div>
 
                 <div class="demo-area">
-                    <h3 style="margin-bottom: 20px; color: #333">
+                    <h3 style="margin-bottom: 20px; color: #1f2330">
                         Custom Card
                     </h3>
                     <demo-card></demo-card>
@@ -348,20 +424,20 @@ build('my-button', button);</code></pre>
                 <h2>Core API</h2>
 
                 <div style="margin: 30px 0">
-                    <h3 style="color: #555; margin-bottom: 15px">
+                    <h3 style="color: #1f2330; margin-bottom: 15px">
                         build(tagName, description)
                     </h3>
-                    <p style="color: #666; margin-bottom: 20px">
+                    <p style="color: #4a5061; margin-bottom: 20px">
                         Registers a new custom element with the browser.
                     </p>
 
-                    <h3 style="color: #555; margin-bottom: 15px">
+                    <h3 style="color: #1f2330; margin-bottom: 15px">
                         describe(options)
                     </h3>
-                    <p style="color: #666; margin-bottom: 20px">
+                    <p style="color: #4a5061; margin-bottom: 20px">
                         Creates a component description with properties like:
                     </p>
-                    <ul style="color: #666; margin-left: 40px; line-height: 2">
+                    <ul style="color: #4a5061; margin-left: 40px; line-height: 2">
                         <li><strong>tag</strong> - HTML element type</li>
                         <li>
                             <strong>theme</strong> - CSS variables for theming
@@ -384,17 +460,28 @@ build('my-button', button);</code></pre>
 
         <footer>
             <div class="container">
-                <p>&copy; 2024 Tan Compose. MIT License.</p>
+                <p>&copy; 2026 Tan Compose. MIT License.</p>
                 <div class="footer-links">
-                    <a href="https://github.com/yourusername/tan-compose"
+                    <a
+                        href="https://github.com/ra9/tan-compose"
+                        target="_blank"
+                        rel="noopener"
                         >GitHub</a
                     >
-                    <a href="https://github.com/yourusername/tan-compose/issues"
+                    <a
+                        href="https://github.com/ra9/tan-compose/issues"
+                        target="_blank"
+                        rel="noopener"
                         >Issues</a
                     >
                     <a href="examples.html">Examples</a>
                     <a href="docs.html">Docs</a>
-                    <a href="https://www.npmjs.com/package/tan-compose">NPM</a>
+                    <a
+                        href="https://jsr.io/@ra9/tan-compose"
+                        target="_blank"
+                        rel="noopener"
+                        >JSR</a
+                    >
                 </div>
             </div>
         </footer>
