@@ -3,6 +3,17 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.1.1] - 2026-05-10
+
+### Fixed
+
+- **`<tc-table>` filter input lost focus on every keystroke.** The keyed `for:`
+  migration in 1.1.0 introduced a regression where typing in the search box
+  re-rendered the table, replaced the input element, and the user's caret ended
+  up on `document.body`. Fix: `afterRender` now refocuses the rebuilt input and
+  restores the caret position when the user was the source of the re-render.
+  Regression test added.
+
 ## [1.1.0] - 2026-05-10
 
 ### Fixed

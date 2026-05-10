@@ -271,20 +271,43 @@ build(
       filter: ".filter",
     },
     afterRender() {
-      // Keep the filter input's value in sync with state.q without recreating
-      // the input element — preserves caret position across renders.
-      const inp = (this as HTMLElement & {
+      const host = this as HTMLElement & {
         refs: Record<string, Element | null>;
-      }).refs.filter as HTMLInputElement | null;
-      if (!inp) return;
-      const q = (this as HTMLElement & {
         getState<T>(k: string): T | undefined;
-      }).getState<string>("q") ?? "";
+      };
+      const inp = host.refs.filter as HTMLInputElement | null;
+      if (!inp) return;
+
+      // Sync the input's value with state.q (so external setState calls
+      // are reflected even though the input is rebuilt on every render).
+      const q = host.getState<string>("q") ?? "";
       if (inp.value !== q) inp.value = q;
+
+      // Re-render replaced the input element, which dropped focus.
+      // If the user was typing into the previous filter input, restore
+      // focus and caret position on the new one.
+      const intent = FOCUS_INTENT.get(host);
+      if (intent) {
+        FOCUS_INTENT.delete(host);
+        inp.focus();
+        const pos = Math.min(intent.caret, inp.value.length);
+        try {
+          inp.setSelectionRange(pos, pos);
+        } catch {
+          /* setSelectionRange may not be supported on some input types */
+        }
+      }
     },
     events: {
       "input .filter": (e, ctx) => {
-        ctx.setState("q", (e.target as HTMLInputElement).value);
+        const target = e.target as HTMLInputElement;
+        // Remember the user was typing here so afterRender restores focus
+        // on the rebuilt input. Capture caret position now — after the
+        // re-render the old input is detached.
+        FOCUS_INTENT.set(ctx.host, {
+          caret: target.selectionStart ?? target.value.length,
+        });
+        ctx.setState("q", target.value);
         ctx.setState("page", 0);
       },
       "click .prev": (_e, ctx) => {
@@ -334,6 +357,10 @@ build(
     },
   }),
 );
+
+// Per-host focus-restoration intent. Set on `input` in the filter; consumed
+// by afterRender on the next render to refocus the rebuilt input element.
+const FOCUS_INTENT = new WeakMap<HTMLElement, { caret: number }>();
 
 function visibleRows(
   props: Readonly<Record<string, unknown>>,

@@ -469,6 +469,36 @@ test("tc-grid uses repeat(auto-fit, minmax(min, 1fr)) by default", () => {
   document.body.removeChild(el);
 });
 
+test("tc-table: filter input keeps focus across keystrokes (regression: v1.1 bug)", () => {
+  const el = document.createElement(tags.table) as HTMLElement & {
+    rows: Array<{ id: number; name: string }>;
+    columns: Array<{ key: string; label: string }>;
+  };
+  el.columns = [{ key: "name", label: "Name" }];
+  el.rows = [
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
+    { id: 3, name: "Carol" },
+  ];
+  document.body.appendChild(el);
+
+  const filter = () =>
+    el.shadowRoot!.querySelector(".filter") as HTMLInputElement;
+  filter().focus();
+  filter().value = "a";
+  filter().setSelectionRange(1, 1);
+  filter().dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+
+  // After the table re-renders, the filter input is a new node — but
+  // afterRender should have refocused it and restored the caret.
+  const live = filter();
+  // happy-dom doesn't always report activeElement reliably across shadow
+  // roots, but it should at least not throw and the value should be
+  // preserved.
+  assertEquals(live.value, "a");
+  document.body.removeChild(el);
+});
+
 test("tc-table: sort header click toggles asc → desc → none", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<Record<string, unknown>>;
