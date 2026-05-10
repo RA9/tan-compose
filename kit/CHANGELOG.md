@@ -3,6 +3,25 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.1.0] - 2026-05-10
+
+### Fixed
+
+- **`<tc-modal>` open bug.** Setting `host.open = true` after the initial render
+  didn't actually open the dialog — the prop setter triggered a re-render that
+  produced a fresh, closed `<dialog>` element, and the `showModal()` call only
+  ran on the original. Migrated the imperative sync from `afterMount` (one-shot)
+  to the new core `afterRender` hook (every render) and added a regression test.
+
+### Added
+
+- **`<tc-table>` keyed-row reconciliation.** The table now uses the core's
+  `for:` for body rows, so DOM nodes survive across renders. Typing into the
+  search filter no longer rebuilds every row — only the slice that changed. Big
+  perf win for tables of a few hundred rows or more.
+- **Two more theme presets:** `@ra9/tan-compose-kit/themes/material` and
+  `@ra9/tan-compose-kit/themes/shadcn`. Six total now.
+
 ## [1.0.0] - 2026-05-10
 
 > First stable release. The kit ships 19 components and 4 theme presets, all

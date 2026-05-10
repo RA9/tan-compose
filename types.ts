@@ -93,6 +93,13 @@ export interface DescribeOptions {
   beforeMount?: (this: HTMLElement) => void;
   /** Hook fired after the element is connected and rendered. */
   afterMount?: (this: HTMLElement) => void;
+  /**
+   * Hook fired after every render, including the initial one. Use this for
+   * imperative DOM work that needs to run on every render — e.g. calling
+   * `dialog.showModal()` on a freshly-rendered `<dialog>`. Fires after refs
+   * have been (re-)populated.
+   */
+  afterRender?: (this: HTMLElement) => void;
   /** Hook fired when the element is disconnected from the DOM. */
   unmount?: (this: HTMLElement) => void;
   /**

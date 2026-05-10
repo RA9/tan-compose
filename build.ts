@@ -336,6 +336,13 @@ export function build(tagName: string, description: DescribeOptions): string {
       if (this.renderQueued) {
         this.renderQueued = false;
         this.renderInternal();
+        return;
+      }
+
+      try {
+        description.afterRender?.call(this);
+      } catch (err) {
+        console.error(`[tan-compose] afterRender threw for <${tagName}>:`, err);
       }
     }
 

@@ -230,6 +230,23 @@ test("tc-toast: open prop drives the .open class and emits tc-toast-close", () =
   document.body.removeChild(el);
 });
 
+test("tc-modal: setting open=true after mount opens the dialog (regression: v1.0 bug)", () => {
+  const tag = tags.modal;
+  const el = document.createElement(tag) as HTMLElement & { open: boolean };
+  document.body.appendChild(el);
+  // Initially closed
+  let dlg = el.shadowRoot!.querySelector(".dlg") as HTMLDialogElement;
+  assert(!dlg.open && !dlg.hasAttribute("open"), "starts closed");
+  // Flipping open should make the dialog open after re-render
+  el.open = true;
+  dlg = el.shadowRoot!.querySelector(".dlg") as HTMLDialogElement;
+  assert(
+    dlg.open || dlg.hasAttribute("open"),
+    "expected the dialog to be open after setting host.open = true",
+  );
+  document.body.removeChild(el);
+});
+
 test("tc-modal: dispatching tc-close when API closes the dialog programmatically", () => {
   const el = document.createElement(tags.modal) as HTMLElement & {
     open: boolean;

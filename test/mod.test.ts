@@ -580,6 +580,29 @@ test("if: false omits the child subtree", () => {
   document.body.removeChild(el);
 });
 
+test("afterRender fires after every render including the initial one", () => {
+  const tag = uniqueTag();
+  let count = 0;
+  build(
+    tag,
+    describe({
+      props: { greeting: { type: "string", default: "hi" } },
+      template: ({ props }) => `<p>${props.greeting}</p>`,
+      afterRender() {
+        count++;
+      },
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement & { greeting: string };
+  document.body.appendChild(el);
+  assertEquals(count, 1, "afterRender fires once on initial mount");
+  el.greeting = "hello";
+  assertEquals(count, 2, "afterRender fires after a re-render");
+  el.greeting = "hello"; // no change → no render
+  assertEquals(count, 2, "afterRender does not fire when prop is unchanged");
+  document.body.removeChild(el);
+});
+
 test("for: items render inside the wrapping element with the right tag", () => {
   const tag = uniqueTag();
   build(

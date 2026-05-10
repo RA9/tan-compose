@@ -3,6 +3,7 @@ import type { DescribeOptions, PropDef } from "./types.ts";
 const HOOK_FIELDS = [
   "beforeMount",
   "afterMount",
+  "afterRender",
   "unmount",
   "action",
   "formAssociatedCallback",

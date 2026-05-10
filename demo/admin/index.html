@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Admin dashboard demo built end-to-end with @ra9/tan-compose-kit."
+    />
+    <title>Admin · Customers — Tan Compose Kit demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
+        --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 32px;
+      }
+
+      /* Top bar — same vocabulary as the marketing site */
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+        display: inline-block;
+      }
+
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a.active,
+      .topbar nav a:focus-visible {
+        color: var(--accent);
+      }
+
+      .theme-switch {
+        min-width: 160px;
+      }
+
+      /* Breadcrumb */
+      .crumbs {
+        padding: 14px 0 0;
+        font-size: 0.84rem;
+        color: var(--ink-muted);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      .crumbs a {
+        color: var(--ink-soft);
+        text-decoration: none;
+      }
+
+      .crumbs a:hover {
+        color: var(--accent);
+      }
+
+      /* Page header */
+      .page-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 28px 0 24px;
+      }
+
+      .page-head h1 {
+        font-size: 1.85rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+        margin-bottom: 4px;
+      }
+
+      .page-head .lede {
+        color: var(--ink-soft);
+        font-size: 0.98rem;
+        max-width: 540px;
+      }
+
+      /* Section / panel chrome */
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .panel-title {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .panel-meta {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+      }
+
+      .stats-row {
+        margin-bottom: 18px;
+      }
+
+      .filter-fields {
+        display: grid;
+        grid-template-columns: minmax(220px, 2fr) minmax(180px, 1fr) auto;
+        gap: 14px;
+        align-items: end;
+      }
+
+      .filter-fields > .filter-toggle {
+        padding-bottom: 8px;
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 28px 0 48px;
+        margin-top: 24px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.88rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.88rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      /* Toast container — fixed bottom-right stack */
+      #toast-host {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+        max-width: 360px;
+      }
+
+      /* Detail modal layout */
+      .detail-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 14px 18px;
+        align-items: start;
+      }
+
+      .detail-grid .label {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-muted);
+        padding-top: 4px;
+      }
+
+      .detail-grid .val {
+        color: var(--ink);
+        font-size: 0.95rem;
+      }
+
+      .detail-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .detail-head .who {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .detail-head .name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      .detail-head .email {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+      }
+
+      .invite-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .modal-footer-row {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      @media (max-width: 720px) {
+        .wrap {
+          padding: 0 18px;
+        }
+
+        .filter-fields {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .topbar nav {
+          gap: 14px;
+        }
+
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+
+        .theme-switch {
+          min-width: 130px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="../../index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v1.0.0</span>
+        </a>
+        <nav>
+          <a href="../../components.html" class="nav-hide-sm">Components</a>
+          <a href="../../themes.html" class="nav-hide-sm">Themes</a>
+          <a href="../../docs.html" class="nav-hide-sm">Docs</a>
+          <a href="./index.html" class="active">Admin demo</a>
+          <tc-select
+            id="theme-switch"
+            class="theme-switch"
+            name="theme"
+            value="light"
+          ></tc-select>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="wrap">
+        <div class="crumbs">
+          <a href="../../index.html">&larr; back to docs</a>
+          &nbsp;/&nbsp; admin &nbsp;/&nbsp; customers
+        </div>
+
+        <header class="page-head">
+          <div>
+            <h1>Customers</h1>
+            <p class="lede">
+              Manage everyone using your product. Search by name or email,
+              filter by plan, and review subscription health at a glance.
+            </p>
+          </div>
+          <div>
+            <tc-button variant="primary" id="btn-invite"
+            >Invite customer</tc-button>
+          </div>
+        </header>
+
+        <section class="stats-row">
+          <tc-grid min="200px" gap="3">
+            <tc-stat
+              label="Total customers"
+              value="1,284"
+              delta="+12.3% vs last month"
+              trend="up"
+            ></tc-stat>
+            <tc-stat
+              label="Active subscriptions"
+              value="892"
+              delta="+4.1% vs last month"
+              trend="up"
+            ></tc-stat>
+            <tc-stat
+              label="MRR"
+              value="48,210"
+              prefix="$"
+              delta="-2.7% vs last month"
+              trend="down"
+            ></tc-stat>
+            <tc-stat
+              label="Trials ending"
+              value="24"
+              delta="next 7 days"
+              trend="neutral"
+            ></tc-stat>
+          </tc-grid>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Filters</div>
+            <div class="panel-meta" id="result-count">— matching</div>
+          </div>
+          <div class="filter-fields">
+            <tc-input
+              id="filter-search"
+              label="Search customers"
+              name="q"
+              placeholder="Name or email…"
+            ></tc-input>
+            <tc-select
+              id="filter-plan"
+              label="Plan"
+              name="plan"
+              placeholder="All plans"
+            ></tc-select>
+            <div class="filter-toggle">
+              <tc-switch
+                id="filter-active"
+                label="Show only active"
+                name="active"
+              ></tc-switch>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" style="padding: 8px 8px 4px">
+          <tc-table
+            id="customer-table"
+            page-size="8"
+            empty-text="No customers match your filters."
+          ></tc-table>
+        </section>
+
+        <section
+          class="panel"
+          style="display: flex; align-items: center; justify-content: space-between; gap: 12px"
+        >
+          <div>
+            <div class="panel-title">Need to bulk import?</div>
+            <div
+              style="font-size: 0.88rem; color: var(--ink-soft); margin-top: 2px"
+            >
+              Drop a CSV with email and plan columns. We'll send invites in
+              batches of 50.
+            </div>
+          </div>
+          <div>
+            <tc-checkbox
+              id="opt-notify"
+              label="Email me when imports finish"
+              name="notify"
+              checked
+            ></tc-checkbox>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · Admin demo · MIT License</p>
+        <div class="links">
+          <a href="../../index.html">Home</a>
+          <a href="../../docs.html">Docs</a>
+          <a href="../../components.html">Components</a>
+          <a href="../../themes.html">Themes</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Invite modal -->
+    <tc-modal id="invite-modal" title="Invite a customer">
+      <p
+        style="color: var(--ink-soft); font-size: 0.94rem; margin-bottom: 14px"
+      >
+        We'll send a sign-up link to the address below. Pick the plan they
+        should land on after they accept.
+      </p>
+      <form class="invite-form" id="invite-form">
+        <tc-input
+          id="invite-email"
+          label="Email address"
+          name="email"
+          type="email"
+          placeholder="customer@example.com"
+          required
+        ></tc-input>
+        <tc-input
+          id="invite-name"
+          label="Display name"
+          name="name"
+          placeholder="Optional"
+        ></tc-input>
+        <tc-select
+          id="invite-plan"
+          label="Plan"
+          name="plan"
+          value="pro"
+        ></tc-select>
+        <tc-textarea
+          id="invite-message"
+          label="Personal message"
+          name="message"
+          placeholder="Optional — adds context to the invite email."
+          rows="3"
+        ></tc-textarea>
+        <tc-file
+          id="invite-attach"
+          label="Attachment"
+          name="attach"
+          accept=".pdf,.png,.jpg"
+          helper="Optional — onboarding doc, contract, etc."
+        ></tc-file>
+      </form>
+      <div slot="footer" class="modal-footer-row">
+        <tc-button variant="ghost" id="invite-cancel">Cancel</tc-button>
+        <tc-button variant="primary" id="invite-submit">Send invite</tc-button>
+      </div>
+    </tc-modal>
+
+    <!-- Detail modal -->
+    <tc-modal id="detail-modal" title="Customer detail">
+      <div class="detail-head">
+        <tc-skeleton width="48px" height="48px" rounded></tc-skeleton>
+        <div class="who">
+          <div class="name" id="detail-name">—</div>
+          <div class="email" id="detail-email">—</div>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div class="label">Plan</div>
+        <div class="val"><tc-badge id="detail-plan">—</tc-badge></div>
+        <div class="label">Status</div>
+        <div class="val"><tc-badge id="detail-status">—</tc-badge></div>
+        <div class="label">MRR</div>
+        <div class="val" id="detail-mrr">—</div>
+        <div class="label">Joined</div>
+        <div class="val" id="detail-joined">—</div>
+        <div class="label">Customer ID</div>
+        <div
+          class="val"
+          id="detail-id"
+          style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted)"
+        >
+          —
+        </div>
+      </div>
+      <div slot="footer" class="modal-footer-row">
+        <tc-button variant="ghost" id="detail-close">Close</tc-button>
+        <tc-button variant="danger" id="detail-cancel-sub"
+        >Cancel subscription</tc-button>
+      </div>
+    </tc-modal>
+
+    <div id="toast-host" aria-live="polite"></div>
+
+    <script type="module" src="../../dist/mod.kit.js"></script>
+    <script type="module">
+      // Wait for the kit's custom elements to be defined before wiring up.
+      await Promise.all(
+        [
+          "tc-button",
+          "tc-input",
+          "tc-select",
+          "tc-switch",
+          "tc-checkbox",
+          "tc-textarea",
+          "tc-file",
+          "tc-table",
+          "tc-modal",
+          "tc-toast",
+          "tc-stat",
+          "tc-badge",
+          "tc-skeleton",
+          "tc-grid",
+          "tc-cluster",
+          "tc-stack",
+          "tc-card",
+        ].map((tag) => customElements.whenDefined(tag)),
+      );
+
+      // ---- Theme switcher (mirrors themes.html) ----
+      const DARK_CSS = `:root {
+        --tc-color-bg: #0f1218; --tc-color-surface: #1a1d29; --tc-color-surface-alt: #14171f;
+        --tc-color-ink: #f5f0e6; --tc-color-ink-soft: #b9b1a1; --tc-color-ink-muted: #8a8678;
+        --tc-color-rule: #2a2f3d; --tc-color-rule-strong: #3a4053;
+        --tc-color-accent: #d49a68; --tc-color-accent-hover: #e5b489; --tc-color-accent-soft: #3d2c1e;
+        --tc-color-info-bg: #1f2c44; --tc-color-info-fg: #a8c4f0;
+        --tc-color-success-bg: #1a3329; --tc-color-success-fg: #84d4ad;
+        --tc-color-warning-bg: #3a2e16; --tc-color-warning-fg: #f0c878;
+        --tc-color-danger-bg: #3a1f1c; --tc-color-danger-fg: #f08a7e;
+        --tc-focus-ring: 0 0 0 3px rgba(212, 154, 104, 0.28);
+      }
+      body {
+        --bg: #0f1218; --surface: #1a1d29; --ink: #f5f0e6;
+        --ink-soft: #b9b1a1; --ink-muted: #8a8678;
+        --rule: #2a2f3d; --rule-strong: #3a4053;
+        --accent: #d49a68; --accent-hover: #e5b489; --accent-soft: #3d2c1e;
+      }`;
+      const BOOTSTRAP_CSS = `:root {
+        --tc-color-accent: #0d6efd; --tc-color-accent-hover: #0b5ed7; --tc-color-accent-soft: #cfe2ff;
+        --tc-color-info: #0dcaf0; --tc-color-info-bg: #cff4fc; --tc-color-info-fg: #055160;
+        --tc-color-success: #198754; --tc-color-success-bg: #d1e7dd; --tc-color-success-fg: #0a3622;
+        --tc-color-warning: #ffc107; --tc-color-warning-bg: #fff3cd; --tc-color-warning-fg: #664d03;
+        --tc-color-danger: #dc3545; --tc-color-danger-bg: #f8d7da; --tc-color-danger-fg: #58151c;
+        --tc-color-bg: #fff; --tc-color-surface: #fff; --tc-color-surface-alt: #f8f9fa;
+        --tc-color-ink: #212529; --tc-color-ink-soft: #495057; --tc-color-ink-muted: #6c757d;
+        --tc-color-rule: #dee2e6; --tc-color-rule-strong: #ced4da;
+        --tc-radius-sm: 0.25rem; --tc-radius-md: 0.375rem; --tc-radius-lg: 0.5rem;
+        --tc-focus-ring: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      }
+      body {
+        --bg: #fff; --surface: #fff; --ink: #212529;
+        --ink-soft: #495057; --ink-muted: #6c757d;
+        --rule: #dee2e6; --rule-strong: #ced4da;
+        --accent: #0d6efd; --accent-hover: #0b5ed7; --accent-soft: #cfe2ff;
+      }`;
+      const TAILWIND_CSS = `:root {
+        --tc-color-accent: rgb(99 102 241); --tc-color-accent-hover: rgb(79 70 229); --tc-color-accent-soft: rgb(224 231 255);
+        --tc-color-info: rgb(59 130 246); --tc-color-info-bg: rgb(219 234 254); --tc-color-info-fg: rgb(30 64 175);
+        --tc-color-success: rgb(34 197 94); --tc-color-success-bg: rgb(220 252 231); --tc-color-success-fg: rgb(22 101 52);
+        --tc-color-warning: rgb(245 158 11); --tc-color-warning-bg: rgb(254 243 199); --tc-color-warning-fg: rgb(146 64 14);
+        --tc-color-danger: rgb(239 68 68); --tc-color-danger-bg: rgb(254 226 226); --tc-color-danger-fg: rgb(153 27 27);
+        --tc-color-bg: rgb(248 250 252); --tc-color-surface: rgb(255 255 255); --tc-color-surface-alt: rgb(241 245 249);
+        --tc-color-ink: rgb(15 23 42); --tc-color-ink-soft: rgb(51 65 85); --tc-color-ink-muted: rgb(100 116 139);
+        --tc-color-rule: rgb(226 232 240); --tc-color-rule-strong: rgb(203 213 225);
+        --tc-radius-sm: 0.25rem; --tc-radius-md: 0.375rem; --tc-radius-lg: 0.5rem;
+        --tc-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.4);
+      }
+      body {
+        --bg: rgb(248 250 252); --surface: rgb(255 255 255);
+        --ink: rgb(15 23 42); --ink-soft: rgb(51 65 85); --ink-muted: rgb(100 116 139);
+        --rule: rgb(226 232 240); --rule-strong: rgb(203 213 225);
+        --accent: rgb(99 102 241); --accent-hover: rgb(79 70 229); --accent-soft: rgb(224 231 255);
+      }`;
+
+      const themeSelect = document.getElementById("theme-switch");
+      themeSelect.options = [
+        { value: "light", label: "Light (warm tan)" },
+        { value: "dark", label: "Dark" },
+        { value: "bootstrap", label: "Bootstrap" },
+        { value: "tailwind", label: "Tailwind" },
+      ];
+
+      function applyTheme(name) {
+        document
+          .querySelectorAll("style[data-tc-theme]")
+          .forEach((s) => s.remove());
+        if (name === "dark" || name === "bootstrap" || name === "tailwind") {
+          const css = name === "dark"
+            ? DARK_CSS
+            : name === "bootstrap"
+            ? BOOTSTRAP_CSS
+            : TAILWIND_CSS;
+          const s = document.createElement("style");
+          s.setAttribute("data-tc-theme", name);
+          s.textContent = css;
+          document.head.appendChild(s);
+        }
+      }
+
+      themeSelect.addEventListener("tc-change", (e) => {
+        const v = e.detail.value || "light";
+        applyTheme(v);
+        toast(
+          "info",
+          `Theme switched to ${v === "light" ? "warm tan (light)" : v}.`,
+        );
+      });
+
+      // ---- Toast helper ----
+      const toastHost = document.getElementById("toast-host");
+      function toast(variant, message) {
+        const t = document.createElement("tc-toast");
+        t.variant = variant;
+        t.message = message;
+        t.duration = 3500;
+        toastHost.appendChild(t);
+        requestAnimationFrame(() => {
+          t.open = true;
+        });
+        t.addEventListener("tc-toast-close", () => {
+          setTimeout(() => t.remove(), 220);
+        });
+      }
+
+      // ---- Filter plan select ----
+      const planFilter = document.getElementById("filter-plan");
+      planFilter.options = [
+        { value: "", label: "All plans" },
+        { value: "Free", label: "Free" },
+        { value: "Pro", label: "Pro" },
+        { value: "Team", label: "Team" },
+      ];
+
+      // ---- Invite plan select ----
+      const invitePlan = document.getElementById("invite-plan");
+      invitePlan.options = [
+        { value: "Free", label: "Free" },
+        { value: "Pro", label: "Pro" },
+        { value: "Team", label: "Team" },
+      ];
+
+      // ---- Customer data ----
+      // Plausible names + emails. Mix of plans, statuses, MRR, and join dates
+      // spread across the last 18 months.
+      const RAW_CUSTOMERS = [
+        [
+          "Maya Patel",
+          "maya@studio.example",
+          "Pro",
+          79,
+          "active",
+          "2024-11-04",
+        ],
+        [
+          "Tomás Rivera",
+          "tomas.rivera@northwind.example",
+          "Team",
+          249,
+          "active",
+          "2024-08-19",
+        ],
+        [
+          "Aiko Tanaka",
+          "aiko@kitsune.example",
+          "Pro",
+          79,
+          "active",
+          "2025-03-12",
+        ],
+        [
+          "Henrik Larsson",
+          "h.larsson@svensk.example",
+          "Free",
+          0,
+          "trial",
+          "2026-04-22",
+        ],
+        [
+          "Priya Iyer",
+          "priya@harbor.example",
+          "Pro",
+          79,
+          "active",
+          "2024-12-30",
+        ],
+        [
+          "Marcus Bell",
+          "marcus.bell@archive.example",
+          "Team",
+          249,
+          "cancelled",
+          "2024-07-08",
+        ],
+        [
+          "Lucia Conti",
+          "lucia@vela.example",
+          "Pro",
+          99,
+          "active",
+          "2025-01-17",
+        ],
+        [
+          "Felix Okafor",
+          "felix@okafor.example",
+          "Free",
+          0,
+          "active",
+          "2025-09-02",
+        ],
+        [
+          "Sana Yousefi",
+          "sana@coastline.example",
+          "Team",
+          299,
+          "active",
+          "2024-06-11",
+        ],
+        [
+          "Diego Almeida",
+          "diego@almeida.example",
+          "Pro",
+          79,
+          "trial",
+          "2026-04-29",
+        ],
+        [
+          "Eva Sørensen",
+          "eva@nordvest.example",
+          "Pro",
+          99,
+          "active",
+          "2025-02-08",
+        ],
+        [
+          "Renji Watanabe",
+          "renji@kobe-labs.example",
+          "Team",
+          249,
+          "active",
+          "2024-10-14",
+        ],
+        [
+          "Olivia Bennett",
+          "olivia.bennett@parkside.example",
+          "Free",
+          0,
+          "cancelled",
+          "2025-04-21",
+        ],
+        [
+          "Adamu Bello",
+          "adamu@bello.example",
+          "Pro",
+          79,
+          "active",
+          "2025-05-18",
+        ],
+        [
+          "Fatima Haidari",
+          "fatima@haidari.example",
+          "Pro",
+          79,
+          "active",
+          "2024-12-02",
+        ],
+        [
+          "Yuki Mori",
+          "yuki@mori-design.example",
+          "Team",
+          199,
+          "active",
+          "2025-07-23",
+        ],
+        [
+          "Caleb Whitfield",
+          "caleb@whitfield.example",
+          "Free",
+          0,
+          "trial",
+          "2026-04-30",
+        ],
+        ["Noor Saleh", "noor@saleh.example", "Pro", 79, "active", "2024-09-25"],
+        [
+          "Bjorn Eriksen",
+          "bjorn@eriksen.example",
+          "Pro",
+          99,
+          "active",
+          "2025-08-09",
+        ],
+        [
+          "Imani Adeyemi",
+          "imani@adeyemi.example",
+          "Team",
+          299,
+          "active",
+          "2024-08-01",
+        ],
+        [
+          "Camille Roux",
+          "camille@roux.example",
+          "Pro",
+          79,
+          "active",
+          "2025-06-15",
+        ],
+        [
+          "Theo Aalto",
+          "theo@aalto-studio.example",
+          "Free",
+          0,
+          "active",
+          "2025-11-04",
+        ],
+        ["Hana Kim", "hana@kim.example", "Pro", 79, "trial", "2026-04-26"],
+        [
+          "Vincent Lemaire",
+          "vincent@lemaire.example",
+          "Team",
+          249,
+          "active",
+          "2024-07-30",
+        ],
+        [
+          "Sasha Volkov",
+          "sasha@volkov.example",
+          "Pro",
+          99,
+          "active",
+          "2025-10-19",
+        ],
+        [
+          "Mira Acharya",
+          "mira@acharya.example",
+          "Pro",
+          79,
+          "cancelled",
+          "2024-09-11",
+        ],
+        [
+          "Jonah Hartmann",
+          "jonah@hartmann.example",
+          "Free",
+          0,
+          "active",
+          "2026-01-12",
+        ],
+        [
+          "Selene Vargas",
+          "selene@vargas.example",
+          "Team",
+          199,
+          "active",
+          "2025-03-28",
+        ],
+        ["Idris Khan", "idris@khan.example", "Pro", 79, "active", "2025-09-07"],
+        [
+          "Astrid Holm",
+          "astrid@holm.example",
+          "Pro",
+          99,
+          "active",
+          "2024-11-22",
+        ],
+      ];
+
+      let customers = RAW_CUSTOMERS.map((r, i) => ({
+        id: `CUS-${String(1000 + i).padStart(4, "0")}`,
+        name: r[0],
+        email: r[1],
+        plan: r[2],
+        mrr: r[3],
+        status: r[4],
+        joined: r[5],
+      }));
+
+      // ---- Table setup ----
+      const table = document.getElementById("customer-table");
+      const resultCount = document.getElementById("result-count");
+
+      const fmtMRR = (n) => (n === 0 ? "—" : `$${n}/mo`);
+      const statusVariant = (s) =>
+        s === "active"
+          ? "success"
+          : s === "trial"
+          ? "info"
+          : s === "cancelled"
+          ? "danger"
+          : "neutral";
+
+      function renderRow(c) {
+        return {
+          ...c,
+          mrrDisplay: fmtMRR(c.mrr),
+          // Render status as a badge inside the cell (table interpolates HTML).
+          statusDisplay: `<tc-badge variant="${
+            statusVariant(
+              c.status,
+            )
+          }" pill>${c.status}</tc-badge>`,
+          planDisplay: `<tc-badge variant="${
+            c.plan === "Team"
+              ? "info"
+              : c.plan === "Pro"
+              ? "success"
+              : "neutral"
+          }">${c.plan}</tc-badge>`,
+        };
+      }
+
+      table.columns = [
+        { key: "name", label: "Name", sortable: true },
+        { key: "email", label: "Email" },
+        { key: "planDisplay", label: "Plan" },
+        { key: "mrrDisplay", label: "MRR", sortable: true },
+        { key: "statusDisplay", label: "Status" },
+        { key: "joined", label: "Joined", sortable: true },
+      ];
+
+      // ---- Filtering ----
+      const search = document.getElementById("filter-search");
+      const activeOnly = document.getElementById("filter-active");
+
+      let q = "";
+      let plan = "";
+      let onlyActive = false;
+
+      function refresh() {
+        const filtered = customers.filter((c) => {
+          if (plan && c.plan !== plan) return false;
+          if (onlyActive && c.status !== "active") return false;
+          if (q) {
+            const needle = q.toLowerCase();
+            if (
+              !c.name.toLowerCase().includes(needle) &&
+              !c.email.toLowerCase().includes(needle)
+            ) {
+              return false;
+            }
+          }
+          return true;
+        });
+        table.rows = filtered.map(renderRow);
+        const n = filtered.length;
+        resultCount.textContent = `${n} matching${
+          n === customers.length ? " (all)" : ` of ${customers.length}`
+        }`;
+      }
+
+      search.addEventListener("input", (e) => {
+        q = (e.target.value || "").trim();
+        refresh();
+      });
+      // tc-input also dispatches its native value via the host's value prop;
+      // listening to "input" on the host catches both.
+      search.addEventListener("tc-input", (e) => {
+        if (e.detail && typeof e.detail.value === "string") {
+          q = e.detail.value.trim();
+          refresh();
+        }
+      });
+
+      planFilter.addEventListener("tc-change", (e) => {
+        plan = e.detail.value || "";
+        refresh();
+      });
+
+      activeOnly.addEventListener("tc-change", (e) => {
+        onlyActive = !!e.detail.checked;
+        refresh();
+      });
+      // Fallback for older event shape.
+      activeOnly.addEventListener("change", (e) => {
+        if (typeof e.target.checked === "boolean") {
+          onlyActive = e.target.checked;
+          refresh();
+        }
+      });
+
+      refresh();
+
+      // ---- Row click → detail modal ----
+      const detailModal = document.getElementById("detail-modal");
+      const detailName = document.getElementById("detail-name");
+      const detailEmail = document.getElementById("detail-email");
+      const detailPlan = document.getElementById("detail-plan");
+      const detailStatus = document.getElementById("detail-status");
+      const detailMRR = document.getElementById("detail-mrr");
+      const detailJoined = document.getElementById("detail-joined");
+      const detailId = document.getElementById("detail-id");
+      let activeCustomer = null;
+
+      table.addEventListener("tc-row-click", (e) => {
+        const row = e.detail.row;
+        // Find the original customer (rows are mapped through renderRow).
+        const c = customers.find((x) => x.id === row.id) || row;
+        activeCustomer = c;
+        detailName.textContent = c.name;
+        detailEmail.textContent = c.email;
+        detailPlan.textContent = c.plan;
+        detailPlan.setAttribute(
+          "variant",
+          c.plan === "Team" ? "info" : c.plan === "Pro" ? "success" : "neutral",
+        );
+        detailStatus.textContent = c.status;
+        detailStatus.setAttribute("variant", statusVariant(c.status));
+        detailStatus.setAttribute("pill", "");
+        detailMRR.textContent = fmtMRR(c.mrr);
+        detailJoined.textContent = c.joined;
+        detailId.textContent = c.id;
+        detailModal.open = true;
+      });
+
+      document
+        .getElementById("detail-close")
+        .addEventListener("click", () => {
+          detailModal.open = false;
+        });
+
+      document
+        .getElementById("detail-cancel-sub")
+        .addEventListener("click", () => {
+          if (!activeCustomer) return;
+          // Mutate in-memory copy so the table reflects it.
+          activeCustomer.status = "cancelled";
+          activeCustomer.mrr = 0;
+          refresh();
+          detailModal.open = false;
+          toast(
+            "success",
+            `Cancelled ${activeCustomer.name}'s subscription (demo).`,
+          );
+        });
+
+      // ---- Invite modal ----
+      const inviteModal = document.getElementById("invite-modal");
+      const inviteEmail = document.getElementById("invite-email");
+      const inviteName = document.getElementById("invite-name");
+      const inviteMessage = document.getElementById("invite-message");
+
+      document
+        .getElementById("btn-invite")
+        .addEventListener("click", () => {
+          inviteModal.open = true;
+        });
+
+      document
+        .getElementById("invite-cancel")
+        .addEventListener("click", () => {
+          inviteModal.open = false;
+        });
+
+      document
+        .getElementById("invite-submit")
+        .addEventListener("click", () => {
+          const email = (inviteEmail.value || "").trim();
+          if (!email || !email.includes("@")) {
+            toast("error", "Please enter a valid email address.");
+            return;
+          }
+          const name = (inviteName.value || "").trim() ||
+            email.split("@")[0].replace(/[._-]/g, " ").replace(
+              /\b\w/g,
+              (c) => c.toUpperCase(),
+            );
+          const planVal = invitePlan.value || "Pro";
+          const mrr = planVal === "Team" ? 249 : planVal === "Pro" ? 79 : 0;
+          const today = new Date().toISOString().slice(0, 10);
+          const newCustomer = {
+            id: `CUS-${String(1000 + customers.length).padStart(4, "0")}`,
+            name,
+            email,
+            plan: planVal,
+            mrr,
+            status: "trial",
+            joined: today,
+          };
+          customers = [newCustomer, ...customers];
+          refresh();
+          inviteModal.open = false;
+          // Reset form state.
+          inviteEmail.value = "";
+          inviteName.value = "";
+          if (inviteMessage) inviteMessage.value = "";
+          toast("success", `Invite sent to ${email}.`);
+        });
+
+      // ---- Notify checkbox feedback (extra polish) ----
+      document
+        .getElementById("opt-notify")
+        .addEventListener("tc-change", (e) => {
+          if (e.detail && typeof e.detail.checked === "boolean") {
+            toast(
+              "info",
+              e.detail.checked
+                ? "Import-finished emails are on."
+                : "Import-finished emails are off.",
+            );
+          }
+        });
+    </script>
+  </body>
+</html>

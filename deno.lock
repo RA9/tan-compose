@@ -231,6 +231,12 @@
       "npm:happy-dom@15"
     ],
     "members": {
+      "icons": {
+        "dependencies": [
+          "jsr:@std/assert@1",
+          "npm:happy-dom@15"
+        ]
+      },
       "kit": {
         "dependencies": [
           "jsr:@std/assert@1",

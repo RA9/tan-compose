@@ -142,11 +142,25 @@ build(
         }
       },
     },
-    afterMount() {
+    afterRender() {
       syncDialogOpen(this);
+    },
+    unmount() {
+      const prior = DIALOG_LISTENERS.get(this);
+      if (prior) {
+        prior.cleanup();
+        DIALOG_LISTENERS.delete(this);
+      }
     },
   }),
 );
+
+// Per-host registry of (live dialog node, close-listener cleanup). Renders
+// can replace the dialog node, so we keep track of which one we wired up.
+const DIALOG_LISTENERS = new WeakMap<
+  HTMLElement,
+  { dialog: HTMLDialogElement; cleanup: () => void }
+>();
 
 function syncDialogOpen(host: HTMLElement) {
   const root = host.shadowRoot;
@@ -154,6 +168,13 @@ function syncDialogOpen(host: HTMLElement) {
   const dlg = root.querySelector(".dlg") as HTMLDialogElement | null;
   if (!dlg) return;
   const isOpen = (host as HTMLElement & { open: boolean }).open;
+
+  // Re-render produced a new dialog → tear down the stale wiring.
+  const prior = DIALOG_LISTENERS.get(host);
+  if (prior && prior.dialog !== dlg) {
+    prior.cleanup();
+    DIALOG_LISTENERS.delete(host);
+  }
 
   if (isOpen && !dlg.open) {
     if (typeof dlg.showModal === "function") {
@@ -165,8 +186,7 @@ function syncDialogOpen(host: HTMLElement) {
     } else {
       dlg.setAttribute("open", "");
     }
-    // The dialog's native close fires on Escape and dlg.close().
-    if (!CLOSE_LISTENERS.has(host)) {
+    if (!DIALOG_LISTENERS.has(host)) {
       const onClose = () => {
         const h = host as HTMLElement & { open: boolean };
         if (h.open) {
@@ -181,7 +201,10 @@ function syncDialogOpen(host: HTMLElement) {
         }
       };
       dlg.addEventListener("close", onClose);
-      CLOSE_LISTENERS.set(host, onClose);
+      DIALOG_LISTENERS.set(host, {
+        dialog: dlg,
+        cleanup: () => dlg.removeEventListener("close", onClose),
+      });
     }
   } else if (!isOpen && dlg.open) {
     try {
@@ -206,8 +229,6 @@ function closeModal(
     }),
   );
 }
-
-const CLOSE_LISTENERS = new WeakMap<HTMLElement, () => void>();
 
 function esc(s: unknown): string {
   return String(s ?? "")

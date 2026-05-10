@@ -1,0 +1,36 @@
+{
+  "name": "@ra9/tan-compose-icons",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./mod.ts",
+    "./icons": "./icons.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["dom", "esnext", "deno.ns"]
+  },
+  "tasks": {
+    "test": "deno test --allow-read --allow-env --allow-net --allow-write",
+    "check": "deno check mod.ts icons.ts",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "lint": "deno lint",
+    "ci": "deno task fmt:check && deno task lint && deno task check && deno task test"
+  },
+  "fmt": {
+    "exclude": ["coverage/"]
+  },
+  "publish": {
+    "exclude": [
+      ".github/",
+      "test/",
+      "coverage/",
+      "*.html"
+    ]
+  },
+  "imports": {
+    "@ra9/tan-compose": "../mod.ts",
+    "@std/assert": "jsr:@std/assert@1",
+    "happy-dom": "npm:happy-dom@15"
+  }
+}
