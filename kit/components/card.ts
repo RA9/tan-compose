@@ -10,14 +10,15 @@
  *   elevated   boolean (default false) — soft shadow
  *
  * Slots:
- *   media   — image or visual at the top (full-bleed)
+ *   media   — image or visual at the top (full-bleed, no padding)
  *   header  — replaces title/subtitle if provided
- *   default — body content
+ *   default — body content (this is the unnamed slot)
  *   footer  — bottom bar (action buttons etc.)
  *
  * Theme variables on :host:
  *   --tc-card-surface, --tc-card-ink, --tc-card-soft, --tc-card-rule,
- *   --tc-card-radius, --tc-card-shadow, --tc-card-font
+ *   --tc-card-radius, --tc-card-shadow, --tc-card-font,
+ *   --tc-card-padding-x, --tc-card-padding-y, --tc-card-gap
  */
 
 import { build, describe } from "@ra9/tan-compose";
@@ -46,64 +47,126 @@ build(
         "var(--tc-shadow-md, 0 8px 24px rgba(20, 23, 31, 0.06))",
       "tc-card-font":
         "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      // Spacing tokens — override per-instance for tighter/looser cards.
+      "tc-card-padding-x": "var(--tc-space-5, 20px)",
+      "tc-card-padding-y": "var(--tc-space-5, 20px)",
+      "tc-card-gap": "var(--tc-space-3, 12px)",
     },
     styles: {
       display: "block",
     },
-    template: ({ props }) => `
-      <div class="card ${props.bordered ? "bordered" : ""} ${
-      props.elevated ? "elevated" : ""
-    } ${props.padded ? "padded" : ""}">
-        <div class="media"><slot name="media"></slot></div>
-        <div class="head">
-          <slot name="header">
-            ${props.title ? `<div class="title">${esc(props.title)}</div>` : ""}
-            ${
-      props.subtitle ? `<div class="subtitle">${esc(props.subtitle)}</div>` : ""
-    }
-          </slot>
+    template: ({ props }) => {
+      const hasHeaderProps = Boolean(props.title) || Boolean(props.subtitle);
+      const classes = [
+        "card",
+        props.bordered ? "bordered" : "",
+        props.elevated ? "elevated" : "",
+        props.padded ? "padded" : "",
+        hasHeaderProps ? "has-header" : "",
+      ].filter(Boolean).join(" ");
+
+      return `
+        <div class="${classes}">
+          <div class="media"><slot name="media"></slot></div>
+          <div class="head">
+            <slot name="header">
+              ${
+        props.title ? `<div class="title">${esc(props.title)}</div>` : ""
+      }
+              ${
+        props.subtitle
+          ? `<div class="subtitle">${esc(props.subtitle)}</div>`
+          : ""
+      }
+            </slot>
+          </div>
+          <div class="body"><slot></slot></div>
+          <div class="foot"><slot name="footer"></slot></div>
         </div>
-        <div class="body"><slot></slot></div>
-        <div class="foot"><slot name="footer"></slot></div>
-      </div>
-      <style>
-        .card {
-          background: var(--tc-card-surface);
-          color: var(--tc-card-ink);
-          font-family: var(--tc-card-font);
-          border-radius: var(--tc-card-radius);
-          overflow: hidden;
-        }
-        .card.bordered { border: 1px solid var(--tc-card-rule); }
-        .card.elevated { box-shadow: var(--tc-card-shadow); }
-        .media { display: contents; }
-        .media::slotted(*) {
-          display: block; width: 100%;
-        }
-        .card.padded .head:has(::slotted(*)),
-        .card.padded .head:has(.title),
-        .card.padded .head:has(.subtitle) {
-          padding: 18px 20px 8px;
-        }
-        .head:not(:has(*)) { display: none; }
-        .title {
-          font-weight: 700; font-size: 1.05rem;
-          letter-spacing: -0.01em;
-        }
-        .subtitle {
-          margin-top: 4px; font-size: 0.88rem;
-          color: var(--tc-card-soft);
-        }
-        .card.padded .body { padding: 18px 20px; }
-        .card.padded .head ~ .body { padding-top: 8px; }
-        .foot:has(::slotted(*)) {
-          padding: 12px 20px 16px;
-          border-top: 1px solid var(--tc-card-rule);
-          display: flex; gap: 8px; justify-content: flex-end;
-        }
-        .foot:not(:has(*)) { display: none; }
-      </style>
-    `,
+        <style>
+          :host { display: block; }
+          .card {
+            background: var(--tc-card-surface);
+            color: var(--tc-card-ink);
+            font-family: var(--tc-card-font);
+            border-radius: var(--tc-card-radius);
+            overflow: hidden;
+          }
+          .card.bordered { border: 1px solid var(--tc-card-rule); }
+          .card.elevated { box-shadow: var(--tc-card-shadow); }
+
+          /* Body: always has its own padding when the card is padded.
+             This is the deterministic main padding — the head and foot
+             pad themselves separately. */
+          .card.padded .body {
+            padding: var(--tc-card-padding-y) var(--tc-card-padding-x);
+          }
+
+          /* Head padding when title/subtitle props are set OR something
+             is slotted into name="header". The body then trims its top
+             padding so the two sections meet at --tc-card-gap. */
+          .card.padded.has-header .head,
+          .card.padded .head:has(::slotted(*)) {
+            padding:
+              var(--tc-card-padding-y)
+              var(--tc-card-padding-x)
+              var(--tc-card-gap);
+          }
+          .card.padded.has-header .head + .body,
+          .card.padded .head:has(::slotted(*)) + .body {
+            padding-top: 0;
+          }
+
+          /* Hide an empty head — neither props nor slotted content. */
+          .card:not(.has-header) .head:not(:has(::slotted(*))) {
+            display: none;
+          }
+
+          /* Foot only renders when there's slotted footer content. */
+          .card.padded .foot:has(::slotted(*)) {
+            padding:
+              var(--tc-card-gap)
+              var(--tc-card-padding-x)
+              var(--tc-card-padding-y);
+            border-top: 1px solid var(--tc-card-rule);
+            display: flex;
+            gap: var(--tc-space-2, 8px);
+            justify-content: flex-end;
+          }
+          .card .foot:not(:has(::slotted(*))) { display: none; }
+
+          /* Media is full-bleed (no horizontal padding) but we still
+             trim the body's top padding when media is shown so the
+             image sits flush against the border. */
+          .media:not(:has(::slotted(*))) { display: none; }
+          .media::slotted(*) {
+            display: block;
+            width: 100%;
+            height: auto;
+          }
+
+          /* Title / subtitle defaults (used inside the slot fallback). */
+          .title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+          }
+          .subtitle {
+            margin-top: 4px;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: var(--tc-card-soft);
+          }
+
+          /* When padded=false, no padding anywhere. The user takes
+             over completely. */
+          .card:not(.padded) .body,
+          .card:not(.padded) .head,
+          .card:not(.padded) .foot { padding: 0; }
+        </style>
+      `;
+    },
   }),
 );
 

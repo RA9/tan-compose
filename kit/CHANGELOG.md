@@ -3,6 +3,20 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.1.3] - 2026-05-10
+
+### Fixed
+
+- **`<tc-card>` had inconsistent padding.** The `:has()`-based show/hide logic
+  for the head/foot wrappers was fragile (CSS `:has()` doesn't see `<slot>`
+  fallback content reliably across implementations), so the body padding
+  sometimes failed to apply. Refactored the CSS so the body always pads when
+  `padded=true`, the head pads only when there's title/subtitle props OR slotted
+  content (detected via a `has-header` class set in the template plus
+  `:has(::slotted(*))`), and the foot pads only when slotted content exists.
+  Added new theme tokens `--tc-card-padding-x`, `--tc-card-padding-y`,
+  `--tc-card-gap` for per-instance density tuning.
+
 ## [1.1.2] - 2026-05-10
 
 ### Documentation

@@ -308,6 +308,35 @@ test("tc-switch: clicking the track flips checked and emits tc-change", () => {
   document.body.removeChild(el);
 });
 
+test("tc-card body has padding when padded=true (regression)", () => {
+  const el = document.createElement(tags.card) as HTMLElement & {
+    padded: boolean;
+  };
+  document.body.appendChild(el);
+  const card = el.shadowRoot!.querySelector(".card") as HTMLElement;
+  assert(card.classList.contains("padded"), "default is padded=true");
+  // The body padding rule references --tc-card-padding-y/x — confirm the CSS
+  // is in the shadow root. Concatenate all <style> tags because the
+  // theme/styles fallback emits its own.
+  const allCss = Array.from(el.shadowRoot!.querySelectorAll("style"))
+    .map((s) => s.textContent ?? "")
+    .join("\n");
+  assert(
+    allCss.includes(".card.padded .body"),
+    "expected body padding rule in shadow CSS",
+  );
+  assert(
+    allCss.includes("--tc-card-padding-y") &&
+      allCss.includes("--tc-card-padding-x"),
+    "expected padding tokens to be referenced",
+  );
+  // Flipping padded=false should remove the padded class.
+  el.padded = false;
+  const card2 = el.shadowRoot!.querySelector(".card") as HTMLElement;
+  assert(!card2.classList.contains("padded"));
+  document.body.removeChild(el);
+});
+
 test("tc-card renders title/subtitle and applies bordered/elevated classes", () => {
   const el = document.createElement(tags.card) as HTMLElement & {
     title: string;
