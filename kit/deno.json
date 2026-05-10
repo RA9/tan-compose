@@ -1,11 +1,16 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
     "./input": "./components/input.ts",
-    "./table": "./components/table.ts"
+    "./select": "./components/select.ts",
+    "./table": "./components/table.ts",
+    "./tabs": "./components/tabs.ts",
+    "./modal": "./components/modal.ts",
+    "./toast": "./components/toast.ts",
+    "./stat": "./components/stat.ts"
   },
   "compilerOptions": {
     "strict": true,
@@ -13,7 +18,7 @@
   },
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
-    "check": "deno check mod.ts components/button.ts components/input.ts components/table.ts",
+    "check": "deno check mod.ts components/button.ts components/input.ts components/select.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

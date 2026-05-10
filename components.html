@@ -404,6 +404,180 @@
         </div>
       </section>
 
+      <section class="demo" id="select">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-select&gt;</div>
+            <h2>Select</h2>
+            <p class="demo-lede">
+              Form-associated dropdown wrapping a native
+              <code>&lt;select&gt;</code>. Same chrome as
+              <code>&lt;tc-input&gt;</code>; submits with
+              <code>&lt;form&gt;</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-select
+              id="kit-select"
+              label="Role"
+              name="role"
+              placeholder="Choose…"
+            ></tc-select>
+            <div
+              id="kit-select-out"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted);"
+            >
+              No selection.
+            </div>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/select"</span>;
+
+&lt;tc-select label="Country" name="country"&gt;&lt;/tc-select&gt;
+&lt;script&gt;
+  document.querySelector("tc-select").options = [
+    { value: "us", label: "United States" },
+    { value: "ca", label: "Canada" },
+  ];
+&lt;/script&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="tabs">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-tabs&gt;</div>
+            <h2>Tabs</h2>
+            <p class="demo-lede">
+              Tablist with arrow-key roving focus, named slots per panel,
+              and ARIA roles. Active tab reflects to attribute.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-tabs id="kit-tabs">
+              <div slot="overview" style="padding: 6px 0;">
+                <strong>Overview.</strong> A summary panel. Use slots named
+                after the tab id.
+              </div>
+              <div slot="metrics" style="padding: 6px 0;">
+                <strong>Metrics.</strong> Anything you'd like — charts, tables,
+                stat cards.
+              </div>
+              <div slot="settings" style="padding: 6px 0;">
+                <strong>Settings.</strong> Form fields go here.
+              </div>
+            </tc-tabs>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/tabs"</span>;
+
+&lt;tc-tabs active="overview"&gt;
+  &lt;div slot="overview"&gt;…&lt;/div&gt;
+  &lt;div slot="metrics"&gt;…&lt;/div&gt;
+&lt;/tc-tabs&gt;
+&lt;script&gt;
+  document.querySelector("tc-tabs").tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "metrics",  label: "Metrics" },
+  ];
+&lt;/script&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="modal">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-modal&gt;</div>
+            <h2>Modal</h2>
+            <p class="demo-lede">
+              Backed by the native <code>&lt;dialog&gt;</code> for proper
+              focus trap and ESC handling. Backdrop click closes when
+              <code>dismissible</code> (default). Footer slot for actions.
+            </p>
+          </div>
+          <div class="stage">
+            <tc-button id="kit-modal-open" variant="primary">Open modal</tc-button>
+          </div>
+          <tc-modal id="kit-modal" title="Confirm action">
+            <p>This action will publish the changes to all subscribers.</p>
+            <p style="color: var(--ink-soft); font-size: 0.92rem; margin-top: 8px;">
+              You can undo this within 10 minutes.
+            </p>
+            <div slot="footer">
+              <tc-button variant="ghost" id="kit-modal-cancel">Cancel</tc-button>
+              <tc-button variant="primary" id="kit-modal-confirm">Publish</tc-button>
+            </div>
+          </tc-modal>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/modal"</span>;
+
+&lt;tc-modal id="m" title="Confirm"&gt;
+  &lt;p&gt;Are you sure?&lt;/p&gt;
+  &lt;div slot="footer"&gt;
+    &lt;tc-button variant="ghost"&gt;Cancel&lt;/tc-button&gt;
+    &lt;tc-button variant="primary"&gt;Confirm&lt;/tc-button&gt;
+  &lt;/div&gt;
+&lt;/tc-modal&gt;
+&lt;script&gt;document.getElementById("m").open = <span class="c-keyword">true</span>;&lt;/script&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="toast">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-toast&gt;</div>
+            <h2>Toast</h2>
+            <p class="demo-lede">
+              Inline notification with variant, auto-dismiss, and a close
+              button. Set <code>duration="0"</code> to keep it open until
+              the user closes it.
+            </p>
+          </div>
+          <div class="stage col">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <tc-button variant="primary" data-toast="info">Info toast</tc-button>
+              <tc-button variant="primary" data-toast="success">Success toast</tc-button>
+              <tc-button variant="primary" data-toast="warning">Warning toast</tc-button>
+              <tc-button variant="danger" data-toast="error">Error toast</tc-button>
+            </div>
+            <div id="kit-toast-host" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/toast"</span>;
+
+<span class="c-keyword">const</span> t = document.createElement(<span class="c-string">"tc-toast"</span>);
+t.variant = <span class="c-string">"success"</span>;
+t.message = <span class="c-string">"Saved."</span>;
+t.duration = 4000;
+host.appendChild(t);
+t.open = <span class="c-keyword">true</span>;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="stat">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-stat&gt;</div>
+            <h2>Stat</h2>
+            <p class="demo-lede">
+              Pure-presentation card for a metric. Label, value, optional
+              prefix/suffix, optional delta with up/down/neutral trend.
+            </p>
+          </div>
+          <div class="stage" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); display: grid;">
+            <tc-stat label="Revenue" value="12,840" prefix="$" delta="+8.2% vs last month" trend="up"></tc-stat>
+            <tc-stat label="Active users" value="3,209" delta="-1.4% vs last week" trend="down"></tc-stat>
+            <tc-stat label="Avg session" value="4:21" suffix="min" delta="no change" trend="neutral"></tc-stat>
+            <tc-stat label="Errors" value="0" delta="0 last 24h" trend="neutral"></tc-stat>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/stat"</span>;
+
+&lt;tc-stat
+  label="Revenue"
+  value="12,840"
+  prefix="$"
+  delta="+8.2% vs last month"
+  trend="up"
+&gt;&lt;/tc-stat&gt;</pre>
+        </div>
+      </section>
+
       <section class="demo" id="table">
         <div class="wrap">
           <div class="demo-head">
@@ -504,6 +678,67 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
         const row = e.detail.row;
         out.textContent = `clicked: ${row.name} (${row.role}, ${row.city})`;
         out.style.color = "#a16939";
+      });
+
+      // ---- select demo ----
+      const sel = document.getElementById("kit-select");
+      const selOut = document.getElementById("kit-select-out");
+      sel.options = [
+        { value: "engineer", label: "Engineer" },
+        { value: "designer", label: "Designer" },
+        { value: "product", label: "Product manager" },
+        { value: "ops", label: "Operations" },
+      ];
+      sel.addEventListener("tc-change", (e) => {
+        selOut.textContent = "selected: " + e.detail.value;
+        selOut.style.color = "#a16939";
+      });
+
+      // ---- tabs demo ----
+      const tabs = document.getElementById("kit-tabs");
+      tabs.tabs = [
+        { id: "overview", label: "Overview" },
+        { id: "metrics", label: "Metrics" },
+        { id: "settings", label: "Settings" },
+      ];
+      tabs.active = "overview";
+
+      // ---- modal demo ----
+      const modal = document.getElementById("kit-modal");
+      document.getElementById("kit-modal-open").addEventListener("click", () => {
+        modal.open = true;
+      });
+      document.getElementById("kit-modal-cancel").addEventListener("click", () => {
+        modal.open = false;
+      });
+      document.getElementById("kit-modal-confirm").addEventListener("click", () => {
+        modal.open = false;
+      });
+
+      // ---- toast demo ----
+      const toastHost = document.getElementById("kit-toast-host");
+      document.querySelectorAll("[data-toast]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const variant = btn.dataset.toast;
+          const t = document.createElement("tc-toast");
+          t.variant = variant;
+          t.message =
+            variant === "success"
+              ? "Saved successfully."
+              : variant === "warning"
+                ? "Heads up — check your input."
+                : variant === "error"
+                  ? "Something went wrong."
+                  : "Just so you know.";
+          t.duration = 3500;
+          toastHost.appendChild(t);
+          requestAnimationFrame(() => {
+            t.open = true;
+          });
+          t.addEventListener("tc-toast-close", () => {
+            setTimeout(() => t.remove(), 200);
+          });
+        });
       });
     </script>
   </body>

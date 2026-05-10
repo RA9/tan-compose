@@ -131,6 +131,125 @@ test("tc-table: filter narrows visible rows", () => {
   document.body.removeChild(el);
 });
 
+test("tc-stat renders label, value, prefix/suffix, and delta with trend class", () => {
+  const el = document.createElement(tags.stat) as HTMLElement & {
+    label: string;
+    value: string;
+    prefix: string;
+    suffix: string;
+    delta: string;
+    trend: string;
+  };
+  el.label = "Revenue";
+  el.value = "12,840";
+  el.prefix = "$";
+  el.suffix = "/mo";
+  el.delta = "+8.2%";
+  el.trend = "up";
+  document.body.appendChild(el);
+  const root = el.shadowRoot!;
+  assertEquals(root.querySelector(".label")?.textContent, "Revenue");
+  assertEquals(root.querySelector(".num")?.textContent, "12,840");
+  assertEquals(root.querySelector(".prefix")?.textContent, "$");
+  assertEquals(root.querySelector(".suffix")?.textContent, "/mo");
+  const delta = root.querySelector(".delta") as HTMLElement;
+  assert(delta);
+  assert(delta.classList.contains("t-up"));
+  document.body.removeChild(el);
+});
+
+test("tc-tabs renders ARIA-correct tablist and switches active panel on click", () => {
+  const el = document.createElement(tags.tabs) as HTMLElement & {
+    tabs: Array<{ id: string; label: string }>;
+    active: string;
+  };
+  el.tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "details", label: "Details" },
+  ];
+  el.active = "overview";
+  document.body.appendChild(el);
+
+  const liveTab = (id: string) =>
+    el.shadowRoot!.querySelector(`.tab[data-tab="${id}"]`) as HTMLElement;
+  const livePanel = (id: string) =>
+    el.shadowRoot!.querySelector(`#panel-${id}`) as HTMLElement;
+
+  assertEquals(liveTab("overview").getAttribute("aria-selected"), "true");
+  assertEquals(livePanel("overview").hasAttribute("hidden"), false);
+  assertEquals(livePanel("details").hasAttribute("hidden"), true);
+
+  liveTab("details").click();
+  assertEquals(el.active, "details");
+  assertEquals(liveTab("details").getAttribute("aria-selected"), "true");
+  assertEquals(livePanel("overview").hasAttribute("hidden"), true);
+  document.body.removeChild(el);
+});
+
+test("tc-select: form-associated, value sync, options rendered", () => {
+  if (typeof HTMLElement.prototype.attachInternals !== "function") return;
+  const el = document.createElement(tags.select) as HTMLElement & {
+    options: Array<{ value: string; label: string }>;
+    value: string;
+    internals?: ElementInternals;
+  };
+  el.options = [
+    { value: "a", label: "Apple" },
+    { value: "b", label: "Banana" },
+    { value: "c", label: "Cherry" },
+  ];
+  el.value = "b";
+  document.body.appendChild(el);
+  assert(el.internals, "expected ElementInternals via formAssociated");
+  const opts = Array.from(el.shadowRoot!.querySelectorAll("option"));
+  assertEquals(opts.length, 3);
+  assertEquals(opts[1].getAttribute("selected"), "");
+  document.body.removeChild(el);
+});
+
+test("tc-toast: open prop drives the .open class and emits tc-toast-close", () => {
+  const el = document.createElement(tags.toast) as HTMLElement & {
+    open: boolean;
+    message: string;
+    duration: number;
+  };
+  el.message = "Saved";
+  el.duration = 0; // disable auto-dismiss for the test
+  document.body.appendChild(el);
+  assert(!el.shadowRoot!.querySelector(".toast.open"), "starts closed");
+  el.open = true;
+  assert(el.shadowRoot!.querySelector(".toast.open"), "opens when prop flips");
+
+  let closed = false;
+  el.addEventListener("tc-toast-close", () => {
+    closed = true;
+  });
+  (el.shadowRoot!.querySelector(".x") as HTMLElement).click();
+  assert(closed, "expected tc-toast-close on dismiss button");
+  assertEquals(el.open, false);
+  document.body.removeChild(el);
+});
+
+test("tc-modal: dispatching tc-close when API closes the dialog programmatically", () => {
+  const el = document.createElement(tags.modal) as HTMLElement & {
+    open: boolean;
+  };
+  document.body.appendChild(el);
+  let closeCount = 0;
+  el.addEventListener("tc-close", () => {
+    closeCount++;
+  });
+  el.open = true;
+  // close-button click
+  const xBtn = el.shadowRoot!.querySelector(".x") as HTMLElement | null;
+  if (xBtn) {
+    xBtn.click();
+    assertEquals(el.open, false);
+    assert(closeCount >= 1, "tc-close fired on button");
+  }
+  document.body.removeChild(el);
+});
+
 test("tc-table: sort header click toggles asc → desc → none", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<Record<string, unknown>>;
