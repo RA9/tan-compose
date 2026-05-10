@@ -28,6 +28,7 @@
   "publish": {
     "exclude": [
       ".github/",
+      ".claude/",
       "test/",
       "examples/",
       "dist/",

@@ -1,4 +1,3 @@
-/// <reference lib="dom" />
 import type { DescribeOptions } from "./types.ts";
 
 // Registry maps tag name to constructor; prevents duplicate registration.
