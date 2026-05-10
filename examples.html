@@ -14,222 +14,89 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="./dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-        --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, sans-serif;
-        font-size: 16px;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
       }
 
-      .wrap {
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
 
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-      }
-
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-        display: inline-block;
-      }
-
-      .topbar nav {
-        display: flex;
-        gap: 22px;
-        align-items: center;
-      }
-
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-        transition: color 0.15s ease;
-      }
-
-      .topbar nav a:hover,
-      .topbar nav a.active {
-        color: var(--accent);
-      }
-
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-
-      .page-head {
-        padding: 64px 0 36px;
-      }
-
+      .page-head { padding: 64px 0 36px; }
       .page-eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--accent);
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
-
       h1 {
         font-size: clamp(2rem, 4vw, 2.6rem);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.1;
-        margin-bottom: 14px;
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.1; margin-bottom: 14px;
       }
-
       .page-lede {
-        color: var(--ink-soft);
-        font-size: 1.05rem;
-        max-width: 620px;
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 1.05rem; max-width: 620px;
       }
 
-      /* Side-rail toc */
+      /* Inline TOC card. */
       .toc {
         margin: 8px 0 56px;
         padding: 16px 18px;
-        border: 1px solid var(--rule);
-        border-radius: 10px;
-        background: var(--surface);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        background: var(--tc-color-surface, #ffffff);
       }
-
       .toc-label {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.74rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--ink-muted);
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.74rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--tc-color-ink-muted, #6b7280);
         margin-bottom: 8px;
       }
-
       .toc ol {
-        margin: 0;
-        padding-left: 22px;
-        color: var(--ink-soft);
+        margin: 0; padding-left: 22px;
+        color: var(--tc-color-ink-soft, #4a5061);
       }
-
-      .toc ol li {
-        padding: 2px 0;
-      }
-
+      .toc ol li { padding: 2px 0; }
       .toc a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.95rem;
+        color: var(--tc-color-ink-soft, #4a5061);
+        text-decoration: none; font-size: 0.95rem;
       }
+      .toc a:hover { color: var(--tc-color-accent, #a16939); }
 
-      .toc a:hover {
-        color: var(--accent);
-      }
-
-      /* Example block */
       .example {
         padding: 48px 0;
-        border-top: 1px solid var(--rule);
+        border-top: 1px solid var(--tc-color-rule, #ece5d3);
       }
-
-      .example:first-of-type {
-        border-top: none;
-      }
-
-      .example-head {
-        margin-bottom: 24px;
-      }
-
+      .example:first-of-type { border-top: none; }
+      .example-head { margin-bottom: 24px; }
       .example-tag {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.78rem;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 8px;
       }
-
       h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        margin-bottom: 8px;
+        font-size: 1.5rem; font-weight: 700;
+        letter-spacing: -0.01em; margin-bottom: 8px;
       }
-
       .example-lede {
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         font-size: 0.98rem;
       }
-
       .stage {
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 12px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
         padding: 36px 28px;
         margin-bottom: 16px;
         display: flex;
@@ -238,112 +105,21 @@
         min-height: 140px;
       }
 
-      pre.code {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.82rem;
-        line-height: 1.65;
-        padding: 22px 24px;
-        border-radius: 10px;
-        overflow-x: auto;
-        margin: 0;
-      }
-
-      pre.code .c-comment {
-        color: var(--code-comment);
-      }
-      pre.code .c-keyword {
-        color: var(--code-keyword);
-      }
-      pre.code .c-string {
-        color: var(--code-string);
-      }
-
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 32px 0 56px;
-        margin-top: 32px;
-      }
-
-      footer .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      footer p {
-        color: var(--ink-muted);
-        font-size: 0.9rem;
-      }
-
-      footer .links {
-        display: flex;
-        gap: 22px;
-      }
-
-      footer .links a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-
-      footer .links a:hover {
-        color: var(--accent);
-      }
+      /* Code-block syntax tokens (consumed by <tc-code>'s slotted spans). */
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
 
       @media (max-width: 720px) {
-        .page-head {
-          padding: 40px 0 24px;
-        }
-
-        .example {
-          padding: 36px 0;
-        }
-
-        .stage {
-          padding: 24px 18px;
-        }
-
-        .topbar nav .nav-hide-sm {
-          display: none;
-        }
+        .page-head { padding: 40px 0 24px; }
+        .example { padding: 36px 0; }
+        .stage { padding: 24px 18px; }
       }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="wrap topbar-inner">
-        <a class="brand" href="./index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav>
-          <a href="./docs.html" class="nav-hide-sm">Docs</a>
-          <a href="./components.html" class="nav-hide-sm">Components</a>
-          <a href="./themes.html" class="nav-hide-sm">Themes</a>
-          <a href="./examples.html" class="active">Examples</a>
-          <a href="./playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./blog/" class="nav-hide-sm">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            class="nav-hide-sm"
-            target="_blank"
-            rel="noopener"
-            >JSR</a
-          >
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
-          >
-        </nav>
-      </div>
-    </header>
+    <site-nav active="examples" version="v1.1.0"></site-nav>
 
     <main>
       <section class="page-head">
@@ -383,10 +159,10 @@
           <div class="stage">
             <ex-counter></ex-counter>
           </div>
-<pre class="code"><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
 
-build(<span class="c-string">"ex-counter"</span>, describe({
-  styles: { display: <span class="c-string">"inline-flex"</span>, flexDirection: <span class="c-string">"column"</span>, alignItems: <span class="c-string">"center"</span>, gap: <span class="c-string">"14px"</span> },
+build(<span class="tc-str">"ex-counter"</span>, describe({
+  styles: { display: <span class="tc-str">"inline-flex"</span>, flexDirection: <span class="tc-str">"column"</span>, alignItems: <span class="tc-str">"center"</span>, gap: <span class="tc-str">"14px"</span> },
   template: `
     &lt;div class="display"&gt;0&lt;/div&gt;
     &lt;div class="ctrls"&gt;
@@ -396,15 +172,15 @@ build(<span class="c-string">"ex-counter"</span>, describe({
     &lt;/div&gt;
   `,
   afterMount: function () {
-    <span class="c-keyword">const</span> root = <span class="c-keyword">this</span>.shadowRoot;
-    <span class="c-keyword">const</span> display = root.querySelector(<span class="c-string">".display"</span>);
-    <span class="c-keyword">let</span> count = 0;
-    <span class="c-keyword">const</span> sync = () =&gt; { display.textContent = String(count); };
-    root.querySelector(<span class="c-string">".dec"</span>).addEventListener(<span class="c-string">"click"</span>, () =&gt; { count--; sync(); });
-    root.querySelector(<span class="c-string">".inc"</span>).addEventListener(<span class="c-string">"click"</span>, () =&gt; { count++; sync(); });
-    root.querySelector(<span class="c-string">".rst"</span>).addEventListener(<span class="c-string">"click"</span>, () =&gt; { count = 0; sync(); });
+    <span class="tc-kw">const</span> root = <span class="tc-kw">this</span>.shadowRoot;
+    <span class="tc-kw">const</span> display = root.querySelector(<span class="tc-str">".display"</span>);
+    <span class="tc-kw">let</span> count = 0;
+    <span class="tc-kw">const</span> sync = () =&gt; { display.textContent = String(count); };
+    root.querySelector(<span class="tc-str">".dec"</span>).addEventListener(<span class="tc-str">"click"</span>, () =&gt; { count--; sync(); });
+    root.querySelector(<span class="tc-str">".inc"</span>).addEventListener(<span class="tc-str">"click"</span>, () =&gt; { count++; sync(); });
+    root.querySelector(<span class="tc-str">".rst"</span>).addEventListener(<span class="tc-str">"click"</span>, () =&gt; { count = 0; sync(); });
   },
-}));</pre>
+}));</tc-code>
         </div>
       </article>
 
@@ -422,17 +198,17 @@ build(<span class="c-string">"ex-counter"</span>, describe({
           <div class="stage">
             <ex-button-row></ex-button-row>
           </div>
-<pre class="code">build(<span class="c-string">"ex-button-row"</span>, describe({
-  styles: { display: <span class="c-string">"flex"</span>, gap: <span class="c-string">"10px"</span>, flexWrap: <span class="c-string">"wrap"</span>, justifyContent: <span class="c-string">"center"</span> },
+<tc-code language="ts">build(<span class="tc-str">"ex-button-row"</span>, describe({
+  styles: { display: <span class="tc-str">"flex"</span>, gap: <span class="tc-str">"10px"</span>, flexWrap: <span class="tc-str">"wrap"</span>, justifyContent: <span class="tc-str">"center"</span> },
   children: [
-    describe({ tag: <span class="c-string">"button"</span>, template: <span class="c-string">"Primary"</span>, action: () =&gt; alert(<span class="c-string">"primary"</span>),
-      styles: { padding: <span class="c-string">"10px 18px"</span>, background: <span class="c-string">"#14171f"</span>, color: <span class="c-string">"#fff"</span>, border: <span class="c-string">"none"</span>, borderRadius: <span class="c-string">"8px"</span>, cursor: <span class="c-string">"pointer"</span> } }),
-    describe({ tag: <span class="c-string">"button"</span>, template: <span class="c-string">"Accent"</span>, action: () =&gt; alert(<span class="c-string">"accent"</span>),
-      styles: { padding: <span class="c-string">"10px 18px"</span>, background: <span class="c-string">"#a16939"</span>, color: <span class="c-string">"#fff"</span>, border: <span class="c-string">"none"</span>, borderRadius: <span class="c-string">"8px"</span>, cursor: <span class="c-string">"pointer"</span> } }),
-    describe({ tag: <span class="c-string">"button"</span>, template: <span class="c-string">"Ghost"</span>, action: () =&gt; alert(<span class="c-string">"ghost"</span>),
-      styles: { padding: <span class="c-string">"10px 18px"</span>, background: <span class="c-string">"transparent"</span>, color: <span class="c-string">"#14171f"</span>, border: <span class="c-string">"1px solid #d9cfb8"</span>, borderRadius: <span class="c-string">"8px"</span>, cursor: <span class="c-string">"pointer"</span> } }),
+    describe({ tag: <span class="tc-str">"button"</span>, template: <span class="tc-str">"Primary"</span>, action: () =&gt; alert(<span class="tc-str">"primary"</span>),
+      styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"#14171f"</span>, color: <span class="tc-str">"#fff"</span>, border: <span class="tc-str">"none"</span>, borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span> } }),
+    describe({ tag: <span class="tc-str">"button"</span>, template: <span class="tc-str">"Accent"</span>, action: () =&gt; alert(<span class="tc-str">"accent"</span>),
+      styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"#a16939"</span>, color: <span class="tc-str">"#fff"</span>, border: <span class="tc-str">"none"</span>, borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span> } }),
+    describe({ tag: <span class="tc-str">"button"</span>, template: <span class="tc-str">"Ghost"</span>, action: () =&gt; alert(<span class="tc-str">"ghost"</span>),
+      styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"transparent"</span>, color: <span class="tc-str">"#14171f"</span>, border: <span class="tc-str">"1px solid #d9cfb8"</span>, borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span> } }),
   ],
-}));</pre>
+}));</tc-code>
         </div>
       </article>
 
@@ -451,18 +227,18 @@ build(<span class="c-string">"ex-counter"</span>, describe({
           <div class="stage">
             <ex-card></ex-card>
           </div>
-<pre class="code">build(<span class="c-string">"ex-card"</span>, describe({
-  theme: { surface: <span class="c-string">"#ffffff"</span>, border: <span class="c-string">"#ece5d3"</span>, ink: <span class="c-string">"#14171f"</span>, accent: <span class="c-string">"#a16939"</span> },
-  styles: { display: <span class="c-string">"block"</span>, background: <span class="c-string">"var(--surface)"</span>, border: <span class="c-string">"1px solid var(--border)"</span>,
-            borderRadius: <span class="c-string">"12px"</span>, padding: <span class="c-string">"22px"</span>, maxWidth: <span class="c-string">"420px"</span> },
+<tc-code language="ts">build(<span class="tc-str">"ex-card"</span>, describe({
+  theme: { surface: <span class="tc-str">"#ffffff"</span>, border: <span class="tc-str">"#ece5d3"</span>, ink: <span class="tc-str">"#14171f"</span>, accent: <span class="tc-str">"#a16939"</span> },
+  styles: { display: <span class="tc-str">"block"</span>, background: <span class="tc-str">"var(--tc-color-surface, #ffffff)"</span>, border: <span class="tc-str">"1px solid var(--border)"</span>,
+            borderRadius: <span class="tc-str">"12px"</span>, padding: <span class="tc-str">"22px"</span>, maxWidth: <span class="tc-str">"420px"</span> },
   children: [
-    describe({ tag: <span class="c-string">"h3"</span>, template: <span class="c-string">"Theme variables"</span>, styles: { color: <span class="c-string">"var(--ink)"</span>, margin: <span class="c-string">"0 0 8px"</span> } }),
-    describe({ tag: <span class="c-string">"p"</span>, template: <span class="c-string">"Defined once on the host, used anywhere inside."</span>,
-               styles: { color: <span class="c-string">"#5a6072"</span>, margin: <span class="c-string">"0 0 14px"</span>, lineHeight: <span class="c-string">"1.55"</span> } }),
-    describe({ tag: <span class="c-string">"a"</span>, template: <span class="c-string">"Read more →"</span>, attributes: { href: <span class="c-string">"./docs.html"</span> },
-               styles: { color: <span class="c-string">"var(--accent)"</span>, fontWeight: <span class="c-string">"600"</span>, textDecoration: <span class="c-string">"none"</span> } }),
+    describe({ tag: <span class="tc-str">"h3"</span>, template: <span class="tc-str">"Theme variables"</span>, styles: { color: <span class="tc-str">"var(--tc-color-ink, #14171f)"</span>, margin: <span class="tc-str">"0 0 8px"</span> } }),
+    describe({ tag: <span class="tc-str">"p"</span>, template: <span class="tc-str">"Defined once on the host, used anywhere inside."</span>,
+               styles: { color: <span class="tc-str">"#5a6072"</span>, margin: <span class="tc-str">"0 0 14px"</span>, lineHeight: <span class="tc-str">"1.55"</span> } }),
+    describe({ tag: <span class="tc-str">"a"</span>, template: <span class="tc-str">"Read more →"</span>, attributes: { href: <span class="tc-str">"./docs.html"</span> },
+               styles: { color: <span class="tc-str">"var(--tc-color-accent, #a16939)"</span>, fontWeight: <span class="tc-str">"600"</span>, textDecoration: <span class="tc-str">"none"</span> } }),
   ],
-}));</pre>
+}));</tc-code>
         </div>
       </article>
 
@@ -485,16 +261,16 @@ build(<span class="c-string">"ex-counter"</span>, describe({
               flip data-state from outside
             </button>
           </div>
-<pre class="code">build(<span class="c-string">"ex-toggle"</span>, describe({
-  observedAttributes: [<span class="c-string">"data-state"</span>],
-  styles: { display: <span class="c-string">"inline-flex"</span>, alignItems: <span class="c-string">"center"</span>, gap: <span class="c-string">"10px"</span>,
-            fontFamily: <span class="c-string">"'JetBrains Mono', monospace"</span> },
+<tc-code language="ts">build(<span class="tc-str">"ex-toggle"</span>, describe({
+  observedAttributes: [<span class="tc-str">"data-state"</span>],
+  styles: { display: <span class="tc-str">"inline-flex"</span>, alignItems: <span class="tc-str">"center"</span>, gap: <span class="tc-str">"10px"</span>,
+            fontFamily: <span class="tc-str">"'JetBrains Mono', monospace"</span> },
   template: `&lt;span class="dot"&gt;&lt;/span&gt;&lt;span class="label"&gt;off&lt;/span&gt;`,
-  afterMount: <span class="c-keyword">function</span> () { paint(<span class="c-keyword">this</span>); },
+  afterMount: <span class="tc-kw">function</span> () { paint(<span class="tc-kw">this</span>); },
 }));
 
-<span class="c-comment">// Re-render fires on attribute change; we re-paint after each render.</span>
-<span class="c-comment">// (See afterMount + observedAttributes in the docs.)</span></pre>
+<span class="tc-com">// Re-render fires on attribute change; we re-paint after each render.</span>
+<span class="tc-com">// (See afterMount + observedAttributes in the docs.)</span></tc-code>
         </div>
       </article>
 
@@ -518,47 +294,25 @@ build(<span class="c-string">"ex-counter"</span>, describe({
               waiting for ping…
             </div>
           </div>
-<pre class="code">build(<span class="c-string">"ex-pinger"</span>, describe({
-  tag: <span class="c-string">"button"</span>,
-  template: <span class="c-string">"send ping"</span>,
-  styles: { padding: <span class="c-string">"10px 18px"</span>, background: <span class="c-string">"#a16939"</span>, color: <span class="c-string">"#fff"</span>, border: <span class="c-string">"none"</span>,
-            borderRadius: <span class="c-string">"8px"</span>, cursor: <span class="c-string">"pointer"</span>, fontWeight: <span class="c-string">"500"</span> },
-  action: <span class="c-keyword">function</span> () {
-    <span class="c-keyword">this</span>.emitEvent(<span class="c-string">"ping"</span>, { at: Date.now() });
+<tc-code language="ts">build(<span class="tc-str">"ex-pinger"</span>, describe({
+  tag: <span class="tc-str">"button"</span>,
+  template: <span class="tc-str">"send ping"</span>,
+  styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"#a16939"</span>, color: <span class="tc-str">"#fff"</span>, border: <span class="tc-str">"none"</span>,
+            borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span>, fontWeight: <span class="tc-str">"500"</span> },
+  action: <span class="tc-kw">function</span> () {
+    <span class="tc-kw">this</span>.emitEvent(<span class="tc-str">"ping"</span>, { at: Date.now() });
   },
 }));
 
-document.addEventListener(<span class="c-string">"ping"</span>, (e) =&gt; {
-  document.getElementById(<span class="c-string">"ping-log"</span>).textContent =
-    <span class="c-string">`pinged at ${new Date(e.detail.at).toLocaleTimeString()}`</span>;
-});</pre>
+document.addEventListener(<span class="tc-str">"ping"</span>, (e) =&gt; {
+  document.getElementById(<span class="tc-str">"ping-log"</span>).textContent =
+    <span class="tc-str">`pinged at ${new Date(e.detail.at).toLocaleTimeString()}`</span>;
+});</tc-code>
         </div>
       </article>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="./index.html">Home</a>
-          <a href="./docs.html">Docs</a>
-          <a href="./playground.html">Playground</a>
-          <a href="./blog/">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-            >JSR</a
-          >
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
-          >
-        </div>
-      </div>
-    </footer>
+    <site-footer></site-footer>
 
     <script type="module">
       import { build, describe } from "./dist/mod.js";
@@ -678,7 +432,7 @@ document.addEventListener(<span class="c-string">"ping"</span>, (e) =&gt; {
           },
           styles: {
             display: "block",
-            background: "var(--surface)",
+            background: "var(--tc-color-surface, #ffffff)",
             border: "1px solid var(--border)",
             borderRadius: "12px",
             padding: "22px",
@@ -689,7 +443,7 @@ document.addEventListener(<span class="c-string">"ping"</span>, (e) =&gt; {
               tag: "h3",
               template: "Theme variables",
               styles: {
-                color: "var(--ink)",
+                color: "var(--tc-color-ink, #14171f)",
                 margin: "0 0 8px",
                 fontSize: "1.1rem",
                 fontWeight: "700",
@@ -711,7 +465,7 @@ document.addEventListener(<span class="c-string">"ping"</span>, (e) =&gt; {
               template: "Read the docs →",
               attributes: { href: "./docs.html" },
               styles: {
-                color: "var(--accent)",
+                color: "var(--tc-color-accent, #a16939)",
                 fontWeight: "600",
                 textDecoration: "none",
                 fontFamily:

@@ -14,148 +14,44 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="./dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, sans-serif;
-        font-size: 16px;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
 
-      .wrap {
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
 
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-      }
-
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-      }
-
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-
-      .topbar nav {
-        display: flex;
-        gap: 22px;
-        align-items: center;
-      }
-
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-      }
-
-      .topbar nav a:hover,
-      .topbar nav a.active {
-        color: var(--accent);
-      }
-
-      header.page {
-        padding: 64px 0 28px;
-      }
-
+      header.page { padding: 64px 0 28px; }
       .eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--accent);
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
-
       h1 {
         font-size: clamp(2rem, 4vw, 2.6rem);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.1;
-        margin-bottom: 14px;
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.1; margin-bottom: 14px;
       }
-
       .page-lede {
-        color: var(--ink-soft);
-        font-size: 1.05rem;
-        max-width: 620px;
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 1.05rem; max-width: 620px;
       }
-
       .install-line {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.92rem;
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 10px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
         padding: 14px 18px;
         margin: 24px 0 0;
         max-width: 460px;
@@ -163,43 +59,31 @@
         gap: 10px;
         align-items: center;
       }
-
-      .install-line .prompt {
-        color: var(--ink-muted);
-      }
+      .install-line .prompt { color: var(--tc-color-ink-muted, #6b7280); }
 
       section.demo {
         padding: 48px 0;
-        border-top: 1px solid var(--rule);
+        border-top: 1px solid var(--tc-color-rule, #ece5d3);
       }
-
-      .demo-head {
-        margin-bottom: 18px;
-      }
-
+      .demo-head { margin-bottom: 18px; }
       .demo-tag {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.78rem;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 8px;
       }
-
       h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        margin-bottom: 8px;
+        font-size: 1.5rem; font-weight: 700;
+        letter-spacing: -0.01em; margin-bottom: 8px;
       }
-
       .demo-lede {
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         font-size: 0.98rem;
       }
-
       .stage {
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 12px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
         padding: 32px 24px;
         margin: 16px 0;
         display: flex;
@@ -208,104 +92,22 @@
         align-items: center;
         min-height: 80px;
       }
+      .stage.col { flex-direction: column; align-items: stretch; }
 
-      .stage.col {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      pre.code {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.83rem;
-        line-height: 1.65;
-        padding: 22px 24px;
-        border-radius: 10px;
-        overflow-x: auto;
-      }
-
-      pre.code .c-comment {
-        color: var(--code-comment);
-      }
-      pre.code .c-keyword {
-        color: var(--code-keyword);
-      }
-      pre.code .c-string {
-        color: var(--code-string);
-      }
-
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 32px 0 56px;
-        margin-top: 32px;
-      }
-
-      footer .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      footer p {
-        color: var(--ink-muted);
-        font-size: 0.9rem;
-      }
-
-      footer .links {
-        display: flex;
-        gap: 22px;
-      }
-
-      footer .links a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-
-      footer .links a:hover {
-        color: var(--accent);
-      }
+      /* Code-block syntax tokens (consumed by <tc-code>'s slotted spans). */
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
 
       @media (max-width: 720px) {
-        header.page {
-          padding: 40px 0 16px;
-        }
-        section.demo {
-          padding: 32px 0;
-        }
-        .topbar nav .nav-hide-sm {
-          display: none;
-        }
+        header.page { padding: 40px 0 16px; }
+        section.demo { padding: 32px 0; }
       }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="wrap topbar-inner">
-        <a class="brand" href="./index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav>
-          <a href="./docs.html" class="nav-hide-sm">Docs</a>
-          <a href="./components.html" class="active">Components</a>
-          <a href="./themes.html" class="nav-hide-sm">Themes</a>
-          <a href="./examples.html" class="nav-hide-sm">Examples</a>
-          <a href="./playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./blog/" class="nav-hide-sm">Blog</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
-          >
-        </nav>
-      </div>
-    </header>
+    <site-nav active="components" version="v1.1.0"></site-nav>
 
     <main>
       <header class="page">
@@ -314,7 +116,7 @@
           <h1>Components, ready to drop in.</h1>
           <p class="page-lede">
             Battle-tested primitives built on
-            <code style="font-family: 'JetBrains Mono', monospace;">@ra9/tan-compose</code>.
+            <code>@ra9/tan-compose</code>.
             Every component is a real custom element — works in plain HTML,
             React, Vue, Astro, anywhere a custom element is allowed. Theme
             via CSS custom properties on the host.
@@ -347,10 +149,10 @@
             <tc-button loading>Loading</tc-button>
             <tc-button disabled>Disabled</tc-button>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/button"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/button"</span>;
 
 &lt;tc-button variant="primary"&gt;Save&lt;/tc-button&gt;
-&lt;tc-button variant="danger" loading&gt;Deleting…&lt;/tc-button&gt;</pre>
+&lt;tc-button variant="danger" loading&gt;Deleting…&lt;/tc-button&gt;</tc-code>
         </div>
       </section>
 
@@ -391,17 +193,17 @@
             </div>
             <div
               id="kit-result"
-              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted);"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--tc-color-ink-muted, #6b7280);"
             >
               Click submit to see what gets sent.
             </div>
           </form>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/input"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/input"</span>;
 
 &lt;form&gt;
   &lt;tc-input label="Email" name="email" type="email" required&gt;&lt;/tc-input&gt;
   &lt;tc-button&gt;Submit&lt;/tc-button&gt;
-&lt;/form&gt;</pre>
+&lt;/form&gt;</tc-code>
         </div>
       </section>
 
@@ -426,12 +228,12 @@
             ></tc-select>
             <div
               id="kit-select-out"
-              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted);"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--tc-color-ink-muted, #6b7280);"
             >
               No selection.
             </div>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/select"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/select"</span>;
 
 &lt;tc-select label="Country" name="country"&gt;&lt;/tc-select&gt;
 &lt;script&gt;
@@ -439,7 +241,7 @@
     { value: "us", label: "United States" },
     { value: "ca", label: "Canada" },
   ];
-&lt;/script&gt;</pre>
+&lt;/script&gt;</tc-code>
         </div>
       </section>
 
@@ -468,7 +270,7 @@
               </div>
             </tc-tabs>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/tabs"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/tabs"</span>;
 
 &lt;tc-tabs active="overview"&gt;
   &lt;div slot="overview"&gt;…&lt;/div&gt;
@@ -479,7 +281,7 @@
     { id: "overview", label: "Overview" },
     { id: "metrics",  label: "Metrics" },
   ];
-&lt;/script&gt;</pre>
+&lt;/script&gt;</tc-code>
         </div>
       </section>
 
@@ -499,7 +301,7 @@
           </div>
           <tc-modal id="kit-modal" title="Confirm action">
             <p>This action will publish the changes to all subscribers.</p>
-            <p style="color: var(--ink-soft); font-size: 0.92rem; margin-top: 8px;">
+            <p style="color: var(--tc-color-ink-soft, #4a5061); font-size: 0.92rem; margin-top: 8px;">
               You can undo this within 10 minutes.
             </p>
             <div slot="footer">
@@ -507,7 +309,7 @@
               <tc-button variant="primary" id="kit-modal-confirm">Publish</tc-button>
             </div>
           </tc-modal>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/modal"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/modal"</span>;
 
 &lt;tc-modal id="m" title="Confirm"&gt;
   &lt;p&gt;Are you sure?&lt;/p&gt;
@@ -516,7 +318,7 @@
     &lt;tc-button variant="primary"&gt;Confirm&lt;/tc-button&gt;
   &lt;/div&gt;
 &lt;/tc-modal&gt;
-&lt;script&gt;document.getElementById("m").open = <span class="c-keyword">true</span>;&lt;/script&gt;</pre>
+&lt;script&gt;document.getElementById("m").open = <span class="tc-kw">true</span>;&lt;/script&gt;</tc-code>
         </div>
       </section>
 
@@ -540,14 +342,14 @@
             </div>
             <div id="kit-toast-host" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/toast"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/toast"</span>;
 
-<span class="c-keyword">const</span> t = document.createElement(<span class="c-string">"tc-toast"</span>);
-t.variant = <span class="c-string">"success"</span>;
-t.message = <span class="c-string">"Saved."</span>;
+<span class="tc-kw">const</span> t = document.createElement(<span class="tc-str">"tc-toast"</span>);
+t.variant = <span class="tc-str">"success"</span>;
+t.message = <span class="tc-str">"Saved."</span>;
 t.duration = 4000;
 host.appendChild(t);
-t.open = <span class="c-keyword">true</span>;</pre>
+t.open = <span class="tc-kw">true</span>;</tc-code>
         </div>
       </section>
 
@@ -567,7 +369,7 @@ t.open = <span class="c-keyword">true</span>;</pre>
             <tc-stat label="Avg session" value="4:21" suffix="min" delta="no change" trend="neutral"></tc-stat>
             <tc-stat label="Errors" value="0" delta="0 last 24h" trend="neutral"></tc-stat>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/stat"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/stat"</span>;
 
 &lt;tc-stat
   label="Revenue"
@@ -575,7 +377,7 @@ t.open = <span class="c-keyword">true</span>;</pre>
   prefix="$"
   delta="+8.2% vs last month"
   trend="up"
-&gt;&lt;/tc-stat&gt;</pre>
+&gt;&lt;/tc-stat&gt;</tc-code>
         </div>
       </section>
 
@@ -594,21 +396,21 @@ t.open = <span class="c-keyword">true</span>;</pre>
             <tc-table id="kit-table" page-size="6" empty-text="Nothing matches."></tc-table>
             <div
               id="kit-table-out"
-              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted); margin-top: 4px;"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--tc-color-ink-muted, #6b7280); margin-top: 4px;"
             >
               Click a row to see it here.
             </div>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/table"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/table"</span>;
 
-<span class="c-keyword">const</span> table = document.querySelector(<span class="c-string">"tc-table"</span>);
+<span class="tc-kw">const</span> table = document.querySelector(<span class="tc-str">"tc-table"</span>);
 table.columns = [
-  { key: <span class="c-string">"name"</span>,    label: <span class="c-string">"Name"</span> },
-  { key: <span class="c-string">"role"</span>,    label: <span class="c-string">"Role"</span>, sortable: <span class="c-keyword">true</span> },
-  { key: <span class="c-string">"joined"</span>,  label: <span class="c-string">"Joined"</span>, sortable: <span class="c-keyword">true</span> },
+  { key: <span class="tc-str">"name"</span>,    label: <span class="tc-str">"Name"</span> },
+  { key: <span class="tc-str">"role"</span>,    label: <span class="tc-str">"Role"</span>, sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">"joined"</span>,  label: <span class="tc-str">"Joined"</span>, sortable: <span class="tc-kw">true</span> },
 ];
-table.rows = await fetch(<span class="c-string">"/api/people"</span>).then(r =&gt; r.json());
-table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; console.log(e.detail.row));</pre>
+table.rows = await fetch(<span class="tc-str">"/api/people"</span>).then(r =&gt; r.json());
+table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; console.log(e.detail.row));</tc-code>
         </div>
       </section>
 
@@ -632,9 +434,9 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
               rows="4"
             ></tc-textarea>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/textarea"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/textarea"</span>;
 
-&lt;tc-textarea label="Notes" name="notes" rows="6"&gt;&lt;/tc-textarea&gt;</pre>
+&lt;tc-textarea label="Notes" name="notes" rows="6"&gt;&lt;/tc-textarea&gt;</tc-code>
         </div>
       </section>
 
@@ -656,7 +458,7 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
               layout="horizontal"
             ></tc-radio-group>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/radio-group"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/radio-group"</span>;
 
 &lt;tc-radio-group label="Plan" name="plan"&gt;&lt;/tc-radio-group&gt;
 &lt;script&gt;
@@ -665,7 +467,7 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
     { value: "pro",  label: "Pro" },
     { value: "team", label: "Team" },
   ];
-&lt;/script&gt;</pre>
+&lt;/script&gt;</tc-code>
         </div>
       </section>
 
@@ -695,16 +497,16 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
               button-text="Select files"
             ></tc-file>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/file"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/file"</span>;
 
-&lt;tc-file label="Avatar" name="avatar" accept="image/*"&gt;&lt;/tc-file&gt;</pre>
+&lt;tc-file label="Avatar" name="avatar" accept="image/*"&gt;&lt;/tc-file&gt;</tc-code>
         </div>
       </section>
 
       <section class="demo" id="code">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-code&gt; <span style="color: var(--ink-muted);">· new in 1.3</span></div>
+            <div class="demo-tag">&lt;tc-code&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></div>
             <h2>Code block</h2>
             <p class="demo-lede">
               Styled code surface with optional <code>copy</code> button
@@ -731,18 +533,18 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
   <span class="tc-str">"version"</span>: <span class="tc-str">"1.1.0"</span>
 }</tc-code>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/code"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/code"</span>;
 
 &lt;tc-code language="ts" copy&gt;
-  &lt;span class="tc-kw"&gt;const&lt;/span&gt; x = <span class="c-string">"hi"</span>;
-&lt;/tc-code&gt;</pre>
+  &lt;span class="tc-kw"&gt;const&lt;/span&gt; x = <span class="tc-str">"hi"</span>;
+&lt;/tc-code&gt;</tc-code>
         </div>
       </section>
 
       <section class="demo" id="callout">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-callout&gt; <span style="color: var(--ink-muted);">· new in 1.3</span></div>
+            <div class="demo-tag">&lt;tc-callout&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></div>
             <h2>Callout</h2>
             <p class="demo-lede">
               Note / info / success / warning / danger admonition box
@@ -768,18 +570,18 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               Deleting a customer cannot be undone after 10 minutes.
             </tc-callout>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/callout"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/callout"</span>;
 
 &lt;tc-callout variant="warning" title="Coming soon"&gt;
   SSR support is on the v1.2 roadmap.
-&lt;/tc-callout&gt;</pre>
+&lt;/tc-callout&gt;</tc-code>
         </div>
       </section>
 
       <section class="demo" id="toc">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-toc&gt; <span style="color: var(--ink-muted);">· new in 1.3</span></div>
+            <div class="demo-tag">&lt;tc-toc&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></div>
             <h2>Table of contents</h2>
             <p class="demo-lede">
               Auto-builds a sticky sidebar of links by scanning a target
@@ -806,14 +608,14 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               <p>Full API at <a href="./docs.html">docs.html</a>.</p>
             </article>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/toc"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/toc"</span>;
 
 &lt;tc-toc target="article" levels="h2,h3"&gt;&lt;/tc-toc&gt;
 &lt;article&gt;
   &lt;h2&gt;Introduction&lt;/h2&gt;
   &lt;h2&gt;Setup&lt;/h2&gt;
   …
-&lt;/article&gt;</pre>
+&lt;/article&gt;</tc-code>
         </div>
       </section>
 
@@ -832,7 +634,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
           </div>
           <div class="stage col">
             <div>
-              <p style="font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-stack gap="3"</p>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-stack gap="3"</p>
               <tc-stack gap="3">
                 <tc-button variant="ghost">First</tc-button>
                 <tc-button variant="ghost">Second</tc-button>
@@ -840,7 +642,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               </tc-stack>
             </div>
             <div>
-              <p style="font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-cluster gap="2" justify="between"</p>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-cluster gap="2" justify="between"</p>
               <tc-cluster gap="2" justify="between">
                 <tc-badge variant="info">a</tc-badge>
                 <tc-badge variant="success">b</tc-badge>
@@ -849,7 +651,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               </tc-cluster>
             </div>
             <div>
-              <p style="font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-grid min="160px"</p>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-grid min="160px"</p>
               <tc-grid min="160px">
                 <tc-stat label="Total" value="42"></tc-stat>
                 <tc-stat label="Open" value="12"></tc-stat>
@@ -857,13 +659,13 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               </tc-grid>
             </div>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/stack"</span>;
-<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/cluster"</span>;
-<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/grid"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/stack"</span>;
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/cluster"</span>;
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/grid"</span>;
 
 &lt;tc-stack gap="4"&gt; … &lt;/tc-stack&gt;
 &lt;tc-cluster gap="3" justify="between"&gt; … &lt;/tc-cluster&gt;
-&lt;tc-grid min="220px" gap="4"&gt; … &lt;/tc-grid&gt;</pre>
+&lt;tc-grid min="220px" gap="4"&gt; … &lt;/tc-grid&gt;</tc-code>
         </div>
       </section>
 
@@ -882,9 +684,9 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             <tc-checkbox label="I agree to the terms" name="terms" required helper="Required to continue"></tc-checkbox>
             <tc-checkbox label="This option is disabled" disabled></tc-checkbox>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/checkbox"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/checkbox"</span>;
 
-&lt;tc-checkbox label="Subscribe" name="opt-in"&gt;&lt;/tc-checkbox&gt;</pre>
+&lt;tc-checkbox label="Subscribe" name="opt-in"&gt;&lt;/tc-checkbox&gt;</tc-code>
         </div>
       </section>
 
@@ -903,9 +705,9 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             <tc-switch label="Dark mode" name="dark" checked></tc-switch>
             <tc-switch label="Disabled toggle" disabled></tc-switch>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/switch"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/switch"</span>;
 
-&lt;tc-switch label="Enable notifications" name="notify"&gt;&lt;/tc-switch&gt;</pre>
+&lt;tc-switch label="Enable notifications" name="notify"&gt;&lt;/tc-switch&gt;</tc-code>
         </div>
       </section>
 
@@ -934,14 +736,14 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               </div>
             </tc-card>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/card"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/card"</span>;
 
 &lt;tc-card title="Settings" subtitle="Account preferences" elevated&gt;
   &lt;p&gt;Body content here.&lt;/p&gt;
   &lt;div slot="footer"&gt;
     &lt;tc-button&gt;Save&lt;/tc-button&gt;
   &lt;/div&gt;
-&lt;/tc-card&gt;</pre>
+&lt;/tc-card&gt;</tc-code>
         </div>
       </section>
 
@@ -964,10 +766,10 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             <tc-badge variant="success" pill>pill</tc-badge>
             <tc-badge variant="info" size="sm">small</tc-badge>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/badge"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/badge"</span>;
 
 &lt;tc-badge variant="success"&gt;active&lt;/tc-badge&gt;
-&lt;tc-badge variant="warning" pill&gt;pending&lt;/tc-badge&gt;</pre>
+&lt;tc-badge variant="warning" pill&gt;pending&lt;/tc-badge&gt;</tc-code>
         </div>
       </section>
 
@@ -993,32 +795,17 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             </div>
             <tc-skeleton width="100%" height="80px"></tc-skeleton>
           </div>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/skeleton"</span>;
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/skeleton"</span>;
 
 &lt;tc-skeleton width="40px" height="40px" rounded&gt;&lt;/tc-skeleton&gt;
-&lt;tc-skeleton width="60%" height="14px"&gt;&lt;/tc-skeleton&gt;</pre>
+&lt;tc-skeleton width="60%" height="14px"&gt;&lt;/tc-skeleton&gt;</tc-code>
         </div>
       </section>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="./index.html">Home</a>
-          <a href="./docs.html">Docs</a>
-          <a href="./examples.html">Examples</a>
-          <a href="./playground.html">Playground</a>
-          <a href="./blog/">Blog</a>
-          <a href="https://jsr.io/@ra9/tan-compose-kit" target="_blank" rel="noopener">JSR</a>
-          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
-        </div>
-      </div>
-    </footer>
+    <site-footer></site-footer>
 
     <script type="module">
-      import "./dist/mod.kit.js";
-
       // ---- form demo ----
       const form = document.getElementById("kit-form");
       const result = document.getElementById("kit-result");

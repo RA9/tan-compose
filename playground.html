@@ -14,107 +14,22 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="./dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; }
       body {
-        height: 100%;
-      }
-
-      body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, sans-serif;
-        font-size: 16px;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
         display: flex;
         flex-direction: column;
         overflow: hidden;
       }
 
-      /* Top bar */
-      .topbar {
-        flex: 0 0 auto;
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-      }
-
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-        padding: 0 20px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-      }
-
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-
-      .topbar nav {
-        display: flex;
-        gap: 18px;
-        align-items: center;
-      }
-
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-      }
-
-      .topbar nav a:hover,
-      .topbar nav a.active {
-        color: var(--accent);
-      }
+      site-nav { flex: 0 0 auto; }
 
       /* Toolbar */
       .toolbar {
@@ -124,8 +39,8 @@
         align-items: center;
         justify-content: space-between;
         padding: 0 16px;
-        border-bottom: 1px solid var(--rule);
-        background: var(--surface);
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+        background: var(--tc-color-surface, #ffffff);
         gap: 12px;
         font-size: 0.85rem;
       }
@@ -139,7 +54,7 @@
 
       .toolbar-label {
         font-family: "JetBrains Mono", ui-monospace, monospace;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
         font-size: 0.78rem;
       }
 
@@ -149,14 +64,14 @@
         gap: 6px;
         font-family: "JetBrains Mono", ui-monospace, monospace;
         font-size: 0.78rem;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
       }
 
       .status-dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: var(--rule-strong);
+        background: var(--tc-color-rule-strong, #d9cfb8);
         transition: background 0.2s ease;
       }
 
@@ -180,31 +95,31 @@
         cursor: pointer;
         border: 1px solid transparent;
         background: transparent;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         transition: all 0.15s ease;
       }
 
       .btn:hover {
-        background: var(--bg);
-        color: var(--ink);
+        background: var(--tc-color-bg, #faf8f3);
+        color: var(--tc-color-ink, #14171f);
       }
 
       .btn.primary {
-        background: var(--ink);
+        background: var(--tc-color-ink, #14171f);
         color: #fff;
       }
 
       .btn.primary:hover {
-        background: var(--accent);
+        background: var(--tc-color-accent, #a16939);
       }
 
       .btn.outline {
-        border-color: var(--rule-strong);
+        border-color: var(--tc-color-rule-strong, #d9cfb8);
       }
 
       .btn.outline:hover {
-        border-color: var(--accent);
-        color: var(--accent);
+        border-color: var(--tc-color-accent, #a16939);
+        color: var(--tc-color-accent, #a16939);
       }
 
       /* Main split */
@@ -223,15 +138,15 @@
       }
 
       .pane.editor {
-        border-right: 1px solid var(--rule);
+        border-right: 1px solid var(--tc-color-rule, #ece5d3);
       }
 
       /* Tab strip */
       .tabs {
         flex: 0 0 auto;
         display: flex;
-        border-bottom: 1px solid var(--rule);
-        background: var(--surface);
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+        background: var(--tc-color-surface, #ffffff);
         height: 38px;
       }
 
@@ -244,29 +159,29 @@
         font-family: "JetBrains Mono", ui-monospace, monospace;
         font-size: 0.82rem;
         font-weight: 500;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
         background: transparent;
         border: none;
-        border-right: 1px solid var(--rule);
+        border-right: 1px solid var(--tc-color-rule, #ece5d3);
         cursor: pointer;
         transition: color 0.15s ease;
       }
 
       .tab:hover {
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
       }
 
       .tab.active {
-        color: var(--ink);
-        background: var(--bg);
-        box-shadow: inset 0 -2px 0 var(--accent);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
+        box-shadow: inset 0 -2px 0 var(--tc-color-accent, #a16939);
       }
 
       .tab .dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: var(--accent);
+        background: var(--tc-color-accent, #a16939);
         opacity: 0;
         transition: opacity 0.15s ease;
       }
@@ -304,7 +219,7 @@
 
       /* Preview pane */
       .pane.preview {
-        background: var(--surface);
+        background: var(--tc-color-surface, #ffffff);
       }
 
       .preview-frame-wrap {
@@ -327,8 +242,8 @@
         flex: 0 0 auto;
         max-height: 30%;
         min-height: 38px;
-        border-top: 1px solid var(--rule);
-        background: var(--code-bg);
+        border-top: 1px solid var(--tc-color-rule, #ece5d3);
+        background: #14171f;
         display: flex;
         flex-direction: column;
       }
@@ -424,7 +339,7 @@
 
         .pane.editor {
           border-right: none;
-          border-bottom: 1px solid var(--rule);
+          border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
         }
 
         .console {
@@ -438,29 +353,7 @@
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="topbar-inner">
-        <a class="brand" href="./index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav>
-          <a href="./docs.html" class="nav-hide-sm">Docs</a>
-          <a href="./components.html" class="nav-hide-sm">Components</a>
-          <a href="./themes.html" class="nav-hide-sm">Themes</a>
-          <a href="./examples.html" class="nav-hide-sm">Examples</a>
-          <a href="./playground.html" class="active">Playground</a>
-          <a href="./blog/" class="nav-hide-sm">Blog</a>
-          <a
-            href="https://github.com/ra9/tan-compose"
-            target="_blank"
-            rel="noopener"
-            >GitHub</a
-          >
-        </nav>
-      </div>
-    </header>
+    <site-nav active="playground" version="v1.1.0"></site-nav>
 
     <div class="toolbar">
       <div class="toolbar-left">
@@ -501,7 +394,7 @@
           <button class="tab active" type="button" disabled style="cursor: default;">
             preview
           </button>
-          <span style="flex: 1 1 auto; border-right: 1px solid var(--rule);"></span>
+          <span style="flex: 1 1 auto; border-right: 1px solid var(--tc-color-rule, #ece5d3);"></span>
         </div>
         <div class="preview-frame-wrap">
           <iframe
@@ -542,7 +435,7 @@ build("hello-card", describe({
   },
   styles: {
     display: "block",
-    background: "var(--surface)",
+    background: "var(--tc-color-surface, #ffffff)",
     border: "1px solid var(--border)",
     borderRadius: "12px",
     padding: "22px",
@@ -554,7 +447,7 @@ build("hello-card", describe({
       tag: "h3",
       template: "Hello, Tan Compose!",
       styles: {
-        color: "var(--ink)",
+        color: "var(--tc-color-ink, #14171f)",
         margin: "0 0 8px",
         fontSize: "1.15rem",
       },
@@ -574,7 +467,7 @@ build("hello-card", describe({
       template: "Click me",
       styles: {
         padding: "8px 14px",
-        background: "var(--accent)",
+        background: "var(--tc-color-accent, #a16939)",
         color: "#fff",
         border: "none",
         borderRadius: "6px",
