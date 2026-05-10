@@ -14,147 +14,75 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="./dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-      }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html { scroll-behavior: smooth; }
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 16px; line-height: 1.6;
-        color: var(--ink); background: var(--bg);
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
+        line-height: 1.6;
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
-      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
 
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky; top: 0; z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-      }
-      .topbar-inner {
-        display: flex; align-items: center; justify-content: space-between;
-        height: 56px;
-      }
-      .brand {
-        display: flex; align-items: center; gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600; font-size: 0.95rem;
-        color: var(--ink); text-decoration: none;
-      }
-      .brand-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); }
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem; font-weight: 500;
-        padding: 2px 8px; border-radius: 999px;
-        background: var(--accent-soft); color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
-      }
-      .topbar nav { display: flex; gap: 22px; align-items: center; }
-      .topbar nav a {
-        color: var(--ink-soft); text-decoration: none;
-        font-size: 0.92rem; font-weight: 500;
-      }
-      .topbar nav a:hover, .topbar nav a.active { color: var(--accent); }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
 
       header.page { padding: 64px 0 28px; }
       .eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.78rem; font-weight: 600;
         text-transform: uppercase; letter-spacing: 0.08em;
-        color: var(--accent); margin-bottom: 12px;
+        color: var(--tc-color-accent, #a16939);
+        margin-bottom: 12px;
       }
       h1 {
         font-size: clamp(2rem, 4vw, 2.6rem);
         font-weight: 800; letter-spacing: -0.02em;
         line-height: 1.1; margin-bottom: 14px;
       }
-      .page-lede { color: var(--ink-soft); font-size: 1.05rem; max-width: 620px; }
+      .page-lede {
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 1.05rem; max-width: 620px;
+      }
 
-      section.content { padding: 32px 0; }
+      section.content { padding: 32px 0 64px; }
       h2 {
         font-size: 1.5rem; font-weight: 700;
         letter-spacing: -0.01em; margin: 36px 0 12px;
       }
-      h3 {
-        font-size: 1.05rem; font-weight: 600;
-        margin: 24px 0 8px;
+      h3 { font-size: 1.05rem; font-weight: 600; margin: 24px 0 8px; }
+      p {
+        color: var(--tc-color-ink, #14171f);
+        margin-bottom: 16px;
+        line-height: 1.72;
       }
-      p { color: var(--ink); margin-bottom: 16px; line-height: 1.72; }
-      p code, li code {
-        font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.92em;
-        background: var(--accent-soft); color: var(--accent-hover);
-        padding: 1px 6px; border-radius: 4px;
+      p code, li code, td code {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.92em;
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
+        padding: 1px 6px;
+        border-radius: 4px;
       }
-      pre.code {
-        background: var(--code-bg); color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.84rem; line-height: 1.7;
-        padding: 22px 24px; border-radius: 10px;
-        overflow-x: auto; margin: 0 0 18px;
-      }
-      pre.code .c-comment { color: var(--code-comment); }
-      pre.code .c-keyword { color: var(--code-keyword); }
-      pre.code .c-string  { color: var(--code-string); }
 
       .switcher {
         display: flex; gap: 8px; flex-wrap: wrap;
         padding: 16px;
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 12px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
         margin: 18px 0;
-      }
-      .switcher button {
-        font: inherit; font-size: 0.88rem; font-weight: 500;
-        padding: 7px 14px;
-        background: var(--surface);
-        color: var(--ink);
-        border: 1px solid var(--rule-strong);
-        border-radius: 6px;
-        cursor: pointer;
-      }
-      .switcher button.active {
-        background: var(--ink); color: #fff; border-color: var(--ink);
       }
 
       .stage {
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 12px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
         padding: 28px;
         margin: 18px 0;
       }
       .stage > div + div { margin-top: 16px; }
-
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 32px 0 56px; margin-top: 64px;
-      }
-      footer .row {
-        display: flex; justify-content: space-between; align-items: center;
-        gap: 16px; flex-wrap: wrap;
-      }
-      footer p { color: var(--ink-muted); font-size: 0.9rem; }
-      footer .links { display: flex; gap: 22px; }
-      footer .links a { color: var(--ink-soft); text-decoration: none; font-size: 0.9rem; }
-      footer .links a:hover { color: var(--accent); }
 
       ul { padding-left: 22px; margin-bottom: 18px; }
       li { line-height: 1.7; margin-bottom: 6px; }
@@ -162,37 +90,31 @@
       table { border-collapse: collapse; width: 100%; margin: 12px 0 22px; }
       th, td {
         text-align: left; padding: 8px 10px;
-        border-bottom: 1px solid var(--rule);
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
         font-size: 0.92rem;
       }
-      th { font-weight: 600; color: var(--ink); background: var(--bg); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
-      td:first-child { font-family: "JetBrains Mono", ui-monospace, monospace; }
+      th {
+        font-weight: 600;
+        background: var(--tc-color-bg, #faf8f3);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      td:first-child { font-family: var(--tc-font-mono, monospace); }
+
+      /* Code-block syntax tokens (consumed by <tc-code>'s slotted spans). */
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
 
       @media (max-width: 720px) {
         header.page { padding: 40px 0 16px; }
-        .topbar nav .nav-hide-sm { display: none; }
       }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="wrap topbar-inner">
-        <a class="brand" href="./index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav>
-          <a href="./docs.html" class="nav-hide-sm">Docs</a>
-          <a href="./components.html">Components</a>
-          <a href="./themes.html" class="active">Themes</a>
-          <a href="./examples.html" class="nav-hide-sm">Examples</a>
-          <a href="./playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./blog/" class="nav-hide-sm">Blog</a>
-          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
-        </nav>
-      </div>
-    </header>
+    <site-nav active="themes" version="v1.1.0"></site-nav>
 
     <main>
       <header class="page">
@@ -218,10 +140,10 @@
           </p>
 
           <div class="switcher" role="group" aria-label="Theme presets">
-            <button data-theme="light" class="active" type="button">Light (default)</button>
-            <button data-theme="dark" type="button">Dark</button>
-            <button data-theme="bootstrap" type="button">Bootstrap</button>
-            <button data-theme="tailwind" type="button">Tailwind</button>
+            <tc-button data-theme="light" variant="primary" size="sm">Light (default)</tc-button>
+            <tc-button data-theme="dark" variant="secondary" size="sm">Dark</tc-button>
+            <tc-button data-theme="bootstrap" variant="secondary" size="sm">Bootstrap</tc-button>
+            <tc-button data-theme="tailwind" variant="secondary" size="sm">Tailwind</tc-button>
           </div>
 
           <div class="stage" id="theme-stage">
@@ -260,7 +182,7 @@
             component. This is the layer the four presets configure.
           </p>
 
-<pre class="code">:root {
+          <tc-code language="css">:root {
   --tc-color-accent:       #a16939;
   --tc-color-accent-hover: #8a572d;
   --tc-color-ink:          #14171f;
@@ -271,7 +193,7 @@
   --tc-color-danger:       #b3261e;
   --tc-radius-md:          8px;
   --tc-font-sans:          'Inter', system-ui, sans-serif;
-}</pre>
+}</tc-code>
 
           <h3>2. Per-component tokens</h3>
           <p>
@@ -282,16 +204,16 @@
             semantic tokens but can be overridden per&#8209;component:
           </p>
 
-<pre class="code">tc-button {
+          <tc-code language="css">tc-button {
   --tc-btn-primary-bg: linear-gradient(135deg, #6366f1, #8b5cf6);
-}</pre>
+}</tc-code>
 
           <h3>3. Per-instance overrides</h3>
           <p>
             Pass the variable as inline style. Affects only that one element.
           </p>
 
-<pre class="code">&lt;tc-button style="--tc-btn-primary-bg: tomato"&gt;Special&lt;/tc-button&gt;</pre>
+          <tc-code language="html"><span class="tc-tag">&lt;tc-button</span> style=<span class="tc-str">"--tc-btn-primary-bg: tomato"</span><span class="tc-tag">&gt;</span>Special<span class="tc-tag">&lt;/tc-button&gt;</span></tc-code>
 
           <h2>Bundled presets</h2>
           <p>Pick one. They're all idempotent — importing twice is a no&#8209;op.</p>
@@ -303,61 +225,58 @@
             <tbody>
               <tr>
                 <td>tokens (default)</td>
-                <td>@ra9/tan-compose-kit/themes/tokens</td>
+                <td><code>@ra9/tan-compose-kit/themes/tokens</code></td>
                 <td>Light theme, warm-tan accent. The base every other preset extends.</td>
               </tr>
               <tr>
                 <td>dark</td>
-                <td>@ra9/tan-compose-kit/themes/dark</td>
+                <td><code>@ra9/tan-compose-kit/themes/dark</code></td>
                 <td>Dark surface + ink, accent brightened for contrast.</td>
               </tr>
               <tr>
                 <td>bootstrap</td>
-                <td>@ra9/tan-compose-kit/themes/bootstrap</td>
+                <td><code>@ra9/tan-compose-kit/themes/bootstrap</code></td>
                 <td>Bootstrap 5 primary blue, semantic palette, default radius.</td>
               </tr>
               <tr>
                 <td>tailwind</td>
-                <td>@ra9/tan-compose-kit/themes/tailwind</td>
+                <td><code>@ra9/tan-compose-kit/themes/tailwind</code></td>
                 <td>Tailwind slate/indigo palette, default radius scale.</td>
               </tr>
             </tbody>
           </table>
 
           <h2>Using alongside Bootstrap or Tailwind</h2>
-          <p>
-            The kit components live in Shadow DOM. Your global Bootstrap or
-            Tailwind classes never reach inside; the kit's CSS never reaches
-            outside. They coexist by construction.
-          </p>
-          <p>
-            What the presets do is align the kit's <em>look</em> with your
-            framework so a user can't tell which buttons came from where. Use
-            them like this:
-          </p>
+
+          <tc-callout variant="info" title="Shadow DOM keeps the boundaries clean">
+            Your global Bootstrap or Tailwind classes never reach inside a kit
+            component; the kit's CSS never reaches outside. They coexist by
+            construction. The presets just align the kit's <em>look</em> so a
+            user can't tell which buttons came from where.
+          </tc-callout>
 
           <h3>Bootstrap</h3>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"bootstrap/dist/css/bootstrap.min.css"</span>;
-<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit"</span>;
-<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/themes/bootstrap"</span>;
+          <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"bootstrap/dist/css/bootstrap.min.css"</span>;
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit"</span>;
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/themes/bootstrap"</span>;
 
-<span class="c-comment">// kit components now match Bootstrap's primary blue + radius</span>
-&lt;div class="container"&gt;
-  &lt;tc-input label="Email" name="email"&gt;&lt;/tc-input&gt;
-  &lt;tc-button variant="primary"&gt;Save&lt;/tc-button&gt;
-&lt;/div&gt;</pre>
+<span class="tc-com">// kit components now match Bootstrap's primary blue + radius</span>
+&lt;div class=<span class="tc-str">"container"</span>&gt;
+  &lt;tc-input label=<span class="tc-str">"Email"</span> name=<span class="tc-str">"email"</span>&gt;&lt;/tc-input&gt;
+  &lt;tc-button variant=<span class="tc-str">"primary"</span>&gt;Save&lt;/tc-button&gt;
+&lt;/div&gt;</tc-code>
 
           <h3>Tailwind</h3>
-<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit"</span>;
-<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/themes/tailwind"</span>;
+          <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit"</span>;
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/themes/tailwind"</span>;
 
-<span class="c-comment">// utility classes don't enter the kit's Shadow DOM,
-// but the kit's tokens align with Tailwind's slate/indigo</span>
-&lt;div class="grid grid-cols-3 gap-4"&gt;
-  &lt;tc-stat label="MRR" value="42"&gt;&lt;/tc-stat&gt;
-  &lt;tc-stat label="Churn" value="0.4%"&gt;&lt;/tc-stat&gt;
-  &lt;tc-stat label="LTV" value="240"&gt;&lt;/tc-stat&gt;
-&lt;/div&gt;</pre>
+<span class="tc-com">// utility classes don't enter the kit's Shadow DOM,</span>
+<span class="tc-com">// but the kit's tokens align with Tailwind's slate/indigo</span>
+&lt;div class=<span class="tc-str">"grid grid-cols-3 gap-4"</span>&gt;
+  &lt;tc-stat label=<span class="tc-str">"MRR"</span> value=<span class="tc-str">"42"</span>&gt;&lt;/tc-stat&gt;
+  &lt;tc-stat label=<span class="tc-str">"Churn"</span> value=<span class="tc-str">"0.4%"</span>&gt;&lt;/tc-stat&gt;
+  &lt;tc-stat label=<span class="tc-str">"LTV"</span> value=<span class="tc-str">"240"</span>&gt;&lt;/tc-stat&gt;
+&lt;/div&gt;</tc-code>
 
           <h3>Other frameworks</h3>
           <p>
@@ -372,15 +291,14 @@
             from the base.
           </p>
 
-<pre class="code">/* my-app/themes/brand.css */
-:root {
+          <tc-code language="css" filename="my-app/themes/brand.css">:root {
   --tc-color-accent:       #ff6b00;
   --tc-color-accent-hover: #cc5500;
   --tc-color-accent-soft:  #ffe5d0;
   --tc-color-ink:          #2a2a2e;
   --tc-radius-md:          12px;
   --tc-font-sans:          'Söhne', system-ui, sans-serif;
-}</pre>
+}</tc-code>
 
           <p>
             Load that file after the kit's base tokens and every component
@@ -405,28 +323,13 @@
       </section>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="./index.html">Home</a>
-          <a href="./docs.html">Docs</a>
-          <a href="./components.html">Components</a>
-          <a href="./blog/">Blog</a>
-          <a href="https://jsr.io/@ra9/tan-compose-kit" target="_blank" rel="noopener">JSR</a>
-          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
-        </div>
-      </div>
-    </footer>
+    <site-footer></site-footer>
 
     <script type="module">
-      import "./dist/mod.kit.js";
-
-      const buttons = document.querySelectorAll(".switcher button");
-      const themeAttrs = ["data-tc-tokens", "data-tc-theme"];
+      const switcher = document.querySelector(".switcher");
+      const buttons = switcher.querySelectorAll("tc-button[data-theme]");
 
       function applyTheme(name) {
-        // Remove any non-base theme styles.
         document
           .querySelectorAll("style[data-tc-theme]")
           .forEach((s) => s.remove());
@@ -440,7 +343,12 @@
         }
         // "light" leaves only the base tokens in place.
 
-        buttons.forEach((b) => b.classList.toggle("active", b.dataset.theme === name));
+        buttons.forEach((b) => {
+          b.setAttribute(
+            "variant",
+            b.dataset.theme === name ? "primary" : "secondary",
+          );
+        });
       }
 
       function themeStyle(name, css) {
@@ -454,8 +362,6 @@
         b.addEventListener("click", () => applyTheme(b.dataset.theme));
       });
 
-      // Inline copies of the theme CSS for the live switcher (mirror of
-      // the `kit/themes/{dark,bootstrap,tailwind}.ts` exports).
       const DARK_CSS = `:root {
         --tc-color-bg: #0f1218; --tc-color-surface: #1a1d29; --tc-color-surface-alt: #14171f;
         --tc-color-ink: #f5f0e6; --tc-color-ink-soft: #b9b1a1; --tc-color-ink-muted: #8a8678;

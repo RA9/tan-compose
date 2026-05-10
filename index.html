@@ -14,46 +14,21 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="./dist/site.js"></script>
     <style>
-      :root {
-        --bg: #faf8f3;
-        --surface: #ffffff;
-        --ink: #14171f;
-        --ink-soft: #4a5061;
-        --ink-muted: #6b7280;
-        --rule: #ece5d3;
-        --rule-strong: #d9cfb8;
-        --accent: #a16939;
-        --accent-hover: #8a572d;
-        --accent-soft: #efe2cf;
-        --code-bg: #14171f;
-        --code-ink: #efe6d4;
-        --code-string: #d9b380;
-        --code-keyword: #f0a878;
-        --code-comment: #8a8678;
-        --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-        --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-      }
-
+      /* Page-only layout. All chrome and primitives come from the kit. */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
+      html { scroll-behavior: smooth; }
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, sans-serif;
-        font-size: 16px;
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         line-height: 1.6;
-        color: var(--ink);
-        background: var(--bg);
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
       }
 
       .wrap {
@@ -61,78 +36,13 @@
         margin: 0 auto;
         padding: 0 24px;
       }
-
-      /* Top nav */
-      .topbar {
-        border-bottom: 1px solid var(--rule);
-        background: var(--bg);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        backdrop-filter: saturate(180%) blur(8px);
-      }
-
-      .topbar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 56px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: var(--ink);
-        text-decoration: none;
-      }
-
-      .brand-mark {
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
-        background: var(--accent);
-        display: inline-block;
-      }
-
-      .topbar nav {
-        display: flex;
-        gap: 22px;
-        align-items: center;
-      }
-
-      .topbar nav a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.92rem;
-        font-weight: 500;
-        transition: color 0.15s ease;
-      }
-
-      .topbar nav a:hover,
-      .topbar nav a:focus-visible {
-        color: var(--accent);
-      }
-
-      .version-pill {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.72rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 999px;
-        background: var(--accent-soft);
-        color: var(--accent-hover);
-        border: 1px solid var(--rule-strong);
+      code {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.92em;
       }
 
       /* Hero */
-      .hero {
-        padding: 96px 0 72px;
-      }
-
+      .hero { padding: 88px 0 64px; }
       .hero h1 {
         font-size: clamp(2.4rem, 5.2vw, 3.6rem);
         font-weight: 800;
@@ -140,52 +50,28 @@
         line-height: 1.05;
         margin-bottom: 18px;
       }
-
-      .hero h1 .highlight {
-        color: var(--accent);
-      }
-
+      .hero h1 .highlight { color: var(--tc-color-accent, #a16939); }
       .hero .lede {
         font-size: 1.18rem;
-        line-height: 1.55;
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         max-width: 620px;
         margin-bottom: 28px;
       }
-
       .install-line {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.92rem;
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 10px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
         padding: 14px 18px;
         display: flex;
         align-items: center;
         gap: 10px;
         max-width: 460px;
         margin-bottom: 28px;
-        box-shadow: var(--shadow-sm);
       }
-
-      .install-line .prompt {
-        color: var(--ink-muted);
-        user-select: none;
-      }
-
-      .install-line .cmd {
-        color: var(--ink);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .cta-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
+      .install-line .prompt { color: var(--tc-color-ink-muted, #6b7280); user-select: none; }
+      .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
       .btn {
         display: inline-flex;
         align-items: center;
@@ -193,158 +79,97 @@
         font-size: 0.95rem;
         font-weight: 600;
         padding: 11px 20px;
-        border-radius: 8px;
+        border-radius: var(--tc-radius-md, 8px);
         text-decoration: none;
         transition: all 0.15s ease;
         border: 1px solid transparent;
         line-height: 1;
       }
-
       .btn-primary {
-        background: var(--ink);
-        color: #ffffff;
+        background: var(--tc-color-ink, #14171f);
+        color: var(--tc-color-surface, #ffffff);
       }
-
-      .btn-primary:hover,
-      .btn-primary:focus-visible {
-        background: var(--accent);
+      .btn-primary:hover, .btn-primary:focus-visible {
+        background: var(--tc-color-accent, #a16939);
       }
-
       .btn-secondary {
-        background: var(--surface);
-        color: var(--ink);
-        border-color: var(--rule-strong);
+        background: var(--tc-color-surface, #ffffff);
+        color: var(--tc-color-ink, #14171f);
+        border-color: var(--tc-color-rule-strong, #d9cfb8);
+      }
+      .btn-secondary:hover, .btn-secondary:focus-visible {
+        border-color: var(--tc-color-accent, #a16939);
+        color: var(--tc-color-accent, #a16939);
       }
 
-      .btn-secondary:hover,
-      .btn-secondary:focus-visible {
-        border-color: var(--accent);
-        color: var(--accent);
-      }
-
-      /* Sections */
+      /* Section frames */
       section {
         padding: 64px 0;
-        border-top: 1px solid var(--rule);
+        border-top: 1px solid var(--tc-color-rule, #ece5d3);
       }
-
       .section-eyebrow {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.78rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
-
       h2 {
         font-size: 1.85rem;
         font-weight: 700;
         letter-spacing: -0.015em;
         margin-bottom: 14px;
       }
-
       .section-lede {
-        color: var(--ink-soft);
+        color: var(--tc-color-ink-soft, #4a5061);
         font-size: 1.02rem;
         margin-bottom: 36px;
         max-width: 620px;
       }
-
       h3 {
         font-size: 1.1rem;
         font-weight: 600;
         margin: 28px 0 12px;
       }
-
-      h3:first-child {
-        margin-top: 0;
-      }
+      h3:first-child { margin-top: 0; }
 
       /* Features grid */
       .features {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 0;
-        border: 1px solid var(--rule);
-        border-radius: 12px;
-        background: var(--surface);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
+        background: var(--tc-color-surface, #ffffff);
         overflow: hidden;
       }
-
       .feature {
         padding: 26px 28px;
-        border-right: 1px solid var(--rule);
-        border-bottom: 1px solid var(--rule);
+        border-right: 1px solid var(--tc-color-rule, #ece5d3);
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
       }
-
-      .feature:nth-child(2n) {
-        border-right: none;
-      }
-
-      .feature:nth-last-child(-n + 2) {
-        border-bottom: none;
-      }
-
+      .feature:nth-child(2n) { border-right: none; }
+      .feature:nth-last-child(-n + 2) { border-bottom: none; }
       .feature-label {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.78rem;
         font-weight: 600;
-        color: var(--accent);
+        color: var(--tc-color-accent, #a16939);
         margin-bottom: 8px;
       }
-
-      .feature h3 {
-        font-size: 1.02rem;
-        margin: 0 0 6px;
-      }
-
-      .feature p {
-        color: var(--ink-soft);
-        font-size: 0.94rem;
-        line-height: 1.5;
-      }
-
-      /* Code blocks */
-      pre.code {
-        background: var(--code-bg);
-        color: var(--code-ink);
-        font-family: "JetBrains Mono", ui-monospace, monospace;
-        font-size: 0.85rem;
-        line-height: 1.65;
-        padding: 22px 24px;
-        border-radius: 10px;
-        overflow-x: auto;
-        margin: 0 0 18px;
-      }
-
-      pre.code .c-comment {
-        color: var(--code-comment);
-      }
-      pre.code .c-keyword {
-        color: var(--code-keyword);
-      }
-      pre.code .c-string {
-        color: var(--code-string);
-      }
-
-      .code-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-        margin-top: 8px;
-      }
+      .feature h3 { font-size: 1.02rem; margin: 0 0 6px; }
+      .feature p { color: var(--tc-color-ink-soft, #4a5061); font-size: 0.94rem; line-height: 1.5; }
 
       /* Demo blocks */
       .demo {
-        background: var(--surface);
-        border: 1px solid var(--rule);
-        border-radius: 12px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
         padding: 32px 28px;
         margin-bottom: 18px;
       }
-
       .demo-head {
         display: flex;
         align-items: baseline;
@@ -352,22 +177,16 @@
         gap: 12px;
         margin-bottom: 22px;
       }
-
-      .demo-title {
-        font-weight: 600;
-        font-size: 1rem;
-      }
-
+      .demo-title { font-weight: 600; font-size: 1rem; }
       .demo-tag {
-        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-family: var(--tc-font-mono, monospace);
         font-size: 0.78rem;
-        color: var(--ink-muted);
+        color: var(--tc-color-ink-muted, #6b7280);
       }
-
       .demo-stage {
-        background: var(--bg);
-        border: 1px dashed var(--rule-strong);
-        border-radius: 10px;
+        background: var(--tc-color-bg, #faf8f3);
+        border: 1px dashed var(--tc-color-rule-strong, #d9cfb8);
+        border-radius: var(--tc-radius-md, 10px);
         padding: 28px;
         display: flex;
         align-items: center;
@@ -375,112 +194,26 @@
         min-height: 120px;
       }
 
-      /* Footer */
-      footer {
-        border-top: 1px solid var(--rule);
-        padding: 36px 0 56px;
-        margin-top: 32px;
-      }
+      /* Code-block tokens (consumed by tc-code via slotted spans). */
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
 
-      footer .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-
-      footer p {
-        color: var(--ink-muted);
-        font-size: 0.9rem;
-      }
-
-      footer .links {
-        display: flex;
-        gap: 22px;
-      }
-
-      footer .links a {
-        color: var(--ink-soft);
-        text-decoration: none;
-        font-size: 0.9rem;
-      }
-
-      footer .links a:hover {
-        color: var(--accent);
-      }
-
-      /* Responsive */
       @media (max-width: 720px) {
-        .hero {
-          padding: 56px 0 48px;
-        }
-
-        section {
-          padding: 48px 0;
-        }
-
-        .features {
-          grid-template-columns: 1fr;
-        }
-
-        .feature {
-          border-right: none;
-        }
-
-        .feature:nth-last-child(-n + 2) {
-          border-bottom: 1px solid var(--rule);
-        }
-
-        .feature:last-child {
-          border-bottom: none;
-        }
-
-        .code-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .topbar nav {
-          gap: 14px;
-        }
-
-        .topbar nav .nav-hide-sm {
-          display: none;
-        }
+        .hero { padding: 56px 0 48px; }
+        section { padding: 48px 0; }
+        .features { grid-template-columns: 1fr; }
+        .feature { border-right: none; }
+        .feature:nth-last-child(-n + 2) { border-bottom: 1px solid var(--tc-color-rule, #ece5d3); }
+        .feature:last-child { border-bottom: none; }
       }
     </style>
   </head>
   <body>
-    <header class="topbar">
-      <div class="wrap topbar-inner">
-        <a class="brand" href="./index.html">
-          <span class="brand-mark" aria-hidden="true"></span>
-          tan-compose
-          <span class="version-pill">v1.1.0</span>
-        </a>
-        <nav>
-          <a href="./docs.html" class="nav-hide-sm">Docs</a>
-          <a href="./components.html">Components</a>
-          <a href="./themes.html" class="nav-hide-sm">Themes</a>
-          <a href="./examples.html" class="nav-hide-sm">Examples</a>
-          <a href="./playground.html" class="nav-hide-sm">Playground</a>
-          <a href="./blog/" class="nav-hide-sm">Blog</a>
-          <a
-            href="https://jsr.io/@ra9/tan-compose"
-            class="nav-hide-sm"
-            target="_blank"
-            rel="noopener"
-            >JSR</a
-          >
-          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener"
-            >GitHub</a
-          >
-        </nav>
-      </div>
-    </header>
+    <site-nav active="home" version="v1.1.0"></site-nav>
 
     <main>
-      <!-- Hero -->
       <section class="hero" style="border-top: none;">
         <div class="wrap">
           <h1>
@@ -500,28 +233,25 @@
           </div>
 
           <div class="cta-row">
-            <a class="btn btn-primary" href="./docs.html">Read the docs &rarr;</a>
+            <a class="btn btn-primary" href="./docs.html">Read the docs →</a>
             <a
               class="btn btn-secondary"
               href="https://github.com/ra9/tan-compose"
               target="_blank"
               rel="noopener"
-              >GitHub</a
-            >
+            >GitHub</a>
           </div>
         </div>
       </section>
 
-      <!-- Features -->
       <section id="features">
         <div class="wrap">
           <div class="section-eyebrow">Why tan-compose</div>
           <h2>Tiny, predictable, browser-native.</h2>
           <p class="section-lede">
-            One <code style="font-family: 'JetBrains Mono', monospace; font-size: 0.92em;">describe()</code>
-            call to define a component, one
-            <code style="font-family: 'JetBrains Mono', monospace; font-size: 0.92em;">build()</code>
-            call to register it. Everything else is the platform.
+            One <code>describe()</code> call to define a component, one
+            <code>build()</code> call to register it. Everything else is the
+            platform.
           </p>
 
           <div class="features">
@@ -537,18 +267,18 @@
             </div>
             <div class="feature">
               <div class="feature-label">03 — lifecycle</div>
-              <h3>beforeMount / afterMount / unmount</h3>
-              <p>Predictable ordering. Errors are caught and logged with the tag name.</p>
+              <h3>Predictable mount hooks</h3>
+              <p>beforeMount / afterMount / unmount, errors caught and logged with the tag name.</p>
             </div>
             <div class="feature">
               <div class="feature-label">04 — reactivity</div>
               <h3>Opt-in observed attrs</h3>
-              <p>Declare <code style="font-family: 'JetBrains Mono', monospace;">observedAttributes</code> and changes re-render. No magic.</p>
+              <p>Declare <code>observedAttributes</code> and changes re-render. No magic.</p>
             </div>
             <div class="feature">
               <div class="feature-label">05 — state</div>
               <h3>setState triggers render</h3>
-              <p>Skips re-render when the value is <code style="font-family: 'JetBrains Mono', monospace;">Object.is</code>-equal.</p>
+              <p>Skips re-render when the value is <code>Object.is</code>-equal.</p>
             </div>
             <div class="feature">
               <div class="feature-label">06 — safety</div>
@@ -559,7 +289,6 @@
         </div>
       </section>
 
-      <!-- Quick start -->
       <section id="quickstart">
         <div class="wrap">
           <div class="section-eyebrow">Quick start</div>
@@ -570,100 +299,86 @@
           </p>
 
           <h3>Install</h3>
-<pre class="code"><span class="c-comment"># Deno</span>
+          <tc-code language="bash"><span class="tc-com"># Deno</span>
 deno add jsr:@ra9/tan-compose
 
-<span class="c-comment"># Node / npm (via JSR)</span>
-npx jsr add @ra9/tan-compose</pre>
+<span class="tc-com"># Node / npm (via JSR)</span>
+npx jsr add @ra9/tan-compose</tc-code>
 
           <h3>Define and register</h3>
-<pre class="code"><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
+          <tc-code language="ts" filename="my-button.ts"><span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
 
-<span class="c-keyword">const</span> button = describe({
-  tag: <span class="c-string">"button"</span>,
-  template: <span class="c-string">"Click me"</span>,
+<span class="tc-kw">const</span> button = describe({
+  tag: <span class="tc-str">"button"</span>,
+  template: <span class="tc-str">"Click me"</span>,
   styles: {
-    padding: <span class="c-string">"10px 18px"</span>,
-    background: <span class="c-string">"#14171f"</span>,
-    color: <span class="c-string">"white"</span>,
-    border: <span class="c-string">"none"</span>,
-    borderRadius: <span class="c-string">"6px"</span>,
-    cursor: <span class="c-string">"pointer"</span>,
+    padding: <span class="tc-str">"10px 18px"</span>,
+    background: <span class="tc-str">"#14171f"</span>,
+    color: <span class="tc-str">"white"</span>,
+    border: <span class="tc-str">"none"</span>,
+    borderRadius: <span class="tc-str">"6px"</span>,
+    cursor: <span class="tc-str">"pointer"</span>,
   },
-  action: () =&gt; alert(<span class="c-string">"Hello, Tan Compose!"</span>),
+  action: () =&gt; alert(<span class="tc-str">"Hello, Tan Compose!"</span>),
 });
 
-build(<span class="c-string">"my-button"</span>, button);</pre>
+build(<span class="tc-str">"my-button"</span>, button);</tc-code>
 
           <h3>Use in HTML</h3>
-<pre class="code">&lt;my-button&gt;&lt;/my-button&gt;</pre>
+          <tc-code language="html"><span class="tc-tag">&lt;my-button&gt;&lt;/my-button&gt;</span></tc-code>
         </div>
       </section>
 
-      <!-- Live demos -->
       <section id="demos">
         <div class="wrap">
           <div class="section-eyebrow">Live demos</div>
           <h2>Each block below is a real custom element.</h2>
           <p class="section-lede">
-            Built with the same library you'd <code style="font-family: 'JetBrains Mono', monospace; font-size: 0.92em;">npm install</code>.
-            Open DevTools to inspect the Shadow DOM.
+            Built with the same library you'd <code>npm install</code>. Open
+            DevTools to inspect the Shadow DOM.
           </p>
 
           <div class="demo">
             <div class="demo-head">
               <div class="demo-title">Reactive counter</div>
-              <div class="demo-tag">&lt;tc-counter&gt;</div>
+              <div class="demo-tag">&lt;demo-counter&gt;</div>
             </div>
             <div class="demo-stage">
-              <tc-counter></tc-counter>
+              <demo-counter></demo-counter>
             </div>
           </div>
 
           <div class="demo">
             <div class="demo-head">
               <div class="demo-title">Themed buttons</div>
-              <div class="demo-tag">&lt;tc-button-row&gt;</div>
+              <div class="demo-tag">&lt;demo-buttons&gt;</div>
             </div>
             <div class="demo-stage">
-              <tc-button-row></tc-button-row>
+              <demo-buttons></demo-buttons>
             </div>
           </div>
 
           <div class="demo">
             <div class="demo-head">
               <div class="demo-title">Composed card</div>
-              <div class="demo-tag">&lt;tc-card&gt;</div>
+              <div class="demo-tag">&lt;demo-card&gt;</div>
             </div>
             <div class="demo-stage">
-              <tc-card></tc-card>
+              <demo-card></demo-card>
             </div>
           </div>
         </div>
       </section>
     </main>
 
-    <footer>
-      <div class="wrap row">
-        <p>&copy; 2026 Tan Compose · MIT License</p>
-        <div class="links">
-          <a href="./docs.html">Docs</a>
-          <a href="./components.html">Components</a>
-          <a href="./examples.html">Examples</a>
-          <a href="./playground.html">Playground</a>
-          <a href="./blog/">Blog</a>
-          <a href="https://jsr.io/@ra9/tan-compose" target="_blank" rel="noopener">JSR</a>
-          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
-        </div>
-      </div>
-    </footer>
+    <site-footer></site-footer>
 
     <script type="module">
       import { build, describe } from "./dist/mod.js";
 
       // ---- Reactive counter ----
       build(
-        "tc-counter",
+        "demo-counter",
         describe({
           styles: {
             display: "inline-flex",
@@ -705,7 +420,7 @@ build(<span class="c-string">"my-button"</span>, button);</pre>
 
       // ---- Themed buttons ----
       build(
-        "tc-button-row",
+        "demo-buttons",
         describe({
           styles: {
             display: "flex",
@@ -765,7 +480,7 @@ build(<span class="c-string">"my-button"</span>, button);</pre>
 
       // ---- Composed card ----
       build(
-        "tc-card",
+        "demo-card",
         describe({
           theme: {
             cardSurface: "#ffffff",
