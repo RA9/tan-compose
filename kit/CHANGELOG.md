@@ -3,6 +3,33 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.3.0] - 2026-05-10
+
+> The "docs primitives" release. Three new components needed before we can
+> rewrite the tan-compose docs site using the kit itself.
+
+### Added
+
+- **`<tc-code>`** — styled code block with optional copy button. Provides the
+  dark monospace surface, language/filename label, and scroll. Doesn't ship a
+  syntax highlighter — projects pre-tokenized spans (`.tc-kw`, `.tc-str`,
+  `.tc-com`, `.tc-num`, `.tc-tag`) through the slot with the kit's colors. Emits
+  `tc-copy` after a successful copy.
+- **`<tc-callout>`** — admonition box. Five variants (note, info, success,
+  warning, danger), optional `title`, optional `compact`. Each variant gets its
+  own colored left border and icon. `danger` uses `role="alert"`; others use
+  `role="note"`.
+- **`<tc-toc>`** — auto-generated table of contents. Scans a target selector for
+  h2/h3 (configurable), assigns ids to unlabeled headings, renders a nav, tracks
+  the currently-visible heading via `IntersectionObserver`. Sticky by default.
+
+5 new tests (34 kit tests total). Bundle is 85 KB minified for all 22
+components + 6 themes + inlined core (was 70 KB at 1.2).
+
+### Changed
+
+- Showcase page (`components.html`) gains live demos for each new component.
+
 ## [1.2.0] - 2026-05-10
 
 ### Added

@@ -34,6 +34,9 @@ import { tagName as skeletonTag } from "./components/skeleton.ts";
 import { tagName as stackTag } from "./components/stack.ts";
 import { tagName as clusterTag } from "./components/cluster.ts";
 import { tagName as gridTag } from "./components/grid.ts";
+import { tagName as codeTag } from "./components/code.ts";
+import { tagName as calloutTag } from "./components/callout.ts";
+import { tagName as tocTag } from "./components/toc.ts";
 
 /** Tag names of every component this module registers. */
 export const tags = {
@@ -60,4 +63,8 @@ export const tags = {
   stack: stackTag,
   cluster: clusterTag,
   grid: gridTag,
+  // docs / content
+  code: codeTag,
+  callout: calloutTag,
+  toc: tocTag,
 } as const;

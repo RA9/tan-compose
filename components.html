@@ -701,6 +701,122 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
         </div>
       </section>
 
+      <section class="demo" id="code">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-code&gt; <span style="color: var(--ink-muted);">· new in 1.3</span></div>
+            <h2>Code block</h2>
+            <p class="demo-lede">
+              Styled code surface with optional <code>copy</code> button
+              and a <code>language</code>/<code>filename</code> label. The
+              kit doesn't ship a syntax highlighter — pre-tokenize with
+              <code>.tc-kw</code>, <code>.tc-str</code>, <code>.tc-com</code>,
+              <code>.tc-num</code>, <code>.tc-tag</code> spans inside the
+              slot. They project through and pick up the kit's colors.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-code language="ts" copy>
+<span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
+
+<span class="tc-kw">const</span> button = describe({
+  tag: <span class="tc-str">"button"</span>,
+  template: <span class="tc-str">"Click me"</span>,
+  action: () =&gt; alert(<span class="tc-str">"hi"</span>),
+});
+
+build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
+            <tc-code filename="package.json">{
+  <span class="tc-str">"name"</span>: <span class="tc-str">"tan-compose"</span>,
+  <span class="tc-str">"version"</span>: <span class="tc-str">"1.1.0"</span>
+}</tc-code>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/code"</span>;
+
+&lt;tc-code language="ts" copy&gt;
+  &lt;span class="tc-kw"&gt;const&lt;/span&gt; x = <span class="c-string">"hi"</span>;
+&lt;/tc-code&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="callout">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-callout&gt; <span style="color: var(--ink-muted);">· new in 1.3</span></div>
+            <h2>Callout</h2>
+            <p class="demo-lede">
+              Note / info / success / warning / danger admonition box
+              with an icon, optional title, and a colored left border.
+              <code>danger</code> uses <code>role="alert"</code>; others
+              use <code>role="note"</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-callout variant="note" title="Note">
+              The kit's components live in Shadow DOM, so they don't fight your global CSS.
+            </tc-callout>
+            <tc-callout variant="info" title="Heads up">
+              <code>render</code> on a column only takes effect when columns are set via the JS property, not via a JSON attribute.
+            </tc-callout>
+            <tc-callout variant="success" title="Saved">
+              Changes published to all subscribers.
+            </tc-callout>
+            <tc-callout variant="warning" title="Coming soon">
+              SSR support is on the v1.2 roadmap; see CHANGELOG for details.
+            </tc-callout>
+            <tc-callout variant="danger" title="Permanent action">
+              Deleting a customer cannot be undone after 10 minutes.
+            </tc-callout>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/callout"</span>;
+
+&lt;tc-callout variant="warning" title="Coming soon"&gt;
+  SSR support is on the v1.2 roadmap.
+&lt;/tc-callout&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="toc">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-toc&gt; <span style="color: var(--ink-muted);">· new in 1.3</span></div>
+            <h2>Table of contents</h2>
+            <p class="demo-lede">
+              Auto-builds a sticky sidebar of links by scanning a target
+              container for <code>h2</code>/<code>h3</code> headings.
+              Tracks the currently-visible heading via
+              <code>IntersectionObserver</code>. Headings without
+              <code>id</code> get one assigned, so anchor links work out
+              of the box.
+            </p>
+          </div>
+          <div class="stage" style="display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start;">
+            <tc-toc target="#toc-demo-content" levels="h2,h3" sticky="false"></tc-toc>
+            <article id="toc-demo-content" style="font-size: 0.94rem;">
+              <h2>Introduction</h2>
+              <p>Click a link on the left to jump to a heading.</p>
+              <h2>Setup</h2>
+              <h3>Install</h3>
+              <p>Use <code>deno add jsr:@ra9/tan-compose-kit</code>.</p>
+              <h3>First component</h3>
+              <p>Drop a <code>&lt;tc-button&gt;</code> in your HTML.</p>
+              <h2>Patterns</h2>
+              <p>The kit's primitives compose nicely — see the admin demo.</p>
+              <h2>Reference</h2>
+              <p>Full API at <a href="./docs.html">docs.html</a>.</p>
+            </article>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/toc"</span>;
+
+&lt;tc-toc target="article" levels="h2,h3"&gt;&lt;/tc-toc&gt;
+&lt;article&gt;
+  &lt;h2&gt;Introduction&lt;/h2&gt;
+  &lt;h2&gt;Setup&lt;/h2&gt;
+  …
+&lt;/article&gt;</pre>
+        </div>
+      </section>
+
       <section class="demo" id="stack">
         <div class="wrap">
           <div class="demo-head">

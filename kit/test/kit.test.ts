@@ -550,6 +550,105 @@ test("tc-table: cells without render() escape HTML (XSS guard)", () => {
   document.body.removeChild(el);
 });
 
+test("tc-code renders the slotted content and shows a copy button when copy=true", () => {
+  const el = document.createElement(tags.code) as HTMLElement & {
+    language: string;
+    copy: boolean;
+  };
+  el.language = "ts";
+  el.copy = true;
+  el.textContent = "const x = 1;";
+  document.body.appendChild(el);
+  const root = el.shadowRoot!;
+  assert(root.querySelector("pre"), "pre block exists");
+  assert(root.querySelector(".copy"), "copy button rendered when copy=true");
+  // The slotted content stays in the light DOM, but a slot exists in shadow.
+  assert(root.querySelector("slot"), "slot element exists");
+  document.body.removeChild(el);
+});
+
+test("tc-code: copy button has no copy UI when copy=false", () => {
+  const el = document.createElement(tags.code) as HTMLElement & {
+    copy: boolean;
+  };
+  el.copy = false;
+  document.body.appendChild(el);
+  assertEquals(el.shadowRoot!.querySelector(".copy"), null);
+  document.body.removeChild(el);
+});
+
+test("tc-callout applies variant class and renders title when set", () => {
+  const el = document.createElement(tags.callout) as HTMLElement & {
+    variant: string;
+    title: string;
+  };
+  el.variant = "warning";
+  el.title = "Heads up";
+  el.textContent = "This is a body";
+  document.body.appendChild(el);
+  const callout = el.shadowRoot!.querySelector(".callout") as HTMLElement;
+  assert(callout.classList.contains("v-warning"));
+  const title = el.shadowRoot!.querySelector(".title");
+  assertEquals(title?.textContent, "Heads up");
+  document.body.removeChild(el);
+});
+
+test("tc-callout: danger variant uses role=alert; others use role=note", () => {
+  const danger = document.createElement(tags.callout) as HTMLElement & {
+    variant: string;
+  };
+  danger.variant = "danger";
+  document.body.appendChild(danger);
+  const dangerEl = danger.shadowRoot!.querySelector(".callout") as HTMLElement;
+  assertEquals(dangerEl.getAttribute("role"), "alert");
+  document.body.removeChild(danger);
+
+  const info = document.createElement(tags.callout) as HTMLElement & {
+    variant: string;
+  };
+  info.variant = "info";
+  document.body.appendChild(info);
+  const infoEl = info.shadowRoot!.querySelector(".callout") as HTMLElement;
+  assertEquals(infoEl.getAttribute("role"), "note");
+  document.body.removeChild(info);
+});
+
+test("tc-toc scans the target for headings and renders one link per heading", () => {
+  // Set up content with headings before mounting the toc.
+  const main = document.createElement("main");
+  main.id = "tc-toc-test-target";
+  main.innerHTML = `
+    <h2>Overview</h2>
+    <p>x</p>
+    <h2>Details</h2>
+    <h3>Sub one</h3>
+    <h3>Sub two</h3>
+  `;
+  document.body.appendChild(main);
+
+  const toc = document.createElement(tags.toc) as HTMLElement & {
+    target: string;
+    levels: string;
+  };
+  toc.target = "#tc-toc-test-target";
+  toc.levels = "h2,h3";
+  document.body.appendChild(toc);
+
+  // afterMount fires synchronously in our component lifecycle for happy-dom.
+  const links = toc.shadowRoot!.querySelectorAll(".list a");
+  assertEquals(links.length, 4);
+  assertEquals(links[0].textContent, "Overview");
+  assertEquals(links[3].textContent, "Sub two");
+
+  // Headings without ids should have been auto-slugified.
+  const h = main.querySelectorAll("h2,h3");
+  assertEquals((h[0] as HTMLElement).id, "overview");
+  assertEquals((h[2] as HTMLElement).id, "sub-one");
+
+  document.body.removeChild(toc);
+  document.body.removeChild(main);
+});
+
 test("tc-table: filter input keeps focus across keystrokes (regression: v1.1 bug)", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<{ id: number; name: string }>;
