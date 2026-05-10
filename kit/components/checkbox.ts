@@ -43,15 +43,15 @@ build(
       indeterminate: { type: "boolean", default: false },
     },
     theme: {
-      "tc-input-fg": "#14171f",
-      "tc-input-border": "#d9cfb8",
-      "tc-input-border-focus": "#a16939",
-      "tc-input-error": "#b3261e",
-      "tc-input-helper": "#6b7280",
-      "tc-input-radius": "4px",
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-sm, 4px)",
       "tc-input-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      "tc-checkbox-accent": "#a16939",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-checkbox-accent": "var(--tc-color-accent, #a16939)",
     },
     styles: {
       display: "block",

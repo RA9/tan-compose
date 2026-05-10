@@ -59,16 +59,16 @@ build(
       rowKey: { type: "string", default: "id" },
     },
     theme: {
-      "tc-table-surface": "#ffffff",
-      "tc-table-ink": "#14171f",
-      "tc-table-soft": "#5a6072",
-      "tc-table-rule": "#ece5d3",
-      "tc-table-head-bg": "#faf8f3",
+      "tc-table-surface": "var(--tc-color-surface, #ffffff)",
+      "tc-table-ink": "var(--tc-color-ink, #14171f)",
+      "tc-table-soft": "var(--tc-color-ink-soft, #5a6072)",
+      "tc-table-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-table-head-bg": "var(--tc-color-bg, #faf8f3)",
       "tc-table-row-hover": "rgba(161, 105, 57, 0.05)",
-      "tc-table-accent": "#a16939",
-      "tc-table-radius": "10px",
+      "tc-table-accent": "var(--tc-color-accent, #a16939)",
+      "tc-table-radius": "var(--tc-radius-lg, 10px)",
       "tc-table-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "block",
@@ -154,7 +154,7 @@ build(
           }
           .filter:focus {
             border-color: var(--tc-table-accent);
-            box-shadow: 0 0 0 3px rgba(161, 105, 57, 0.18);
+            box-shadow: var(--tc-focus-ring, 0 0 0 3px rgba(161, 105, 57, 0.18));
           }
           .wrap {
             border: 1px solid var(--tc-table-rule);

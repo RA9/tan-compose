@@ -27,9 +27,9 @@ build(
       pulse: { type: "boolean", default: true },
     },
     theme: {
-      "tc-skeleton-base": "#ece5d3",
+      "tc-skeleton-base": "var(--tc-color-rule, #ece5d3)",
       "tc-skeleton-shine": "rgba(255, 255, 255, 0.6)",
-      "tc-skeleton-radius": "6px",
+      "tc-skeleton-radius": "var(--tc-radius-md, 6px)",
     },
     styles: {
       display: "inline-block",

@@ -580,6 +580,68 @@ test("if: false omits the child subtree", () => {
   document.body.removeChild(el);
 });
 
+test("for: items render inside the wrapping element with the right tag", () => {
+  const tag = uniqueTag();
+  build(
+    tag,
+    describe({
+      props: { items: { type: "json", default: [] as string[] } },
+      children: [
+        describe({
+          tag: "ul",
+          attributes: { class: "my-list" },
+          for: {
+            items: ({ props }) => props.items as string[],
+            key: (s) => s as string,
+            render: (s) => describe({ tag: "li", template: s as string }),
+          },
+        }),
+      ],
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement & { items: string[] };
+  el.items = ["a", "b", "c"];
+  document.body.appendChild(el);
+  const ul = el.shadowRoot?.querySelector("ul.my-list");
+  assert(ul, "expected the ul wrapper to exist");
+  const lis = ul!.querySelectorAll("li");
+  assertEquals(lis.length, 3, "li children must live inside the ul");
+  assertEquals(lis[0].textContent, "a");
+  document.body.removeChild(el);
+});
+
+test("for: appends after children — children render first, then keyed list", () => {
+  const tag = uniqueTag();
+  build(
+    tag,
+    describe({
+      props: { items: { type: "json", default: [] as string[] } },
+      children: [
+        describe({
+          tag: "ul",
+          children: [
+            describe({ tag: "li", template: "header", className: "head" }),
+          ],
+          for: {
+            items: ({ props }) => props.items as string[],
+            key: (s) => s as string,
+            render: (s) => describe({ tag: "li", template: s as string }),
+          },
+        }),
+      ],
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement & { items: string[] };
+  el.items = ["x", "y"];
+  document.body.appendChild(el);
+  const lis = Array.from(el.shadowRoot?.querySelectorAll("ul li") ?? []);
+  assertEquals(lis.length, 3);
+  assertEquals(lis[0].textContent, "header");
+  assertEquals(lis[1].textContent, "x");
+  assertEquals(lis[2].textContent, "y");
+  document.body.removeChild(el);
+});
+
 // ---------------------------------------------------------------------------
 // v0.4: refs, adopted stylesheets, form-associated custom elements
 // ---------------------------------------------------------------------------

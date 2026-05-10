@@ -458,7 +458,6 @@ function buildChild(
   getSlot: (desc: DescribeOptions) => ListSlot,
 ): Node | null {
   if (description.if && !description.if(scope.ctx)) return null;
-  if (description.for) return buildKeyedList(description, scope, getSlot);
   return buildElement(description, scope, getSlot);
 }
 
@@ -497,6 +496,10 @@ function buildElement(
     }
   }
 
+  if (description.for) {
+    appendKeyedList(element, description, scope, getSlot);
+  }
+
   if (description.action) {
     const handler = description.action;
     element.addEventListener("click", handler);
@@ -515,16 +518,16 @@ function buildElement(
   return element;
 }
 
-function buildKeyedList(
+function appendKeyedList(
+  parent: HTMLElement,
   description: DescribeOptions,
   scope: RenderScope,
   getSlot: (desc: DescribeOptions) => ListSlot,
-): DocumentFragment {
+): void {
   const list = description.for as ListConfig;
   const slot = getSlot(description);
   const items = list.items(scope.ctx);
   const newCache = new Map<string | number, KeyedItem>();
-  const frag = document.createDocumentFragment();
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
@@ -547,7 +550,7 @@ function buildKeyedList(
     }
 
     newCache.set(key, entry);
-    frag.appendChild(entry.element);
+    parent.appendChild(entry.element);
   }
 
   // Run cleanups for items that were removed from the list.
@@ -556,7 +559,6 @@ function buildKeyedList(
   }
 
   slot.cache = newCache;
-  return frag;
 }
 
 /** Walk a description tree and call `visit` with every node that has a `for:`. */

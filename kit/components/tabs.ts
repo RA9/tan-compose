@@ -36,12 +36,12 @@ build(
       active: { type: "string", default: "", reflect: true },
     },
     theme: {
-      "tc-tabs-fg": "#14171f",
-      "tc-tabs-fg-muted": "#6b7280",
-      "tc-tabs-rule": "#ece5d3",
-      "tc-tabs-accent": "#a16939",
+      "tc-tabs-fg": "var(--tc-color-ink, #14171f)",
+      "tc-tabs-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-tabs-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-tabs-accent": "var(--tc-color-accent, #a16939)",
       "tc-tabs-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "block",

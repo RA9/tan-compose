@@ -288,11 +288,12 @@
         <a class="brand" href="./index.html">
           <span class="brand-mark" aria-hidden="true"></span>
           tan-compose
-          <span class="version-pill">v0.4.0</span>
+          <span class="version-pill">v1.0.0</span>
         </a>
         <nav>
           <a href="./docs.html" class="nav-hide-sm">Docs</a>
           <a href="./components.html" class="active">Components</a>
+          <a href="./themes.html" class="nav-hide-sm">Themes</a>
           <a href="./examples.html" class="nav-hide-sm">Examples</a>
           <a href="./playground.html" class="nav-hide-sm">Playground</a>
           <a href="./blog/" class="nav-hide-sm">Blog</a>
@@ -611,6 +612,145 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
         </div>
       </section>
 
+      <section class="demo" id="textarea">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-textarea&gt;</div>
+            <h2>Textarea</h2>
+            <p class="demo-lede">
+              Multi-line form-associated input. Same chrome as
+              <code>&lt;tc-input&gt;</code>; submits with
+              <code>&lt;form&gt;</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-textarea
+              label="Bio"
+              name="bio"
+              placeholder="Tell us about yourself"
+              helper="Markdown is supported."
+              rows="4"
+            ></tc-textarea>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/textarea"</span>;
+
+&lt;tc-textarea label="Notes" name="notes" rows="6"&gt;&lt;/tc-textarea&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="radio-group">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-radio-group&gt;</div>
+            <h2>Radio group</h2>
+            <p class="demo-lede">
+              Single-choice form-associated control. Pass options as a JSON
+              prop; layout horizontally or vertically.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-radio-group
+              id="kit-radio"
+              label="Plan"
+              name="plan"
+              layout="horizontal"
+            ></tc-radio-group>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/radio-group"</span>;
+
+&lt;tc-radio-group label="Plan" name="plan"&gt;&lt;/tc-radio-group&gt;
+&lt;script&gt;
+  document.querySelector("tc-radio-group").options = [
+    { value: "free", label: "Free" },
+    { value: "pro",  label: "Pro" },
+    { value: "team", label: "Team" },
+  ];
+&lt;/script&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="file">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-file&gt;</div>
+            <h2>File</h2>
+            <p class="demo-lede">
+              Form-associated file picker with a styled trigger button.
+              <code>multiple</code> and <code>accept</code> work the same as
+              the native <code>&lt;input type="file"&gt;</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-file
+              label="Avatar"
+              name="avatar"
+              accept="image/*"
+              helper="PNG or JPG, up to 2MB."
+            ></tc-file>
+            <tc-file
+              label="Documents"
+              name="docs"
+              accept=".pdf,.docx"
+              multiple
+              button-text="Select files"
+            ></tc-file>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/file"</span>;
+
+&lt;tc-file label="Avatar" name="avatar" accept="image/*"&gt;&lt;/tc-file&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="stack">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-stack&gt; · &lt;tc-cluster&gt; · &lt;tc-grid&gt;</div>
+            <h2>Layout primitives</h2>
+            <p class="demo-lede">
+              Three small components for the most common compositions:
+              vertical flow (<code>stack</code>), horizontal flow with wrap
+              (<code>cluster</code>), and an auto-fit grid (<code>grid</code>).
+              Use the <code>--tc-space-N</code> scale or any CSS length for
+              the gap.
+            </p>
+          </div>
+          <div class="stage col">
+            <div>
+              <p style="font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-stack gap="3"</p>
+              <tc-stack gap="3">
+                <tc-button variant="ghost">First</tc-button>
+                <tc-button variant="ghost">Second</tc-button>
+                <tc-button variant="ghost">Third</tc-button>
+              </tc-stack>
+            </div>
+            <div>
+              <p style="font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-cluster gap="2" justify="between"</p>
+              <tc-cluster gap="2" justify="between">
+                <tc-badge variant="info">a</tc-badge>
+                <tc-badge variant="success">b</tc-badge>
+                <tc-badge variant="warning">c</tc-badge>
+                <tc-badge variant="danger">d</tc-badge>
+              </tc-cluster>
+            </div>
+            <div>
+              <p style="font-size: 0.82rem; color: var(--ink-muted); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-grid min="160px"</p>
+              <tc-grid min="160px">
+                <tc-stat label="Total" value="42"></tc-stat>
+                <tc-stat label="Open" value="12"></tc-stat>
+                <tc-stat label="Done" value="30"></tc-stat>
+              </tc-grid>
+            </div>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/stack"</span>;
+<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/cluster"</span>;
+<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/grid"</span>;
+
+&lt;tc-stack gap="4"&gt; … &lt;/tc-stack&gt;
+&lt;tc-cluster gap="3" justify="between"&gt; … &lt;/tc-cluster&gt;
+&lt;tc-grid min="220px" gap="4"&gt; … &lt;/tc-grid&gt;</pre>
+        </div>
+      </section>
+
       <section class="demo" id="checkbox">
         <div class="wrap">
           <div class="demo-head">
@@ -847,6 +987,15 @@ table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; c
       document.getElementById("kit-modal-confirm").addEventListener("click", () => {
         modal.open = false;
       });
+
+      // ---- radio-group demo ----
+      const radio = document.getElementById("kit-radio");
+      radio.options = [
+        { value: "free", label: "Free" },
+        { value: "pro", label: "Pro" },
+        { value: "team", label: "Team" },
+      ];
+      radio.value = "pro";
 
       // ---- toast demo ----
       const toastHost = document.getElementById("kit-toast-host");

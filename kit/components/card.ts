@@ -37,14 +37,15 @@ build(
       elevated: { type: "boolean", default: false },
     },
     theme: {
-      "tc-card-surface": "#ffffff",
-      "tc-card-ink": "#14171f",
-      "tc-card-soft": "#5a6072",
-      "tc-card-rule": "#ece5d3",
-      "tc-card-radius": "12px",
-      "tc-card-shadow": "0 8px 24px rgba(20, 23, 31, 0.06)",
+      "tc-card-surface": "var(--tc-color-surface, #ffffff)",
+      "tc-card-ink": "var(--tc-color-ink, #14171f)",
+      "tc-card-soft": "var(--tc-color-ink-soft, #5a6072)",
+      "tc-card-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-card-radius": "var(--tc-radius-lg, 12px)",
+      "tc-card-shadow":
+        "var(--tc-shadow-md, 0 8px 24px rgba(20, 23, 31, 0.06))",
       "tc-card-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "block",

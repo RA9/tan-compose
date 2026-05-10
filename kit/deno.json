@@ -1,13 +1,16 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
     "./input": "./components/input.ts",
+    "./textarea": "./components/textarea.ts",
     "./select": "./components/select.ts",
     "./checkbox": "./components/checkbox.ts",
     "./switch": "./components/switch.ts",
+    "./file": "./components/file.ts",
+    "./radio-group": "./components/radio-group.ts",
     "./table": "./components/table.ts",
     "./tabs": "./components/tabs.ts",
     "./modal": "./components/modal.ts",
@@ -15,7 +18,14 @@
     "./stat": "./components/stat.ts",
     "./card": "./components/card.ts",
     "./badge": "./components/badge.ts",
-    "./skeleton": "./components/skeleton.ts"
+    "./skeleton": "./components/skeleton.ts",
+    "./stack": "./components/stack.ts",
+    "./cluster": "./components/cluster.ts",
+    "./grid": "./components/grid.ts",
+    "./themes/tokens": "./themes/tokens.ts",
+    "./themes/dark": "./themes/dark.ts",
+    "./themes/bootstrap": "./themes/bootstrap.ts",
+    "./themes/tailwind": "./themes/tailwind.ts"
   },
   "compilerOptions": {
     "strict": true,
@@ -23,7 +33,7 @@
   },
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
-    "check": "deno check mod.ts components/button.ts components/input.ts components/select.ts components/checkbox.ts components/switch.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts",
+    "check": "deno check mod.ts components/button.ts components/input.ts components/textarea.ts components/select.ts components/checkbox.ts components/switch.ts components/file.ts components/radio-group.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts components/stack.ts components/cluster.ts components/grid.ts themes/tokens.ts themes/dark.ts themes/bootstrap.ts themes/tailwind.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

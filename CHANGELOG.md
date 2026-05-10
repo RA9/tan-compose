@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-10
+
+> The 1.0 release. The library has stabilized through 0.x; the API shipped here
+> is the one we'll continue to support.
+
+### Added
+
+- **`for:` inside an element.** Previously a describe with `for:` produced a
+  fragment that ignored the wrapping `tag`. Now `for:` items append to the
+  rendered element after `children`, so the wrapping element (e.g. a `<tbody>`,
+  `<ul>`, `<ol>`) actually exists in the DOM. `children` and `for:` may now be
+  set together on the same describe.
+
+### Migration from 0.4.x
+
+Two minor behavior changes — both additive in spirit, but worth checking:
+
+- **`for:` produces a wrapper element.** If you had a child describe with ONLY
+  `for:` (no other fields) and relied on the items appearing ungrouped in the
+  parent's container, they're now wrapped in a `<div>` (or whatever `tag` you
+  specified, defaulting to `div`). To keep the old behavior, lift the for-block
+  up one level so the items are siblings.
+- **`describe()` no longer rejects `children` + `for:`.** Code that caught the
+  previous TypeError can drop the special case.
+
 ## [0.4.0] - 2026-05-10
 
 > The "feels native" release. Adds refs, Form-Associated Custom Elements, and

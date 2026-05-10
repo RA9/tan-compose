@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Theming @ra9/tan-compose-kit — semantic tokens, drop-in presets, and side-by-side interop with Bootstrap and Tailwind."
+    />
+    <title>Theming — Tan Compose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 16px; line-height: 1.6;
+        color: var(--ink); background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky; top: 0; z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+      .topbar-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        height: 56px;
+      }
+      .brand {
+        display: flex; align-items: center; gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600; font-size: 0.95rem;
+        color: var(--ink); text-decoration: none;
+      }
+      .brand-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); }
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem; font-weight: 500;
+        padding: 2px 8px; border-radius: 999px;
+        background: var(--accent-soft); color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+      .topbar nav { display: flex; gap: 22px; align-items: center; }
+      .topbar nav a {
+        color: var(--ink-soft); text-decoration: none;
+        font-size: 0.92rem; font-weight: 500;
+      }
+      .topbar nav a:hover, .topbar nav a.active { color: var(--accent); }
+
+      header.page { padding: 64px 0 28px; }
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--accent); margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.1; margin-bottom: 14px;
+      }
+      .page-lede { color: var(--ink-soft); font-size: 1.05rem; max-width: 620px; }
+
+      section.content { padding: 32px 0; }
+      h2 {
+        font-size: 1.5rem; font-weight: 700;
+        letter-spacing: -0.01em; margin: 36px 0 12px;
+      }
+      h3 {
+        font-size: 1.05rem; font-weight: 600;
+        margin: 24px 0 8px;
+      }
+      p { color: var(--ink); margin-bottom: 16px; line-height: 1.72; }
+      p code, li code {
+        font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.92em;
+        background: var(--accent-soft); color: var(--accent-hover);
+        padding: 1px 6px; border-radius: 4px;
+      }
+      pre.code {
+        background: var(--code-bg); color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.84rem; line-height: 1.7;
+        padding: 22px 24px; border-radius: 10px;
+        overflow-x: auto; margin: 0 0 18px;
+      }
+      pre.code .c-comment { color: var(--code-comment); }
+      pre.code .c-keyword { color: var(--code-keyword); }
+      pre.code .c-string  { color: var(--code-string); }
+
+      .switcher {
+        display: flex; gap: 8px; flex-wrap: wrap;
+        padding: 16px;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        margin: 18px 0;
+      }
+      .switcher button {
+        font: inherit; font-size: 0.88rem; font-weight: 500;
+        padding: 7px 14px;
+        background: var(--surface);
+        color: var(--ink);
+        border: 1px solid var(--rule-strong);
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .switcher button.active {
+        background: var(--ink); color: #fff; border-color: var(--ink);
+      }
+
+      .stage {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 28px;
+        margin: 18px 0;
+      }
+      .stage > div + div { margin-top: 16px; }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 32px 0 56px; margin-top: 64px;
+      }
+      footer .row {
+        display: flex; justify-content: space-between; align-items: center;
+        gap: 16px; flex-wrap: wrap;
+      }
+      footer p { color: var(--ink-muted); font-size: 0.9rem; }
+      footer .links { display: flex; gap: 22px; }
+      footer .links a { color: var(--ink-soft); text-decoration: none; font-size: 0.9rem; }
+      footer .links a:hover { color: var(--accent); }
+
+      ul { padding-left: 22px; margin-bottom: 18px; }
+      li { line-height: 1.7; margin-bottom: 6px; }
+
+      table { border-collapse: collapse; width: 100%; margin: 12px 0 22px; }
+      th, td {
+        text-align: left; padding: 8px 10px;
+        border-bottom: 1px solid var(--rule);
+        font-size: 0.92rem;
+      }
+      th { font-weight: 600; color: var(--ink); background: var(--bg); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+      td:first-child { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+      @media (max-width: 720px) {
+        header.page { padding: 40px 0 16px; }
+        .topbar nav .nav-hide-sm { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v1.0.0</span>
+        </a>
+        <nav>
+          <a href="./docs.html" class="nav-hide-sm">Docs</a>
+          <a href="./components.html">Components</a>
+          <a href="./themes.html" class="active">Themes</a>
+          <a href="./examples.html" class="nav-hide-sm">Examples</a>
+          <a href="./playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./blog/" class="nav-hide-sm">Blog</a>
+          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="page">
+        <div class="wrap">
+          <div class="eyebrow">@ra9/tan-compose-kit / themes</div>
+          <h1>Theming and CSS&#8209;framework interop.</h1>
+          <p class="page-lede">
+            Three layers of override: global semantic tokens, per&#8209;component
+            tokens, per&#8209;instance CSS. Drop&#8209;in presets for dark mode,
+            Bootstrap, and Tailwind. The kit's components live in Shadow DOM,
+            so they never fight your existing CSS.
+          </p>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="wrap">
+          <h2>Quick switch</h2>
+          <p>
+            Click a preset to re&#8209;skin the live demo below. The same
+            buttons, inputs, badges, and stat cards — different palette and
+            radius. Each preset is one CSS module load.
+          </p>
+
+          <div class="switcher" role="group" aria-label="Theme presets">
+            <button data-theme="light" class="active" type="button">Light (default)</button>
+            <button data-theme="dark" type="button">Dark</button>
+            <button data-theme="bootstrap" type="button">Bootstrap</button>
+            <button data-theme="tailwind" type="button">Tailwind</button>
+          </div>
+
+          <div class="stage" id="theme-stage">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <tc-button variant="primary">Primary</tc-button>
+              <tc-button variant="secondary">Secondary</tc-button>
+              <tc-button variant="danger">Danger</tc-button>
+              <tc-button variant="ghost">Ghost</tc-button>
+            </div>
+            <div>
+              <tc-input label="Email" name="email" placeholder="you@example.com"></tc-input>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <tc-badge>neutral</tc-badge>
+              <tc-badge variant="info">info</tc-badge>
+              <tc-badge variant="success">success</tc-badge>
+              <tc-badge variant="warning">warning</tc-badge>
+              <tc-badge variant="danger">danger</tc-badge>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+              <tc-stat label="Revenue" value="12,840" prefix="$" delta="+8%" trend="up"></tc-stat>
+              <tc-stat label="Users" value="3,209"></tc-stat>
+              <tc-stat label="Errors" value="0" delta="—" trend="neutral"></tc-stat>
+            </div>
+          </div>
+
+          <h2>Three layers of override</h2>
+          <p>
+            Every kit component participates in a layered cascade. Override at
+            whichever level fits.
+          </p>
+
+          <h3>1. Global semantic tokens</h3>
+          <p>
+            Set on <code>:root</code>. Cascade through Shadow DOM into every
+            component. This is the layer the four presets configure.
+          </p>
+
+<pre class="code">:root {
+  --tc-color-accent:       #a16939;
+  --tc-color-accent-hover: #8a572d;
+  --tc-color-ink:          #14171f;
+  --tc-color-surface:      #ffffff;
+  --tc-color-rule:         #ece5d3;
+  --tc-color-success:      #207a5b;
+  --tc-color-warning:      #a87326;
+  --tc-color-danger:       #b3261e;
+  --tc-radius-md:          8px;
+  --tc-font-sans:          'Inter', system-ui, sans-serif;
+}</pre>
+
+          <h3>2. Per-component tokens</h3>
+          <p>
+            Each component exposes finer-grained hooks like
+            <code>--tc-btn-primary-bg</code>,
+            <code>--tc-input-border</code>,
+            <code>--tc-table-row-hover</code>. They default to the global
+            semantic tokens but can be overridden per&#8209;component:
+          </p>
+
+<pre class="code">tc-button {
+  --tc-btn-primary-bg: linear-gradient(135deg, #6366f1, #8b5cf6);
+}</pre>
+
+          <h3>3. Per-instance overrides</h3>
+          <p>
+            Pass the variable as inline style. Affects only that one element.
+          </p>
+
+<pre class="code">&lt;tc-button style="--tc-btn-primary-bg: tomato"&gt;Special&lt;/tc-button&gt;</pre>
+
+          <h2>Bundled presets</h2>
+          <p>Pick one. They're all idempotent — importing twice is a no&#8209;op.</p>
+
+          <table>
+            <thead>
+              <tr><th>Preset</th><th>Import</th><th>What it changes</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>tokens (default)</td>
+                <td>@ra9/tan-compose-kit/themes/tokens</td>
+                <td>Light theme, warm-tan accent. The base every other preset extends.</td>
+              </tr>
+              <tr>
+                <td>dark</td>
+                <td>@ra9/tan-compose-kit/themes/dark</td>
+                <td>Dark surface + ink, accent brightened for contrast.</td>
+              </tr>
+              <tr>
+                <td>bootstrap</td>
+                <td>@ra9/tan-compose-kit/themes/bootstrap</td>
+                <td>Bootstrap 5 primary blue, semantic palette, default radius.</td>
+              </tr>
+              <tr>
+                <td>tailwind</td>
+                <td>@ra9/tan-compose-kit/themes/tailwind</td>
+                <td>Tailwind slate/indigo palette, default radius scale.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Using alongside Bootstrap or Tailwind</h2>
+          <p>
+            The kit components live in Shadow DOM. Your global Bootstrap or
+            Tailwind classes never reach inside; the kit's CSS never reaches
+            outside. They coexist by construction.
+          </p>
+          <p>
+            What the presets do is align the kit's <em>look</em> with your
+            framework so a user can't tell which buttons came from where. Use
+            them like this:
+          </p>
+
+          <h3>Bootstrap</h3>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"bootstrap/dist/css/bootstrap.min.css"</span>;
+<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit"</span>;
+<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/themes/bootstrap"</span>;
+
+<span class="c-comment">// kit components now match Bootstrap's primary blue + radius</span>
+&lt;div class="container"&gt;
+  &lt;tc-input label="Email" name="email"&gt;&lt;/tc-input&gt;
+  &lt;tc-button variant="primary"&gt;Save&lt;/tc-button&gt;
+&lt;/div&gt;</pre>
+
+          <h3>Tailwind</h3>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit"</span>;
+<span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/themes/tailwind"</span>;
+
+<span class="c-comment">// utility classes don't enter the kit's Shadow DOM,
+// but the kit's tokens align with Tailwind's slate/indigo</span>
+&lt;div class="grid grid-cols-3 gap-4"&gt;
+  &lt;tc-stat label="MRR" value="42"&gt;&lt;/tc-stat&gt;
+  &lt;tc-stat label="Churn" value="0.4%"&gt;&lt;/tc-stat&gt;
+  &lt;tc-stat label="LTV" value="240"&gt;&lt;/tc-stat&gt;
+&lt;/div&gt;</pre>
+
+          <h3>Other frameworks</h3>
+          <p>
+            Bulma, Bootstrap 4, plain CSS — same shape. Override the
+            handful of <code>--tc-color-*</code> tokens to match the
+            framework's brand color and you're done.
+          </p>
+
+          <h2>Writing your own preset</h2>
+          <p>
+            Just CSS. Set the tokens you want to change; the rest cascade
+            from the base.
+          </p>
+
+<pre class="code">/* my-app/themes/brand.css */
+:root {
+  --tc-color-accent:       #ff6b00;
+  --tc-color-accent-hover: #cc5500;
+  --tc-color-accent-soft:  #ffe5d0;
+  --tc-color-ink:          #2a2a2e;
+  --tc-radius-md:          12px;
+  --tc-font-sans:          'Söhne', system-ui, sans-serif;
+}</pre>
+
+          <p>
+            Load that file after the kit's base tokens and every component
+            updates.
+          </p>
+
+          <h2>The full token list</h2>
+          <p>See <a href="./docs.html">Docs</a> for the complete catalogue, but the most-used:</p>
+          <ul>
+            <li><code>--tc-color-accent</code> / <code>-hover</code> / <code>-soft</code> — primary brand color and its derivatives</li>
+            <li><code>--tc-color-ink</code> / <code>-soft</code> / <code>-muted</code> — three steps of text emphasis</li>
+            <li><code>--tc-color-surface</code> / <code>-alt</code> — background surfaces</li>
+            <li><code>--tc-color-rule</code> / <code>-strong</code> — borders and dividers</li>
+            <li><code>--tc-color-{info,success,warning,danger}</code> + matching <code>-bg</code> and <code>-fg</code></li>
+            <li><code>--tc-radius-{sm,md,lg,pill}</code></li>
+            <li><code>--tc-shadow-{sm,md,lg}</code></li>
+            <li><code>--tc-space-{1..8}</code> — spacing scale used by layout primitives</li>
+            <li><code>--tc-focus-ring</code> — single source of truth for focus outlines</li>
+            <li><code>--tc-font-{sans,mono}</code></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="./index.html">Home</a>
+          <a href="./docs.html">Docs</a>
+          <a href="./components.html">Components</a>
+          <a href="./blog/">Blog</a>
+          <a href="https://jsr.io/@ra9/tan-compose-kit" target="_blank" rel="noopener">JSR</a>
+          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module">
+      import "./dist/mod.kit.js";
+
+      const buttons = document.querySelectorAll(".switcher button");
+      const themeAttrs = ["data-tc-tokens", "data-tc-theme"];
+
+      function applyTheme(name) {
+        // Remove any non-base theme styles.
+        document
+          .querySelectorAll("style[data-tc-theme]")
+          .forEach((s) => s.remove());
+
+        if (name === "dark") {
+          document.head.appendChild(themeStyle("dark", DARK_CSS));
+        } else if (name === "bootstrap") {
+          document.head.appendChild(themeStyle("bootstrap", BOOTSTRAP_CSS));
+        } else if (name === "tailwind") {
+          document.head.appendChild(themeStyle("tailwind", TAILWIND_CSS));
+        }
+        // "light" leaves only the base tokens in place.
+
+        buttons.forEach((b) => b.classList.toggle("active", b.dataset.theme === name));
+      }
+
+      function themeStyle(name, css) {
+        const s = document.createElement("style");
+        s.setAttribute("data-tc-theme", name);
+        s.textContent = css;
+        return s;
+      }
+
+      buttons.forEach((b) => {
+        b.addEventListener("click", () => applyTheme(b.dataset.theme));
+      });
+
+      // Inline copies of the theme CSS for the live switcher (mirror of
+      // the `kit/themes/{dark,bootstrap,tailwind}.ts` exports).
+      const DARK_CSS = `:root {
+        --tc-color-bg: #0f1218; --tc-color-surface: #1a1d29; --tc-color-surface-alt: #14171f;
+        --tc-color-ink: #f5f0e6; --tc-color-ink-soft: #b9b1a1; --tc-color-ink-muted: #8a8678;
+        --tc-color-rule: #2a2f3d; --tc-color-rule-strong: #3a4053;
+        --tc-color-accent: #d49a68; --tc-color-accent-hover: #e5b489; --tc-color-accent-soft: #3d2c1e;
+        --tc-color-info-bg: #1f2c44; --tc-color-info-fg: #a8c4f0;
+        --tc-color-success-bg: #1a3329; --tc-color-success-fg: #84d4ad;
+        --tc-color-warning-bg: #3a2e16; --tc-color-warning-fg: #f0c878;
+        --tc-color-danger-bg: #3a1f1c; --tc-color-danger-fg: #f08a7e;
+        --tc-focus-ring: 0 0 0 3px rgba(212, 154, 104, 0.28);
+      }`;
+      const BOOTSTRAP_CSS = `:root {
+        --tc-color-accent: #0d6efd; --tc-color-accent-hover: #0b5ed7; --tc-color-accent-soft: #cfe2ff;
+        --tc-color-info: #0dcaf0; --tc-color-info-bg: #cff4fc; --tc-color-info-fg: #055160;
+        --tc-color-success: #198754; --tc-color-success-bg: #d1e7dd; --tc-color-success-fg: #0a3622;
+        --tc-color-warning: #ffc107; --tc-color-warning-bg: #fff3cd; --tc-color-warning-fg: #664d03;
+        --tc-color-danger: #dc3545; --tc-color-danger-bg: #f8d7da; --tc-color-danger-fg: #58151c;
+        --tc-color-bg: #fff; --tc-color-surface: #fff; --tc-color-surface-alt: #f8f9fa;
+        --tc-color-ink: #212529; --tc-color-ink-soft: #495057; --tc-color-ink-muted: #6c757d;
+        --tc-color-rule: #dee2e6; --tc-color-rule-strong: #ced4da;
+        --tc-radius-sm: 0.25rem; --tc-radius-md: 0.375rem; --tc-radius-lg: 0.5rem;
+        --tc-focus-ring: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      }`;
+      const TAILWIND_CSS = `:root {
+        --tc-color-accent: rgb(99 102 241); --tc-color-accent-hover: rgb(79 70 229); --tc-color-accent-soft: rgb(224 231 255);
+        --tc-color-info: rgb(59 130 246); --tc-color-info-bg: rgb(219 234 254); --tc-color-info-fg: rgb(30 64 175);
+        --tc-color-success: rgb(34 197 94); --tc-color-success-bg: rgb(220 252 231); --tc-color-success-fg: rgb(22 101 52);
+        --tc-color-warning: rgb(245 158 11); --tc-color-warning-bg: rgb(254 243 199); --tc-color-warning-fg: rgb(146 64 14);
+        --tc-color-danger: rgb(239 68 68); --tc-color-danger-bg: rgb(254 226 226); --tc-color-danger-fg: rgb(153 27 27);
+        --tc-color-bg: rgb(248 250 252); --tc-color-surface: rgb(255 255 255); --tc-color-surface-alt: rgb(241 245 249);
+        --tc-color-ink: rgb(15 23 42); --tc-color-ink-soft: rgb(51 65 85); --tc-color-ink-muted: rgb(100 116 139);
+        --tc-color-rule: rgb(226 232 240); --tc-color-rule-strong: rgb(203 213 225);
+        --tc-radius-sm: 0.25rem; --tc-radius-md: 0.375rem; --tc-radius-lg: 0.5rem;
+        --tc-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.4);
+      }`;
+    </script>
+  </body>
+</html>

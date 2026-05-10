@@ -347,6 +347,111 @@ test("tc-skeleton applies width/height inline styles and pulse class by default"
   document.body.removeChild(el);
 });
 
+test("tc-textarea: form-associated; input fires tc-input and updates value", () => {
+  if (typeof HTMLElement.prototype.attachInternals !== "function") return;
+  const el = document.createElement(tags.textarea) as HTMLElement & {
+    value: string;
+    label: string;
+    internals?: ElementInternals;
+  };
+  el.label = "Notes";
+  el.value = "hello";
+  document.body.appendChild(el);
+  assert(el.internals);
+  const ta = el.shadowRoot!.querySelector("textarea") as HTMLTextAreaElement;
+  assertEquals(ta.value, "hello");
+  let last: { value: string } | null = null;
+  el.addEventListener("tc-input", (e) => {
+    last = (e as CustomEvent).detail;
+  });
+  ta.value = "world";
+  ta.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+  assertEquals(el.value, "world");
+  assertEquals((last as unknown as { value: string }).value, "world");
+  document.body.removeChild(el);
+});
+
+test("tc-radio-group: clicking a radio updates value and emits tc-change", () => {
+  if (typeof HTMLElement.prototype.attachInternals !== "function") return;
+  const el = document.createElement(tags.radioGroup) as HTMLElement & {
+    options: Array<{ value: string; label: string }>;
+    value: string;
+    internals?: ElementInternals;
+  };
+  el.options = [
+    { value: "a", label: "Apple" },
+    { value: "b", label: "Banana" },
+  ];
+  el.value = "a";
+  document.body.appendChild(el);
+  let last: { value: string } | null = null;
+  el.addEventListener("tc-change", (e) => {
+    last = (e as CustomEvent).detail;
+  });
+  const radios = Array.from(
+    el.shadowRoot!.querySelectorAll("input.r"),
+  ) as HTMLInputElement[];
+  assertEquals(radios.length, 2);
+  radios[1].checked = true;
+  radios[1].dispatchEvent(
+    new Event("change", { bubbles: true, composed: true }),
+  );
+  assertEquals(el.value, "b");
+  assertEquals((last as unknown as { value: string }).value, "b");
+  document.body.removeChild(el);
+});
+
+test("tc-file: clicking the trigger button forwards to the hidden input", () => {
+  const el = document.createElement(tags.file) as HTMLElement;
+  document.body.appendChild(el);
+  const inp = el.shadowRoot!.querySelector(
+    "input[type='file']",
+  ) as HTMLInputElement;
+  let clicked = false;
+  inp.addEventListener("click", (e) => {
+    clicked = true;
+    e.preventDefault();
+  });
+  (el.shadowRoot!.querySelector(".btn") as HTMLElement).click();
+  assert(clicked, "expected the trigger button to forward to the file input");
+  document.body.removeChild(el);
+});
+
+test("tc-stack applies gap from token scale and align modifier", () => {
+  const el = document.createElement(tags.stack) as HTMLElement & {
+    gap: string;
+    align: string;
+  };
+  el.gap = "5";
+  el.align = "center";
+  document.body.appendChild(el);
+  const stack = el.shadowRoot!.querySelector(".stack") as HTMLElement;
+  assert(stack.style.cssText.includes("--tc-stack-gap"));
+  assert(stack.style.cssText.includes("center"));
+  document.body.removeChild(el);
+});
+
+test("tc-cluster maps justify=between to space-between", () => {
+  const el = document.createElement(tags.cluster) as HTMLElement & {
+    justify: string;
+  };
+  el.justify = "between";
+  document.body.appendChild(el);
+  const cluster = el.shadowRoot!.querySelector(".cluster") as HTMLElement;
+  assert(cluster.style.cssText.includes("space-between"));
+  document.body.removeChild(el);
+});
+
+test("tc-grid uses repeat(auto-fit, minmax(min, 1fr)) by default", () => {
+  const el = document.createElement(tags.grid) as HTMLElement & { min: string };
+  el.min = "200px";
+  document.body.appendChild(el);
+  const grid = el.shadowRoot!.querySelector(".grid") as HTMLElement;
+  assert(grid.style.cssText.includes("auto-fit"));
+  assert(grid.style.cssText.includes("200px"));
+  document.body.removeChild(el);
+});
+
 test("tc-table: sort header click toggles asc → desc → none", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<Record<string, unknown>>;

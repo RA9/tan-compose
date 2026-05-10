@@ -6,6 +6,12 @@ template, lifecycle hooks, and reactive state; one `build()` call registers it
 as a real custom element. No JSX, no compiler, no framework runtime — Shadow
 DOM, lifecycle, and reactivity are wired up for you on top of the platform.
 
+> **Status:** stable at **1.0**. The API is frozen; further changes will be
+> additive. Pair with
+> [`@ra9/tan-compose-kit`](https://jsr.io/@ra9/tan-compose-kit) for 19
+> ready-made components and 4 theme presets (light, dark, Bootstrap, Tailwind)
+> on top of this engine.
+
 ## Features
 
 - **Declarative Component Definition**: Easily describe web components using a

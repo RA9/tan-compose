@@ -39,15 +39,16 @@ build(
       dismissible: { type: "boolean", default: true },
     },
     theme: {
-      "tc-toast-info": "#3a5b8c",
-      "tc-toast-success": "#207a5b",
-      "tc-toast-warning": "#a87326",
-      "tc-toast-error": "#b3261e",
-      "tc-toast-fg": "#ffffff",
-      "tc-toast-radius": "10px",
-      "tc-toast-shadow": "0 12px 30px rgba(20, 23, 31, 0.18)",
+      "tc-toast-info": "var(--tc-color-info, #3a5b8c)",
+      "tc-toast-success": "var(--tc-color-success, #207a5b)",
+      "tc-toast-warning": "var(--tc-color-warning, #a87326)",
+      "tc-toast-error": "var(--tc-color-danger, #b3261e)",
+      "tc-toast-fg": "var(--tc-color-surface, #ffffff)",
+      "tc-toast-radius": "var(--tc-radius-lg, 10px)",
+      "tc-toast-shadow":
+        "var(--tc-shadow-lg, 0 12px 30px rgba(20, 23, 31, 0.18))",
       "tc-toast-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "block",

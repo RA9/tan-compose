@@ -38,14 +38,14 @@ build(
       disabled: { type: "boolean", default: false, reflect: true },
     },
     theme: {
-      "tc-switch-track-off": "#d9cfb8",
-      "tc-switch-track-on": "#a16939",
-      "tc-switch-thumb": "#ffffff",
-      "tc-switch-fg": "#14171f",
-      "tc-switch-helper": "#6b7280",
-      "tc-switch-error": "#b3261e",
+      "tc-switch-track-off": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-switch-track-on": "var(--tc-color-accent, #a16939)",
+      "tc-switch-thumb": "var(--tc-color-surface, #ffffff)",
+      "tc-switch-fg": "var(--tc-color-ink, #14171f)",
+      "tc-switch-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-switch-error": "var(--tc-color-danger, #b3261e)",
       "tc-switch-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "block",

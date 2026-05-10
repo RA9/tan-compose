@@ -37,15 +37,16 @@ build(
       width: { type: "string", default: "min(560px, 92vw)" },
     },
     theme: {
-      "tc-modal-surface": "#ffffff",
-      "tc-modal-ink": "#14171f",
-      "tc-modal-rule": "#ece5d3",
-      "tc-modal-soft": "#5a6072",
-      "tc-modal-radius": "12px",
+      "tc-modal-surface": "var(--tc-color-surface, #ffffff)",
+      "tc-modal-ink": "var(--tc-color-ink, #14171f)",
+      "tc-modal-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-modal-soft": "var(--tc-color-ink-soft, #5a6072)",
+      "tc-modal-radius": "var(--tc-radius-lg, 12px)",
       "tc-modal-backdrop": "rgba(20, 23, 31, 0.5)",
-      "tc-modal-shadow": "0 24px 60px rgba(20, 23, 31, 0.25)",
+      "tc-modal-shadow":
+        "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))",
       "tc-modal-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "contents",

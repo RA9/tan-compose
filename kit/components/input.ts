@@ -44,15 +44,15 @@ build(
       required: { type: "boolean", default: false, reflect: true },
     },
     theme: {
-      "tc-input-bg": "#ffffff",
-      "tc-input-fg": "#14171f",
-      "tc-input-border": "#d9cfb8",
-      "tc-input-border-focus": "#a16939",
-      "tc-input-error": "#b3261e",
-      "tc-input-helper": "#6b7280",
-      "tc-input-radius": "8px",
+      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
       "tc-input-font":
-        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: {
       display: "block",
@@ -110,7 +110,7 @@ build(
           }
           .input:focus {
             border-color: var(--tc-input-border-focus);
-            box-shadow: 0 0 0 3px rgba(161, 105, 57, 0.18);
+            box-shadow: var(--tc-focus-ring, 0 0 0 3px rgba(161, 105, 57, 0.18));
           }
           .input.invalid {
             border-color: var(--tc-input-error);

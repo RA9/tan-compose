@@ -122,11 +122,8 @@ export function describe(options: DescribeOptions): DescribeOptions {
     if (typeof list.render !== "function") {
       throw new TypeError("describe(): `for.render` must be a function");
     }
-    if (options.children !== undefined) {
-      throw new TypeError(
-        "describe(): cannot set both `children` and `for` on the same node",
-      );
-    }
+    // `children` and `for` may be set together — children render first,
+    // then keyed list items are appended to the same element.
   }
 
   if (options.props !== undefined) {
