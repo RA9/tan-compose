@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["dom", "esnext", "deno.ns"]
+  },
+  "tasks": {
+    "check": "deno check main.ts components/site-nav.ts components/site-footer.ts",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "lint": "deno lint",
+    "bundle": "deno run --allow-read --allow-write --allow-env --allow-net --allow-run bundle.ts"
+  },
+  "fmt": {
+    "exclude": ["coverage/"]
+  },
+  "imports": {
+    "@ra9/tan-compose": "../mod.ts"
+  }
+}

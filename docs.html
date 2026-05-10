@@ -1,1199 +1,639 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-            name="description"
-            content="Tan Compose Documentation - API reference, lifecycle, reactivity, and migration guide"
-        />
-        <title>Tan Compose - Documentation</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap"
-            rel="stylesheet"
-        />
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Tan Compose Documentation — API reference, lifecycle, reactivity, and migration guide"
+    />
+    <title>Tan Compose — Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="./dist/site.js"></script>
+    <style>
+      /* The kit ships theme tokens on :root, components carry their own
+         shadow CSS, and <site-nav>/<site-footer> handle chrome. All this
+         page needs is layout for the prose body, the API tables, and a
+         tiny set of inline-code styles. ~80 lines vs the old ~400. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
+        line-height: 1.65;
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
+        -webkit-font-smoothing: antialiased;
+      }
 
-            :root {
-                --bg: #faf8f3;
-                --surface: #ffffff;
-                --ink: #14171f;
-                --ink-soft: #4a5061;
-                --ink-muted: #6b7280;
-                --muted: #6b7280; /* alias kept for legacy selectors */
-                --rule: #ece5d3;
-                --rule-strong: #d9cfb8;
-                --border: #ece5d3; /* alias kept for legacy selectors */
-                --accent: #a16939;
-                --accent-hover: #8a572d;
-                --accent-soft: #efe2cf;
-                --code-bg: #14171f;
-                --code-fg: #efe6d4;
-                --code-ink: #efe6d4;
-                --code-keyword: #f0a878;
-                --code-string: #d9b380;
-                --code-comment: #8a8678;
-                --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-                --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-                --radius: 12px;
-            }
+      .layout {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 56px 24px 80px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 220px;
+        gap: 56px;
+        align-items: start;
+      }
+      .doc-hero { margin-bottom: 32px; }
+      .doc-hero h1 {
+        font-size: 2.5rem; font-weight: 800;
+        letter-spacing: -0.02em; margin-bottom: 12px;
+      }
+      .doc-hero p {
+        font-size: 1.1rem; color: var(--tc-color-ink-soft, #4a5061);
+        max-width: 680px;
+      }
 
-            html {
-                scroll-behavior: smooth;
-            }
+      section {
+        scroll-margin-top: 80px;
+        padding: 36px 0;
+        border-top: 1px solid var(--tc-color-rule, #ece5d3);
+      }
+      section:first-of-type { border-top: none; padding-top: 0; }
+      section h2 {
+        font-size: 1.6rem; font-weight: 700;
+        margin-bottom: 14px; letter-spacing: -0.01em;
+      }
+      section h3 {
+        font-size: 1.1rem; font-weight: 600;
+        margin: 28px 0 10px;
+        color: var(--tc-color-ink, #14171f);
+      }
+      section p, section li {
+        color: var(--tc-color-ink-soft, #4a5061);
+        margin-bottom: 12px;
+      }
+      section ul, section ol { margin: 8px 0 16px 22px; }
+      section li { margin-bottom: 6px; }
+      tc-code { display: block; margin: 12px 0 16px; }
+      tc-callout { display: block; margin: 16px 0; }
 
-            body {
-                font-family:
-                    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-                    Roboto, sans-serif;
-                line-height: 1.65;
-                color: var(--ink);
-                background: var(--bg);
-                min-height: 100vh;
-                font-feature-settings: "cv11", "ss01";
-                -webkit-font-smoothing: antialiased;
-            }
+      code {
+        font-family: var(--tc-font-mono, "JetBrains Mono", ui-monospace, monospace);
+        font-size: 0.88em;
+      }
+      p code, li code, td code, h3 code {
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
+        padding: 1px 6px; border-radius: 4px; font-size: 0.85em;
+      }
 
-            .container {
-                max-width: 900px;
-                margin: 0 auto;
-                padding: 0 24px;
-            }
+      .signature {
+        display: inline-block;
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.92rem; font-weight: 500;
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
+        padding: 6px 12px; border-radius: 6px;
+        margin: 6px 0 12px;
+      }
 
-            /* Top nav (matches index.html) */
-            .topbar {
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: var(--bg);
-                border-bottom: 1px solid var(--rule);
-                backdrop-filter: saturate(180%) blur(8px);
-                -webkit-backdrop-filter: saturate(180%) blur(8px);
-            }
+      table.api {
+        width: 100%; border-collapse: collapse;
+        margin: 14px 0 8px; font-size: 0.92rem;
+      }
+      table.api th, table.api td {
+        text-align: left; padding: 10px 12px;
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+        vertical-align: top;
+      }
+      table.api th {
+        font-weight: 600; background: var(--tc-color-bg, #faf8f3);
+        font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--tc-color-ink, #14171f);
+      }
+      table.api td { color: var(--tc-color-ink-soft, #4a5061); }
+      table.api td:first-child {
+        white-space: nowrap;
+        font-family: var(--tc-font-mono, monospace);
+        color: var(--tc-color-ink, #14171f); font-weight: 500;
+      }
 
-            .topbar-inner {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                height: 56px;
-            }
+      aside.toc-rail { padding-top: 8px; }
 
-            .brand {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-family: "JetBrains Mono", ui-monospace, monospace;
-                font-weight: 600;
-                font-size: 0.95rem;
-                color: var(--ink);
-                text-decoration: none;
-            }
+      @media (max-width: 900px) {
+        .layout { grid-template-columns: 1fr; gap: 24px; padding: 32px 20px 64px; }
+        aside.toc-rail { display: none; }
+        .doc-hero h1 { font-size: 1.9rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <site-nav active="docs" version="v1.1.0"></site-nav>
 
-            .brand-mark {
-                width: 22px;
-                height: 22px;
-                border-radius: 6px;
-                background: var(--accent);
-                display: inline-block;
-            }
+    <main class="layout">
+      <article id="content">
+        <div class="doc-hero">
+          <h1>Documentation</h1>
+          <p>
+            Everything you need to build production-ready Web Components with
+            Tan Compose &mdash; declarative syntax, Shadow DOM isolation,
+            theming via CSS variables, and reactive state.
+          </p>
+        </div>
 
-            .version-pill {
-                font-family: "JetBrains Mono", ui-monospace, monospace;
-                font-size: 0.72rem;
-                font-weight: 500;
-                padding: 2px 8px;
-                border-radius: 999px;
-                background: var(--accent-soft);
-                color: var(--accent-hover);
-                border: 1px solid var(--rule-strong);
-            }
+        <section id="introduction">
+          <h2>Introduction</h2>
+          <p>
+            <strong>Tan Compose</strong> is a lightweight, zero-dependency
+            library for authoring native Web Components with a declarative
+            API. You describe a component once with <code>describe()</code>
+            and register it with <code>build()</code>; the library handles
+            Shadow DOM setup, theming via CSS custom properties, inline
+            styles, lifecycle hooks, attribute reactivity, custom events,
+            and slots.
+          </p>
+        </section>
 
-            .topbar nav {
-                display: flex;
-                gap: 22px;
-                align-items: center;
-            }
-
-            .topbar nav a {
-                color: var(--ink-soft);
-                text-decoration: none;
-                font-size: 0.92rem;
-                font-weight: 500;
-                transition: color 0.15s ease;
-            }
-
-            .topbar nav a:hover,
-            .topbar nav a:focus-visible,
-            .topbar nav a.active,
-            .topbar nav a[aria-current="page"] {
-                color: var(--accent);
-            }
-
-            .topbar nav a:focus-visible {
-                outline: 2px solid var(--accent);
-                outline-offset: 4px;
-                border-radius: 4px;
-            }
-
-            main {
-                padding: 56px 0 80px;
-            }
-
-            .doc-hero {
-                margin-bottom: 48px;
-            }
-
-            .doc-hero h1 {
-                font-size: 2.5rem;
-                font-weight: 800;
-                letter-spacing: -0.02em;
-                color: var(--ink);
-                margin-bottom: 12px;
-            }
-
-            .doc-hero p {
-                font-size: 1.125rem;
-                color: var(--ink-soft);
-                max-width: 720px;
-            }
-
-            section.doc-section {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 36px 40px;
-                margin-bottom: 28px;
-                box-shadow: var(--shadow-sm);
-            }
-
-            section.doc-section h2 {
-                font-size: 1.6rem;
-                font-weight: 700;
-                color: var(--ink);
-                margin-bottom: 16px;
-                letter-spacing: -0.01em;
-                scroll-margin-top: 80px;
-            }
-
-            section.doc-section h3 {
-                font-size: 1.15rem;
-                font-weight: 600;
-                color: var(--ink);
-                margin: 28px 0 12px;
-            }
-
-            section.doc-section p {
-                color: var(--ink-soft);
-                margin-bottom: 14px;
-            }
-
-            section.doc-section ul {
-                margin: 8px 0 16px 22px;
-                color: var(--ink-soft);
-            }
-
-            section.doc-section li {
-                margin-bottom: 6px;
-            }
-
-            code {
-                font-family:
-                    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
-                    Monaco, Consolas, monospace;
-                font-size: 0.88em;
-            }
-
-            p code,
-            li code,
-            td code {
-                background: var(--accent-soft);
-                color: var(--accent);
-                padding: 1px 6px;
-                border-radius: 4px;
-                font-size: 0.85em;
-            }
-
-            .code-block {
-                background: var(--code-bg);
-                border-radius: 10px;
-                padding: 20px 22px;
-                margin: 16px 0 8px;
-                overflow-x: auto;
-                box-shadow: var(--shadow-sm);
-            }
-
-            .code-block pre {
-                margin: 0;
-            }
-
-            .code-block code {
-                color: var(--code-fg);
-                background: transparent;
-                padding: 0;
-                font-size: 0.875rem;
-                line-height: 1.7;
-                white-space: pre;
-            }
-
-            /* API tables */
-            table.api {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 14px 0 8px;
-                font-size: 0.92rem;
-            }
-
-            table.api th,
-            table.api td {
-                text-align: left;
-                padding: 10px 12px;
-                border-bottom: 1px solid var(--border);
-                vertical-align: top;
-            }
-
-            table.api th {
-                font-weight: 600;
-                color: var(--ink);
-                background: var(--bg);
-                font-size: 0.82rem;
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
-            }
-
-            table.api td {
-                color: var(--ink-soft);
-            }
-
-            table.api td:first-child {
-                white-space: nowrap;
-                font-family:
-                    "JetBrains Mono", ui-monospace, monospace;
-                color: var(--ink);
-                font-weight: 500;
-            }
-
-            .signature {
-                display: inline-block;
-                background: var(--accent-soft);
-                color: var(--accent);
-                padding: 6px 12px;
-                border-radius: 6px;
-                font-family:
-                    "JetBrains Mono", ui-monospace, monospace;
-                font-size: 0.92rem;
-                font-weight: 500;
-                margin: 6px 0 12px;
-            }
-
-            .callout {
-                background: #fffaf0;
-                border-left: 3px solid #d4a64a;
-                border-radius: 6px;
-                padding: 14px 18px;
-                margin: 18px 0;
-                color: var(--ink-soft);
-                font-size: 0.95rem;
-            }
-
-            .callout strong {
-                color: var(--ink);
-            }
-
-            footer {
-                text-align: center;
-                padding: 32px 20px;
-                color: var(--muted);
-                border-top: 1px solid var(--border);
-                background: var(--surface);
-                font-size: 0.9rem;
-            }
-
-            footer a {
-                color: var(--accent);
-                text-decoration: none;
-            }
-
-            footer a:hover {
-                text-decoration: underline;
-            }
-
-            @media (max-width: 768px) {
-                .topbar nav {
-                    gap: 14px;
-                }
-
-                .topbar nav .nav-hide-sm {
-                    display: none;
-                }
-
-                .doc-hero h1 {
-                    font-size: 1.9rem;
-                }
-
-                section.doc-section {
-                    padding: 24px 20px;
-                }
-
-                section.doc-section h2 {
-                    font-size: 1.35rem;
-                }
-
-                .code-block {
-                    padding: 16px;
-                }
-
-                .code-block code {
-                    font-size: 0.8rem;
-                }
-
-                table.api {
-                    font-size: 0.85rem;
-                }
-
-                table.api th,
-                table.api td {
-                    padding: 8px 6px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <header class="topbar">
-            <div class="container topbar-inner">
-                <a class="brand" href="./index.html">
-                    <span class="brand-mark" aria-hidden="true"></span>
-                    tan-compose
-                    <span class="version-pill">v1.1.0</span>
-                </a>
-                <nav aria-label="Primary">
-                    <a href="./docs.html" aria-current="page">Docs</a>
-                    <a href="./components.html" class="nav-hide-sm">Components</a>
-                    <a href="./themes.html" class="nav-hide-sm">Themes</a>
-                    <a href="./examples.html" class="nav-hide-sm">Examples</a>
-                    <a href="./playground.html" class="nav-hide-sm">Playground</a>
-                    <a href="./blog/" class="nav-hide-sm">Blog</a>
-                    <a
-                        href="https://jsr.io/@ra9/tan-compose"
-                        class="nav-hide-sm"
-                        target="_blank"
-                        rel="noopener"
-                        >JSR</a
-                    >
-                    <a
-                        href="https://github.com/ra9/tan-compose"
-                        target="_blank"
-                        rel="noopener"
-                        >GitHub</a
-                    >
-                </nav>
-            </div>
-        </header>
-
-        <main class="container">
-            <div class="doc-hero">
-                <h1>Documentation</h1>
-                <p>
-                    Everything you need to build production-ready Web Components
-                    with Tan Compose &mdash; declarative syntax, Shadow DOM
-                    isolation, theming via CSS variables, and reactive state.
-                </p>
-            </div>
-
-            <!-- Introduction -->
-            <section class="doc-section" id="introduction">
-                <h2>Introduction</h2>
-                <p>
-                    <strong>Tan Compose</strong> is a lightweight, zero-dependency
-                    library for authoring native Web Components with a
-                    declarative API. You describe a component once with
-                    <code>describe()</code> and register it with
-                    <code>build()</code>; the library handles Shadow DOM setup,
-                    theming via CSS custom properties, inline styles, lifecycle
-                    hooks, attribute reactivity, custom events, and slots.
-                </p>
-            </section>
-
-            <!-- Installation -->
-            <section class="doc-section" id="installation">
-                <h2>Installation</h2>
-                <p>Install from JSR for Deno or Node:</p>
-                <div class="code-block">
-                    <pre><code># Deno
+        <section id="installation">
+          <h2>Installation</h2>
+          <p>Install from JSR for Deno or Node:</p>
+          <tc-code language="bash" copy><span class="tc-com"># Deno</span>
 deno add jsr:@ra9/tan-compose
 
-# Node / npm
-npx jsr add @ra9/tan-compose</code></pre>
-                </div>
+<span class="tc-com"># Node / npm</span>
+npx jsr add @ra9/tan-compose</tc-code>
+          <h3>CDN / Deno import</h3>
+          <p>You can also import directly in Deno or the browser:</p>
+          <tc-code language="ts" copy><span class="tc-kw">import</span> { build, describe } <span class="tc-kw">from</span> <span class="tc-str">"https://deno.land/x/tan_compose/mod.ts"</span>;</tc-code>
+        </section>
 
-                <h3>CDN / Deno import</h3>
-                <p>You can also import directly in Deno or the browser:</p>
-                <div class="code-block">
-                    <pre><code>import { build, describe } from "https://deno.land/x/tan_compose/mod.ts";</code></pre>
-                </div>
-            </section>
+        <section id="quick-start">
+          <h2>Quick Start</h2>
+          <p>
+            Describe a component, then register it under a custom tag name.
+            Custom tag names must be lowercase and contain a hyphen.
+          </p>
+          <tc-code language="ts" copy><span class="tc-kw">import</span> { build, describe } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
 
-            <!-- Quick Start -->
-            <section class="doc-section" id="quick-start">
-                <h2>Quick Start</h2>
-                <p>
-                    Describe a component, then register it under a custom tag
-                    name. Custom tag names must be lowercase and contain a
-                    hyphen.
-                </p>
-                <div class="code-block">
-                    <pre><code>import { build, describe } from "@ra9/tan-compose";
-
-const button = describe({
-  tag: "button",
-  template: "Click me",
+<span class="tc-kw">const</span> button = describe({
+  tag: <span class="tc-str">"button"</span>,
+  template: <span class="tc-str">"Click me"</span>,
   styles: {
-    padding: "10px 20px",
-    backgroundColor: "#5b6cf0",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
+    padding: <span class="tc-str">"10px 20px"</span>,
+    backgroundColor: <span class="tc-str">"#5b6cf0"</span>,
+    color: <span class="tc-str">"white"</span>,
+    border: <span class="tc-str">"none"</span>,
+    borderRadius: <span class="tc-str">"8px"</span>,
+    cursor: <span class="tc-str">"pointer"</span>,
   },
-  action: () =&gt; alert("Hello, Tan Compose!"),
+  action: () =&gt; alert(<span class="tc-str">"Hello, Tan Compose!"</span>),
 });
 
-build("my-button", button);</code></pre>
-                </div>
+build(<span class="tc-str">"my-button"</span>, button);</tc-code>
+          <p>Then use it in HTML like any native element:</p>
+          <tc-code language="html"><span class="tc-tag">&lt;my-button&gt;&lt;/my-button&gt;</span></tc-code>
+        </section>
 
-                <p>Then use it in HTML like any native element:</p>
-                <div class="code-block">
-                    <pre><code>&lt;my-button&gt;&lt;/my-button&gt;</code></pre>
-                </div>
-            </section>
+        <section id="api">
+          <h2>API Reference</h2>
 
-            <!-- API Reference -->
-            <section class="doc-section" id="api">
-                <h2>API Reference</h2>
+          <h3 id="describe">describe(options)</h3>
+          <div class="signature">describe(options: DescribeOptions) =&gt; DescribeOptions</div>
+          <p>
+            Validates and returns a component description. As of
+            <strong>v0.2.0</strong>, this function throws on invalid options
+            (missing <code>tag</code>, malformed <code>observedAttributes</code>, etc.).
+          </p>
 
-                <h3 id="describe">describe(options)</h3>
-                <div class="signature">
-                    describe(options: DescribeOptions) =&gt; DescribeOptions
-                </div>
-                <p>
-                    Validates and returns a component description. As of
-                    <strong>v0.2.0</strong>, this function throws on invalid
-                    options (missing <code>tag</code>, malformed
-                    <code>observedAttributes</code>, etc.).
-                </p>
+          <h3 id="build">build(tagName, description)</h3>
+          <div class="signature">build(tagName: string, description: DescribeOptions) =&gt; string</div>
+          <p>
+            Registers a custom element with the browser&rsquo;s
+            <code>CustomElementRegistry</code> and returns the registered
+            tag name. The <code>tagName</code> must be lowercase and contain
+            a hyphen (e.g.&nbsp;<code>my-button</code>); otherwise
+            <code>build()</code> throws.
+          </p>
 
-                <h3 id="build">build(tagName, description)</h3>
-                <div class="signature">
-                    build(tagName: string, description: DescribeOptions) =&gt;
-                    string
-                </div>
-                <p>
-                    Registers a custom element with the browser&rsquo;s
-                    <code>CustomElementRegistry</code> and returns the
-                    registered tag name. The <code>tagName</code> must be
-                    lowercase and contain a hyphen
-                    (e.g.&nbsp;<code>my-button</code>); otherwise
-                    <code>build()</code> throws.
-                </p>
+          <h3 id="is-registered">isComponentRegistered(tagName)</h3>
+          <div class="signature">isComponentRegistered(tagName: string) =&gt; boolean</div>
+          <p>Returns <code>true</code> if a component with the given tag name has already been registered.</p>
 
-                <h3 id="is-registered">isComponentRegistered(tagName)</h3>
-                <div class="signature">
-                    isComponentRegistered(tagName: string) =&gt; boolean
-                </div>
-                <p>
-                    Returns <code>true</code> if a component with the given tag
-                    name has already been registered.
-                </p>
+          <h3 id="registry">getRegisteredComponents()</h3>
+          <div class="signature">getRegisteredComponents() =&gt; string[]</div>
+          <p>
+            Returns an array of every tag name registered through
+            <code>build()</code> in the current document.
+          </p>
 
-                <h3 id="registry">getRegisteredComponents()</h3>
-                <div class="signature">
-                    getRegisteredComponents() =&gt; string[]
-                </div>
-                <p>
-                    Returns an array of every tag name registered through
-                    <code>build()</code> in the current document.
-                </p>
+          <h3 id="describe-options">DescribeOptions</h3>
+          <p>The full shape accepted by <code>describe()</code>:</p>
+          <table class="api" aria-label="DescribeOptions fields">
+            <thead>
+              <tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>tag</td><td>string</td><td>&mdash;</td><td>HTML element used internally inside the Shadow DOM root (required).</td></tr>
+              <tr><td>theme</td><td>Record&lt;string, string&gt;</td><td><code>{}</code></td><td>CSS custom properties exposed as <code>--name</code> variables on the host.</td></tr>
+              <tr><td>styles</td><td>Record&lt;string, string&gt;</td><td><code>{}</code></td><td>Inline styles applied to the component&rsquo;s root element (camelCase keys).</td></tr>
+              <tr><td>className</td><td>string</td><td><code>""</code></td><td>Class name added to the root element.</td></tr>
+              <tr><td>attributes</td><td>Record&lt;string, string&gt;</td><td><code>{}</code></td><td>Static HTML attributes set on the root element.</td></tr>
+              <tr><td>template</td><td>string | TemplateFn</td><td><code>""</code></td><td>Inner HTML rendered inside the root element. Function form re-evaluates on every render.</td></tr>
+              <tr><td>children</td><td>DescribeOptions[]</td><td><code>[]</code></td><td>Nested component descriptions composed inside the root.</td></tr>
+              <tr><td>action</td><td>(event: Event) =&gt; void</td><td>&mdash;</td><td>Click handler attached to the root element.</td></tr>
+              <tr><td>events</td><td>Record&lt;string, Handler&gt;</td><td><code>{}</code></td><td>Delegated event handlers keyed by <code>"&lt;type&gt; &lt;selector&gt;"</code>.</td></tr>
+              <tr><td>props</td><td>Record&lt;string, PropDef&gt;</td><td><code>{}</code></td><td>Typed properties exposed on the host instance.</td></tr>
+              <tr><td>refs</td><td>Record&lt;string, string&gt;</td><td><code>{}</code></td><td>Map of name &rarr; CSS selector. Populated as <code>host.refs.&lt;name&gt;</code> after every render.</td></tr>
+              <tr><td>for</td><td>ListConfig</td><td>&mdash;</td><td>Keyed list rendering: <code>{ items, key, render }</code>.</td></tr>
+              <tr><td>if</td><td>(ctx) =&gt; boolean</td><td>&mdash;</td><td>Skip the subtree when the predicate returns false.</td></tr>
+              <tr><td>beforeMount</td><td>(this: HTMLElement) =&gt; void</td><td>&mdash;</td><td>Lifecycle hook called before the Shadow DOM is constructed.</td></tr>
+              <tr><td>afterMount</td><td>(this: HTMLElement) =&gt; void</td><td>&mdash;</td><td>Lifecycle hook called after the component is connected to the DOM.</td></tr>
+              <tr><td>afterRender</td><td>(this: HTMLElement) =&gt; void</td><td>&mdash;</td><td><strong>New in 1.1.0.</strong> Lifecycle hook called after every render.</td></tr>
+              <tr><td>unmount</td><td>(this: HTMLElement) =&gt; void</td><td>&mdash;</td><td>Lifecycle hook called on <code>disconnectedCallback</code>.</td></tr>
+              <tr><td>observedAttributes</td><td>string[]</td><td><code>[]</code></td><td>Explicit list of attributes that should trigger re-renders when changed.</td></tr>
+              <tr><td>formAssociated</td><td>boolean</td><td><code>false</code></td><td><strong>New in 0.4.0.</strong> Opt into the Form-Associated Custom Elements API.</td></tr>
+            </tbody>
+          </table>
 
-                <h3 id="describe-options">DescribeOptions</h3>
-                <p>The full shape accepted by <code>describe()</code>:</p>
-                <table class="api" aria-label="DescribeOptions fields">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Type</th>
-                            <th>Default</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>tag</td>
-                            <td>string</td>
-                            <td>&mdash;</td>
-                            <td>HTML element used internally inside the Shadow DOM root (required).</td>
-                        </tr>
-                        <tr>
-                            <td>theme</td>
-                            <td>Record&lt;string, string&gt;</td>
-                            <td><code>{}</code></td>
-                            <td>CSS custom properties exposed as <code>--name</code> variables on the host.</td>
-                        </tr>
-                        <tr>
-                            <td>styles</td>
-                            <td>Record&lt;string, string&gt;</td>
-                            <td><code>{}</code></td>
-                            <td>Inline styles applied to the component&rsquo;s root element (camelCase keys).</td>
-                        </tr>
-                        <tr>
-                            <td>className</td>
-                            <td>string</td>
-                            <td><code>""</code></td>
-                            <td>Class name added to the root element.</td>
-                        </tr>
-                        <tr>
-                            <td>attributes</td>
-                            <td>Record&lt;string, string&gt;</td>
-                            <td><code>{}</code></td>
-                            <td>Static HTML attributes set on the root element.</td>
-                        </tr>
-                        <tr>
-                            <td>template</td>
-                            <td>string</td>
-                            <td><code>""</code></td>
-                            <td>Inner HTML rendered inside the root element.</td>
-                        </tr>
-                        <tr>
-                            <td>children</td>
-                            <td>DescribeOptions[]</td>
-                            <td><code>[]</code></td>
-                            <td>Nested component descriptions composed inside the root.</td>
-                        </tr>
-                        <tr>
-                            <td>action</td>
-                            <td>(event: Event) =&gt; void</td>
-                            <td>&mdash;</td>
-                            <td>Click handler attached to the root element.</td>
-                        </tr>
-                        <tr>
-                            <td>emit</td>
-                            <td>Record&lt;string, EventInit&gt;</td>
-                            <td><code>{}</code></td>
-                            <td>Custom events the component dispatches; consumed via <code>emitEvent()</code>.</td>
-                        </tr>
-                        <tr>
-                            <td>beforeMount</td>
-                            <td>(this: HTMLElement) =&gt; void</td>
-                            <td>&mdash;</td>
-                            <td>Lifecycle hook called before the Shadow DOM is constructed.</td>
-                        </tr>
-                        <tr>
-                            <td>afterMount</td>
-                            <td>(this: HTMLElement) =&gt; void</td>
-                            <td>&mdash;</td>
-                            <td>Lifecycle hook called after the component is connected to the DOM.</td>
-                        </tr>
-                        <tr>
-                            <td>unmount</td>
-                            <td>(this: HTMLElement) =&gt; void</td>
-                            <td>&mdash;</td>
-                            <td><strong>New in 0.2.0.</strong> Lifecycle hook called on <code>disconnectedCallback</code>.</td>
-                        </tr>
-                        <tr>
-                            <td>observedAttributes</td>
-                            <td>string[]</td>
-                            <td><code>[]</code></td>
-                            <td><strong>New in 0.2.0.</strong> Explicit list of attributes that should trigger re-renders when changed.</td>
-                        </tr>
-                    </tbody>
-                </table>
+          <h3 id="instance-methods">Component instance methods</h3>
+          <p>Available as <code>this</code> inside lifecycle hooks and actions:</p>
+          <table class="api" aria-label="Component instance methods">
+            <thead>
+              <tr><th>Method</th><th>Returns</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>setState(key, value)</td><td>void</td><td>Stores a value in component state. <strong>In 0.2.0 this triggers an automatic re-render.</strong></td></tr>
+              <tr><td>getState(key)</td><td>unknown</td><td>Reads the current value for a state key.</td></tr>
+              <tr><td>emitEvent(name, data)</td><td>void</td><td>Dispatches a <code>CustomEvent</code> declared in <code>emit</code>, with <code>detail = data</code>.</td></tr>
+              <tr><td>render()</td><td>void</td><td>Manually re-renders the Shadow DOM. Rarely needed since <code>setState</code> handles this.</td></tr>
+              <tr><td>refs</td><td>Record&lt;string, Element | null&gt;</td><td><strong>New in 0.4.0.</strong> Live references populated from the <code>refs</code> selector map.</td></tr>
+              <tr><td>internals</td><td>ElementInternals?</td><td><strong>New in 0.4.0.</strong> Set when <code>formAssociated: true</code>.</td></tr>
+            </tbody>
+          </table>
+        </section>
 
-                <h3 id="instance-methods">Component instance methods</h3>
-                <p>Available as <code>this</code> inside lifecycle hooks and actions:</p>
-                <table class="api" aria-label="Component instance methods">
-                    <thead>
-                        <tr>
-                            <th>Method</th>
-                            <th>Returns</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>setState(key, value)</td>
-                            <td>void</td>
-                            <td>Stores a value in component state. <strong>In 0.2.0 this triggers an automatic re-render.</strong></td>
-                        </tr>
-                        <tr>
-                            <td>getState(key)</td>
-                            <td>unknown</td>
-                            <td>Reads the current value for a state key.</td>
-                        </tr>
-                        <tr>
-                            <td>emitEvent(name, data)</td>
-                            <td>void</td>
-                            <td>Dispatches a <code>CustomEvent</code> declared in <code>emit</code>, with <code>detail = data</code>.</td>
-                        </tr>
-                        <tr>
-                            <td>render()</td>
-                            <td>void</td>
-                            <td>Manually re-renders the Shadow DOM. Rarely needed since <code>setState</code> handles this.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+        <section id="lifecycle">
+          <h2>Lifecycle</h2>
+          <p>Tan Compose components follow a deterministic lifecycle. Hooks run in the order below:</p>
+          <ol>
+            <li><code>beforeMount</code> &mdash; runs before the Shadow DOM is constructed. Use it to read attributes or seed state.</li>
+            <li>DOM construction &mdash; the Shadow DOM, root element, theme variables, styles, and children are built.</li>
+            <li>Mounted &mdash; the element is connected (<code>connectedCallback</code>).</li>
+            <li><code>afterMount</code> &mdash; runs after the component is in the DOM. Safe place to attach listeners or call <code>setState</code>.</li>
+            <li>Updates &mdash; an attribute change in <code>observedAttributes</code> or a <code>setState</code> call triggers a re-render.</li>
+            <li><code>afterRender</code> &mdash; runs after every render (initial and subsequent). Use for imperative DOM work that needs to repeat.</li>
+            <li><code>unmount</code> &mdash; runs on <code>disconnectedCallback</code>. Use it to clean up timers and listeners.</li>
+          </ol>
+          <tc-callout variant="note" title="Tip">
+            Avoid mutating the Shadow DOM directly inside <code>afterMount</code> &mdash;
+            prefer <code>setState</code> so subsequent updates stay consistent.
+          </tc-callout>
+        </section>
 
-            <!-- Lifecycle -->
-            <section class="doc-section" id="lifecycle">
-                <h2>Lifecycle</h2>
-                <p>
-                    Tan Compose components follow a deterministic lifecycle.
-                    Hooks run in the order below:
-                </p>
-                <ol style="margin: 8px 0 14px 22px; color: var(--ink-soft);">
-                    <li><code>beforeMount</code> &mdash; runs before the Shadow DOM is constructed. Use it to read attributes or seed state.</li>
-                    <li>DOM construction &mdash; the Shadow DOM, root element, theme variables, styles, and children are built.</li>
-                    <li>Mounted &mdash; the element is connected (<code>connectedCallback</code>).</li>
-                    <li><code>afterMount</code> &mdash; runs after the component is in the DOM. Safe place to attach listeners or call <code>setState</code>.</li>
-                    <li>Updates &mdash; an attribute change in <code>observedAttributes</code> or a <code>setState</code> call triggers a re-render.</li>
-                    <li><code>unmount</code> &mdash; runs on <code>disconnectedCallback</code>. Use it to clean up timers and listeners.</li>
-                </ol>
-                <div class="callout">
-                    <strong>Tip:</strong> avoid mutating the Shadow DOM
-                    directly inside <code>afterMount</code> &mdash; prefer
-                    <code>setState</code> so subsequent updates stay
-                    consistent.
-                </div>
-            </section>
-
-            <!-- Reactivity -->
-            <section class="doc-section" id="reactivity">
-                <h2>Reactivity</h2>
-                <p>
-                    There are two ways to update a Tan Compose component after
-                    it has mounted:
-                </p>
-                <ul>
-                    <li>
-                        <strong>State</strong> &mdash; call
-                        <code>this.setState(key, value)</code>. As of
-                        <strong>0.2.0</strong>, every <code>setState</code>
-                        call triggers an automatic re-render of the Shadow DOM.
-                    </li>
-                    <li>
-                        <strong>Attributes</strong> &mdash; declare them
-                        explicitly in <code>observedAttributes</code>. Only
-                        attributes listed there will trigger a re-render when
-                        changed via <code>setAttribute()</code> or directly in
-                        markup.
-                    </li>
-                </ul>
-                <div class="code-block">
-                    <pre><code>const counter = describe({
-  tag: "div",
-  observedAttributes: ["count"],
-  template: "0",
+        <section id="reactivity">
+          <h2>Reactivity</h2>
+          <p>There are two ways to update a Tan Compose component after it has mounted:</p>
+          <ul>
+            <li><strong>State</strong> &mdash; call <code>this.setState(key, value)</code>. As of <strong>0.2.0</strong>, every <code>setState</code> call triggers an automatic re-render of the Shadow DOM.</li>
+            <li><strong>Attributes</strong> &mdash; declare them explicitly in <code>observedAttributes</code>. Only attributes listed there will trigger a re-render when changed via <code>setAttribute()</code> or directly in markup.</li>
+          </ul>
+          <tc-code language="ts" copy><span class="tc-kw">const</span> counter = describe({
+  tag: <span class="tc-str">"div"</span>,
+  observedAttributes: [<span class="tc-str">"count"</span>],
+  template: <span class="tc-str">"0"</span>,
   afterMount() {
-    this.setState("count", Number(this.getAttribute("count") ?? 0));
+    <span class="tc-kw">this</span>.setState(<span class="tc-str">"count"</span>, <span class="tc-kw">Number</span>(<span class="tc-kw">this</span>.getAttribute(<span class="tc-str">"count"</span>) ?? 0));
   },
 });
 
-build("my-counter", counter);</code></pre>
-                </div>
-            </section>
+build(<span class="tc-str">"my-counter"</span>, counter);</tc-code>
+        </section>
 
-            <!-- v0.3 features -->
-            <section class="doc-section" id="props">
-                <h2>Typed properties (0.3+)</h2>
-                <p>
-                    The <code>props</code> field declares typed properties on
-                    the host element. Setting one (<code>el.rows = […]</code>)
-                    triggers a re-render when the value differs.
-                    Initial values come from the matching attribute (string-coerced)
-                    when present, otherwise from <code>default</code>.
-                </p>
-
-<pre class="code-block"><code>build("user-card", describe({
+        <section id="props">
+          <h2>Typed properties (0.3+)</h2>
+          <p>
+            The <code>props</code> field declares typed properties on the host element.
+            Setting one (<code>el.rows = […]</code>) triggers a re-render when the value differs.
+            Initial values come from the matching attribute (string-coerced) when present, otherwise from <code>default</code>.
+          </p>
+          <tc-code language="ts" copy>build(<span class="tc-str">"user-card"</span>, describe({
   props: {
-    name: { type: "string", default: "Anonymous" },
-    age:  { type: "number", default: 0 },
-    open: { type: "boolean", default: false, reflect: true },
-    tags: { type: "json", default: [] },
+    name: { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">"Anonymous"</span> },
+    age:  { type: <span class="tc-str">"number"</span>, default: 0 },
+    open: { type: <span class="tc-str">"boolean"</span>, default: <span class="tc-kw">false</span>, reflect: <span class="tc-kw">true</span> },
+    tags: { type: <span class="tc-str">"json"</span>, default: [] },
   },
   template: ({ props }) =&gt;
     `&lt;h3&gt;${props.name}, ${props.age}&lt;/h3&gt;
-     ${props.open ? "&lt;span&gt;open&lt;/span&gt;" : ""}`,
-}));</code></pre>
+     ${props.open ? <span class="tc-str">"&lt;span&gt;open&lt;/span&gt;"</span> : <span class="tc-str">""</span>}`,
+}));</tc-code>
+          <h3>PropDef</h3>
+          <table class="api">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>type</td><td>"string" | "number" | "boolean" | "json"</td><td>How attribute strings coerce into the runtime value.</td></tr>
+              <tr><td>default</td><td>unknown</td><td>Used when the attribute is absent and no value has been set.</td></tr>
+              <tr><td>reflect</td><td>boolean</td><td>When true, setting the property mirrors the value to the matching attribute. Ignored for <code>json</code> props.</td></tr>
+            </tbody>
+          </table>
+          <tc-callout variant="info" title="Note">
+            Prop names are also added to the underlying <code>observedAttributes</code> list,
+            so an external <code>setAttribute</code> still updates the property (with type coercion).
+          </tc-callout>
+        </section>
 
-                <h3>PropDef</h3>
-                <table class="api">
-                    <thead>
-                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>type</td>
-                            <td>"string" | "number" | "boolean" | "json"</td>
-                            <td>How attribute strings coerce into the runtime value.</td>
-                        </tr>
-                        <tr>
-                            <td>default</td>
-                            <td>unknown</td>
-                            <td>Used when the attribute is absent and no value has been set.</td>
-                        </tr>
-                        <tr>
-                            <td>reflect</td>
-                            <td>boolean</td>
-                            <td>When true, setting the property mirrors the value to the matching attribute. Ignored for <code>json</code> props.</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <p class="callout">
-                    <strong>Note:</strong> Prop names are also added to the
-                    underlying <code>observedAttributes</code> list, so an
-                    external <code>setAttribute</code> still updates the
-                    property (with type coercion).
-                </p>
-            </section>
-
-            <section class="doc-section" id="template-fn">
-                <h2>Function templates (0.3+)</h2>
-                <p>
-                    <code>template</code> may be a function that receives the
-                    render context and returns an HTML string. It runs on
-                    every render, so any expression in scope (props, state)
-                    is implicitly reactive.
-                </p>
-
-<pre class="code-block"><code>describe({
-  props: { greeting: { type: "string", default: "hi" } },
+        <section id="template-fn">
+          <h2>Function templates (0.3+)</h2>
+          <p>
+            <code>template</code> may be a function that receives the render context
+            and returns an HTML string. It runs on every render, so any expression
+            in scope (props, state) is implicitly reactive.
+          </p>
+          <tc-code language="ts" copy>describe({
+  props: { greeting: { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">"hi"</span> } },
   template: ({ props, state }) =&gt;
     `&lt;p&gt;${props.greeting} #${state.tick ?? 0}&lt;/p&gt;`,
-});</code></pre>
+});</tc-code>
+          <h3>ComponentCtx</h3>
+          <table class="api">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>props</td><td>Readonly&lt;Record&lt;string, unknown&gt;&gt;</td><td>Snapshot of current property values.</td></tr>
+              <tr><td>state</td><td>Readonly&lt;Record&lt;string, unknown&gt;&gt;</td><td>Snapshot of current state values.</td></tr>
+              <tr><td>host</td><td>HTMLElement</td><td>The custom element instance.</td></tr>
+              <tr><td>refs</td><td>Record&lt;string, Element | null&gt;</td><td>Live references from the <code>refs</code> selector map.</td></tr>
+              <tr><td>setState</td><td>(key, value) =&gt; void</td><td>Sets state and re-renders if the value changed.</td></tr>
+              <tr><td>getState</td><td>&lt;T&gt;(key) =&gt; T | undefined</td><td>Reads a state value.</td></tr>
+              <tr><td>emit</td><td>(name, detail?) =&gt; void</td><td>Dispatches a bubbling, composed CustomEvent from the host.</td></tr>
+            </tbody>
+          </table>
+          <tc-callout variant="warning" title="Security">
+            Template strings are inserted via <code>innerHTML</code>. Never interpolate
+            untrusted input. Use the DOM API in <code>afterMount</code> if you need to
+            insert user content as text.
+          </tc-callout>
+        </section>
 
-                <h3>ComponentCtx</h3>
-                <table class="api">
-                    <thead>
-                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>props</td><td>Readonly&lt;Record&lt;string, unknown&gt;&gt;</td><td>Snapshot of current property values.</td></tr>
-                        <tr><td>state</td><td>Readonly&lt;Record&lt;string, unknown&gt;&gt;</td><td>Snapshot of current state values.</td></tr>
-                        <tr><td>host</td><td>HTMLElement</td><td>The custom element instance.</td></tr>
-                        <tr><td>setState</td><td>(key, value) =&gt; void</td><td>Sets state and re-renders if the value changed.</td></tr>
-                        <tr><td>getState</td><td>&lt;T&gt;(key) =&gt; T | undefined</td><td>Reads a state value.</td></tr>
-                        <tr><td>emit</td><td>(name, detail?) =&gt; void</td><td>Dispatches a bubbling, composed CustomEvent from the host.</td></tr>
-                    </tbody>
-                </table>
-
-                <p class="callout">
-                    <strong>Security:</strong> Template strings are inserted
-                    via <code>innerHTML</code>. Never interpolate untrusted
-                    input. Use the DOM API in <code>afterMount</code> if you
-                    need to insert user content as text.
-                </p>
-            </section>
-
-            <section class="doc-section" id="events">
-                <h2>Event delegation (0.3+)</h2>
-                <p>
-                    The <code>events</code> field maps
-                    <code>"&lt;event-type&gt; &lt;css-selector&gt;"</code>
-                    keys to handlers. One listener per event type is attached
-                    at the shadow root; matches are resolved via
-                    <code>composedPath()</code>. Listeners are torn down on
-                    disconnect.
-                </p>
-
-<pre class="code-block"><code>describe({
+        <section id="events">
+          <h2>Event delegation (0.3+)</h2>
+          <p>
+            The <code>events</code> field maps <code>"&lt;event-type&gt; &lt;css-selector&gt;"</code>
+            keys to handlers. One listener per event type is attached at the shadow root;
+            matches are resolved via <code>composedPath()</code>. Listeners are torn down on disconnect.
+          </p>
+          <tc-code language="ts" copy>describe({
   template: `
     &lt;button class="bump"&gt;+&lt;/button&gt;
     &lt;button class="reset"&gt;reset&lt;/button&gt;
   `,
   events: {
-    "click .bump":  (_e, ctx) =&gt; ctx.setState("count", (ctx.state.count ?? 0) + 1),
-    "click .reset": (_e, ctx) =&gt; ctx.setState("count", 0),
+    <span class="tc-str">"click .bump"</span>:  (_e, ctx) =&gt; ctx.setState(<span class="tc-str">"count"</span>, (ctx.state.count ?? 0) + 1),
+    <span class="tc-str">"click .reset"</span>: (_e, ctx) =&gt; ctx.setState(<span class="tc-str">"count"</span>, 0),
   },
-});</code></pre>
+});</tc-code>
+          <p>
+            Handler signature is <code>(event: Event, ctx: ComponentCtx) =&gt; void</code>.
+            Selector-less keys (e.g. <code>"submit"</code>) match events that target the host directly.
+          </p>
+        </section>
 
-                <p>
-                    Handler signature is
-                    <code>(event: Event, ctx: ComponentCtx) =&gt; void</code>.
-                    Selector-less keys (e.g. <code>"submit"</code>) match
-                    events that target the host directly.
-                </p>
-            </section>
-
-            <section class="doc-section" id="for">
-                <h2>Keyed list rendering (0.3+)</h2>
-                <p>
-                    A child describe can replace <code>children</code> with
-                    <code>for: { items, key, render }</code>. The renderer
-                    keeps a per-block cache keyed by <code>key(item)</code>
-                    and reuses DOM nodes between renders when item identity
-                    is unchanged. Stale items have their cleanups run.
-                </p>
-
-<pre class="code-block"><code>describe({
-  tag: "tbody",
-  for: {
+        <section id="for">
+          <h2>Keyed list rendering (0.3+)</h2>
+          <p>
+            A child describe can take <code>for: { items, key, render }</code>.
+            The renderer keeps a per-block cache keyed by <code>key(item)</code>
+            and reuses DOM nodes between renders when item identity is unchanged.
+            Stale items have their cleanups run.
+          </p>
+          <tc-code language="ts" copy>describe({
+  tag: <span class="tc-str">"tbody"</span>,
+  <span class="tc-kw">for</span>: {
     items: ({ props }) =&gt; props.rows,
     key:   (row) =&gt; row.id,
     render: (row) =&gt; describe({
-      tag: "tr",
+      tag: <span class="tc-str">"tr"</span>,
       template: `&lt;td&gt;${row.name}&lt;/td&gt;&lt;td&gt;${row.email}&lt;/td&gt;`,
     }),
   },
-});</code></pre>
+});</tc-code>
+          <h3>ListConfig</h3>
+          <table class="api">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>items</td><td>(ctx) =&gt; readonly T[]</td><td>Returns the current items. Recomputed on every parent render.</td></tr>
+              <tr><td>key</td><td>(item, index) =&gt; string | number</td><td>Stable identity used for DOM-node reuse.</td></tr>
+              <tr><td>render</td><td>(item, index, ctx) =&gt; DescribeOptions</td><td>Returns the description for one item.</td></tr>
+            </tbody>
+          </table>
+          <tc-callout variant="warning" title="Identity matters">
+            The cache reuses a node only when <code>Object.is(prevItem, newItem)</code>.
+            If you mutate items in place the renderer can't tell that the data changed;
+            replace the array (and any changed entries) with new references instead.
+          </tc-callout>
+        </section>
 
-                <h3>ListConfig</h3>
-                <table class="api">
-                    <thead>
-                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>items</td><td>(ctx) =&gt; readonly T[]</td><td>Returns the current items. Recomputed on every parent render.</td></tr>
-                        <tr><td>key</td><td>(item, index) =&gt; string | number</td><td>Stable identity used for DOM-node reuse.</td></tr>
-                        <tr><td>render</td><td>(item, index, ctx) =&gt; DescribeOptions</td><td>Returns the description for one item.</td></tr>
-                    </tbody>
-                </table>
+        <section id="if">
+          <h2>Conditional rendering (0.3+)</h2>
+          <p>
+            A child describe can take <code>if: (ctx) =&gt; boolean</code>.
+            When the predicate returns false, the subtree is omitted from the
+            rendered output (no DOM created at all).
+          </p>
+          <tc-code language="ts" copy>describe({
+  tag: <span class="tc-str">"div"</span>,
+  className: <span class="tc-str">"empty"</span>,
+  template: <span class="tc-str">"No results"</span>,
+  <span class="tc-kw">if</span>: ({ props }) =&gt; props.rows.length === 0,
+});</tc-code>
+        </section>
 
-                <p class="callout">
-                    <strong>Identity matters.</strong> The cache reuses a node
-                    only when <code>Object.is(prevItem, newItem)</code>. If
-                    you mutate items in place the renderer can't tell that the
-                    data changed; replace the array (and any changed entries)
-                    with new references instead.
-                </p>
-            </section>
-
-            <section class="doc-section" id="if">
-                <h2>Conditional rendering (0.3+)</h2>
-                <p>
-                    A child describe can take
-                    <code>if: (ctx) =&gt; boolean</code>. When the predicate
-                    returns false, the subtree is omitted from the rendered
-                    output (no DOM created at all).
-                </p>
-
-<pre class="code-block"><code>describe({
-  tag: "div",
-  className: "empty",
-  template: "No results",
-  if: ({ props }) =&gt; props.rows.length === 0,
-});</code></pre>
-            </section>
-
-            <!-- Datatable example -->
-            <section class="doc-section" id="datatable">
-                <h2>Putting it together: a real datatable</h2>
-                <p>
-                    The features above compose into a paginated, filterable,
-                    sortable datatable. Open the
-                    <a href="./examples.html#datatable">examples page</a>
-                    for the live version; here is the abridged source:
-                </p>
-
-<pre class="code-block"><code>build("data-table", describe({
+        <section id="datatable">
+          <h2>Putting it together: a real datatable</h2>
+          <p>
+            The features above compose into a paginated, filterable, sortable
+            datatable. Open the
+            <a href="./examples.html#datatable">examples page</a> for the live
+            version; here is the abridged source:
+          </p>
+          <tc-code language="ts" copy>build(<span class="tc-str">"data-table"</span>, describe({
   props: {
-    rows:    { type: "json", default: [] },
-    columns: { type: "json", default: [] },
-    pageSize:{ type: "number", default: 10 },
+    rows:     { type: <span class="tc-str">"json"</span>, default: [] },
+    columns:  { type: <span class="tc-str">"json"</span>, default: [] },
+    pageSize: { type: <span class="tc-str">"number"</span>, default: 10 },
   },
   template: ({ state, props }) =&gt; `
-    &lt;input class="filter" placeholder="Search..." value="${state.q ?? ""}" /&gt;
+    &lt;input class="filter" placeholder="Search..." value="${state.q ?? <span class="tc-str">""</span>}" /&gt;
     &lt;table&gt;
       &lt;thead&gt;&lt;tr&gt;
         ${(props.columns ?? []).map((c) =&gt;
-          `&lt;th data-col="${c.key}"&gt;${c.label}&lt;/th&gt;`).join("")}
+          `&lt;th data-col="${c.key}"&gt;${c.label}&lt;/th&gt;`).join(<span class="tc-str">""</span>)}
       &lt;/tr&gt;&lt;/thead&gt;
-      &lt;tbody data-rows&gt;&lt;/tbody&gt;
     &lt;/table&gt;
-    &lt;footer class="pager"&gt;
-      Page ${(state.page ?? 0) + 1} of ${pageCount(state, props)}
-      &lt;button class="prev"&gt;&lt;&lt;/button&gt;
-      &lt;button class="next"&gt;&gt;&lt;/button&gt;
-    &lt;/footer&gt;
   `,
   events: {
-    "input .filter": (e, ctx) =&gt; {
-      ctx.setState("q", e.target.value);
-      ctx.setState("page", 0);
+    <span class="tc-str">"input .filter"</span>: (e, ctx) =&gt; {
+      ctx.setState(<span class="tc-str">"q"</span>, e.target.value);
+      ctx.setState(<span class="tc-str">"page"</span>, 0);
     },
-    "click .prev": (_e, ctx) =&gt; ctx.setState("page", Math.max(0, (ctx.state.page ?? 0) - 1)),
-    "click .next": (_e, ctx) =&gt; ctx.setState("page", (ctx.state.page ?? 0) + 1),
-    "click th[data-col]": (e, ctx) =&gt; ctx.setState("sortBy", e.target.dataset.col),
   },
   children: [
     describe({
-      tag: "div",
-      className: "empty",
-      template: "No results.",
-      if: ({ state, props }) =&gt; visibleRows(state, props).length === 0,
-    }),
-    describe({
-      tag: "tr",
-      for: {
+      tag: <span class="tc-str">"tbody"</span>,
+      <span class="tc-kw">for</span>: {
         items:  ({ state, props }) =&gt; visibleRows(state, props),
         key:    (row) =&gt; row.id,
         render: (row, _i, { props }) =&gt; describe({
-          tag: "tr",
+          tag: <span class="tc-str">"tr"</span>,
           template: (props.columns ?? []).map((c) =&gt;
-            `&lt;td&gt;${row[c.key]}&lt;/td&gt;`).join(""),
+            `&lt;td&gt;${row[c.key]}&lt;/td&gt;`).join(<span class="tc-str">""</span>),
         }),
       },
     }),
   ],
-}));</code></pre>
+}));</tc-code>
+          <p>
+            Because <code>for</code> is keyed by <code>row.id</code>, typing in
+            the search box re-uses the same row nodes &mdash; the renderer just
+            updates which slice is visible. No virtual DOM, no diff library: just
+            the platform plus a couple hundred lines of glue.
+          </p>
+        </section>
 
-                <p>
-                    <code>visibleRows()</code> applies filter, sort, and
-                    pagination to <code>props.rows</code>. Because
-                    <code>for</code> is keyed by <code>row.id</code>, typing
-                    in the search box re-uses the same 10 row nodes &mdash; the
-                    renderer just updates which 10 are visible. No virtual
-                    DOM, no diff library: just the platform plus a couple
-                    hundred lines of glue.
-                </p>
-            </section>
-
-            <!-- v0.4 features -->
-            <section class="doc-section" id="refs">
-                <h2>Refs (0.4+)</h2>
-                <p>
-                    The <code>refs</code> field is a name → CSS-selector map.
-                    After every render, the matching shadow-root elements are
-                    exposed as <code>host.refs.&lt;name&gt;</code> and
-                    <code>ctx.refs.&lt;name&gt;</code>. Selectors that match
-                    nothing yield <code>null</code>. Refs are re-queried on
-                    every render so they always point at the current DOM.
-                </p>
-
-<pre class="code-block"><code>build("search-box", describe({
-  refs: { input: ".q", clear: ".x" },
+        <section id="refs">
+          <h2>Refs (0.4+)</h2>
+          <p>
+            The <code>refs</code> field is a name &rarr; CSS-selector map.
+            After every render, the matching shadow-root elements are exposed
+            as <code>host.refs.&lt;name&gt;</code> and <code>ctx.refs.&lt;name&gt;</code>.
+            Selectors that match nothing yield <code>null</code>. Refs are re-queried
+            on every render so they always point at the current DOM.
+          </p>
+          <tc-code language="ts" copy>build(<span class="tc-str">"search-box"</span>, describe({
+  refs: { input: <span class="tc-str">".q"</span>, clear: <span class="tc-str">".x"</span> },
   template: `&lt;input class="q" /&gt;&lt;button class="x"&gt;clear&lt;/button&gt;`,
   events: {
-    "click .x": (_e, ctx) =&gt; {
-      <span style="color: #8a8678">// ctx.refs.input is the live &lt;input&gt;</span>
-      (ctx.refs.input as HTMLInputElement).value = "";
-      (ctx.refs.input as HTMLInputElement).focus();
+    <span class="tc-str">"click .x"</span>: (_e, ctx) =&gt; {
+      <span class="tc-com">// ctx.refs.input is the live &lt;input&gt;</span>
+      (ctx.refs.input <span class="tc-kw">as</span> HTMLInputElement).value = <span class="tc-str">""</span>;
+      (ctx.refs.input <span class="tc-kw">as</span> HTMLInputElement).focus();
     },
   },
-}));</code></pre>
+}));</tc-code>
+          <tc-callout variant="note" title="Tip">
+            Use refs whenever you find yourself calling <code>this.shadowRoot.querySelector(...)</code>
+            in <code>afterMount</code>. Refs are cheaper, declarative, and stay in sync with re-renders automatically.
+          </tc-callout>
+        </section>
 
-                <p class="callout">
-                    <strong>Tip:</strong> use refs whenever you find yourself
-                    calling <code>this.shadowRoot.querySelector(...)</code> in
-                    <code>afterMount</code>. Refs are cheaper, declarative,
-                    and stay in sync with re-renders automatically.
-                </p>
-            </section>
-
-            <section class="doc-section" id="form-associated">
-                <h2>Form-Associated Custom Elements (0.4+)</h2>
-                <p>
-                    Set <code>formAssociated: true</code> and the host calls
-                    <code>attachInternals()</code> automatically. If you
-                    declare a <code>value</code> prop, its setter syncs to
-                    <code>internals.setFormValue</code> so the host
-                    participates in form submissions and the validity API.
-                </p>
-
-<pre class="code-block"><code>build("tc-input", describe({
-  formAssociated: true,
+        <section id="form-associated">
+          <h2>Form-Associated Custom Elements (0.4+)</h2>
+          <p>
+            Set <code>formAssociated: true</code> and the host calls
+            <code>attachInternals()</code> automatically. If you declare a
+            <code>value</code> prop, its setter syncs to <code>internals.setFormValue</code>
+            so the host participates in form submissions and the validity API.
+          </p>
+          <tc-code language="ts" copy>build(<span class="tc-str">"tc-input"</span>, describe({
+  formAssociated: <span class="tc-kw">true</span>,
   props: {
-    value: { type: "string", default: "" },
-    placeholder: { type: "string", default: "" },
+    value:       { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">""</span> },
+    placeholder: { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">""</span> },
   },
   template: ({ props }) =&gt;
     `&lt;input class="q" placeholder="${props.placeholder}" value="${props.value}" /&gt;`,
-  refs: { input: ".q" },
+  refs: { input: <span class="tc-str">".q"</span> },
   events: {
-    "input .q": (e, ctx) =&gt; {
-      ctx.host.value = (e.target as HTMLInputElement).value;
+    <span class="tc-str">"input .q"</span>: (e, ctx) =&gt; {
+      ctx.host.value = (e.target <span class="tc-kw">as</span> HTMLInputElement).value;
     },
   },
   formResetCallback() {
-    <span style="color: #8a8678">// fired when the owning &lt;form&gt; is reset</span>
-    (this as unknown as { value: string }).value = "";
+    <span class="tc-com">// fired when the owning &lt;form&gt; is reset</span>
+    (<span class="tc-kw">this</span> <span class="tc-kw">as</span> <span class="tc-kw">unknown</span> <span class="tc-kw">as</span> { value: <span class="tc-kw">string</span> }).value = <span class="tc-str">""</span>;
   },
-}));</code></pre>
+}));</tc-code>
+          <p>
+            The internals are exposed at <code>host.internals</code> so you can
+            call <code>setValidity()</code>, <code>setFormValue()</code> directly,
+            or check <code>internals.form</code>.
+          </p>
+          <h3>Lifecycle hooks</h3>
+          <table class="api">
+            <thead><tr><th>Hook</th><th>Fires on</th></tr></thead>
+            <tbody>
+              <tr><td>formAssociatedCallback(form)</td><td>Element associated with a form (or moved between forms).</td></tr>
+              <tr><td>formDisabledCallback(disabled)</td><td>Disabled state changes (e.g. via parent fieldset).</td></tr>
+              <tr><td>formResetCallback()</td><td>Owning form is reset.</td></tr>
+              <tr><td>formStateRestoreCallback(state, mode)</td><td>State restored on history navigation or autocomplete.</td></tr>
+            </tbody>
+          </table>
+        </section>
 
-                <p>
-                    The internals are exposed at <code>host.internals</code>
-                    so you can call <code>setValidity()</code>,
-                    <code>setFormValue()</code> directly, or check
-                    <code>internals.form</code>.
-                </p>
+        <section id="adopted-styles">
+          <h2>Adopted stylesheets (0.4+)</h2>
+          <p>
+            <code>theme</code> and <code>styles</code> are compiled into
+            <code>CSSStyleSheet</code> objects <strong>once per registered tag</strong>
+            and applied to each instance via <code>shadowRoot.adoptedStyleSheets</code>.
+            100 instances of the same tag share 1&ndash;2 sheets instead of 100 inline
+            <code>&lt;style&gt;</code> elements.
+          </p>
+          <p>
+            Falls back to per-instance <code>&lt;style&gt;</code> tags when
+            constructable stylesheets aren't available. The change is invisible
+            to user code &mdash; same CSS, same theming, less work for the renderer.
+          </p>
+          <tc-callout variant="info" title="When this matters">
+            A long list using <code>for: { ... }</code> with rows that are
+            themselves custom elements. Before 0.4, every row got its own copy
+            of the stylesheet; now they share.
+          </tc-callout>
+        </section>
 
-                <h3>Lifecycle hooks</h3>
-                <table class="api">
-                    <thead>
-                        <tr><th>Hook</th><th>Fires on</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>formAssociatedCallback(form)</td><td>Element associated with a form (or moved between forms).</td></tr>
-                        <tr><td>formDisabledCallback(disabled)</td><td>Disabled state changes (e.g. via parent fieldset).</td></tr>
-                        <tr><td>formResetCallback()</td><td>Owning form is reset.</td></tr>
-                        <tr><td>formStateRestoreCallback(state, mode)</td><td>State restored on history navigation or autocomplete.</td></tr>
-                    </tbody>
-                </table>
-            </section>
+        <section id="migration">
+          <h2>Migration: 0.1.x &rarr; 0.2.0</h2>
+          <p>Version 0.2.0 is a minor release with breaking changes. Review each item below before upgrading:</p>
+          <ul>
+            <li><strong>Attribute reactivity is now opt-in.</strong> Add a string array to <code>observedAttributes</code> to receive re-renders. The old behavior of inferring observed attributes from the <code>attributes</code> keys has been removed.</li>
+            <li><strong><code>setState</code> auto-renders.</strong> You no longer need to call <code>render()</code> manually after updating state.</li>
+            <li><strong><code>describe()</code> validates input.</strong> Invalid options (missing <code>tag</code>, non-array <code>observedAttributes</code>, non-function lifecycle hooks) now throw at description time.</li>
+            <li><strong><code>build()</code> validates the tag name.</strong> The first argument must be lowercase and contain a hyphen. Names like <code>MyButton</code> or <code>button</code> are rejected.</li>
+            <li><strong>New <code>unmount</code> lifecycle hook.</strong> Pair it with <code>afterMount</code> for cleanup on <code>disconnectedCallback</code>.</li>
+          </ul>
+        </section>
 
-            <section class="doc-section" id="adopted-styles">
-                <h2>Adopted stylesheets (0.4+)</h2>
-                <p>
-                    <code>theme</code> and <code>styles</code> are compiled
-                    into <code>CSSStyleSheet</code> objects <strong>once per
-                    registered tag</strong> and applied to each instance via
-                    <code>shadowRoot.adoptedStyleSheets</code>. 100 instances
-                    of the same tag share 1–2 sheets instead of 100 inline
-                    <code>&lt;style&gt;</code> elements.
-                </p>
-                <p>
-                    Falls back to per-instance <code>&lt;style&gt;</code>
-                    tags when constructable stylesheets aren't available.
-                    The change is invisible to user code &mdash; same CSS,
-                    same theming, less work for the renderer.
-                </p>
-                <p class="callout">
-                    <strong>When this matters:</strong> a long list using
-                    <code>for: { ... }</code> with rows that are themselves
-                    custom elements. Before 0.4, every row got its own copy
-                    of the stylesheet; now they share.
-                </p>
-            </section>
+        <section id="migration-0-3">
+          <h2>Migration: 0.2.x &rarr; 0.3.0</h2>
+          <p>Version 0.3.0 is additive &mdash; existing 0.2.x code continues to work. To opt in to the new features:</p>
+          <ul>
+            <li><strong>Pass complex data via properties, not attributes.</strong> Add a <code>props</code> map and assign on the instance: <code>el.rows = […]</code>. JSON props are parsed from attributes when present and serialized only on read.</li>
+            <li><strong>Use function templates for derived text.</strong> Replace template strings that hard-code values with <code>template: ({ props, state }) =&gt; "..."</code> so changes flow through automatically.</li>
+            <li><strong>Replace manual <code>afterMount</code> wiring with <code>events</code>.</strong> Selector-keyed handlers attach once and clean up on disconnect, no per-render <code>addEventListener</code> calls.</li>
+            <li><strong>Use <code>for</code> for any list of three or more items.</strong> It's the only path to keyed DOM reuse, which matters the moment you have a filter input over a list.</li>
+          </ul>
+        </section>
 
-            <!-- Migration -->
-            <section class="doc-section" id="migration">
-                <h2>Migration: 0.1.x &rarr; 0.2.0</h2>
-                <p>
-                    Version 0.2.0 is a minor release with breaking changes.
-                    Review each item below before upgrading:
-                </p>
-                <ul>
-                    <li>
-                        <strong>Attribute reactivity is now opt-in.</strong>
-                        Add a string array to <code>observedAttributes</code>
-                        to receive re-renders. The old behavior of inferring
-                        observed attributes from the <code>attributes</code>
-                        keys has been removed.
-                    </li>
-                    <li>
-                        <strong><code>setState</code> auto-renders.</strong>
-                        You no longer need to call <code>render()</code>
-                        manually after updating state.
-                    </li>
-                    <li>
-                        <strong><code>describe()</code> validates input.</strong>
-                        Invalid options (missing <code>tag</code>, non-array
-                        <code>observedAttributes</code>, non-function lifecycle
-                        hooks) now throw at description time.
-                    </li>
-                    <li>
-                        <strong><code>build()</code> validates the tag name.</strong>
-                        The first argument must be lowercase and contain a
-                        hyphen. Names like <code>MyButton</code> or
-                        <code>button</code> are rejected.
-                    </li>
-                    <li>
-                        <strong>New <code>unmount</code> lifecycle hook.</strong>
-                        Pair it with <code>afterMount</code> for cleanup on
-                        <code>disconnectedCallback</code>.
-                    </li>
-                </ul>
-            </section>
+        <section id="migration-0-4">
+          <h2>Migration: 0.3.x &rarr; 0.4.0</h2>
+          <p>Additive release. Existing 0.3.x code continues to work. Opt in to the new features as you need them:</p>
+          <ul>
+            <li><strong>Replace <code>this.shadowRoot.querySelector</code> with <code>refs</code>.</strong> Declare the selectors once, get fresh references on every render.</li>
+            <li><strong>Add <code>formAssociated: true</code> + a <code>value</code> prop</strong> to anything that represents a form field. It will start submitting with <code>&lt;form&gt;</code> automatically.</li>
+            <li><strong>No code change is required for adopted stylesheets</strong> &mdash; the renderer picks the optimal path automatically wherever <code>CSSStyleSheet.replaceSync</code> is supported.</li>
+          </ul>
+        </section>
 
-            <section class="doc-section" id="migration-0-3">
-                <h2>Migration: 0.2.x &rarr; 0.3.0</h2>
-                <p>
-                    Version 0.3.0 is additive &mdash; existing 0.2.x code
-                    continues to work. To opt in to the new features:
-                </p>
-                <ul>
-                    <li>
-                        <strong>Pass complex data via properties, not attributes.</strong>
-                        Add a <code>props</code> map and assign on the
-                        instance: <code>el.rows = […]</code>. JSON props
-                        are parsed from attributes when present and serialized
-                        only on read.
-                    </li>
-                    <li>
-                        <strong>Use function templates for derived text.</strong>
-                        Replace template strings that hard-code values with
-                        <code>template: ({ props, state }) =&gt; "..."</code>
-                        so changes flow through automatically.
-                    </li>
-                    <li>
-                        <strong>Replace manual <code>afterMount</code> wiring with <code>events</code>.</strong>
-                        Selector-keyed handlers attach once and clean up on
-                        disconnect, no per-render <code>addEventListener</code>
-                        calls.
-                    </li>
-                    <li>
-                        <strong>Use <code>for</code> for any list of three or more items.</strong>
-                        It's the only path to keyed DOM reuse, which matters
-                        the moment you have a filter input over a list.
-                    </li>
-                </ul>
-            </section>
+        <section id="migration-1-0">
+          <h2>Migration: 0.4.x &rarr; 1.0.0</h2>
+          <p>The 1.0 release is mostly additive. One subtle change to be aware of:</p>
+          <ul>
+            <li><strong><code>for:</code> now wraps in an element.</strong> If you had a child describe with ONLY <code>for:</code> (no other fields) and relied on items appearing ungrouped, they're now wrapped in a <code>&lt;div&gt;</code> by default. Set <code>tag</code> to override (e.g. <code>tag: "tbody"</code> when the parent is a <code>&lt;table&gt;</code>).</li>
+            <li><strong><code>children</code> + <code>for:</code> can coexist.</strong> Code that caught the old <em>"cannot set both"</em> TypeError can drop the special case.</li>
+          </ul>
+        </section>
+      </article>
 
-            <section class="doc-section" id="migration-0-4">
-                <h2>Migration: 0.3.x &rarr; 0.4.0</h2>
-                <p>
-                    Additive release. Existing 0.3.x code continues to work.
-                    Opt in to the new features as you need them:
-                </p>
-                <ul>
-                    <li>
-                        <strong>Replace
-                            <code>this.shadowRoot.querySelector</code> with
-                            <code>refs</code>.</strong>
-                        Declare the selectors once, get fresh references on
-                        every render.
-                    </li>
-                    <li>
-                        <strong>Add
-                            <code>formAssociated: true</code> + a
-                            <code>value</code> prop</strong> to anything that
-                        represents a form field. It will start submitting
-                        with <code>&lt;form&gt;</code> automatically.
-                    </li>
-                    <li>
-                        <strong>No code change is required for adopted
-                            stylesheets</strong> &mdash; the renderer picks
-                        the optimal path automatically wherever
-                        <code>CSSStyleSheet.replaceSync</code> is supported.
-                    </li>
-                </ul>
-            </section>
-        </main>
+      <aside class="toc-rail">
+        <tc-toc target="#content" levels="h2,h3" label="On this page"></tc-toc>
+      </aside>
+    </main>
 
-        <footer>
-            <div class="container">
-                <p>
-                    &copy; 2026 Tan Compose &middot; MIT License &middot;
-                    <a
-                        href="https://github.com/ra9/tan-compose"
-                        target="_blank"
-                        rel="noopener"
-                        >GitHub</a
-                    >
-                    &middot;
-                    <a
-                        href="https://jsr.io/@ra9/tan-compose"
-                        target="_blank"
-                        rel="noopener"
-                        >JSR</a
-                    >
-                </p>
-            </div>
-        </footer>
-    </body>
+    <site-footer></site-footer>
+  </body>
 </html>
