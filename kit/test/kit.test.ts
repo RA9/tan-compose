@@ -250,6 +250,103 @@ test("tc-modal: dispatching tc-close when API closes the dialog programmatically
   document.body.removeChild(el);
 });
 
+test("tc-checkbox: form-associated; toggling fires tc-change and updates checked", () => {
+  if (typeof HTMLElement.prototype.attachInternals !== "function") return;
+  const el = document.createElement(tags.checkbox) as HTMLElement & {
+    checked: boolean;
+    label: string;
+    internals?: ElementInternals;
+  };
+  el.label = "Subscribe";
+  document.body.appendChild(el);
+  assert(el.internals);
+  let last: { checked: boolean } | null = null;
+  el.addEventListener("tc-change", (e) => {
+    last = (e as CustomEvent).detail;
+  });
+  const inp = el.shadowRoot!.querySelector(".cb") as HTMLInputElement;
+  inp.checked = true;
+  inp.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
+  assertEquals(el.checked, true);
+  assertEquals((last as unknown as { checked: boolean }).checked, true);
+  document.body.removeChild(el);
+});
+
+test("tc-switch: clicking the track flips checked and emits tc-change", () => {
+  if (typeof HTMLElement.prototype.attachInternals !== "function") return;
+  const el = document.createElement(tags["switch"]) as HTMLElement & {
+    checked: boolean;
+  };
+  document.body.appendChild(el);
+  let count = 0;
+  el.addEventListener("tc-change", () => {
+    count++;
+  });
+  const track = () => el.shadowRoot!.querySelector(".track") as HTMLElement;
+  track().click();
+  assertEquals(el.checked, true);
+  track().click();
+  assertEquals(el.checked, false);
+  assertEquals(count, 2);
+  document.body.removeChild(el);
+});
+
+test("tc-card renders title/subtitle and applies bordered/elevated classes", () => {
+  const el = document.createElement(tags.card) as HTMLElement & {
+    title: string;
+    subtitle: string;
+    elevated: boolean;
+  };
+  el.title = "Hello";
+  el.subtitle = "world";
+  el.elevated = true;
+  document.body.appendChild(el);
+  const root = el.shadowRoot!;
+  const card = root.querySelector(".card") as HTMLElement;
+  assert(card.classList.contains("bordered"));
+  assert(card.classList.contains("elevated"));
+  assert(card.classList.contains("padded"));
+  assertEquals(root.querySelector(".title")?.textContent, "Hello");
+  assertEquals(root.querySelector(".subtitle")?.textContent, "world");
+  document.body.removeChild(el);
+});
+
+test("tc-badge applies variant + size classes and renders slotted content", () => {
+  const el = document.createElement(tags.badge) as HTMLElement & {
+    variant: string;
+    size: string;
+    pill: boolean;
+  };
+  el.variant = "success";
+  el.size = "sm";
+  el.pill = true;
+  el.textContent = "live";
+  document.body.appendChild(el);
+  const badge = el.shadowRoot!.querySelector(".badge") as HTMLElement;
+  assert(badge.classList.contains("v-success"));
+  assert(badge.classList.contains("s-sm"));
+  assert(badge.classList.contains("pill"));
+  document.body.removeChild(el);
+});
+
+test("tc-skeleton applies width/height inline styles and pulse class by default", () => {
+  const el = document.createElement(tags.skeleton) as HTMLElement & {
+    width: string;
+    height: string;
+    rounded: boolean;
+  };
+  el.width = "120px";
+  el.height = "12px";
+  el.rounded = true;
+  document.body.appendChild(el);
+  const bone = el.shadowRoot!.querySelector(".bone") as HTMLElement;
+  assert(bone.classList.contains("pulse"));
+  assert(bone.classList.contains("round"));
+  assertEquals(bone.style.width, "120px");
+  assertEquals(bone.style.height, "12px");
+  document.body.removeChild(el);
+});
+
 test("tc-table: sort header click toggles asc → desc → none", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<Record<string, unknown>>;

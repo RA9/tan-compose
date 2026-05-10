@@ -21,20 +21,30 @@
 import { tagName as buttonTag } from "./components/button.ts";
 import { tagName as inputTag } from "./components/input.ts";
 import { tagName as selectTag } from "./components/select.ts";
+import { tagName as checkboxTag } from "./components/checkbox.ts";
+import { tagName as switchTag } from "./components/switch.ts";
 import { tagName as tableTag } from "./components/table.ts";
 import { tagName as tabsTag } from "./components/tabs.ts";
 import { tagName as modalTag } from "./components/modal.ts";
 import { tagName as toastTag } from "./components/toast.ts";
 import { tagName as statTag } from "./components/stat.ts";
+import { tagName as cardTag } from "./components/card.ts";
+import { tagName as badgeTag } from "./components/badge.ts";
+import { tagName as skeletonTag } from "./components/skeleton.ts";
 
 /** Tag names of every component this module registers. */
 export const tags = {
   button: buttonTag,
   input: inputTag,
   select: selectTag,
+  checkbox: checkboxTag,
+  switch: switchTag,
   table: tableTag,
   tabs: tabsTag,
   modal: modalTag,
   toast: toastTag,
   stat: statTag,
+  card: cardTag,
+  badge: badgeTag,
+  skeleton: skeletonTag,
 } as const;

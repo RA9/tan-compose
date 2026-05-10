@@ -610,6 +610,139 @@ table.rows = await fetch(<span class="c-string">"/api/people"</span>).then(r =&g
 table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; console.log(e.detail.row));</pre>
         </div>
       </section>
+
+      <section class="demo" id="checkbox">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-checkbox&gt;</div>
+            <h2>Checkbox</h2>
+            <p class="demo-lede">
+              Form-associated checkbox wrapping a native input. Label,
+              helper/error text, indeterminate state.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-checkbox label="Subscribe to weekly digest" name="digest"></tc-checkbox>
+            <tc-checkbox label="I agree to the terms" name="terms" required helper="Required to continue"></tc-checkbox>
+            <tc-checkbox label="This option is disabled" disabled></tc-checkbox>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/checkbox"</span>;
+
+&lt;tc-checkbox label="Subscribe" name="opt-in"&gt;&lt;/tc-checkbox&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="switch">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-switch&gt;</div>
+            <h2>Switch</h2>
+            <p class="demo-lede">
+              Accessible toggle with role="switch". Form-associated;
+              keyboard-operable with Space and Enter.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-switch label="Enable notifications" name="notify"></tc-switch>
+            <tc-switch label="Dark mode" name="dark" checked></tc-switch>
+            <tc-switch label="Disabled toggle" disabled></tc-switch>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/switch"</span>;
+
+&lt;tc-switch label="Enable notifications" name="notify"&gt;&lt;/tc-switch&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="card">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-card&gt;</div>
+            <h2>Card</h2>
+            <p class="demo-lede">
+              Layout primitive with title/subtitle and named slots for
+              media / header / footer. Padded, bordered, and elevated
+              modifiers.
+            </p>
+          </div>
+          <div class="stage" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+            <tc-card title="Plain card" subtitle="Bordered, padded, no shadow.">
+              Drop any content in the default slot. Cards are pure layout
+              primitives — no behavior of their own.
+            </tc-card>
+            <tc-card title="Elevated card" subtitle="With shadow." elevated>
+              Use elevated cards to lift important content off the page
+              background.
+              <div slot="footer">
+                <tc-button variant="ghost" size="sm">Cancel</tc-button>
+                <tc-button variant="primary" size="sm">Save</tc-button>
+              </div>
+            </tc-card>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/card"</span>;
+
+&lt;tc-card title="Settings" subtitle="Account preferences" elevated&gt;
+  &lt;p&gt;Body content here.&lt;/p&gt;
+  &lt;div slot="footer"&gt;
+    &lt;tc-button&gt;Save&lt;/tc-button&gt;
+  &lt;/div&gt;
+&lt;/tc-card&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="badge">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-badge&gt;</div>
+            <h2>Badge</h2>
+            <p class="demo-lede">
+              Compact label for status. Five variants and two sizes; opt
+              into pill rounding.
+            </p>
+          </div>
+          <div class="stage" style="gap: 8px;">
+            <tc-badge>neutral</tc-badge>
+            <tc-badge variant="info">info</tc-badge>
+            <tc-badge variant="success">success</tc-badge>
+            <tc-badge variant="warning">warning</tc-badge>
+            <tc-badge variant="danger">danger</tc-badge>
+            <tc-badge variant="success" pill>pill</tc-badge>
+            <tc-badge variant="info" size="sm">small</tc-badge>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/badge"</span>;
+
+&lt;tc-badge variant="success"&gt;active&lt;/tc-badge&gt;
+&lt;tc-badge variant="warning" pill&gt;pending&lt;/tc-badge&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="skeleton">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-skeleton&gt;</div>
+            <h2>Skeleton</h2>
+            <p class="demo-lede">
+              Placeholder shown while content loads. Configure
+              <code>width</code>, <code>height</code>, <code>rounded</code>
+              for circular shapes (avatars). Respects
+              <code>prefers-reduced-motion</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <tc-skeleton width="40px" height="40px" rounded></tc-skeleton>
+              <div style="display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto;">
+                <tc-skeleton width="35%" height="14px"></tc-skeleton>
+                <tc-skeleton width="60%" height="12px"></tc-skeleton>
+              </div>
+            </div>
+            <tc-skeleton width="100%" height="80px"></tc-skeleton>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/skeleton"</span>;
+
+&lt;tc-skeleton width="40px" height="40px" rounded&gt;&lt;/tc-skeleton&gt;
+&lt;tc-skeleton width="60%" height="14px"&gt;&lt;/tc-skeleton&gt;</pre>
+        </div>
+      </section>
     </main>
 
     <footer>

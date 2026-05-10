@@ -1,16 +1,21 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
     "./input": "./components/input.ts",
     "./select": "./components/select.ts",
+    "./checkbox": "./components/checkbox.ts",
+    "./switch": "./components/switch.ts",
     "./table": "./components/table.ts",
     "./tabs": "./components/tabs.ts",
     "./modal": "./components/modal.ts",
     "./toast": "./components/toast.ts",
-    "./stat": "./components/stat.ts"
+    "./stat": "./components/stat.ts",
+    "./card": "./components/card.ts",
+    "./badge": "./components/badge.ts",
+    "./skeleton": "./components/skeleton.ts"
   },
   "compilerOptions": {
     "strict": true,
@@ -18,7 +23,7 @@
   },
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
-    "check": "deno check mod.ts components/button.ts components/input.ts components/select.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts",
+    "check": "deno check mod.ts components/button.ts components/input.ts components/select.ts components/checkbox.ts components/switch.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",
