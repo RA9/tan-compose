@@ -1,0 +1,33 @@
+name: Publish kit to JSR
+
+on:
+  push:
+    tags:
+      - "kit-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Verify types (kit)
+        working-directory: kit
+        run: deno task check
+
+      - name: Run tests (workspace)
+        run: deno test --allow-read --allow-env --allow-net --allow-write
+
+      - name: Publish kit to JSR
+        working-directory: kit
+        run: npx jsr publish
