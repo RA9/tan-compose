@@ -1,20 +1,46 @@
-import type { DescribeOptions } from "./types.ts";
+import type {
+  ComponentCtx,
+  DescribeOptions,
+  EventDelegateMap,
+  ListConfig,
+  PropDef,
+} from "./types.ts";
 
-// Registry maps tag name to constructor; prevents duplicate registration.
 const componentRegistry = new Map<string, CustomElementConstructor>();
 
 const TAG_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
+const EVENT_KEY_PATTERN = /^(\S+)(?:\s+(.+))?$/;
+
+type KeyedItem = {
+  element: HTMLElement;
+  lastItem: unknown;
+  cleanups: Array<() => void>;
+};
+
+type ListSlot = {
+  cache: Map<string | number, KeyedItem>;
+};
+
+interface RenderScope {
+  host: HostElement;
+  cleanups: Array<() => void>;
+  ctx: ComponentCtx;
+}
+
+interface HostElement extends HTMLElement {
+  setState(key: string, value: unknown): void;
+  getState<T = unknown>(key: string): T | undefined;
+  emitEvent(eventName: string, data?: unknown): void;
+}
 
 /**
  * Registers a custom element with the given tag name and description.
  *
- * Lifecycle ordering:
- *   constructor (shadow root + theme/style sheets attached)
+ * Lifecycle:
+ *   constructor (shadow root + theme/style sheets)
  *     → connectedCallback → beforeMount → render → afterMount
- *   attribute change / setState → render
+ *   prop set / setState / observed attribute change → render
  *   disconnectedCallback → unmount → cleanup
- *
- * Returns the registered tag name.
  */
 export function build(tagName: string, description: DescribeOptions): string {
   if (typeof tagName !== "string" || !TAG_NAME_PATTERN.test(tagName)) {
@@ -39,16 +65,25 @@ export function build(tagName: string, description: DescribeOptions): string {
     return tagName;
   }
 
-  const observed = description.observedAttributes ?? [];
+  const observed = Array.from(
+    new Set([
+      ...(description.observedAttributes ?? []),
+      ...Object.keys(description.props ?? {}),
+    ]),
+  );
+  const propDefs: Record<string, PropDef> = description.props ?? {};
 
-  class CustomComponent extends HTMLElement {
+  class CustomComponent extends HTMLElement implements HostElement {
     private isMounted = false;
     private mountCleanups: Array<() => void> = [];
     private renderCleanups: Array<() => void> = [];
-    private state: Map<string, unknown> = new Map();
+    private state = new Map<string, unknown>();
+    private propValues = new Map<string, unknown>();
+    private listSlots = new WeakMap<DescribeOptions, ListSlot>();
     private container: HTMLElement;
-    private hostStyleEl: HTMLStyleElement | null = null;
-    private hostThemeEl: HTMLStyleElement | null = null;
+    private ctx!: ComponentCtx;
+    private rendering = false;
+    private renderQueued = false;
 
     static get observedAttributes(): string[] {
       return observed;
@@ -59,15 +94,15 @@ export function build(tagName: string, description: DescribeOptions): string {
       const shadow = this.attachShadow({ mode: "open" });
 
       if (description.theme) {
-        this.hostThemeEl = document.createElement("style");
-        this.hostThemeEl.textContent = buildThemeCss(description.theme);
-        shadow.appendChild(this.hostThemeEl);
+        const themeStyle = document.createElement("style");
+        themeStyle.textContent = buildThemeCss(description.theme);
+        shadow.appendChild(themeStyle);
       }
 
       if (description.styles) {
-        this.hostStyleEl = document.createElement("style");
-        this.hostStyleEl.textContent = buildContainerCss(description.styles);
-        shadow.appendChild(this.hostStyleEl);
+        const containerStyle = document.createElement("style");
+        containerStyle.textContent = buildContainerCss(description.styles);
+        shadow.appendChild(containerStyle);
       }
 
       this.container = document.createElement("div");
@@ -78,6 +113,33 @@ export function build(tagName: string, description: DescribeOptions): string {
 
       if (description.attributes) {
         applyAttributes(this, description.attributes);
+      }
+
+      this.ctx = createCtx(this, this.propValues, this.state);
+      this.initProps();
+    }
+
+    private initProps(): void {
+      for (const [name, def] of Object.entries(propDefs)) {
+        const attrValue = this.getAttribute(name);
+        const initial = attrValue !== null
+          ? coerceProp(attrValue, def.type)
+          : def.default;
+        this.propValues.set(name, initial);
+
+        Object.defineProperty(this, name, {
+          configurable: true,
+          enumerable: true,
+          get: () => this.propValues.get(name),
+          set: (value) => {
+            const coerced = coerceForSet(value, def.type);
+            const prev = this.propValues.get(name);
+            if (Object.is(prev, coerced)) return;
+            this.propValues.set(name, coerced);
+            if (def.reflect) reflectAttribute(this, name, coerced, def.type);
+            if (this.isMounted) this.scheduleRender();
+          },
+        });
       }
     }
 
@@ -109,6 +171,10 @@ export function build(tagName: string, description: DescribeOptions): string {
         }
       }
 
+      if (description.events) {
+        this.attachDelegatedEvents(description.events);
+      }
+
       this.isMounted = true;
 
       try {
@@ -124,9 +190,22 @@ export function build(tagName: string, description: DescribeOptions): string {
       } catch (err) {
         console.error(`[tan-compose] unmount threw for <${tagName}>:`, err);
       }
-      this.runCleanups(this.mountCleanups);
-      this.runCleanups(this.renderCleanups);
+      runCleanups(this.mountCleanups);
+      runCleanups(this.renderCleanups);
+      this.flushListSlots();
       this.isMounted = false;
+    }
+
+    private flushListSlots(): void {
+      // listSlots is a WeakMap, but its entries can hold cleanups we want to
+      // flush deterministically on disconnect. Walk the description tree and
+      // run cleanups for any slot we find.
+      walkListNodes(description, (desc) => {
+        const slot = this.listSlots.get(desc);
+        if (!slot) return;
+        for (const item of slot.cache.values()) runCleanups(item.cleanups);
+        slot.cache.clear();
+      });
     }
 
     attributeChangedCallback(
@@ -135,15 +214,27 @@ export function build(tagName: string, description: DescribeOptions): string {
       newValue: string | null,
     ): void {
       if (oldValue === newValue) return;
+      if (Object.prototype.hasOwnProperty.call(propDefs, name)) {
+        const def = propDefs[name];
+        const coerced = newValue !== null
+          ? coerceProp(newValue, def.type)
+          : def.default;
+        const prev = this.propValues.get(name);
+        if (!Object.is(prev, coerced)) {
+          this.propValues.set(name, coerced);
+          if (this.isMounted) this.scheduleRender();
+        }
+        return;
+      }
       this.state.set(name, newValue);
-      if (this.isMounted) this.renderInternal();
+      if (this.isMounted) this.scheduleRender();
     }
 
     setState(key: string, value: unknown): void {
       const prev = this.state.get(key);
       if (Object.is(prev, value)) return;
       this.state.set(key, value);
-      if (this.isMounted) this.renderInternal();
+      if (this.isMounted) this.scheduleRender();
     }
 
     getState<T = unknown>(key: string): T | undefined {
@@ -154,7 +245,7 @@ export function build(tagName: string, description: DescribeOptions): string {
       this.renderInternal();
     }
 
-    emitEvent(eventName: string, data: unknown): void {
+    emitEvent(eventName: string, data?: unknown): void {
       this.dispatchEvent(
         new CustomEvent(eventName, {
           detail: data,
@@ -164,33 +255,109 @@ export function build(tagName: string, description: DescribeOptions): string {
       );
     }
 
-    private renderInternal(): void {
-      this.runCleanups(this.renderCleanups);
-
-      this.container.replaceChildren();
-
-      if (description.template) {
-        this.container.innerHTML = description.template;
+    private scheduleRender(): void {
+      if (this.rendering) {
+        this.renderQueued = true;
+        return;
       }
-
-      if (description.children) {
-        for (const childDesc of description.children) {
-          const childEl = buildElement(childDesc, this.renderCleanups);
-          this.container.appendChild(childEl);
-        }
-      }
-
-      this.container.appendChild(document.createElement("slot"));
+      this.renderInternal();
     }
 
-    private runCleanups(list: Array<() => void>): void {
-      while (list.length > 0) {
-        const fn = list.pop();
-        try {
-          fn?.();
-        } catch (err) {
-          console.error(`[tan-compose] cleanup threw for <${tagName}>:`, err);
+    private getOrCreateSlot(desc: DescribeOptions): ListSlot {
+      let slot = this.listSlots.get(desc);
+      if (!slot) {
+        slot = { cache: new Map() };
+        this.listSlots.set(desc, slot);
+      }
+      return slot;
+    }
+
+    private renderInternal(): void {
+      this.rendering = true;
+      try {
+        runCleanups(this.renderCleanups);
+        this.container.replaceChildren();
+
+        const scope: RenderScope = {
+          host: this,
+          cleanups: this.renderCleanups,
+          ctx: this.ctx,
+        };
+
+        // Top-level template (string or function) — applied to .container.
+        if (description.template !== undefined) {
+          const html = typeof description.template === "function"
+            ? description.template(this.ctx)
+            : description.template;
+          if (html) this.container.innerHTML = html;
         }
+
+        if (description.children) {
+          for (const childDesc of description.children) {
+            const node = buildChild(
+              childDesc,
+              scope,
+              (d) => this.getOrCreateSlot(d),
+            );
+            if (node) this.container.appendChild(node);
+          }
+        }
+
+        this.container.appendChild(document.createElement("slot"));
+      } finally {
+        this.rendering = false;
+      }
+
+      if (this.renderQueued) {
+        this.renderQueued = false;
+        this.renderInternal();
+      }
+    }
+
+    private attachDelegatedEvents(events: EventDelegateMap): void {
+      const grouped = new Map<
+        string,
+        Array<
+          {
+            selector: string | null;
+            handler: (e: Event, ctx: ComponentCtx) => void;
+          }
+        >
+      >();
+
+      for (const [key, handler] of Object.entries(events)) {
+        const match = EVENT_KEY_PATTERN.exec(key.trim());
+        if (!match) continue;
+        const [, type, selector] = match;
+        if (!grouped.has(type)) grouped.set(type, []);
+        grouped.get(type)!.push({ selector: selector ?? null, handler });
+      }
+
+      for (const [type, entries] of grouped) {
+        const listener = (event: Event) => {
+          for (const { selector, handler } of entries) {
+            if (!selector) {
+              handler(event, this.ctx);
+              continue;
+            }
+            const path = event.composedPath();
+            for (const node of path) {
+              if (node === this.shadowRoot || node === this) break;
+              if (
+                node instanceof Element &&
+                this.shadowRoot?.contains(node) &&
+                node.matches(selector)
+              ) {
+                handler(event, this.ctx);
+                break;
+              }
+            }
+          }
+        };
+        this.shadowRoot!.addEventListener(type, listener);
+        this.mountCleanups.push(() =>
+          this.shadowRoot?.removeEventListener(type, listener)
+        );
       }
     }
   }
@@ -200,9 +367,24 @@ export function build(tagName: string, description: DescribeOptions): string {
   return tagName;
 }
 
+// ---------------------------------------------------------------------------
+// Render helpers
+// ---------------------------------------------------------------------------
+
+function buildChild(
+  description: DescribeOptions,
+  scope: RenderScope,
+  getSlot: (desc: DescribeOptions) => ListSlot,
+): Node | null {
+  if (description.if && !description.if(scope.ctx)) return null;
+  if (description.for) return buildKeyedList(description, scope, getSlot);
+  return buildElement(description, scope, getSlot);
+}
+
 function buildElement(
   description: DescribeOptions,
-  cleanups: Array<() => void>,
+  scope: RenderScope,
+  getSlot: (desc: DescribeOptions) => ListSlot,
 ): HTMLElement {
   const element = document.createElement(description.tag || "div");
 
@@ -220,30 +402,114 @@ function buildElement(
     applyAttributes(element, description.attributes);
   }
 
-  if (description.template) {
-    element.innerHTML = description.template;
+  if (description.template !== undefined) {
+    const html = typeof description.template === "function"
+      ? description.template(scope.ctx)
+      : description.template;
+    if (html) element.innerHTML = html;
   }
 
   if (description.children) {
     for (const childDesc of description.children) {
-      element.appendChild(buildElement(childDesc, cleanups));
+      const childNode = buildChild(childDesc, scope, getSlot);
+      if (childNode) element.appendChild(childNode);
     }
   }
 
   if (description.action) {
     const handler = description.action;
     element.addEventListener("click", handler);
-    cleanups.push(() => element.removeEventListener("click", handler));
+    scope.cleanups.push(() => element.removeEventListener("click", handler));
   }
 
   if (description.emit) {
     for (const evt of description.emit) {
       element.addEventListener(evt.name, evt.handler);
-      cleanups.push(() => element.removeEventListener(evt.name, evt.handler));
+      scope.cleanups.push(() =>
+        element.removeEventListener(evt.name, evt.handler)
+      );
     }
   }
 
   return element;
+}
+
+function buildKeyedList(
+  description: DescribeOptions,
+  scope: RenderScope,
+  getSlot: (desc: DescribeOptions) => ListSlot,
+): DocumentFragment {
+  const list = description.for as ListConfig;
+  const slot = getSlot(description);
+  const items = list.items(scope.ctx);
+  const newCache = new Map<string | number, KeyedItem>();
+  const frag = document.createDocumentFragment();
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const key = list.key(item, i);
+
+    let entry: KeyedItem;
+    const cached = slot.cache.get(key);
+    if (cached && Object.is(cached.lastItem, item)) {
+      entry = cached;
+    } else {
+      const itemCleanups: Array<() => void> = [];
+      const childDesc = list.render(item, i, scope.ctx);
+      const element = buildElement(
+        childDesc,
+        { ...scope, cleanups: itemCleanups },
+        getSlot,
+      );
+      if (cached) runCleanups(cached.cleanups);
+      entry = { element, lastItem: item, cleanups: itemCleanups };
+    }
+
+    newCache.set(key, entry);
+    frag.appendChild(entry.element);
+  }
+
+  // Run cleanups for items that were removed from the list.
+  for (const [key, entry] of slot.cache) {
+    if (!newCache.has(key)) runCleanups(entry.cleanups);
+  }
+
+  slot.cache = newCache;
+  return frag;
+}
+
+/** Walk a description tree and call `visit` with every node that has a `for:`. */
+function walkListNodes(
+  desc: DescribeOptions,
+  visit: (d: DescribeOptions) => void,
+): void {
+  if (desc.for) visit(desc);
+  if (desc.children) {
+    for (const child of desc.children) walkListNodes(child, visit);
+  }
+}
+
+function createCtx(
+  host: HostElement,
+  propValues: Map<string, unknown>,
+  state: Map<string, unknown>,
+): ComponentCtx {
+  return {
+    host,
+    get props() {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of propValues) out[k] = v;
+      return out;
+    },
+    get state() {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of state) out[k] = v;
+      return out;
+    },
+    setState: (key, value) => host.setState(key, value),
+    getState: (key) => host.getState(key),
+    emit: (name, detail) => host.emitEvent(name, detail),
+  };
 }
 
 function applyAttributes(
@@ -267,6 +533,68 @@ function buildContainerCss(styles: Record<string, string>): string {
     .map(([key, value]) => `${key}: ${value};`)
     .join(" ");
   return `.container { ${rules} }`;
+}
+
+function runCleanups(list: Array<() => void>): void {
+  while (list.length > 0) {
+    const fn = list.pop();
+    try {
+      fn?.();
+    } catch (err) {
+      console.error("[tan-compose] cleanup threw:", err);
+    }
+  }
+}
+
+function coerceProp(raw: string, type: PropDef["type"]): unknown {
+  switch (type) {
+    case "string":
+      return raw;
+    case "number": {
+      const n = Number(raw);
+      return Number.isNaN(n) ? undefined : n;
+    }
+    case "boolean":
+      return raw !== "false" && raw !== "0";
+    case "json":
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return undefined;
+      }
+  }
+}
+
+function coerceForSet(value: unknown, type: PropDef["type"]): unknown {
+  switch (type) {
+    case "string":
+      return value == null ? value : String(value);
+    case "number":
+      return value == null ? value : Number(value);
+    case "boolean":
+      return Boolean(value);
+    case "json":
+      return value;
+  }
+}
+
+function reflectAttribute(
+  element: HTMLElement,
+  name: string,
+  value: unknown,
+  type: PropDef["type"],
+): void {
+  if (type === "json") return;
+  if (type === "boolean") {
+    if (value) element.setAttribute(name, "");
+    else element.removeAttribute(name);
+    return;
+  }
+  if (value == null) {
+    element.removeAttribute(name);
+    return;
+  }
+  element.setAttribute(name, String(value));
 }
 
 /** Returns true if a component with the given tag name has been registered. */

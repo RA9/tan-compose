@@ -6,6 +6,84 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-05-10
+
+> The "build big components" release. Adds typed properties, function templates,
+> event delegation, conditional rendering, and keyed list reconciliation — the
+> primitives needed to build datatables, forms, and other large reusable
+> components without reaching for a framework.
+
+### Added
+
+- **Typed properties (`props`).** Components can declare typed properties with
+  `string` / `number` / `boolean` / `json` coercion, default values, and
+  optional attribute reflection. Setting a property on the instance
+  (`el.rows = [...]`) triggers a re-render when the value changes.
+- **Function templates.** `template` may now be a function `(ctx) => string`.
+  The context exposes `props`, `state`, `setState`, `getState`, `emit`, and
+  `host`. Re-evaluated on every render so text interpolation is automatic.
+- **Event delegation (`events`).** New field of the form
+  `{ "click .selector": handler }`. One listener per event type is attached at
+  the shadow-container level; matches are resolved against the composed path.
+  Cleaned up automatically on disconnect.
+- **Keyed list rendering (`for`).** A child describe can replace `children` with
+  `for: { items, key, render }`. The renderer maintains a per-list cache keyed
+  by `key(item)` and reuses DOM nodes across renders when the item identity is
+  unchanged. Stale items have their cleanups run.
+- **Conditional rendering (`if`).** A child describe can take
+  `if: (ctx) => boolean`. When false, the subtree is omitted entirely.
+- **`ComponentCtx`** is the new render-time argument shape, exported from
+  `mod.ts` along with `PropDef`, `PropType`, `TemplateFn`, `ListConfig`, and
+  `EventDelegateMap`.
+- New `unmount` lifecycle hook (already in 0.2.0, now formally part of the
+  ctx-aware API).
+
+### Changed
+
+- `props` keys are automatically merged into the underlying `observedAttributes`
+  list, so attribute changes propagate as property updates.
+- `setState` now batches re-renders within the same render cycle (a render
+  triggered while another render is running is queued and runs after).
+- `template` semantics: when a function template is used at the host level
+  (top-level `describe()` passed to `build()`), it is invoked on every render
+  the same way it is for child describes.
+
+### Migration from 0.2.x
+
+For most users, **0.2.x code keeps working unchanged** — every new field is
+opt-in. To start using the new features:
+
+1. **Pass complex data via properties, not attributes.**
+   ```js
+   build("data-table", describe({
+     props: { rows: { type: "json", default: [] } },
+     template: ({ props }) => `<p>${props.rows.length} rows</p>`,
+   }));
+
+   document.querySelector("data-table").rows = [...];
+   ```
+2. **Replace manual `afterMount` DOM wiring with `events`.** Before:
+   ```js
+   afterMount() { this.shadowRoot.querySelector("button").addEventListener(...) }
+   ```
+   After:
+   ```js
+   events: { "click button": (e, ctx) => ctx.setState("clicked", true) }
+   ```
+3. **Replace static row arrays with `for`.**
+   ```js
+   children: [
+     describe({
+       tag: "tbody",
+       for: {
+         items: ({ props }) => props.rows,
+         key: (row) => row.id,
+         render: (row) => describe({ tag: "tr", template: row.name }),
+       },
+     }),
+   ];
+   ```
+
 ## [0.2.0] - 2026-05-10
 
 ### Breaking Changes

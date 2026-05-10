@@ -370,12 +370,13 @@
                 <a class="brand" href="./index.html">
                     <span class="brand-mark" aria-hidden="true"></span>
                     tan-compose
-                    <span class="version-pill">v0.2.0</span>
+                    <span class="version-pill">v0.3.0</span>
                 </a>
                 <nav aria-label="Primary">
                     <a href="./docs.html" aria-current="page">Docs</a>
                     <a href="./examples.html" class="nav-hide-sm">Examples</a>
                     <a href="./playground.html" class="nav-hide-sm">Playground</a>
+                    <a href="./blog.html" class="nav-hide-sm">Blog</a>
                     <a
                         href="https://jsr.io/@ra9/tan-compose"
                         class="nav-hide-sm"
@@ -704,6 +705,262 @@ build("my-counter", counter);</code></pre>
                 </div>
             </section>
 
+            <!-- v0.3 features -->
+            <section class="doc-section" id="props">
+                <h2>Typed properties (0.3+)</h2>
+                <p>
+                    The <code>props</code> field declares typed properties on
+                    the host element. Setting one (<code>el.rows = […]</code>)
+                    triggers a re-render when the value differs.
+                    Initial values come from the matching attribute (string-coerced)
+                    when present, otherwise from <code>default</code>.
+                </p>
+
+<pre class="code-block"><code>build("user-card", describe({
+  props: {
+    name: { type: "string", default: "Anonymous" },
+    age:  { type: "number", default: 0 },
+    open: { type: "boolean", default: false, reflect: true },
+    tags: { type: "json", default: [] },
+  },
+  template: ({ props }) =&gt;
+    `&lt;h3&gt;${props.name}, ${props.age}&lt;/h3&gt;
+     ${props.open ? "&lt;span&gt;open&lt;/span&gt;" : ""}`,
+}));</code></pre>
+
+                <h3>PropDef</h3>
+                <table class="api">
+                    <thead>
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>type</td>
+                            <td>"string" | "number" | "boolean" | "json"</td>
+                            <td>How attribute strings coerce into the runtime value.</td>
+                        </tr>
+                        <tr>
+                            <td>default</td>
+                            <td>unknown</td>
+                            <td>Used when the attribute is absent and no value has been set.</td>
+                        </tr>
+                        <tr>
+                            <td>reflect</td>
+                            <td>boolean</td>
+                            <td>When true, setting the property mirrors the value to the matching attribute. Ignored for <code>json</code> props.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="callout">
+                    <strong>Note:</strong> Prop names are also added to the
+                    underlying <code>observedAttributes</code> list, so an
+                    external <code>setAttribute</code> still updates the
+                    property (with type coercion).
+                </p>
+            </section>
+
+            <section class="doc-section" id="template-fn">
+                <h2>Function templates (0.3+)</h2>
+                <p>
+                    <code>template</code> may be a function that receives the
+                    render context and returns an HTML string. It runs on
+                    every render, so any expression in scope (props, state)
+                    is implicitly reactive.
+                </p>
+
+<pre class="code-block"><code>describe({
+  props: { greeting: { type: "string", default: "hi" } },
+  template: ({ props, state }) =&gt;
+    `&lt;p&gt;${props.greeting} #${state.tick ?? 0}&lt;/p&gt;`,
+});</code></pre>
+
+                <h3>ComponentCtx</h3>
+                <table class="api">
+                    <thead>
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>props</td><td>Readonly&lt;Record&lt;string, unknown&gt;&gt;</td><td>Snapshot of current property values.</td></tr>
+                        <tr><td>state</td><td>Readonly&lt;Record&lt;string, unknown&gt;&gt;</td><td>Snapshot of current state values.</td></tr>
+                        <tr><td>host</td><td>HTMLElement</td><td>The custom element instance.</td></tr>
+                        <tr><td>setState</td><td>(key, value) =&gt; void</td><td>Sets state and re-renders if the value changed.</td></tr>
+                        <tr><td>getState</td><td>&lt;T&gt;(key) =&gt; T | undefined</td><td>Reads a state value.</td></tr>
+                        <tr><td>emit</td><td>(name, detail?) =&gt; void</td><td>Dispatches a bubbling, composed CustomEvent from the host.</td></tr>
+                    </tbody>
+                </table>
+
+                <p class="callout">
+                    <strong>Security:</strong> Template strings are inserted
+                    via <code>innerHTML</code>. Never interpolate untrusted
+                    input. Use the DOM API in <code>afterMount</code> if you
+                    need to insert user content as text.
+                </p>
+            </section>
+
+            <section class="doc-section" id="events">
+                <h2>Event delegation (0.3+)</h2>
+                <p>
+                    The <code>events</code> field maps
+                    <code>"&lt;event-type&gt; &lt;css-selector&gt;"</code>
+                    keys to handlers. One listener per event type is attached
+                    at the shadow root; matches are resolved via
+                    <code>composedPath()</code>. Listeners are torn down on
+                    disconnect.
+                </p>
+
+<pre class="code-block"><code>describe({
+  template: `
+    &lt;button class="bump"&gt;+&lt;/button&gt;
+    &lt;button class="reset"&gt;reset&lt;/button&gt;
+  `,
+  events: {
+    "click .bump":  (_e, ctx) =&gt; ctx.setState("count", (ctx.state.count ?? 0) + 1),
+    "click .reset": (_e, ctx) =&gt; ctx.setState("count", 0),
+  },
+});</code></pre>
+
+                <p>
+                    Handler signature is
+                    <code>(event: Event, ctx: ComponentCtx) =&gt; void</code>.
+                    Selector-less keys (e.g. <code>"submit"</code>) match
+                    events that target the host directly.
+                </p>
+            </section>
+
+            <section class="doc-section" id="for">
+                <h2>Keyed list rendering (0.3+)</h2>
+                <p>
+                    A child describe can replace <code>children</code> with
+                    <code>for: { items, key, render }</code>. The renderer
+                    keeps a per-block cache keyed by <code>key(item)</code>
+                    and reuses DOM nodes between renders when item identity
+                    is unchanged. Stale items have their cleanups run.
+                </p>
+
+<pre class="code-block"><code>describe({
+  tag: "tbody",
+  for: {
+    items: ({ props }) =&gt; props.rows,
+    key:   (row) =&gt; row.id,
+    render: (row) =&gt; describe({
+      tag: "tr",
+      template: `&lt;td&gt;${row.name}&lt;/td&gt;&lt;td&gt;${row.email}&lt;/td&gt;`,
+    }),
+  },
+});</code></pre>
+
+                <h3>ListConfig</h3>
+                <table class="api">
+                    <thead>
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>items</td><td>(ctx) =&gt; readonly T[]</td><td>Returns the current items. Recomputed on every parent render.</td></tr>
+                        <tr><td>key</td><td>(item, index) =&gt; string | number</td><td>Stable identity used for DOM-node reuse.</td></tr>
+                        <tr><td>render</td><td>(item, index, ctx) =&gt; DescribeOptions</td><td>Returns the description for one item.</td></tr>
+                    </tbody>
+                </table>
+
+                <p class="callout">
+                    <strong>Identity matters.</strong> The cache reuses a node
+                    only when <code>Object.is(prevItem, newItem)</code>. If
+                    you mutate items in place the renderer can't tell that the
+                    data changed; replace the array (and any changed entries)
+                    with new references instead.
+                </p>
+            </section>
+
+            <section class="doc-section" id="if">
+                <h2>Conditional rendering (0.3+)</h2>
+                <p>
+                    A child describe can take
+                    <code>if: (ctx) =&gt; boolean</code>. When the predicate
+                    returns false, the subtree is omitted from the rendered
+                    output (no DOM created at all).
+                </p>
+
+<pre class="code-block"><code>describe({
+  tag: "div",
+  className: "empty",
+  template: "No results",
+  if: ({ props }) =&gt; props.rows.length === 0,
+});</code></pre>
+            </section>
+
+            <!-- Datatable example -->
+            <section class="doc-section" id="datatable">
+                <h2>Putting it together: a real datatable</h2>
+                <p>
+                    The features above compose into a paginated, filterable,
+                    sortable datatable. Open the
+                    <a href="./examples.html#datatable">examples page</a>
+                    for the live version; here is the abridged source:
+                </p>
+
+<pre class="code-block"><code>build("data-table", describe({
+  props: {
+    rows:    { type: "json", default: [] },
+    columns: { type: "json", default: [] },
+    pageSize:{ type: "number", default: 10 },
+  },
+  template: ({ state, props }) =&gt; `
+    &lt;input class="filter" placeholder="Search..." value="${state.q ?? ""}" /&gt;
+    &lt;table&gt;
+      &lt;thead&gt;&lt;tr&gt;
+        ${(props.columns ?? []).map((c) =&gt;
+          `&lt;th data-col="${c.key}"&gt;${c.label}&lt;/th&gt;`).join("")}
+      &lt;/tr&gt;&lt;/thead&gt;
+      &lt;tbody data-rows&gt;&lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;footer class="pager"&gt;
+      Page ${(state.page ?? 0) + 1} of ${pageCount(state, props)}
+      &lt;button class="prev"&gt;&lt;&lt;/button&gt;
+      &lt;button class="next"&gt;&gt;&lt;/button&gt;
+    &lt;/footer&gt;
+  `,
+  events: {
+    "input .filter": (e, ctx) =&gt; {
+      ctx.setState("q", e.target.value);
+      ctx.setState("page", 0);
+    },
+    "click .prev": (_e, ctx) =&gt; ctx.setState("page", Math.max(0, (ctx.state.page ?? 0) - 1)),
+    "click .next": (_e, ctx) =&gt; ctx.setState("page", (ctx.state.page ?? 0) + 1),
+    "click th[data-col]": (e, ctx) =&gt; ctx.setState("sortBy", e.target.dataset.col),
+  },
+  children: [
+    describe({
+      tag: "div",
+      className: "empty",
+      template: "No results.",
+      if: ({ state, props }) =&gt; visibleRows(state, props).length === 0,
+    }),
+    describe({
+      tag: "tr",
+      for: {
+        items:  ({ state, props }) =&gt; visibleRows(state, props),
+        key:    (row) =&gt; row.id,
+        render: (row, _i, { props }) =&gt; describe({
+          tag: "tr",
+          template: (props.columns ?? []).map((c) =&gt;
+            `&lt;td&gt;${row[c.key]}&lt;/td&gt;`).join(""),
+        }),
+      },
+    }),
+  ],
+}));</code></pre>
+
+                <p>
+                    <code>visibleRows()</code> applies filter, sort, and
+                    pagination to <code>props.rows</code>. Because
+                    <code>for</code> is keyed by <code>row.id</code>, typing
+                    in the search box re-uses the same 10 row nodes &mdash; the
+                    renderer just updates which 10 are visible. No virtual
+                    DOM, no diff library: just the platform plus a couple
+                    hundred lines of glue.
+                </p>
+            </section>
+
             <!-- Migration -->
             <section class="doc-section" id="migration">
                 <h2>Migration: 0.1.x &rarr; 0.2.0</h2>
@@ -740,6 +997,40 @@ build("my-counter", counter);</code></pre>
                         <strong>New <code>unmount</code> lifecycle hook.</strong>
                         Pair it with <code>afterMount</code> for cleanup on
                         <code>disconnectedCallback</code>.
+                    </li>
+                </ul>
+            </section>
+
+            <section class="doc-section" id="migration-0-3">
+                <h2>Migration: 0.2.x &rarr; 0.3.0</h2>
+                <p>
+                    Version 0.3.0 is additive &mdash; existing 0.2.x code
+                    continues to work. To opt in to the new features:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Pass complex data via properties, not attributes.</strong>
+                        Add a <code>props</code> map and assign on the
+                        instance: <code>el.rows = […]</code>. JSON props
+                        are parsed from attributes when present and serialized
+                        only on read.
+                    </li>
+                    <li>
+                        <strong>Use function templates for derived text.</strong>
+                        Replace template strings that hard-code values with
+                        <code>template: ({ props, state }) =&gt; "..."</code>
+                        so changes flow through automatically.
+                    </li>
+                    <li>
+                        <strong>Replace manual <code>afterMount</code> wiring with <code>events</code>.</strong>
+                        Selector-keyed handlers attach once and clean up on
+                        disconnect, no per-render <code>addEventListener</code>
+                        calls.
+                    </li>
+                    <li>
+                        <strong>Use <code>for</code> for any list of three or more items.</strong>
+                        It's the only path to keyed DOM reuse, which matters
+                        the moment you have a filter input over a list.
                     </li>
                 </ul>
             </section>

@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Why I built tan-compose — a release note for v0.3.0 of the @ra9/tan-compose library."
+    />
+    <title>Why I built tan-compose — Tan Compose blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+        --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
+        --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Top nav */
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+        -webkit-backdrop-filter: saturate(180%) blur(8px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+        display: inline-block;
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a:focus-visible,
+      .topbar nav a.active,
+      .topbar nav a[aria-current="page"] {
+        color: var(--accent);
+      }
+
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+
+      /* Article header */
+      .article-head {
+        padding: 88px 0 32px;
+      }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 14px;
+      }
+
+      .article-head h1 {
+        font-size: clamp(2.2rem, 4.6vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.08;
+        margin-bottom: 16px;
+      }
+
+      .article-subtitle {
+        font-size: 1.18rem;
+        line-height: 1.5;
+        color: var(--ink-soft);
+        margin-bottom: 22px;
+        max-width: 620px;
+      }
+
+      .article-meta {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--ink-muted);
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      /* Article body */
+      article {
+        padding: 36px 0 64px;
+      }
+
+      article h2 {
+        font-size: 1.55rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin: 48px 0 14px;
+        line-height: 1.25;
+      }
+
+      article h2:first-child {
+        margin-top: 0;
+      }
+
+      article h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 28px 0 10px;
+        color: var(--ink);
+      }
+
+      article p {
+        color: var(--ink);
+        font-size: 1.02rem;
+        line-height: 1.72;
+        margin: 0 0 18px;
+      }
+
+      article p.lede {
+        font-size: 1.12rem;
+        color: var(--ink-soft);
+        line-height: 1.7;
+        margin: 0 0 22px;
+      }
+
+      article hr.rule {
+        border: none;
+        height: 1px;
+        background: var(--rule);
+        margin: 36px 0 24px;
+      }
+
+      article p.closing {
+        color: var(--ink-soft);
+        font-size: 1rem;
+        margin: 0 0 28px;
+      }
+
+      article p strong {
+        font-weight: 600;
+      }
+
+      article a {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-color: var(--rule-strong);
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+        transition: text-decoration-color 0.15s ease;
+      }
+
+      article a:hover {
+        text-decoration-color: var(--accent);
+      }
+
+      article ul {
+        margin: 0 0 20px;
+        padding-left: 22px;
+        color: var(--ink);
+      }
+
+      article ul li {
+        font-size: 1.02rem;
+        line-height: 1.7;
+        margin-bottom: 6px;
+      }
+
+      article code {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.88em;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      /* Code blocks */
+      pre.code {
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.85rem;
+        line-height: 1.65;
+        padding: 22px 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 0 0 22px;
+      }
+
+      pre.code .c-comment {
+        color: var(--code-comment);
+      }
+      pre.code .c-keyword {
+        color: var(--code-keyword);
+      }
+      pre.code .c-string {
+        color: var(--code-string);
+      }
+
+      .pull {
+        border-left: 3px solid var(--accent);
+        padding: 2px 0 2px 20px;
+        margin: 24px 0;
+        color: var(--ink-soft);
+        font-style: italic;
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 36px 0 56px;
+        margin-top: 32px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+        flex-wrap: wrap;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      /* Responsive */
+      @media (max-width: 720px) {
+        .article-head {
+          padding: 56px 0 28px;
+        }
+
+        article {
+          padding: 28px 0 48px;
+        }
+
+        article h2 {
+          font-size: 1.35rem;
+          margin: 36px 0 12px;
+        }
+
+        .topbar nav {
+          gap: 14px;
+        }
+
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v0.3.0</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="./docs.html" class="nav-hide-sm">Docs</a>
+          <a href="./examples.html" class="nav-hide-sm">Examples</a>
+          <a href="./playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./blog.html" aria-current="page">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            class="nav-hide-sm"
+            target="_blank"
+            rel="noopener"
+            >JSR</a
+          >
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="article-head">
+        <div class="wrap">
+          <div class="eyebrow">blog post</div>
+          <h1>Why I built tan-compose</h1>
+          <p class="article-subtitle">
+            Reusable web components without the framework tax.
+          </p>
+          <div class="article-meta">Posted 2026-05-10 · v0.3.0</div>
+        </div>
+      </header>
+
+      <article>
+        <div class="wrap">
+          <p class="lede">
+            Most frontend engineers I know — myself included, until recently —
+            reach for React the moment a piece of UI gets the slightest bit
+            interactive. A stats card with a hover state. A button that
+            triggers a modal. A small filter widget on an otherwise static
+            marketing page. We pull in the framework, set up a build, ship a
+            hundred kilobytes of runtime, and call it a component.
+          </p>
+          <p>
+            This is not an anti-React post. React is great at what it's great
+            at: large applications with deeply nested, mutually dependent
+            state. But the honest truth is that most of the components I write
+            in a given week are not that. They're widgets. They're embeds.
+            They're things the platform can already render natively, if I were
+            willing to talk to it directly. tan-compose is the result of me
+            getting tired of paying a framework tax on UI that didn't need it.
+          </p>
+
+          <h2>The platform was always there</h2>
+          <p>
+            Web Components have been a stable, shipping feature in every
+            modern browser for the better part of a decade.
+            <code>customElements.define</code> registers a tag.
+            <code>attachShadow</code> gives you encapsulation.
+            <code>&lt;slot&gt;</code> handles content projection.
+            <code>connectedCallback</code>, <code>disconnectedCallback</code>,
+            and <code>attributeChangedCallback</code> cover the lifecycle.
+            None of this is new, and none of it requires a framework.
+          </p>
+          <p>
+            The reason most engineers don't reach for it isn't capability —
+            it's ergonomics. Writing a custom element by hand is a slog. You
+            extend <code>HTMLElement</code>, you remember to call
+            <code>super()</code>, you hand-roll an <code>observedAttributes</code>
+            getter, you parse strings into numbers and back again, you
+            manually attach and detach event listeners, and you write the
+            same boilerplate every single time. Once you've done it twice you
+            understand why the React ecosystem won. The platform's API
+            assumes you'll wrap it. tan-compose is that wrapper, kept as thin
+            as I could make it.
+          </p>
+
+          <h2>The pitch in three lines</h2>
+<pre class="code"><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
+build(<span class="c-string">"hello-world"</span>, describe({ template: <span class="c-string">"&lt;p&gt;hi&lt;/p&gt;"</span> }));
+<span class="c-comment">// &lt;hello-world&gt;&lt;/hello-world&gt; works everywhere</span></pre>
+          <p>
+            No build step. No JSX. No compiler. No runtime besides the
+            browser. About 5 KB on the wire after gzip. The output is a real
+            custom element, which means it works in any HTML page, inside a
+            React tree, inside a Vue template, inside an Astro island, inside
+            a Markdown file rendered through MDX, inside an email preview
+            tool — anywhere the platform's <code>customElements</code>
+            registry exists. Which, again, is everywhere.
+          </p>
+
+          <h2>What was missing in 0.2</h2>
+          <p>
+            I want to be honest about where the library was before this
+            release. v0.2 had Shadow DOM, theming via CSS custom properties,
+            lifecycle hooks, listener cleanup, and attribute reactivity. That
+            was enough to build the things on the front page of this site:
+            buttons, counters, a card. It was not enough to build anything
+            real.
+          </p>
+          <p>
+            I tried, on a side project, to build a datatable with v0.2. I
+            wanted rows, sorting, filtering, pagination. By the second
+            evening I had a list of things the library did not have:
+          </p>
+          <ul>
+            <li>typed props, so I didn't have to coerce attribute strings into numbers and arrays by hand</li>
+            <li>templates that re-evaluate when state changes, instead of one-shot HTML strings</li>
+            <li>keyed list rendering, so a thousand rows didn't get torn down and rebuilt on every keystroke</li>
+            <li>event delegation, so I didn't attach a hundred click handlers to a hundred row buttons</li>
+            <li>conditional rendering, so the empty state and the loading state weren't a tangle of <code>display: none</code></li>
+          </ul>
+          <p>
+            Without those, v0.2 was fine for static-ish widgets and not much
+            more. v0.3 is the release where I sat down and added each of
+            them, in the smallest shape I could justify.
+          </p>
+
+          <h2>v0.3 — the building blocks</h2>
+
+          <h3>Typed props</h3>
+          <p>
+            Custom-element attributes are strings. Always. If you want a
+            number, you parse. If you want an array, you
+            <code>JSON.parse</code>. v0.3 lets you declare the shape once and
+            stop thinking about it:
+          </p>
+<pre class="code">props: {
+  count: { type: <span class="c-string">"number"</span>, default: <span class="c-keyword">0</span> },
+  items: { type: <span class="c-string">"json"</span>,   default: [] },
+  open:  { type: <span class="c-string">"boolean"</span>, reflect: <span class="c-keyword">true</span> },
+}</pre>
+          <p>
+            The initial value comes from the matching attribute on the host
+            element (string-coerced into the declared type), or the
+            <code>default</code> if the attribute is absent. After that,
+            setting <code>el.count = 5</code> on the element instance triggers
+            a re-render — but only if the new value differs from the old by
+            <code>Object.is</code>. Setting <code>el.count = 5</code> twice in
+            a row is a no-op. <code>reflect: true</code> writes the value
+            back to the host attribute, which is occasionally what you want
+            for CSS selectors like <code>:host([open])</code>.
+          </p>
+
+          <h3>Function templates</h3>
+          <p>
+            v0.2's <code>template</code> was a string. v0.3's
+            <code>template</code> can also be a function:
+            <code>({ props, state }) =&gt; string</code>. It's re-evaluated
+            on every render, which makes it the natural place to interpolate
+            current values. The <code>ctx</code> object passed to templates
+            and event handlers exposes <code>props</code>,
+            <code>state</code>, <code>setState</code>, <code>getState</code>,
+            <code>emit</code> for dispatching custom events, and
+            <code>host</code> for the underlying element.
+          </p>
+
+          <h3>Event delegation</h3>
+<pre class="code">events: {
+  <span class="c-string">"click .row-delete"</span>: (event, ctx) =&gt; ctx.emit(<span class="c-string">"delete"</span>, { id: event.target.dataset.id }),
+  <span class="c-string">"input .search"</span>:    (event, ctx) =&gt; ctx.setState({ q: event.target.value }),
+}</pre>
+          <p>
+            One listener is attached per event type at the shadow-container
+            level. When an event fires, the library walks the composed path
+            and matches selectors. This means a list with a thousand rows
+            costs you exactly one <code>click</code> listener, not a
+            thousand. It also means handlers survive re-renders without any
+            attach-and-detach dance.
+          </p>
+
+          <h3>Keyed list rendering</h3>
+          <p>
+            On a child <code>describe</code> you can specify
+            <code>for: { items, key, render }</code>. The renderer keeps a
+            <code>Map&lt;key, element&gt;</code> per for-block. When
+            <code>items</code> changes, items whose identity is unchanged
+            (compared with <code>===</code> on the key) reuse their existing
+            DOM node. New items get rendered fresh. Removed items get torn
+            down and their listeners cleaned up. This is the only piece of
+            v0.3 that is not "just the platform" — but it's the piece that
+            makes lists of more than a few dozen items feel right.
+          </p>
+
+          <h3>Conditional rendering</h3>
+          <p>
+            Also on a child <code>describe</code>:
+            <code>if: (ctx) =&gt; boolean</code>. If the function returns
+            false, the entire subtree is omitted from the output — no DOM is
+            created at all. This matters because hidden DOM still costs
+            layout, attached listeners, and accessibility tree weight.
+            Conditional rendering means the empty state and the populated
+            state are genuinely separate trees.
+          </p>
+
+          <h2>Building a real datatable in ~80 lines</h2>
+          <p>
+            With those five pieces in place, here's what changes. The
+            datatable I couldn't write in v0.2 fits comfortably in v0.3.
+            Take rows and columns as JSON props, expose a search input,
+            paginate at ten per page, and highlight the column being sorted.
+            The shape:
+          </p>
+<pre class="code"><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
+
+<span class="c-keyword">const</span> table = describe({
+  props: {
+    rows:    { type: <span class="c-string">"json"</span>, default: [] },
+    columns: { type: <span class="c-string">"json"</span>, default: [] },
+  },
+  state: { q: <span class="c-string">""</span>, page: <span class="c-keyword">0</span>, sort: <span class="c-keyword">null</span>, dir: <span class="c-string">"asc"</span> },
+  <span class="c-comment">// ...events, children below</span>
+});</pre>
+          <p>
+            The header is a single child describe that maps over
+            <code>props.columns</code> with a function template. Each
+            <code>&lt;th&gt;</code> writes <code>data-col</code> with its
+            column id and gets an <code>aria-sort</code> attribute when it
+            matches the current sort. No per-cell click handlers — one
+            delegated listener does the whole header:
+          </p>
+<pre class="code">events: {
+  <span class="c-string">"click th"</span>: (e, ctx) =&gt; {
+    <span class="c-keyword">const</span> col = e.target.closest(<span class="c-string">"th"</span>).dataset.col;
+    <span class="c-keyword">const</span> { sort, dir } = ctx.getState();
+    ctx.setState({
+      sort: col,
+      dir: sort === col &amp;&amp; dir === <span class="c-string">"asc"</span> ? <span class="c-string">"desc"</span> : <span class="c-string">"asc"</span>,
+    });
+  },
+  <span class="c-string">"input .search"</span>: (e, ctx) =&gt; ctx.setState({ q: e.target.value, page: <span class="c-keyword">0</span> }),
+}</pre>
+          <p>
+            The body is the place keyed rendering earns its keep. A
+            <code>for:</code> block iterates the filtered + sorted +
+            paginated slice of <code>rows</code>, keyed by
+            <code>row.id</code>. Because the key function is stable, the
+            same physical <code>&lt;tr&gt;</code> elements are reused as the
+            user types. Only the cells whose textContent changed get
+            touched:
+          </p>
+<pre class="code">{
+  for: {
+    items: (ctx) =&gt; visibleRows(ctx),
+    key:   (row)  =&gt; row.id,
+    render: (row, ctx) =&gt; describe({
+      tag: <span class="c-string">"tr"</span>,
+      template: ({ props }) =&gt; props.columns
+        .map((c) =&gt; <span class="c-string">`&lt;td&gt;</span>${row[c.id]}<span class="c-string">&lt;/td&gt;`</span>).join(<span class="c-string">""</span>),
+    }),
+  },
+}</pre>
+          <p>
+            The empty state is a sibling describe with an
+            <code>if: (ctx) =&gt; visibleRows(ctx).length === 0</code>. The
+            row of pagination controls is another describe with a delegated
+            handler on <code>.page-prev</code> and <code>.page-next</code>.
+            That's all of it. Register with
+            <code>build("my-table", table)</code> and use it from any HTML
+            page:
+          </p>
+<pre class="code">&lt;my-table
+  rows=<span class="c-string">'[{"id":1,"name":"Ada","role":"eng"}, ...]'</span>
+  columns=<span class="c-string">'[{"id":"name","label":"Name"}, {"id":"role","label":"Role"}]'</span>
+&gt;&lt;/my-table&gt;</pre>
+          <p>
+            That's it. No JSX. No bundler. The whole table re-renders on
+            every keystroke and reuses the existing 10 row nodes —
+            keystrokes feel instant.
+          </p>
+
+          <h2>Using tan-compose in your existing project</h2>
+          <p>
+            The honest sell on Web Components is that they show up where
+            other component models can't. A few quick paths in:
+          </p>
+          <h3>Plain HTML</h3>
+<pre class="code">&lt;script type=<span class="c-string">"module"</span>&gt;
+  <span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"https://esm.sh/jsr/@ra9/tan-compose"</span>;
+  <span class="c-comment">// register your components here</span>
+&lt;/script&gt;
+&lt;my-table rows=<span class="c-string">"[...]"</span> columns=<span class="c-string">"[...]"</span>&gt;&lt;/my-table&gt;</pre>
+          <h3>React / Next</h3>
+          <p>
+            Import the module for its side effect (the
+            <code>customElements.define</code> calls), then use the tag in
+            JSX like any other element. One caveat for React below 19: it
+            stringifies props it doesn't recognize. For complex props, set
+            them imperatively:
+          </p>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-components"</span>;
+
+<span class="c-keyword">function</span> Page({ rows }) {
+  <span class="c-keyword">const</span> ref = useRef(<span class="c-keyword">null</span>);
+  useEffect(() =&gt; { <span class="c-keyword">if</span> (ref.current) ref.current.rows = rows; }, [rows]);
+  <span class="c-keyword">return</span> &lt;my-table ref={ref} /&gt;;
+}</pre>
+          <h3>Vue</h3>
+          <p>
+            Vue treats unknown elements as custom elements out of the box
+            and passes properties correctly with the
+            <code>:rows="..."</code> binding. No imperative escape hatch
+            needed.
+          </p>
+          <h3>Astro, Eleventy, plain Markdown</h3>
+          <p>
+            Drop the <code>&lt;my-table&gt;</code> tag into the template and
+            include the module script in the head. The component upgrades
+            on first paint. This is the case I personally care about most:
+            small, embeddable, framework-agnostic widgets that survive
+            being copy-pasted into someone else's site.
+          </p>
+
+          <h2>What's not in v0.3</h2>
+          <p>
+            A few things I considered for this release and deliberately
+            held back, so the shape stayed small:
+          </p>
+          <ul>
+            <li><strong>Refs.</strong> A first-class way to grab child element instances inside lifecycle hooks. Planned for 0.4.</li>
+            <li><strong>Computed values.</strong> Memoized derivations from props and state. The current pattern (a plain function in the template) is fine for now.</li>
+            <li><strong>SSR / declarative shadow DOM.</strong> The library is render-on-mount today. Streaming the shadow tree at request time is a real piece of work and will land separately.</li>
+            <li><strong>Devtools extension.</strong> A panel that shows props, state, and the keyed list maps. On the wishlist, not promised.</li>
+            <li><strong>A "kit" package.</strong> A separate <code>@ra9/tan-compose-kit</code> with primitives like <code>&lt;tc-input&gt;</code>, <code>&lt;tc-modal&gt;</code>, <code>&lt;tc-tabs&gt;</code>. The core library will keep refusing to ship UI of its own.</li>
+          </ul>
+          <p>
+            The library stays small on purpose. If something belongs in
+            userland, I'd rather it live there.
+          </p>
+
+          <hr class="rule" />
+          <p class="closing">
+            Try the <a href="./playground.html">Playground</a>. Read the
+            <a href="./docs.html">Docs</a>. Or fork it on
+            <a
+              href="https://github.com/ra9/tan-compose"
+              target="_blank"
+              rel="noopener"
+              >GitHub</a
+            >.
+          </p>
+          <p>The library is what it is — feedback welcome.</p>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="./docs.html">Docs</a>
+          <a href="./examples.html">Examples</a>
+          <a href="./playground.html">Playground</a>
+          <a href="./blog.html">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+            >JSR</a
+          >
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

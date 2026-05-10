@@ -17,12 +17,20 @@ for theming, event emission, reactivity, and encapsulation using the Shadow DOM.
   isolation
 - **Event Emitters**: Communicate between child and parent components via custom
   events
-- **Reactive Attributes**: Components automatically update when attributes
-  change
-- **State Management**: Built-in state management with `setState` and `getState`
-  methods
-- **Lifecycle Hooks**: `beforeMount` and `afterMount` hooks for component
-  lifecycle management
+- **Typed Properties**: Declarative `string` / `number` / `boolean` / `json`
+  props with reactive setters and optional attribute reflection
+- **Function Templates**: Templates can be functions `(ctx) => string` for
+  reactive text interpolation
+- **Event Delegation**: Map-based delegated event handlers
+  (`"click .selector": handler`) attached once at the shadow-container level
+- **Keyed List Rendering**: `for: { items, key, render }` with DOM-node reuse
+  across renders for performant lists
+- **Conditional Rendering**: `if: (ctx) => boolean` to omit subtrees from output
+- **Reactive Attributes**: Opt-in via `observedAttributes`; changes trigger
+  re-render
+- **State Management**: Built-in `setState` / `getState` (setState triggers
+  re-render when the value changes)
+- **Lifecycle Hooks**: `beforeMount`, `afterMount`, and `unmount`
 - **Memory Leak Prevention**: Automatic cleanup of event listeners and resources
 - **Recursive Component Building**: Nest and compose components in a declarative
   way
@@ -278,6 +286,97 @@ build("themed-btn", themedButton);
 
 ```html
 <themed-btn></themed-btn>
+```
+
+### Typed Properties
+
+Declare reactive properties on the instance. Setting one triggers a re-render:
+
+```javascript
+import { build, describe } from "@ra9/tan-compose";
+
+build(
+  "user-card",
+  describe({
+    props: {
+      name: { type: "string", default: "Anonymous" },
+      age: { type: "number", default: 0 },
+      isAdmin: { type: "boolean", default: false, reflect: true },
+      tags: { type: "json", default: [] },
+    },
+    template: ({ props }) => `
+      <h3>${props.name}, ${props.age}</h3>
+      ${props.isAdmin ? '<span class="admin">admin</span>' : ""}
+      ${(props.tags ?? []).map((t) => `<span>${t}</span>`).join(" ")}
+    `,
+  }),
+);
+```
+
+```html
+<user-card name="Carlos" age="29" tags='["dev","ops"]'></user-card>
+<script type="module">
+  document.querySelector("user-card").tags = ["dev", "ops", "design"];
+</script>
+```
+
+### Function Templates and Event Delegation
+
+`template` can be a function that receives the render context. Combine with
+`events` to keep handlers declarative:
+
+```javascript
+build(
+  "click-counter",
+  describe({
+    template: ({ state }) => `
+      <p>Count: ${state.count ?? 0}</p>
+      <button class="bump">Bump</button>
+      <button class="reset">Reset</button>
+    `,
+    events: {
+      "click .bump": (_e, ctx) =>
+        ctx.setState("count", (ctx.state.count ?? 0) + 1),
+      "click .reset": (_e, ctx) => ctx.setState("count", 0),
+    },
+  }),
+);
+```
+
+### Lists and Conditionals
+
+Render keyed lists with DOM-node reuse and short-circuit subtrees with `if`:
+
+```javascript
+build(
+  "todo-list",
+  describe({
+    props: {
+      items: { type: "json", default: [] },
+      hideDone: { type: "boolean", default: false },
+    },
+    children: [
+      describe({
+        tag: "p",
+        template: "All done!",
+        if: ({ props }) => props.hideDone && props.items.every((i) => i.done),
+      }),
+      describe({
+        tag: "ul",
+        for: {
+          items: ({ props }) =>
+            props.hideDone ? props.items.filter((i) => !i.done) : props.items,
+          key: (item) => item.id,
+          render: (item) =>
+            describe({
+              tag: "li",
+              template: `${item.done ? "✔" : "○"} ${item.text}`,
+            }),
+        },
+      }),
+    ],
+  }),
+);
 ```
 
 ### Reactive Attributes

@@ -4,4 +4,15 @@ export {
   getRegisteredComponents,
   isComponentRegistered,
 } from "./build.ts";
-export type { DescribeOptions, EventEmitter, Styles, Theme } from "./types.ts";
+export type {
+  ComponentCtx,
+  DescribeOptions,
+  EventDelegateMap,
+  EventEmitter,
+  ListConfig,
+  PropDef,
+  PropType,
+  Styles,
+  TemplateFn,
+  Theme,
+} from "./types.ts";

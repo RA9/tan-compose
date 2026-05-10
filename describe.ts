@@ -1,16 +1,20 @@
-import type { DescribeOptions } from "./types.ts";
+import type { DescribeOptions, PropDef } from "./types.ts";
 
 const HOOK_FIELDS = ["beforeMount", "afterMount", "unmount", "action"] as const;
+const VALID_PROP_TYPES = new Set(["string", "number", "boolean", "json"]);
 
 /**
  * Validates and returns a component description.
  *
  * Throws TypeError on invalid options:
  *  - non-object input
- *  - non-string `tag`, `className`, or `template`
- *  - non-array `children` or `emit` or `observedAttributes`
+ *  - non-string `tag`, `className`
+ *  - `template` not a string or function
+ *  - non-array `children`, `emit`, `observedAttributes`
  *  - non-function lifecycle hooks
- *  - non-record `theme` / `styles` / `attributes`
+ *  - non-record `theme` / `styles` / `attributes` / `events` / `props`
+ *  - prop defs with invalid `type`
+ *  - both `children` and `for` set on the same node
  */
 export function describe(options: DescribeOptions): DescribeOptions {
   if (options === null || typeof options !== "object") {
@@ -25,8 +29,12 @@ export function describe(options: DescribeOptions): DescribeOptions {
   ) {
     throw new TypeError("describe(): `className` must be a string");
   }
-  if (options.template !== undefined && typeof options.template !== "string") {
-    throw new TypeError("describe(): `template` must be a string");
+  if (
+    options.template !== undefined &&
+    typeof options.template !== "string" &&
+    typeof options.template !== "function"
+  ) {
+    throw new TypeError("describe(): `template` must be a string or function");
   }
 
   if (options.children !== undefined && !Array.isArray(options.children)) {
@@ -45,7 +53,7 @@ export function describe(options: DescribeOptions): DescribeOptions {
     );
   }
 
-  for (const field of ["theme", "styles", "attributes"] as const) {
+  for (const field of ["theme", "styles", "attributes", "events"] as const) {
     const value = options[field];
     if (
       value !== undefined &&
@@ -59,6 +67,52 @@ export function describe(options: DescribeOptions): DescribeOptions {
     const value = options[field];
     if (value !== undefined && typeof value !== "function") {
       throw new TypeError(`describe(): \`${field}\` must be a function`);
+    }
+  }
+
+  if (options.if !== undefined && typeof options.if !== "function") {
+    throw new TypeError("describe(): `if` must be a function");
+  }
+
+  if (options.for !== undefined) {
+    const list = options.for;
+    if (list === null || typeof list !== "object" || Array.isArray(list)) {
+      throw new TypeError("describe(): `for` must be a record");
+    }
+    if (typeof list.items !== "function") {
+      throw new TypeError("describe(): `for.items` must be a function");
+    }
+    if (typeof list.key !== "function") {
+      throw new TypeError("describe(): `for.key` must be a function");
+    }
+    if (typeof list.render !== "function") {
+      throw new TypeError("describe(): `for.render` must be a function");
+    }
+    if (options.children !== undefined) {
+      throw new TypeError(
+        "describe(): cannot set both `children` and `for` on the same node",
+      );
+    }
+  }
+
+  if (options.props !== undefined) {
+    const props = options.props;
+    if (props === null || typeof props !== "object" || Array.isArray(props)) {
+      throw new TypeError("describe(): `props` must be a record");
+    }
+    for (
+      const [name, def] of Object.entries(props as Record<string, PropDef>)
+    ) {
+      if (def === null || typeof def !== "object" || Array.isArray(def)) {
+        throw new TypeError(
+          `describe(): props.${name} must be a record`,
+        );
+      }
+      if (!VALID_PROP_TYPES.has(def.type)) {
+        throw new TypeError(
+          `describe(): props.${name}.type must be one of "string", "number", "boolean", "json"`,
+        );
+      }
     }
   }
 
