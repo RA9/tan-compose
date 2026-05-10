@@ -498,6 +498,58 @@ test("tc-grid uses repeat(auto-fit, minmax(min, 1fr)) by default", () => {
   document.body.removeChild(el);
 });
 
+test("tc-table: column render callback emits raw HTML (regression: v1.1 bug)", () => {
+  const el = document.createElement(tags.table) as HTMLElement & {
+    rows: Array<Record<string, unknown>>;
+    columns: Array<{
+      key: string;
+      label: string;
+      render?: (row: Record<string, unknown>) => string;
+    }>;
+  };
+  el.columns = [
+    { key: "name", label: "Name" },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => `<span class="status-badge">${row.status}</span>`,
+    },
+  ];
+  el.rows = [
+    { id: 1, name: "Ada", status: "active" },
+    { id: 2, name: "Linus", status: "trial" },
+  ];
+  document.body.appendChild(el);
+
+  const badges = el.shadowRoot!.querySelectorAll(".status-badge");
+  assertEquals(badges.length, 2);
+  assertEquals(badges[0].textContent, "active");
+  assertEquals(badges[1].textContent, "trial");
+  // The default `name` column should still be escaped.
+  const tds = el.shadowRoot!.querySelectorAll("tbody td");
+  assertEquals(tds[0].textContent, "Ada");
+  document.body.removeChild(el);
+});
+
+test("tc-table: cells without render() escape HTML (XSS guard)", () => {
+  const el = document.createElement(tags.table) as HTMLElement & {
+    rows: Array<Record<string, unknown>>;
+    columns: Array<{ key: string; label: string }>;
+  };
+  el.columns = [{ key: "name", label: "Name" }];
+  el.rows = [{ id: 1, name: "<img src=x onerror=alert(1)>" }];
+  document.body.appendChild(el);
+
+  // The string should appear as TEXT, not as an embedded image.
+  const td = el.shadowRoot!.querySelector("tbody td") as HTMLElement;
+  assertEquals(td.querySelector("img"), null);
+  assert(
+    (td.textContent ?? "").includes("onerror"),
+    "expected the malicious markup to render as escaped text",
+  );
+  document.body.removeChild(el);
+});
+
 test("tc-table: filter input keeps focus across keystrokes (regression: v1.1 bug)", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<{ id: number; name: string }>;

@@ -3,6 +3,39 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.2.0] - 2026-05-10
+
+### Added
+
+- **`<tc-table>` per-column `render` callback.** Columns now accept an optional
+  `render: (row) => string` that returns raw HTML for that cell, opting out of
+  the default escape-on-display behavior. Use it to embed kit components inside
+  table cells:
+  ```js
+  table.columns = [
+    { key: "name", label: "Name" },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) =>
+        `<tc-badge variant="${
+          variantFor(row.status)
+        }">${row.status}</tc-badge>`,
+    },
+  ];
+  ```
+  Cells without a `render` keep escaping (XSS safe). Two regression tests added
+  — one for the new path, one asserting the default still escapes
+  `<img onerror>` payloads to text.
+
+### Changed
+
+- The admin demo (`/demo/admin/`) now uses `render` callbacks instead of
+  pre-computed `*Display` fields. The previous approach silently escaped the
+  badge HTML to text and rendered it as literal markup — visible regression
+  introduced in 1.1's `for:` migration. The "Anatomy of an admin dashboard" blog
+  post is updated to match the correct API.
+
 ## [1.1.3] - 2026-05-10
 
 ### Fixed

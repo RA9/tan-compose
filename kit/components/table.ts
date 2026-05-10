@@ -33,6 +33,22 @@ interface Column {
   key: string;
   label: string;
   sortable?: boolean;
+  /**
+   * Optional custom cell renderer. Returns raw HTML — the table does NOT
+   * escape the result, so the caller is responsible for escaping
+   * untrusted values. Use this to embed kit components inside cells:
+   *
+   *   {
+   *     key: "status",
+   *     label: "Status",
+   *     render: (row) =>
+   *       `<tc-badge variant="${variantFor(row.status)}">${row.status}</tc-badge>`,
+   *   }
+   *
+   * Note: only takes effect when columns are set via the JS property
+   * (`el.columns = [...]`). Functions can't survive a JSON attribute.
+   */
+  render?: (row: Row) => string;
 }
 
 interface Row {
@@ -231,7 +247,11 @@ build(
                       tag: "tr",
                       attributes: { "data-row-id": String(r["id"] ?? i) },
                       template: cols.map((c) =>
-                        `<td>${esc(r[c.key] ?? "")}</td>`
+                        `<td>${
+                          typeof c.render === "function"
+                            ? c.render(r)
+                            : esc(r[c.key] ?? "")
+                        }</td>`
                       ).join(""),
                     });
                   },

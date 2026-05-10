@@ -398,41 +398,46 @@ activeOnly.addEventListener(<span class="c-string">"tc-change"</span>, (e) =&gt;
 
           <h2>Embedding kit components inside table cells</h2>
           <p>
-            <code>&lt;tc-table&gt;</code> doesn't have a render-cell hook — it
-            interpolates the row object's column values as text. But HTML <em
-            >strings</em> work too, because the table sets
-            <code>innerHTML</code> on each cell. So if a row has
-            <code>statusDisplay: "&lt;tc-badge
-              variant='success'&gt;active&lt;/tc-badge&gt;"</code>, the cell
-            renders a real, working badge — Shadow DOM and all.
+            <code>&lt;tc-table&gt;</code> escapes raw cell values by default —
+            an XSS guard that's especially important when cells display
+            user-controlled strings like emails or names. To embed kit
+            components, use a column-level <code>render</code> callback that
+            returns raw HTML. The caller takes responsibility for escaping
+            anything untrusted.
           </p>
 
           <pre
             class="code"
-          ><span class="c-keyword">function</span> renderRow(c) {
-  <span class="c-keyword">return</span> {
-    ...c,
-    statusDisplay: <span class="c-string">`&lt;tc-badge variant="${statusVariant(c.status)}" pill&gt;${c.status}&lt;/tc-badge&gt;`</span>,
-    planDisplay:   <span class="c-string">`&lt;tc-badge variant="${planVariant(c.plan)}"&gt;${c.plan}&lt;/tc-badge&gt;`</span>,
-    mrrDisplay:    fmtMRR(c.mrr),
-  };
+          ><span class="c-keyword">function</span> planVariant(p) {
+  <span class="c-keyword">return</span> p === <span class="c-string">"Team"</span> ? <span class="c-string">"info"</span> : p === <span class="c-string">"Pro"</span> ? <span class="c-string">"success"</span> : <span class="c-string">"neutral"</span>;
 }
 
 table.columns = [
-  { key: <span class="c-string">"name"</span>,           label: <span class="c-string">"Name"</span>,   sortable: <span class="c-keyword">true</span> },
-  { key: <span class="c-string">"email"</span>,          label: <span class="c-string">"Email"</span> },
-  { key: <span class="c-string">"planDisplay"</span>,    label: <span class="c-string">"Plan"</span> },
-  { key: <span class="c-string">"mrrDisplay"</span>,     label: <span class="c-string">"MRR"</span>,    sortable: <span class="c-keyword">true</span> },
-  { key: <span class="c-string">"statusDisplay"</span>,  label: <span class="c-string">"Status"</span> },
-  { key: <span class="c-string">"joined"</span>,         label: <span class="c-string">"Joined"</span>, sortable: <span class="c-keyword">true</span> },
+  { key: <span class="c-string">"name"</span>,   label: <span class="c-string">"Name"</span>,  sortable: <span class="c-keyword">true</span> },
+  { key: <span class="c-string">"email"</span>,  label: <span class="c-string">"Email"</span> },
+  {
+    key: <span class="c-string">"plan"</span>, label: <span class="c-string">"Plan"</span>,
+    render: (row) =&gt;
+      <span class="c-string">`&lt;tc-badge variant="${planVariant(row.plan)}"&gt;${row.plan}&lt;/tc-badge&gt;`</span>,
+  },
+  {
+    key: <span class="c-string">"mrr"</span>, label: <span class="c-string">"MRR"</span>, sortable: <span class="c-keyword">true</span>,
+    render: (row) =&gt; fmtMRR(row.mrr),
+  },
+  {
+    key: <span class="c-string">"status"</span>, label: <span class="c-string">"Status"</span>,
+    render: (row) =&gt;
+      <span class="c-string">`&lt;tc-badge variant="${statusVariant(row.status)}" pill&gt;${row.status}&lt;/tc-badge&gt;`</span>,
+  },
+  { key: <span class="c-string">"joined"</span>, label: <span class="c-string">"Joined"</span>, sortable: <span class="c-keyword">true</span> },
 ];</pre>
 
           <p>
-            <code>renderRow()</code> is just a projection. Original fields stay
-            (so sorting on raw <code>mrr</code> still works numerically);
-            display fields are derived. The columns reference whichever field
-            the cell should show. Sortable columns sort on the underlying type
-            when it's a number.
+            The original row fields stay untouched — that's important for
+            sorting, where <code>{ key: "mrr" }</code> still sees the underlying
+            number even though the cell renders <code>fmtMRR</code>'s display
+            string. The <code>render</code> callback only affects what shows in
+            the cell.
           </p>
 
           <div class="pull">
@@ -442,6 +447,14 @@ table.columns = [
             "must be in JSX" or "must be in a template" constraint. If the tag
             is registered, the browser upgrades it.
           </div>
+
+          <p>
+            <code>render</code> is a function reference, so it only works when
+            you set columns via the JS property (<code>table.columns =
+              […]</code>) — not via a JSON attribute. For the dashboard case
+            this is the natural path; for HTML-only setups, fall back to
+            pre-computing display fields and accept that they'll render as text.
+          </p>
 
           <h2>Two modals, two state owners</h2>
           <p>

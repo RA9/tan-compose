@@ -982,32 +982,38 @@
           ? "danger"
           : "neutral";
 
-      function renderRow(c) {
-        return {
-          ...c,
-          mrrDisplay: fmtMRR(c.mrr),
-          // Render status as a badge inside the cell (table interpolates HTML).
-          statusDisplay: `<tc-badge variant="${
-            statusVariant(
-              c.status,
-            )
-          }" pill>${c.status}</tc-badge>`,
-          planDisplay: `<tc-badge variant="${
-            c.plan === "Team"
-              ? "info"
-              : c.plan === "Pro"
-              ? "success"
-              : "neutral"
-          }">${c.plan}</tc-badge>`,
-        };
+      function planVariant(p) {
+        return p === "Team" ? "info" : p === "Pro" ? "success" : "neutral";
       }
 
+      // The table escapes raw cell values for XSS safety. To embed kit
+      // components, use a column-level `render` callback that returns raw
+      // HTML (the caller is responsible for escaping untrusted content).
       table.columns = [
         { key: "name", label: "Name", sortable: true },
         { key: "email", label: "Email" },
-        { key: "planDisplay", label: "Plan" },
-        { key: "mrrDisplay", label: "MRR", sortable: true },
-        { key: "statusDisplay", label: "Status" },
+        {
+          key: "plan",
+          label: "Plan",
+          render: (row) =>
+            `<tc-badge variant="${
+              planVariant(row.plan)
+            }">${row.plan}</tc-badge>`,
+        },
+        {
+          key: "mrr",
+          label: "MRR",
+          sortable: true,
+          render: (row) => fmtMRR(row.mrr),
+        },
+        {
+          key: "status",
+          label: "Status",
+          render: (row) =>
+            `<tc-badge variant="${
+              statusVariant(row.status)
+            }" pill>${row.status}</tc-badge>`,
+        },
         { key: "joined", label: "Joined", sortable: true },
       ];
 
@@ -1034,7 +1040,7 @@
           }
           return true;
         });
-        table.rows = filtered.map(renderRow);
+        table.rows = filtered;
         const n = filtered.length;
         resultCount.textContent = `${n} matching${
           n === customers.length ? " (all)" : ` of ${customers.length}`
@@ -1086,7 +1092,7 @@
 
       table.addEventListener("tc-row-click", (e) => {
         const row = e.detail.row;
-        // Find the original customer (rows are mapped through renderRow).
+        // Rows are now passed through unmapped; find by id for safety.
         const c = customers.find((x) => x.id === row.id) || row;
         activeCustomer = c;
         detailName.textContent = c.name;
