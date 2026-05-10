@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A walk-through of the admin dashboard demo — how an in-memory store, a filter bar, two modals, and a theme switcher compose into a real internal tool with @ra9/tan-compose-kit."
+    />
+    <title>Anatomy of an admin dashboard — Tan Compose blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      .wrap-narrow {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+      }
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+      .topbar nav a:hover, .topbar nav a[aria-current="page"] {
+        color: var(--accent);
+      }
+
+      header.post-head {
+        padding: 56px 0 12px;
+      }
+      .post-eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(1.9rem, 4vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        margin-bottom: 14px;
+      }
+      .article-meta {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--ink-muted);
+      }
+
+      article {
+        padding: 24px 0 56px;
+      }
+      article p {
+        color: var(--ink);
+        font-size: 1.02rem;
+        line-height: 1.72;
+        margin: 0 0 18px;
+      }
+      article p.lede {
+        font-size: 1.12rem;
+        color: var(--ink-soft);
+        margin-bottom: 24px;
+      }
+      article h2 {
+        font-size: 1.45rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 36px 0 14px;
+      }
+      article h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 24px 0 8px;
+      }
+      article a {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-color: var(--rule-strong);
+      }
+      article a:hover {
+        text-decoration-color: var(--accent);
+      }
+      article code {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.92em;
+      }
+      article p code, article li code {
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      pre.code {
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.84rem;
+        line-height: 1.7;
+        padding: 22px 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 0 0 22px;
+      }
+      pre.code .c-comment {
+        color: var(--code-comment);
+      }
+      pre.code .c-keyword {
+        color: var(--code-keyword);
+      }
+      pre.code .c-string {
+        color: var(--code-string);
+      }
+
+      article ul {
+        margin: 0 0 18px 22px;
+      }
+      article li {
+        line-height: 1.7;
+        margin-bottom: 6px;
+      }
+
+      .pull {
+        border-left: 3px solid var(--accent);
+        padding: 4px 0 4px 18px;
+        margin: 24px 0;
+        color: var(--ink-soft);
+        font-size: 0.98rem;
+      }
+
+      hr.rule {
+        border: none;
+        height: 1px;
+        background: var(--rule);
+        margin: 36px 0 24px;
+      }
+      .closing {
+        color: var(--ink-soft);
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 32px 0 56px;
+        margin-top: 32px;
+      }
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        header.post-head {
+          padding: 36px 0 8px;
+        }
+        article {
+          padding: 12px 0 36px;
+        }
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="../index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v1.1.3</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="../docs.html" class="nav-hide-sm">Docs</a>
+          <a href="../components.html" class="nav-hide-sm">Components</a>
+          <a href="../themes.html" class="nav-hide-sm">Themes</a>
+          <a href="../playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./index.html" aria-current="page">Blog</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="post-head">
+        <div class="wrap-narrow">
+          <div class="post-eyebrow">deep dive · demo</div>
+          <h1>Anatomy of an admin dashboard</h1>
+          <div class="article-meta">
+            Posted 2026-05-10 · uses kit v1.1 · ~1004 lines of HTML
+          </div>
+        </div>
+      </header>
+
+      <article>
+        <div class="wrap-narrow">
+          <p class="lede">
+            The <a href="../demo/admin/">admin dashboard demo</a> is a real
+            internal-tool shape — stat cards, a filter bar, a paginated customer
+            table, click-to-detail and invite modals, toasts on every mutation,
+            a theme switcher in the top bar — built end-to-end with <code
+            >@ra9/tan-compose-kit</code>. One HTML file, no framework, no
+            bundler. This post walks through how it's composed and what each
+            pattern is doing.
+          </p>
+
+          <h2>The architecture in one breath</h2>
+          <p>
+            One file. One in-memory array of customers. One
+            <code>refresh()</code> function that recomputes the visible slice
+            and hands it to <code>&lt;tc-table&gt;</code>. Every mutation goes
+            through the same path:
+          </p>
+          <pre
+            class="code"
+          ><span class="c-comment">// ── data ───────────────────────────────────────────</span>
+<span class="c-keyword">let</span> customers = RAW_CUSTOMERS.map((r, i) =&gt; ({ ...r, id: i }));
+<span class="c-keyword">let</span> q = <span class="c-string">""</span>;          <span class="c-comment">// search query</span>
+<span class="c-keyword">let</span> plan = <span class="c-string">""</span>;       <span class="c-comment">// plan filter</span>
+<span class="c-keyword">let</span> onlyActive = <span class="c-keyword">false</span>;
+
+<span class="c-comment">// ── derived view ───────────────────────────────────</span>
+<span class="c-keyword">function</span> refresh() {
+  <span class="c-keyword">const</span> filtered = customers.filter(matchesFilters);
+  table.rows = filtered.map(renderRow);
+  resultCount.textContent = `${filtered.length} matching of ${customers.length}`;
+}</pre>
+          <p>
+            That's the whole "store." When the user types into the search box,
+            <code>q</code> updates and <code>refresh()</code>
+            fires. When they pick a plan from the filter dropdown,
+            <code>plan</code> updates and <code>refresh()</code> fires. When
+            they delete a customer, <code>customers</code> mutates and <code
+            >refresh()</code> fires. The kit components handle the actual DOM
+            work.
+          </p>
+          <p>
+            For a 30-row table this is overkill. For a 30,000-row table it's
+            still fine because <code>&lt;tc-table&gt;</code> uses keyed
+            reconciliation under the hood — only the rows that actually changed
+            get rebuilt.
+          </p>
+
+          <h2>The filter bar reads from three controls</h2>
+          <p>
+            Three form-associated kit components sit above the table — a <code
+            >&lt;tc-input&gt;</code> for free-text search, a
+            <code>&lt;tc-select&gt;</code> for plan tier, and a
+            <code>&lt;tc-switch&gt;</code> for "active only." Each one is its
+            own little state cell:
+          </p>
+
+          <pre
+            class="code"
+          >search.addEventListener(<span class="c-string">"input"</span>, (e) =&gt; {
+  q = (e.target.value || <span class="c-string">""</span>).trim();
+  refresh();
+});
+
+planFilter.addEventListener(<span class="c-string">"tc-change"</span>, (e) =&gt; {
+  plan = e.detail.value || <span class="c-string">""</span>;
+  refresh();
+});
+
+activeOnly.addEventListener(<span class="c-string">"tc-change"</span>, (e) =&gt; {
+  onlyActive = e.detail.checked;
+  refresh();
+});</pre>
+
+          <p>
+            Note the two event names. Plain <code>input</code> events fire on
+            the underlying native input inside
+            <code>&lt;tc-input&gt;</code>, but kit components also dispatch
+            their own semantic events (<code>tc-change</code>,
+            <code>tc-input</code>) so you can listen to whatever shape fits.
+            Pick one and stay consistent — I went with the kit's events for the
+            select and switch because they carry typed
+            <code>detail</code>, but used the native <code>input</code>
+            event for the text field because the native shape is already what I
+            want.
+          </p>
+
+          <h2>Embedding kit components inside table cells</h2>
+          <p>
+            <code>&lt;tc-table&gt;</code> doesn't have a render-cell hook — it
+            interpolates the row object's column values as text. But HTML <em
+            >strings</em> work too, because the table sets
+            <code>innerHTML</code> on each cell. So if a row has
+            <code>statusDisplay: "&lt;tc-badge
+              variant='success'&gt;active&lt;/tc-badge&gt;"</code>, the cell
+            renders a real, working badge — Shadow DOM and all.
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-keyword">function</span> renderRow(c) {
+  <span class="c-keyword">return</span> {
+    ...c,
+    statusDisplay: <span class="c-string">`&lt;tc-badge variant="${statusVariant(c.status)}" pill&gt;${c.status}&lt;/tc-badge&gt;`</span>,
+    planDisplay:   <span class="c-string">`&lt;tc-badge variant="${planVariant(c.plan)}"&gt;${c.plan}&lt;/tc-badge&gt;`</span>,
+    mrrDisplay:    fmtMRR(c.mrr),
+  };
+}
+
+table.columns = [
+  { key: <span class="c-string">"name"</span>,           label: <span class="c-string">"Name"</span>,   sortable: <span class="c-keyword">true</span> },
+  { key: <span class="c-string">"email"</span>,          label: <span class="c-string">"Email"</span> },
+  { key: <span class="c-string">"planDisplay"</span>,    label: <span class="c-string">"Plan"</span> },
+  { key: <span class="c-string">"mrrDisplay"</span>,     label: <span class="c-string">"MRR"</span>,    sortable: <span class="c-keyword">true</span> },
+  { key: <span class="c-string">"statusDisplay"</span>,  label: <span class="c-string">"Status"</span> },
+  { key: <span class="c-string">"joined"</span>,         label: <span class="c-string">"Joined"</span>, sortable: <span class="c-keyword">true</span> },
+];</pre>
+
+          <p>
+            <code>renderRow()</code> is just a projection. Original fields stay
+            (so sorting on raw <code>mrr</code> still works numerically);
+            display fields are derived. The columns reference whichever field
+            the cell should show. Sortable columns sort on the underlying type
+            when it's a number.
+          </p>
+
+          <div class="pull">
+            <strong>Why this works:</strong> custom elements parse and register
+            the moment HTML containing them is added to the DOM, regardless of
+            <em>how</em> it got there — innerHTML assignment is fine. There's no
+            "must be in JSX" or "must be in a template" constraint. If the tag
+            is registered, the browser upgrades it.
+          </div>
+
+          <h2>Two modals, two state owners</h2>
+          <p>
+            The dashboard has an Invite modal and a Detail modal. Both are <code
+            >&lt;tc-modal&gt;</code> instances, but they own their state
+            differently because they do different things.
+          </p>
+
+          <h3>Invite — the modal owns the form</h3>
+          <p>
+            The Invite modal contains a form. The form has its own state (the
+            email being typed, the plan being selected, the optional personal
+            message). That state lives entirely inside the modal until the user
+            clicks "Send invite," at which point we read it via <code
+            >FormData</code>, push a new customer onto the array, close the
+            modal, and toast.
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-keyword">const</span> inviteForm = document.getElementById(<span class="c-string">"invite-form"</span>);
+
+inviteSubmit.addEventListener(<span class="c-string">"click"</span>, () =&gt; {
+  <span class="c-keyword">const</span> data = Object.fromEntries(<span class="c-keyword">new</span> FormData(inviteForm));
+  customers = [
+    { id: nextId++, name: data.email.split(<span class="c-string">"@"</span>)[0], email: data.email,
+      plan: data.plan || <span class="c-string">"Free"</span>, mrr: 0, status: <span class="c-string">"trial"</span>,
+      joined: today() },
+    ...customers,
+  ];
+  inviteModal.open = <span class="c-keyword">false</span>;
+  inviteForm.reset();
+  refresh();
+  toast(<span class="c-string">"success"</span>, <span class="c-string">`Invite sent to ${data.email}`</span>);
+});</pre>
+
+          <p>
+            <code>FormData</code> works because every kit form field is
+            form-associated. <code>form.reset()</code> works for the same reason
+            — the kit's reset callbacks blank each field's value. There's
+            nothing custom here; it's just HTML forms.
+          </p>
+
+          <h3>Detail — the modal reads from a captured row</h3>
+          <p>
+            The Detail modal opens when a table row is clicked. It reads the
+            customer record once, populates its fields, and shows itself. While
+            it's open, the modal's "state" is just
+            <code>activeCustomer</code> — the captured row.
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-keyword">let</span> activeCustomer = <span class="c-keyword">null</span>;
+
+table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; {
+  <span class="c-keyword">const</span> row = e.detail.row;
+  activeCustomer = customers.find((c) =&gt; c.id === row.id);
+  detailName.textContent = activeCustomer.name;
+  detailEmail.textContent = activeCustomer.email;
+  <span class="c-comment">// … fill the rest …</span>
+  detailModal.open = <span class="c-keyword">true</span>;
+});
+
+cancelSub.addEventListener(<span class="c-string">"click"</span>, () =&gt; {
+  <span class="c-keyword">if</span> (!activeCustomer) <span class="c-keyword">return</span>;
+  activeCustomer.status = <span class="c-string">"cancelled"</span>;
+  activeCustomer.mrr = 0;
+  detailModal.open = <span class="c-keyword">false</span>;
+  refresh();
+  toast(<span class="c-string">"warning"</span>, <span class="c-string">`${activeCustomer.name}'s subscription cancelled`</span>);
+});</pre>
+
+          <p>
+            Splitting the modals this way is deliberate. Invite owns its data
+            because it's a self-contained creation flow. Detail just looks at
+            and mutates an existing record, so the modal is a window onto the
+            store, not its own state cell.
+          </p>
+
+          <h2>The theme switcher is three constants and a style tag</h2>
+          <p>
+            One of the things that surprised me building this is how cheap a
+            working theme switcher is. The kit's tokens live on
+            <code>:root</code> and cascade through Shadow DOM, so to re-skin the
+            entire UI you just rewrite a few CSS variables. The switcher is a
+            <code>&lt;tc-select&gt;</code> with four options and ~30 lines of
+            glue:
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-keyword">function</span> applyTheme(name) {
+  document.querySelectorAll(<span class="c-string">"style[data-tc-theme]"</span>).forEach((s) =&gt; s.remove());
+  <span class="c-keyword">if</span> (name === <span class="c-string">"dark"</span>) inject(<span class="c-string">"dark"</span>, DARK_CSS);
+  <span class="c-keyword">else if</span> (name === <span class="c-string">"bootstrap"</span>) inject(<span class="c-string">"bootstrap"</span>, BOOTSTRAP_CSS);
+  <span class="c-keyword">else if</span> (name === <span class="c-string">"tailwind"</span>) inject(<span class="c-string">"tailwind"</span>, TAILWIND_CSS);
+  <span class="c-comment">// "light" leaves the base tokens.css in place; nothing to do.</span>
+}
+
+themeSelect.addEventListener(<span class="c-string">"tc-change"</span>, (e) =&gt; {
+  applyTheme(e.detail.value || <span class="c-string">"light"</span>);
+});</pre>
+
+          <p>
+            <code>DARK_CSS</code>, <code>BOOTSTRAP_CSS</code>, and
+            <code>TAILWIND_CSS</code> are string constants — the same CSS the
+            bundled theme presets ship as ES modules. The demo inlines them so
+            it doesn't have to fetch anything at switch-time. Production code
+            would just
+            <code>import "@ra9/tan-compose-kit/themes/dark"</code> and be done.
+          </p>
+
+          <p>
+            The switcher also re-skins the page chrome (not just kit components)
+            by setting matching <code>--bg</code> /
+            <code>--surface</code> values on <code>:root</code>. Without that,
+            the kit goes dark but the page stays cream — visually jarring.
+          </p>
+
+          <h2>What this dashboard <em>doesn't</em> do</h2>
+          <p>
+            For honesty's sake, the demo skips a few things any real internal
+            tool would need. Each one has a natural shape in the kit:
+          </p>
+
+          <ul>
+            <li>
+              <strong>Auth.</strong> No login. A real app would gate the
+              dashboard behind a session check. The kit doesn't opine here —
+              wire whatever auth you'd use anyway and redirect on 401.
+            </li>
+            <li>
+              <strong>Real persistence.</strong> Customers live in a JS array.
+              Replace
+              <code>customers = customers.filter(...)</code> with a
+              <code>fetch("/api/customers/123", { method: "DELETE" })</code>
+              and call <code>refresh()</code> in the success callback. Drop in a
+              <code>&lt;tc-skeleton&gt;</code> while loading.
+            </li>
+            <li>
+              <strong>Optimistic updates.</strong> The cancel-sub flow mutates
+              locally, then fires a toast. A real app would optimistically
+              update, kick off the request, and roll back on failure (with an
+              error toast). Same shape, two extra branches.
+            </li>
+            <li>
+              <strong>Server-side pagination.</strong>
+              <code>&lt;tc-table&gt;</code> paginates client-side. For 30k+ rows
+              you'd hand it just the current page and total count, then listen
+              for <code>tc-page-change</code> (which I should probably add) to
+              re-fetch.
+            </li>
+            <li>
+              <strong>Bulk actions.</strong> Multi-select would mean adding a
+              checkbox column and tracking selected IDs. The kit's <code
+              >&lt;tc-checkbox&gt;</code> handles the input; the rest is
+              application logic.
+            </li>
+          </ul>
+
+          <p>
+            None of these change the architecture. They slot into the same <code
+            >refresh()</code> path the demo already has.
+          </p>
+
+          <h2>The point</h2>
+          <p>
+            The demo is 1004 lines, of which maybe 500 are JavaScript and the
+            rest is the dashboard markup, sample data, and the inline theme CSS.
+            There is no build step. There is no framework runtime. Reading the
+            source top to bottom takes ten minutes — every behavior is in plain
+            sight, in the order it executes.
+          </p>
+          <p>
+            That's the bet of this whole project: the platform plus a small,
+            predictable component layer is enough for the kind of UI most teams
+            actually ship. Not every component needs a framework. Some of them
+            just need
+            <code>customElements.define</code> and a few hundred lines of glue.
+          </p>
+
+          <hr class="rule" />
+
+          <p class="closing">
+            Run the demo at <a href="../demo/admin/">/demo/admin/</a>. Read the
+            source at
+            <a
+              href="https://github.com/ra9/tan-compose/blob/main/demo/admin/index.html"
+              target="_blank"
+              rel="noopener"
+            >demo/admin/index.html on GitHub</a>. Or browse the
+            <a href="../components.html">Components</a> gallery to see each
+            piece in isolation.
+          </p>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="../docs.html">Docs</a>
+          <a href="../components.html">Components</a>
+          <a href="../themes.html">Themes</a>
+          <a href="./index.html">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose-kit"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
