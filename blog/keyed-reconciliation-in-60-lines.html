@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="How tan-compose's keyed list reconciliation works — annotated walkthrough of buildKeyedList in build.ts."
+    />
+    <title>Keyed list reconciliation in ~60 lines — Tan Compose blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .wrap-narrow {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+      }
+
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a[aria-current="page"] {
+        color: var(--accent);
+      }
+
+      header.post-head {
+        padding: 56px 0 12px;
+      }
+
+      .post-eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 4vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        margin-bottom: 14px;
+      }
+
+      .article-meta {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--ink-muted);
+        margin-top: 6px;
+      }
+
+      article {
+        padding: 24px 0 56px;
+      }
+
+      article p {
+        color: var(--ink);
+        font-size: 1.02rem;
+        line-height: 1.72;
+        margin: 0 0 18px;
+      }
+
+      article p.lede {
+        font-size: 1.12rem;
+        color: var(--ink-soft);
+        margin-bottom: 24px;
+      }
+
+      article h2 {
+        font-size: 1.45rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 36px 0 14px;
+      }
+
+      article h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 28px 0 10px;
+      }
+
+      article a {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-color: var(--rule-strong);
+      }
+
+      article a:hover {
+        text-decoration-color: var(--accent);
+      }
+
+      article code {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.92em;
+      }
+
+      article p code,
+      article li code {
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      pre.code {
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.84rem;
+        line-height: 1.7;
+        padding: 22px 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 0 0 22px;
+      }
+
+      pre.code .c-comment {
+        color: var(--code-comment);
+      }
+      pre.code .c-keyword {
+        color: var(--code-keyword);
+      }
+      pre.code .c-string {
+        color: var(--code-string);
+      }
+
+      article ul {
+        margin: 0 0 18px 22px;
+        color: var(--ink);
+      }
+
+      article li {
+        line-height: 1.7;
+        margin-bottom: 6px;
+      }
+
+      hr.rule {
+        border: none;
+        height: 1px;
+        background: var(--rule);
+        margin: 36px 0 24px;
+      }
+
+      .closing {
+        color: var(--ink-soft);
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 32px 0 56px;
+        margin-top: 32px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        header.post-head {
+          padding: 36px 0 8px;
+        }
+
+        article {
+          padding: 12px 0 36px;
+        }
+
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="../index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v0.3.0</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="../docs.html" class="nav-hide-sm">Docs</a>
+          <a href="../examples.html" class="nav-hide-sm">Examples</a>
+          <a href="../playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./index.html" aria-current="page">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            class="nav-hide-sm"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="post-head">
+        <div class="wrap-narrow">
+          <div class="post-eyebrow">deep dive</div>
+          <h1>Keyed list reconciliation in ~60 lines</h1>
+          <div class="article-meta">Posted 2026-05-10 · v0.3.0</div>
+        </div>
+      </header>
+
+      <article>
+        <div class="wrap-narrow">
+          <p class="lede">
+            The <code>for: { items, key, render }</code> field in v0.3 lets you
+            render a list of N items and have the same DOM nodes survive across
+            re-renders. This post walks through how it actually works — there's
+            no virtual DOM, no diff library, just a
+            <code>Map</code>, an identity check, and the live DOM.
+          </p>
+
+          <h2>The problem</h2>
+          <p>
+            Imagine a datatable with 1,000 rows and a search box. Every
+            keystroke filters <code>props.rows</code> down to the matching
+            subset and re-renders. The simple implementation — tear down all row
+            nodes, build new ones — works for ten rows. With a thousand, each
+            keystroke costs a relayout of the table, every focused input loses
+            focus, scroll position resets, and any per-row state (a half-typed
+            inline edit, an open menu) is gone.
+          </p>
+          <p>
+            Frameworks solve this with virtual-DOM diffing. tan-compose doesn't
+            ship a virtual DOM. It ships ~60 lines of careful bookkeeping
+            instead.
+          </p>
+
+          <h2>The shape of the cache</h2>
+          <p>
+            Every <code>for</code> block on a host element gets its own slot.
+            The slot is a <code>Map&lt;key, KeyedItem&gt;</code>:
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-keyword">type</span> KeyedItem = {
+  element: HTMLElement;
+  lastItem: <span class="c-keyword">unknown</span>;
+  cleanups: Array&lt;() =&gt; <span class="c-keyword">void</span>&gt;;
+};
+
+<span class="c-keyword">type</span> ListSlot = {
+  cache: Map&lt;<span class="c-keyword">string</span> | <span class="c-keyword">number</span>, KeyedItem&gt;;
+};</pre>
+
+          <p>
+            <code>element</code> is the live DOM node for that key. <code
+            >lastItem</code>
+            is the data object we rendered with — used for the identity check
+            below. <code>cleanups</code> holds any teardown functions we
+            registered while rendering this row, so we can undo them cleanly
+            when the row goes away.
+          </p>
+
+          <p>
+            The host stores all its slots in a <code>WeakMap</code> keyed by the
+            <code>DescribeOptions</code> object that defined the for block.
+            Because <code>describe()</code> objects are stable across renders
+            (you build them once, the renderer reuses them), two renders of the
+            same component find the same slot.
+          </p>
+
+          <h2>The reconciliation pass</h2>
+          <p>
+            On every parent re-render, the for block runs this loop:
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-keyword">function</span> buildKeyedList(description, scope, getSlot) {
+  <span class="c-keyword">const</span> list = description.<span class="c-keyword">for</span>;
+  <span class="c-keyword">const</span> slot = getSlot(description);
+  <span class="c-keyword">const</span> items = list.items(scope.ctx);
+  <span class="c-keyword">const</span> newCache = <span class="c-keyword">new</span> Map();
+  <span class="c-keyword">const</span> frag = document.createDocumentFragment();
+
+  <span class="c-keyword">for</span> (<span class="c-keyword">let</span> i = 0; i &lt; items.length; i++) {
+    <span class="c-keyword">const</span> item = items[i];
+    <span class="c-keyword">const</span> key = list.key(item, i);
+    <span class="c-keyword">const</span> cached = slot.cache.get(key);
+
+    <span class="c-keyword">let</span> entry;
+    <span class="c-keyword">if</span> (cached &amp;&amp; Object.is(cached.lastItem, item)) {
+      entry = cached;                     <span class="c-comment">// reuse verbatim</span>
+    } <span class="c-keyword">else</span> {
+      <span class="c-keyword">const</span> itemCleanups = [];
+      <span class="c-keyword">const</span> childDesc = list.render(item, i, scope.ctx);
+      <span class="c-keyword">const</span> element = buildElement(childDesc, { ...scope, cleanups: itemCleanups }, getSlot);
+      <span class="c-keyword">if</span> (cached) runCleanups(cached.cleanups);  <span class="c-comment">// item changed → tear down old</span>
+      entry = { element, lastItem: item, cleanups: itemCleanups };
+    }
+
+    newCache.set(key, entry);
+    frag.appendChild(entry.element);      <span class="c-comment">// re-appending moves, doesn't clone</span>
+  }
+
+  <span class="c-keyword">for</span> (<span class="c-keyword">const</span> [key, entry] <span class="c-keyword">of</span> slot.cache) {
+    <span class="c-keyword">if</span> (!newCache.has(key)) runCleanups(entry.cleanups);  <span class="c-comment">// removed</span>
+  }
+
+  slot.cache = newCache;
+  <span class="c-keyword">return</span> frag;
+}</pre>
+
+          <p>That's the whole thing. Three observations.</p>
+
+          <h3>1. Re-appending an existing node moves it</h3>
+          <p>
+            When we call <code>frag.appendChild(entry.element)</code> on a node
+            that's currently attached to the document tree, the DOM doesn't
+            clone it — it removes it from its old parent and inserts it at the
+            new position. Reordering is implicit. We don't have to compute a
+            longest-common-subsequence diff or track move operations. The DOM
+            does it for us, in order.
+          </p>
+
+          <h3>2. The identity check is <code>Object.is</code></h3>
+          <p>
+            <code>cached.lastItem === item</code> via <code>Object.is</code>
+            decides whether to reuse the row's DOM verbatim or re-render it.
+            This is a deliberate contract with the user: if you mutate an array
+            entry in place, the renderer can't tell anything changed and your
+            row will look stale. Always replace the object reference when its
+            contents change.
+          </p>
+          <p>
+            This is the same contract React, Solid, and most modern frameworks
+            make. The cost of supporting deep equality would be walking every
+            property of every row on every render — unacceptable for a table
+            that exists specifically because deep equality is expensive.
+          </p>
+
+          <h3>3. Cleanups are per-row</h3>
+          <p>
+            When <code>list.render()</code> produces a row that registers event
+            listeners (a <code>delete</code> button, a hover handler), those
+            cleanup functions get pushed into the row's own <code
+            >cleanups</code> array — not the parent's. When the row gets removed
+            from the list, we run just that row's cleanups. When the host
+            disconnects, we walk every slot and flush them all.
+          </p>
+
+          <h2>What we deliberately don't do</h2>
+
+          <ul>
+            <li>
+              <strong>No virtual DOM.</strong> The cache holds real
+              <code>HTMLElement</code> references. There's no shadow tree, no
+              fiber, no patch list. Just the document and a
+              <code>Map</code>.
+            </li>
+            <li>
+              <strong>No partial row updates.</strong> When a row's data changes
+              (its identity flips) we re-render the whole row. For the simple
+              shape <code>render: (row) =&gt; describe(...)</code>
+              that means rebuilding a few elements, not the whole list. Granular
+              text-node updates would require parsing the template — a much
+              larger project.
+            </li>
+            <li>
+              <strong>No move-cost optimization.</strong> If your list reverses,
+              every node moves. The DOM handles this cheaply enough at typical
+              list sizes. If you're rendering 100k rows, you want windowing, not
+              better diffing.
+            </li>
+            <li>
+              <strong>No reorder-only signal.</strong> We don't tell renderers
+              "this row only moved." If you need that, listen for the row's
+              <code>connectedMoveCallback</code> in a future browser version, or
+              attach an
+              <code>IntersectionObserver</code> in
+              <code>afterMount</code>.
+            </li>
+          </ul>
+
+          <h2>The complexity budget</h2>
+          <p>
+            The whole feature is two types, one map per slot, and one ~30-line
+            function. It runs once per render of the parent. Memory is O(N) in
+            the row count. Time is O(N) in the new array plus O(M) in the old
+            cache for the removal pass — so O(N+M).
+          </p>
+          <p>
+            That's enough to make a 1,000-row datatable feel instant on a
+            keystroke filter. It's not enough to build Notion. But Notion wasn't
+            the goal.
+          </p>
+
+          <hr class="rule" />
+
+          <p class="closing">
+            See <a href="../docs.html#for">docs.html#for</a> for the API
+            reference, or open
+            <a
+              href="https://github.com/ra9/tan-compose/blob/main/build.ts"
+              target="_blank"
+              rel="noopener"
+            >build.ts on GitHub</a> for the actual implementation.
+          </p>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="../docs.html">Docs</a>
+          <a href="../examples.html">Examples</a>
+          <a href="../playground.html">Playground</a>
+          <a href="./index.html">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

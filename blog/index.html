@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Notes from building tan-compose — a tiny declarative library for Web Components."
+    />
+    <title>Blog — Tan Compose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+      }
+
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a.active {
+        color: var(--accent);
+      }
+
+      header.page {
+        padding: 64px 0 28px;
+      }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 14px;
+      }
+
+      .page-lede {
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+        max-width: 620px;
+      }
+
+      .feed {
+        padding: 24px 0 64px;
+      }
+
+      .post-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 28px 0;
+        border-top: 1px solid var(--rule);
+        transition: background 0.15s ease;
+      }
+
+      .post-card:hover {
+        background: linear-gradient(
+          to right,
+          rgba(161, 105, 57, 0.04),
+          transparent 60%
+        );
+      }
+
+      .post-card:hover h2 {
+        color: var(--accent);
+      }
+
+      .post-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+        margin-bottom: 8px;
+      }
+
+      .post-tag {
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.72rem;
+        font-weight: 500;
+      }
+
+      .post-card h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
+        transition: color 0.15s ease;
+      }
+
+      .post-card p {
+        color: var(--ink-soft);
+        font-size: 0.98rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .post-card .read-more {
+        display: inline-block;
+        margin-top: 12px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--accent);
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 32px 0 56px;
+        margin-top: 32px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        header.page {
+          padding: 40px 0 16px;
+        }
+
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="../index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v0.3.0</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="../docs.html" class="nav-hide-sm">Docs</a>
+          <a href="../examples.html" class="nav-hide-sm">Examples</a>
+          <a href="../playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./index.html" class="active">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            class="nav-hide-sm"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="page">
+        <div class="wrap">
+          <div class="eyebrow">Blog</div>
+          <h1>Notes from building tan-compose.</h1>
+          <p class="page-lede">
+            Releases, design rationale, and short technical write-ups about the
+            library and the platform it sits on. Mostly first-person and
+            slightly opinionated.
+          </p>
+        </div>
+      </header>
+
+      <section class="feed">
+        <div class="wrap">
+          <a class="post-card" href="./why-i-built-tan-compose.html">
+            <div class="post-meta">
+              <span>2026-05-10</span>
+              <span class="post-tag">v0.3.0 · launch</span>
+            </div>
+            <h2>Why I built tan-compose</h2>
+            <p>
+              On the framework tax for small UI, what the platform actually
+              gives you, and the v0.3 building blocks for putting together real
+              components — datatables, forms, anything bigger than a styled
+              button — without reaching for React.
+            </p>
+            <span class="read-more">Read post &rarr;</span>
+          </a>
+
+          <a class="post-card" href="./keyed-reconciliation-in-60-lines.html">
+            <div class="post-meta">
+              <span>2026-05-10</span>
+              <span class="post-tag">deep dive</span>
+            </div>
+            <h2>Keyed list reconciliation in ~60 lines</h2>
+            <p>
+              How <code style="font-family: 'JetBrains Mono', monospace"
+              >for: { items, key, render }</code>
+              actually works. The cache, the identity check, what gets torn
+              down, and why no virtual DOM is involved. Annotated walk-through
+              of the implementation in
+              <code style="font-family: 'JetBrains Mono', monospace"
+              >build.ts</code>.
+            </p>
+            <span class="read-more">Read post &rarr;</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="../docs.html">Docs</a>
+          <a href="../examples.html">Examples</a>
+          <a href="../playground.html">Playground</a>
+          <a href="./index.html">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
