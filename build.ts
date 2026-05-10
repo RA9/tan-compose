@@ -31,6 +31,8 @@ interface HostElement extends HTMLElement {
   setState(key: string, value: unknown): void;
   getState<T = unknown>(key: string): T | undefined;
   emitEvent(eventName: string, data?: unknown): void;
+  refs: Readonly<Record<string, Element | null>>;
+  internals?: ElementInternals;
 }
 
 /**
@@ -72,38 +74,42 @@ export function build(tagName: string, description: DescribeOptions): string {
     ]),
   );
   const propDefs: Record<string, PropDef> = description.props ?? {};
+  const refsConfig: Record<string, string> = description.refs ?? {};
+  const sharedSheets = buildSharedSheets(description);
 
   class CustomComponent extends HTMLElement implements HostElement {
+    static get observedAttributes(): string[] {
+      return observed;
+    }
+
+    static get formAssociated(): boolean {
+      return description.formAssociated === true;
+    }
+
     private isMounted = false;
     private mountCleanups: Array<() => void> = [];
     private renderCleanups: Array<() => void> = [];
     private state = new Map<string, unknown>();
     private propValues = new Map<string, unknown>();
     private listSlots = new WeakMap<DescribeOptions, ListSlot>();
+    private currentRefs: Record<string, Element | null> = {};
     private container: HTMLElement;
     private ctx!: ComponentCtx;
     private rendering = false;
     private renderQueued = false;
-
-    static get observedAttributes(): string[] {
-      return observed;
-    }
+    public internals?: ElementInternals;
 
     constructor() {
       super();
       const shadow = this.attachShadow({ mode: "open" });
 
-      if (description.theme) {
-        const themeStyle = document.createElement("style");
-        themeStyle.textContent = buildThemeCss(description.theme);
-        shadow.appendChild(themeStyle);
+      if (
+        description.formAssociated && typeof this.attachInternals === "function"
+      ) {
+        this.internals = this.attachInternals();
       }
 
-      if (description.styles) {
-        const containerStyle = document.createElement("style");
-        containerStyle.textContent = buildContainerCss(description.styles);
-        shadow.appendChild(containerStyle);
-      }
+      applySharedSheets(shadow, sharedSheets);
 
       this.container = document.createElement("div");
       this.container.className = description.className
@@ -115,8 +121,17 @@ export function build(tagName: string, description: DescribeOptions): string {
         applyAttributes(this, description.attributes);
       }
 
-      this.ctx = createCtx(this, this.propValues, this.state);
+      this.ctx = createCtx(
+        this,
+        this.propValues,
+        this.state,
+        () => this.currentRefs,
+      );
       this.initProps();
+    }
+
+    get refs(): Readonly<Record<string, Element | null>> {
+      return this.currentRefs;
     }
 
     private initProps(): void {
@@ -126,6 +141,7 @@ export function build(tagName: string, description: DescribeOptions): string {
           ? coerceProp(attrValue, def.type)
           : def.default;
         this.propValues.set(name, initial);
+        this.maybeSyncFormValue(name, initial);
 
         Object.defineProperty(this, name, {
           configurable: true,
@@ -137,10 +153,18 @@ export function build(tagName: string, description: DescribeOptions): string {
             if (Object.is(prev, coerced)) return;
             this.propValues.set(name, coerced);
             if (def.reflect) reflectAttribute(this, name, coerced, def.type);
+            this.maybeSyncFormValue(name, coerced);
             if (this.isMounted) this.scheduleRender();
           },
         });
       }
+    }
+
+    private maybeSyncFormValue(name: string, value: unknown): void {
+      if (!this.internals) return;
+      if (name !== "value") return;
+      const formValue = value == null ? null : String(value);
+      this.internals.setFormValue(formValue);
     }
 
     connectedCallback(): void {
@@ -304,6 +328,7 @@ export function build(tagName: string, description: DescribeOptions): string {
         }
 
         this.container.appendChild(document.createElement("slot"));
+        this.refreshRefs();
       } finally {
         this.rendering = false;
       }
@@ -311,6 +336,62 @@ export function build(tagName: string, description: DescribeOptions): string {
       if (this.renderQueued) {
         this.renderQueued = false;
         this.renderInternal();
+      }
+    }
+
+    private refreshRefs(): void {
+      const next: Record<string, Element | null> = {};
+      const root = this.shadowRoot;
+      for (const [name, selector] of Object.entries(refsConfig)) {
+        next[name] = root ? root.querySelector(selector) : null;
+      }
+      this.currentRefs = next;
+    }
+
+    formAssociatedCallback(form: HTMLFormElement | null): void {
+      try {
+        description.formAssociatedCallback?.call(this, form);
+      } catch (err) {
+        console.error(
+          `[tan-compose] formAssociatedCallback threw for <${tagName}>:`,
+          err,
+        );
+      }
+    }
+
+    formDisabledCallback(disabled: boolean): void {
+      try {
+        description.formDisabledCallback?.call(this, disabled);
+      } catch (err) {
+        console.error(
+          `[tan-compose] formDisabledCallback threw for <${tagName}>:`,
+          err,
+        );
+      }
+    }
+
+    formResetCallback(): void {
+      try {
+        description.formResetCallback?.call(this);
+      } catch (err) {
+        console.error(
+          `[tan-compose] formResetCallback threw for <${tagName}>:`,
+          err,
+        );
+      }
+    }
+
+    formStateRestoreCallback(
+      state: unknown,
+      mode: "restore" | "autocomplete",
+    ): void {
+      try {
+        description.formStateRestoreCallback?.call(this, state, mode);
+      } catch (err) {
+        console.error(
+          `[tan-compose] formStateRestoreCallback threw for <${tagName}>:`,
+          err,
+        );
       }
     }
 
@@ -493,6 +574,7 @@ function createCtx(
   host: HostElement,
   propValues: Map<string, unknown>,
   state: Map<string, unknown>,
+  refsRef: () => Readonly<Record<string, Element | null>>,
 ): ComponentCtx {
   return {
     host,
@@ -506,10 +588,85 @@ function createCtx(
       for (const [k, v] of state) out[k] = v;
       return out;
     },
+    get refs() {
+      return refsRef();
+    },
     setState: (key, value) => host.setState(key, value),
     getState: (key) => host.getState(key),
     emit: (name, detail) => host.emitEvent(name, detail),
   };
+}
+
+/**
+ * Pre-builds the shared CSSStyleSheet objects for theme + container styles.
+ * Shared across all instances of a registered tag, so 100 instances share
+ * 1-2 sheets instead of 100 inline `<style>` tags.
+ *
+ * Falls back to per-instance `<style>` elements when constructable
+ * stylesheets aren't available (older browsers / some test runtimes).
+ */
+type SharedSheets =
+  | { kind: "adopted"; sheets: CSSStyleSheet[] }
+  | { kind: "fallback"; theme?: string; styles?: string };
+
+function buildSharedSheets(description: DescribeOptions): SharedSheets {
+  const themeCss = description.theme
+    ? buildThemeCss(description.theme)
+    : undefined;
+  const stylesCss = description.styles
+    ? buildContainerCss(description.styles)
+    : undefined;
+
+  if (!themeCss && !stylesCss) {
+    return { kind: "adopted", sheets: [] };
+  }
+
+  const supportsConstructable = typeof CSSStyleSheet !== "undefined" &&
+    typeof (CSSStyleSheet.prototype as unknown as {
+        replaceSync?: unknown;
+      }).replaceSync === "function";
+
+  if (supportsConstructable) {
+    const sheets: CSSStyleSheet[] = [];
+    if (themeCss) {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(themeCss);
+      sheets.push(sheet);
+    }
+    if (stylesCss) {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(stylesCss);
+      sheets.push(sheet);
+    }
+    return { kind: "adopted", sheets };
+  }
+
+  return { kind: "fallback", theme: themeCss, styles: stylesCss };
+}
+
+function applySharedSheets(shadow: ShadowRoot, shared: SharedSheets): void {
+  if (shared.kind === "adopted") {
+    if (shared.sheets.length > 0) {
+      // Some hosts don't expose `adoptedStyleSheets` on shadow roots; tolerate.
+      try {
+        (shadow as unknown as { adoptedStyleSheets: CSSStyleSheet[] })
+          .adoptedStyleSheets = shared.sheets;
+      } catch {
+        // Fall through to no-op; styles will be missing in this rare case.
+      }
+    }
+    return;
+  }
+  if (shared.theme) {
+    const el = document.createElement("style");
+    el.textContent = shared.theme;
+    shadow.appendChild(el);
+  }
+  if (shared.styles) {
+    const el = document.createElement("style");
+    el.textContent = shared.styles;
+    shadow.appendChild(el);
+  }
 }
 
 function applyAttributes(

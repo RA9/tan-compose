@@ -1,6 +1,15 @@
 import type { DescribeOptions, PropDef } from "./types.ts";
 
-const HOOK_FIELDS = ["beforeMount", "afterMount", "unmount", "action"] as const;
+const HOOK_FIELDS = [
+  "beforeMount",
+  "afterMount",
+  "unmount",
+  "action",
+  "formAssociatedCallback",
+  "formDisabledCallback",
+  "formResetCallback",
+  "formStateRestoreCallback",
+] as const;
 const VALID_PROP_TYPES = new Set(["string", "number", "boolean", "json"]);
 
 /**
@@ -53,7 +62,15 @@ export function describe(options: DescribeOptions): DescribeOptions {
     );
   }
 
-  for (const field of ["theme", "styles", "attributes", "events"] as const) {
+  for (
+    const field of [
+      "theme",
+      "styles",
+      "attributes",
+      "events",
+      "refs",
+    ] as const
+  ) {
     const value = options[field];
     if (
       value !== undefined &&
@@ -61,6 +78,23 @@ export function describe(options: DescribeOptions): DescribeOptions {
     ) {
       throw new TypeError(`describe(): \`${field}\` must be a record`);
     }
+  }
+
+  if (options.refs !== undefined) {
+    for (const [name, selector] of Object.entries(options.refs)) {
+      if (typeof selector !== "string") {
+        throw new TypeError(
+          `describe(): refs.${name} must be a CSS selector string`,
+        );
+      }
+    }
+  }
+
+  if (
+    options.formAssociated !== undefined &&
+    typeof options.formAssociated !== "boolean"
+  ) {
+    throw new TypeError("describe(): `formAssociated` must be a boolean");
   }
 
   for (const field of HOOK_FIELDS) {

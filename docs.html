@@ -370,7 +370,7 @@
                 <a class="brand" href="./index.html">
                     <span class="brand-mark" aria-hidden="true"></span>
                     tan-compose
-                    <span class="version-pill">v0.3.0</span>
+                    <span class="version-pill">v0.4.0</span>
                 </a>
                 <nav aria-label="Primary">
                     <a href="./docs.html" aria-current="page">Docs</a>
@@ -961,6 +961,113 @@ build("my-counter", counter);</code></pre>
                 </p>
             </section>
 
+            <!-- v0.4 features -->
+            <section class="doc-section" id="refs">
+                <h2>Refs (0.4+)</h2>
+                <p>
+                    The <code>refs</code> field is a name → CSS-selector map.
+                    After every render, the matching shadow-root elements are
+                    exposed as <code>host.refs.&lt;name&gt;</code> and
+                    <code>ctx.refs.&lt;name&gt;</code>. Selectors that match
+                    nothing yield <code>null</code>. Refs are re-queried on
+                    every render so they always point at the current DOM.
+                </p>
+
+<pre class="code-block"><code>build("search-box", describe({
+  refs: { input: ".q", clear: ".x" },
+  template: `&lt;input class="q" /&gt;&lt;button class="x"&gt;clear&lt;/button&gt;`,
+  events: {
+    "click .x": (_e, ctx) =&gt; {
+      <span style="color: #8a8678">// ctx.refs.input is the live &lt;input&gt;</span>
+      (ctx.refs.input as HTMLInputElement).value = "";
+      (ctx.refs.input as HTMLInputElement).focus();
+    },
+  },
+}));</code></pre>
+
+                <p class="callout">
+                    <strong>Tip:</strong> use refs whenever you find yourself
+                    calling <code>this.shadowRoot.querySelector(...)</code> in
+                    <code>afterMount</code>. Refs are cheaper, declarative,
+                    and stay in sync with re-renders automatically.
+                </p>
+            </section>
+
+            <section class="doc-section" id="form-associated">
+                <h2>Form-Associated Custom Elements (0.4+)</h2>
+                <p>
+                    Set <code>formAssociated: true</code> and the host calls
+                    <code>attachInternals()</code> automatically. If you
+                    declare a <code>value</code> prop, its setter syncs to
+                    <code>internals.setFormValue</code> so the host
+                    participates in form submissions and the validity API.
+                </p>
+
+<pre class="code-block"><code>build("tc-input", describe({
+  formAssociated: true,
+  props: {
+    value: { type: "string", default: "" },
+    placeholder: { type: "string", default: "" },
+  },
+  template: ({ props }) =&gt;
+    `&lt;input class="q" placeholder="${props.placeholder}" value="${props.value}" /&gt;`,
+  refs: { input: ".q" },
+  events: {
+    "input .q": (e, ctx) =&gt; {
+      ctx.host.value = (e.target as HTMLInputElement).value;
+    },
+  },
+  formResetCallback() {
+    <span style="color: #8a8678">// fired when the owning &lt;form&gt; is reset</span>
+    (this as unknown as { value: string }).value = "";
+  },
+}));</code></pre>
+
+                <p>
+                    The internals are exposed at <code>host.internals</code>
+                    so you can call <code>setValidity()</code>,
+                    <code>setFormValue()</code> directly, or check
+                    <code>internals.form</code>.
+                </p>
+
+                <h3>Lifecycle hooks</h3>
+                <table class="api">
+                    <thead>
+                        <tr><th>Hook</th><th>Fires on</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>formAssociatedCallback(form)</td><td>Element associated with a form (or moved between forms).</td></tr>
+                        <tr><td>formDisabledCallback(disabled)</td><td>Disabled state changes (e.g. via parent fieldset).</td></tr>
+                        <tr><td>formResetCallback()</td><td>Owning form is reset.</td></tr>
+                        <tr><td>formStateRestoreCallback(state, mode)</td><td>State restored on history navigation or autocomplete.</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="doc-section" id="adopted-styles">
+                <h2>Adopted stylesheets (0.4+)</h2>
+                <p>
+                    <code>theme</code> and <code>styles</code> are compiled
+                    into <code>CSSStyleSheet</code> objects <strong>once per
+                    registered tag</strong> and applied to each instance via
+                    <code>shadowRoot.adoptedStyleSheets</code>. 100 instances
+                    of the same tag share 1–2 sheets instead of 100 inline
+                    <code>&lt;style&gt;</code> elements.
+                </p>
+                <p>
+                    Falls back to per-instance <code>&lt;style&gt;</code>
+                    tags when constructable stylesheets aren't available.
+                    The change is invisible to user code &mdash; same CSS,
+                    same theming, less work for the renderer.
+                </p>
+                <p class="callout">
+                    <strong>When this matters:</strong> a long list using
+                    <code>for: { ... }</code> with rows that are themselves
+                    custom elements. Before 0.4, every row got its own copy
+                    of the stylesheet; now they share.
+                </p>
+            </section>
+
             <!-- Migration -->
             <section class="doc-section" id="migration">
                 <h2>Migration: 0.1.x &rarr; 0.2.0</h2>
@@ -1031,6 +1138,36 @@ build("my-counter", counter);</code></pre>
                         <strong>Use <code>for</code> for any list of three or more items.</strong>
                         It's the only path to keyed DOM reuse, which matters
                         the moment you have a filter input over a list.
+                    </li>
+                </ul>
+            </section>
+
+            <section class="doc-section" id="migration-0-4">
+                <h2>Migration: 0.3.x &rarr; 0.4.0</h2>
+                <p>
+                    Additive release. Existing 0.3.x code continues to work.
+                    Opt in to the new features as you need them:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Replace
+                            <code>this.shadowRoot.querySelector</code> with
+                            <code>refs</code>.</strong>
+                        Declare the selectors once, get fresh references on
+                        every render.
+                    </li>
+                    <li>
+                        <strong>Add
+                            <code>formAssociated: true</code> + a
+                            <code>value</code> prop</strong> to anything that
+                        represents a form field. It will start submitting
+                        with <code>&lt;form&gt;</code> automatically.
+                    </li>
+                    <li>
+                        <strong>No code change is required for adopted
+                            stylesheets</strong> &mdash; the renderer picks
+                        the optimal path automatically wherever
+                        <code>CSSStyleSheet.replaceSync</code> is supported.
                     </li>
                 </ul>
             </section>

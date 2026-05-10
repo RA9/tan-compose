@@ -28,6 +28,8 @@ export interface ComponentCtx {
   state: Readonly<Record<string, unknown>>;
   /** The host element. Use `host.<propName> = ...` or `host.setState(k, v)` to trigger updates. */
   host: HTMLElement;
+  /** Refs populated from the `refs` map after every render. Selectors that match nothing return `null`. */
+  refs: Readonly<Record<string, Element | null>>;
   /** Sets an internal state value and re-renders if the value changed. */
   setState: (key: string, value: unknown) => void;
   /** Reads an internal state value. */
@@ -93,6 +95,36 @@ export interface DescribeOptions {
   afterMount?: (this: HTMLElement) => void;
   /** Hook fired when the element is disconnected from the DOM. */
   unmount?: (this: HTMLElement) => void;
+  /**
+   * Map of name → CSS selector. After every render, the matching shadow-root
+   * elements are exposed as `host.refs.<name>` and `ctx.refs.<name>`. A
+   * selector that matches nothing yields `null`. Refs are re-queried each
+   * render, so they always point at the current DOM.
+   */
+  refs?: Record<string, string>;
+  /**
+   * Opt in to the Form-Associated Custom Elements API. When true, the host
+   * sets `static formAssociated = true`, calls `attachInternals()` in the
+   * constructor, and (if a `value` prop is declared) auto-syncs the value to
+   * `internals.setFormValue` on every prop change. The internals are exposed
+   * on `host.internals` and on `ctx.host.internals`.
+   */
+  formAssociated?: boolean;
+  /** Called when the host is associated with a form. */
+  formAssociatedCallback?: (
+    this: HTMLElement,
+    form: HTMLFormElement | null,
+  ) => void;
+  /** Called when the host's disabled state changes (e.g. via a parent fieldset). */
+  formDisabledCallback?: (this: HTMLElement, disabled: boolean) => void;
+  /** Called when the host's owning form is reset. */
+  formResetCallback?: (this: HTMLElement) => void;
+  /** Called to restore state on history navigation or autofill. */
+  formStateRestoreCallback?: (
+    this: HTMLElement,
+    state: unknown,
+    mode: "restore" | "autocomplete",
+  ) => void;
   /**
    * Attribute names to observe for reactivity. When any listed attribute changes,
    * `setState(attr, value)` is called and the element re-renders.

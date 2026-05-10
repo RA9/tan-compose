@@ -6,6 +6,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-05-10
+
+> The "feels native" release. Adds refs, Form-Associated Custom Elements, and
+> shared adopted stylesheets — the primitives that make tan-compose components
+> compose with forms, integrate with non-tan-compose code, and stay performant
+> when you have many instances of the same tag.
+
+### Added
+
+- **`refs`.** New field on `DescribeOptions`: `refs: { input: ".search" }`.
+  After every render the matching shadow-root elements are exposed as
+  `host.refs.input` and `ctx.refs.input` for use in `afterMount`, `events`, and
+  external code. Selectors that match nothing yield `null`. Refs are re-queried
+  on every render.
+- **Form-Associated Custom Elements.** Set `formAssociated: true` and the host
+  calls `attachInternals()` automatically. If a `value` prop is declared, its
+  setter syncs to `internals.setFormValue` so the host participates in form
+  submissions and the validity API. New lifecycle hooks:
+  `formAssociatedCallback`, `formDisabledCallback`, `formResetCallback`,
+  `formStateRestoreCallback`. The internals are exposed at `host.internals`.
+- **Adopted stylesheets.** Theme and container CSS are now compiled to
+  `CSSStyleSheet` objects once per registered tag and applied via
+  `shadowRoot.adoptedStyleSheets`. 100 instances of the same tag now share 1–2
+  sheets instead of 100 inline `<style>` elements. Falls back to per-instance
+  `<style>` when constructable stylesheets aren't available.
+
+### Changed
+
+- `ComponentCtx` gains a `refs` getter that always reflects the current render's
+  refs.
+- README opening rewritten — drops the awkward "DDL (Declarative Definition
+  Language)" framing in favour of a plain description.
+- `publish.yml` and `version-bump.yml` workflows bumped to
+  `denoland/setup-deno@v2` (matches `ci.yml`).
+
+### Migration from 0.3.x
+
+Additive — existing code keeps working. To opt in:
+
+- Replace `afterMount` calls of `this.shadowRoot.querySelector(...)` with a
+  `refs` map so you don't have to re-query manually.
+- Add `formAssociated: true` plus a `value` prop to any component that
+  represents a form field — it'll start submitting with `<form>`.
+- No code change required for the stylesheet sharing — it activates
+  automatically wherever `CSSStyleSheet.replaceSync` is supported.
+
 ## [0.3.0] - 2026-05-10
 
 > The "build big components" release. Adds typed properties, function templates,

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="v0.4 of tan-compose adds refs, Form-Associated Custom Elements, and adopted stylesheets — the platform integrations that make custom elements feel native."
+    />
+    <title>Making custom elements feel native — Tan Compose blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .wrap-narrow {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+      }
+
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a[aria-current="page"] {
+        color: var(--accent);
+      }
+
+      header.post-head {
+        padding: 56px 0 12px;
+      }
+
+      .post-eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 4vw, 2.5rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+        margin-bottom: 14px;
+      }
+
+      .article-meta {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--ink-muted);
+      }
+
+      article {
+        padding: 24px 0 56px;
+      }
+
+      article p {
+        color: var(--ink);
+        font-size: 1.02rem;
+        line-height: 1.72;
+        margin: 0 0 18px;
+      }
+
+      article p.lede {
+        font-size: 1.12rem;
+        color: var(--ink-soft);
+        margin-bottom: 24px;
+      }
+
+      article h2 {
+        font-size: 1.45rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 36px 0 14px;
+      }
+
+      article h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 24px 0 8px;
+      }
+
+      article a {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-color: var(--rule-strong);
+      }
+
+      article a:hover {
+        text-decoration-color: var(--accent);
+      }
+
+      article code {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.92em;
+      }
+
+      article p code,
+      article li code {
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      pre.code {
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.84rem;
+        line-height: 1.7;
+        padding: 22px 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 0 0 22px;
+      }
+
+      pre.code .c-comment {
+        color: var(--code-comment);
+      }
+      pre.code .c-keyword {
+        color: var(--code-keyword);
+      }
+      pre.code .c-string {
+        color: var(--code-string);
+      }
+
+      article ul {
+        margin: 0 0 18px 22px;
+      }
+
+      article li {
+        line-height: 1.7;
+        margin-bottom: 6px;
+      }
+
+      hr.rule {
+        border: none;
+        height: 1px;
+        background: var(--rule);
+        margin: 36px 0 24px;
+      }
+
+      .closing {
+        color: var(--ink-soft);
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 32px 0 56px;
+        margin-top: 32px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        header.post-head {
+          padding: 36px 0 8px;
+        }
+
+        article {
+          padding: 12px 0 36px;
+        }
+
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="../index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v0.4.0</span>
+        </a>
+        <nav aria-label="Primary">
+          <a href="../docs.html" class="nav-hide-sm">Docs</a>
+          <a href="../examples.html" class="nav-hide-sm">Examples</a>
+          <a href="../playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./index.html" aria-current="page">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            class="nav-hide-sm"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="post-head">
+        <div class="wrap-narrow">
+          <div class="post-eyebrow">v0.4.0 · release</div>
+          <h1>Making custom elements feel native</h1>
+          <div class="article-meta">Posted 2026-05-10 · v0.4.0</div>
+        </div>
+      </header>
+
+      <article>
+        <div class="wrap-narrow">
+          <p class="lede">
+            v0.3 gave us the building blocks for big components — props,
+            reactive templates, keyed lists, event delegation. v0.4 is about the
+            seams. Three small additions that make a tan-compose element behave
+            like a real platform primitive when it's sitting next to <code
+            >&lt;form&gt;</code>, when external code grabs it, and when you
+            instantiate it a hundred times.
+          </p>
+
+          <h2>1. Refs</h2>
+          <p>
+            Before 0.4, "I need to focus the input after mount" looked like
+            this:
+          </p>
+
+          <pre
+            class="code"
+          >afterMount() {
+  <span class="c-keyword">this</span>.shadowRoot.querySelector(<span class="c-string">".search"</span>).focus();
+}</pre>
+
+          <p>
+            Two problems. The selector is a string buried in a closure, so
+            renaming the class breaks it silently. And after a re-render the
+            node is different — your reference points at a detached element.
+            Now:
+          </p>
+
+          <pre
+            class="code"
+          >build(<span class="c-string">"search-box"</span>, describe({
+  refs: { input: <span class="c-string">".search"</span> },
+  template: `&lt;input class="search" /&gt;`,
+  afterMount() {
+    (<span class="c-keyword">this</span>.refs.input <span class="c-keyword">as</span> HTMLInputElement)?.focus();
+  },
+}));</pre>
+
+          <p>
+            <code>refs</code> is a name → selector map declared once. After
+            every render, <code>host.refs.&lt;name&gt;</code> and
+            <code>ctx.refs.&lt;name&gt;</code> are populated by querying the
+            shadow root. Selectors that match nothing return
+            <code>null</code>. The refs object is fresh on every render, so you
+            never accidentally hold onto a stale node.
+          </p>
+
+          <h2>2. Form-Associated Custom Elements</h2>
+          <p>
+            This one is the headline. Until 0.4, a tan-compose
+            <code>&lt;tc-input&gt;</code> looked like an input but didn't
+            <em>act</em> like one — drop it inside a <code>&lt;form&gt;</code>
+            and submission would skip right over it. The Form-Associated Custom
+            Elements API has been around since Chromium 77 and Safari 16.4;
+            tan-compose just needed to opt in.
+          </p>
+
+          <p>The fix is two lines of config:</p>
+
+          <pre
+            class="code"
+          >build(<span class="c-string">"tc-input"</span>, describe({
+  formAssociated: <span class="c-keyword">true</span>,
+  props: { value: { type: <span class="c-string">"string"</span>, default: <span class="c-string">""</span> } },
+  refs: { input: <span class="c-string">".q"</span> },
+  template: ({ props }) =&gt;
+    `&lt;input class="q" value="${props.value}" /&gt;`,
+  events: {
+    <span class="c-string">"input .q"</span>: (e, ctx) =&gt; {
+      ctx.host.value = (e.target <span class="c-keyword">as</span> HTMLInputElement).value;
+    },
+  },
+  formResetCallback() {
+    (<span class="c-keyword">this</span> <span class="c-keyword">as</span> <span class="c-keyword">unknown</span> <span class="c-keyword">as</span> { value: <span class="c-keyword">string</span> }).value = <span class="c-string">""</span>;
+  },
+}));</pre>
+
+          <p>
+            What that does for you, automatically:
+          </p>
+          <ul>
+            <li>
+              <code>this.attachInternals()</code> is called once in the
+              constructor; <code>host.internals</code> is the result.
+            </li>
+            <li>
+              Whenever <code>value</code> is set (via setter, attribute, or
+              initial render), <code>internals.setFormValue</code> is called so
+              submission picks up the new value.
+            </li>
+            <li>
+              <code>formAssociatedCallback</code>, <code
+              >formDisabledCallback</code>, <code>formResetCallback</code>, and
+              <code>formStateRestoreCallback</code> are wired up if you provide
+              them.
+            </li>
+          </ul>
+          <p>
+            That's enough for <code>&lt;form&gt;.submit()</code>,
+            <code>FormData</code>, browser autofill, the validity API, and form
+            reset to all just work. Without this you were wiring fake hidden
+            inputs in <code>afterMount</code>. Don't do that anymore.
+          </p>
+
+          <h2>3. Adopted stylesheets</h2>
+          <p>
+            Every tan-compose component used to inject a
+            <code>&lt;style&gt;</code> tag into its shadow root for the theme
+            variables and a second one for the container styles. That's fine for
+            a button. With a hundred-row table where each row is a <code
+            >&lt;tc-row&gt;</code>, you're inlining two hundred copies of the
+            same CSS into the document.
+          </p>
+
+          <p>
+            Constructable stylesheets fix this. We compile the CSS once per
+            registered tag and apply via
+            <code>shadowRoot.adoptedStyleSheets</code>:
+          </p>
+
+          <pre
+            class="code"
+          ><span class="c-comment">// Once per build():</span>
+<span class="c-keyword">const</span> sheet = <span class="c-keyword">new</span> CSSStyleSheet();
+sheet.replaceSync(<span class="c-string">":host { --brand: tomato; }"</span>);
+
+<span class="c-comment">// Per instance:</span>
+shadow.adoptedStyleSheets = [sheet];</pre>
+
+          <p>
+            Same CSS, same theming. One <code>CSSStyleSheet</code>
+            object shared across all instances of that tag, instead of a fresh
+            <code>&lt;style&gt;</code> per element. Old browsers that don't
+            support <code>replaceSync</code> fall back to inline tags
+            transparently — no config needed, no breaking change.
+          </p>
+
+          <h2>What's missing</h2>
+          <p>
+            v0.4 is the last "library primitives" release I'm planning for a
+            while. The next thing tan-compose needs isn't more features — it's
+            <em>proof</em>. A separate
+            <code>@ra9/tan-compose-kit</code> package with battle-tested
+            primitives: <code>&lt;tc-table&gt;</code> with
+            sort/filter/pagination, <code>&lt;tc-input&gt;</code>,
+            <code>&lt;tc-modal&gt;</code>, <code>&lt;tc-tabs&gt;</code>. The
+            library is capable enough now; the next thing is shipping a real
+            component built on top of it that people can drop into a project and
+            ship a feature with.
+          </p>
+          <p>
+            That's where 0.5 is headed.
+          </p>
+
+          <hr class="rule" />
+
+          <p class="closing">
+            Try the <a href="../playground.html">Playground</a>. Read the <a
+              href="../docs.html"
+            >Docs</a>. Or fork it on
+            <a
+              href="https://github.com/ra9/tan-compose"
+              target="_blank"
+              rel="noopener"
+            >GitHub</a>.
+          </p>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="../docs.html">Docs</a>
+          <a href="../examples.html">Examples</a>
+          <a href="../playground.html">Playground</a>
+          <a href="./index.html">Blog</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >JSR</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+          >GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

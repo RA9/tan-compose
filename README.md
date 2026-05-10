@@ -1,9 +1,10 @@
 # Tan Compose
 
-`Tan Compose` is a lightweight, production-ready library that turns DDL
-(Declarative Definition Language) into reusable web components. It allows you to
-create fully customizable and extendable web components with built-in support
-for theming, event emission, reactivity, and encapsulation using the Shadow DOM.
+`Tan Compose` is a tiny library for declaratively defining reusable Web
+Components. One `describe()` call captures a component's tag, theme, styles,
+template, lifecycle hooks, and reactive state; one `build()` call registers it
+as a real custom element. No JSX, no compiler, no framework runtime — Shadow
+DOM, lifecycle, and reactivity are wired up for you on top of the platform.
 
 ## Features
 
