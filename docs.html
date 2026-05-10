@@ -22,20 +22,26 @@
             }
 
             :root {
-                --bg: #faf7f2;
+                --bg: #faf8f3;
                 --surface: #ffffff;
-                --ink: #1f2330;
+                --ink: #14171f;
                 --ink-soft: #4a5061;
-                --muted: #6b7280;
-                --border: #ece7dc;
-                --accent: #5b6cf0;
-                --accent-soft: #eef0ff;
-                --code-bg: #1a1d29;
-                --code-fg: #e5e7eb;
-                --code-keyword: #c084fc;
-                --code-string: #fbbf24;
-                --shadow-sm: 0 1px 2px rgba(20, 24, 40, 0.04);
-                --shadow-md: 0 4px 16px rgba(20, 24, 40, 0.06);
+                --ink-muted: #6b7280;
+                --muted: #6b7280; /* alias kept for legacy selectors */
+                --rule: #ece5d3;
+                --rule-strong: #d9cfb8;
+                --border: #ece5d3; /* alias kept for legacy selectors */
+                --accent: #a16939;
+                --accent-hover: #8a572d;
+                --accent-soft: #efe2cf;
+                --code-bg: #14171f;
+                --code-fg: #efe6d4;
+                --code-ink: #efe6d4;
+                --code-keyword: #f0a878;
+                --code-string: #d9b380;
+                --code-comment: #8a8678;
+                --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
+                --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
                 --radius: 12px;
             }
 
@@ -61,66 +67,76 @@
                 padding: 0 24px;
             }
 
-            /* Sticky nav */
-            header.site-nav {
+            /* Top nav (matches index.html) */
+            .topbar {
                 position: sticky;
                 top: 0;
                 z-index: 100;
-                background: rgba(250, 247, 242, 0.85);
-                backdrop-filter: saturate(180%) blur(12px);
-                -webkit-backdrop-filter: saturate(180%) blur(12px);
-                border-bottom: 1px solid var(--border);
+                background: var(--bg);
+                border-bottom: 1px solid var(--rule);
+                backdrop-filter: saturate(180%) blur(8px);
+                -webkit-backdrop-filter: saturate(180%) blur(8px);
             }
 
-            .nav {
+            .topbar-inner {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
-                padding: 16px 0;
-                gap: 16px;
+                justify-content: space-between;
+                height: 56px;
             }
 
-            .nav-brand {
-                font-size: 1.15rem;
-                font-weight: 800;
-                color: var(--ink);
-                letter-spacing: -0.01em;
+            .brand {
                 display: flex;
                 align-items: center;
                 gap: 10px;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-weight: 600;
+                font-size: 0.95rem;
+                color: var(--ink);
+                text-decoration: none;
+            }
+
+            .brand-mark {
+                width: 22px;
+                height: 22px;
+                border-radius: 6px;
+                background: var(--accent);
+                display: inline-block;
             }
 
             .version-pill {
-                display: inline-block;
-                font-size: 0.7rem;
-                font-weight: 600;
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                font-size: 0.72rem;
+                font-weight: 500;
                 padding: 2px 8px;
-                background: var(--accent-soft);
-                color: var(--accent);
                 border-radius: 999px;
-                letter-spacing: 0.02em;
+                background: var(--accent-soft);
+                color: var(--accent-hover);
+                border: 1px solid var(--rule-strong);
             }
 
-            .nav-links {
+            .topbar nav {
                 display: flex;
                 gap: 22px;
                 align-items: center;
             }
 
-            .nav-links a {
+            .topbar nav a {
                 color: var(--ink-soft);
                 text-decoration: none;
+                font-size: 0.92rem;
                 font-weight: 500;
-                font-size: 0.95rem;
-                transition: color 0.2s ease;
+                transition: color 0.15s ease;
             }
 
-            .nav-links a:hover,
-            .nav-links a:focus-visible {
+            .topbar nav a:hover,
+            .topbar nav a:focus-visible,
+            .topbar nav a.active,
+            .topbar nav a[aria-current="page"] {
                 color: var(--accent);
             }
 
-            .nav-links a:focus-visible {
+            .topbar nav a:focus-visible {
                 outline: 2px solid var(--accent);
                 outline-offset: 4px;
                 border-radius: 4px;
@@ -245,7 +261,7 @@
             table.api th {
                 font-weight: 600;
                 color: var(--ink);
-                background: #f7f3ec;
+                background: var(--bg);
                 font-size: 0.82rem;
                 text-transform: uppercase;
                 letter-spacing: 0.04em;
@@ -309,15 +325,12 @@
             }
 
             @media (max-width: 768px) {
-                .nav {
-                    flex-direction: column;
-                    align-items: flex-start;
-                    gap: 10px;
+                .topbar nav {
+                    gap: 14px;
                 }
 
-                .nav-links {
-                    flex-wrap: wrap;
-                    gap: 16px;
+                .topbar nav .nav-hide-sm {
+                    display: none;
                 }
 
                 .doc-hero h1 {
@@ -352,25 +365,30 @@
         </style>
     </head>
     <body>
-        <header class="site-nav">
-            <div class="container">
-                <nav class="nav" aria-label="Primary">
-                    <div class="nav-brand">
-                        Tan Compose
-                        <span class="version-pill" aria-label="Version 0.2.0">v0.2.0</span>
-                    </div>
-                    <div class="nav-links">
-                        <a href="index.html">Home</a>
-                        <a href="examples.html">Examples</a>
-                        <a href="playground.html">Playground</a>
-                        <a href="docs.html" aria-current="page">Docs</a>
-                        <a
-                            href="https://github.com/ra9/tan-compose"
-                            target="_blank"
-                            rel="noopener"
-                            >GitHub</a
-                        >
-                    </div>
+        <header class="topbar">
+            <div class="container topbar-inner">
+                <a class="brand" href="./index.html">
+                    <span class="brand-mark" aria-hidden="true"></span>
+                    tan-compose
+                    <span class="version-pill">v0.2.0</span>
+                </a>
+                <nav aria-label="Primary">
+                    <a href="./docs.html" aria-current="page">Docs</a>
+                    <a href="./examples.html" class="nav-hide-sm">Examples</a>
+                    <a href="./playground.html" class="nav-hide-sm">Playground</a>
+                    <a
+                        href="https://jsr.io/@ra9/tan-compose"
+                        class="nav-hide-sm"
+                        target="_blank"
+                        rel="noopener"
+                        >JSR</a
+                    >
+                    <a
+                        href="https://github.com/ra9/tan-compose"
+                        target="_blank"
+                        rel="noopener"
+                        >GitHub</a
+                    >
                 </nav>
             </div>
         </header>
