@@ -2,6 +2,7 @@
   "name": "@ra9/tan-compose",
   "version": "0.4.0",
   "exports": "./mod.ts",
+  "workspace": ["./kit"],
   "compilerOptions": {
     "strict": true,
     "lib": ["dom", "esnext", "deno.ns"]

@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Components — battle-tested primitives from @ra9/tan-compose-kit, ready to drop into any HTML page or framework."
+    />
+    <title>Components — Tan Compose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+      }
+
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
+
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .topbar nav a:hover,
+      .topbar nav a.active {
+        color: var(--accent);
+      }
+
+      header.page {
+        padding: 64px 0 28px;
+      }
+
+      .eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 14px;
+      }
+
+      .page-lede {
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+        max-width: 620px;
+      }
+
+      .install-line {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.92rem;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin: 24px 0 0;
+        max-width: 460px;
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .install-line .prompt {
+        color: var(--ink-muted);
+      }
+
+      section.demo {
+        padding: 48px 0;
+        border-top: 1px solid var(--rule);
+      }
+
+      .demo-head {
+        margin-bottom: 18px;
+      }
+
+      .demo-tag {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+      }
+
+      .demo-lede {
+        color: var(--ink-soft);
+        font-size: 0.98rem;
+      }
+
+      .stage {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 32px 24px;
+        margin: 16px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        min-height: 80px;
+      }
+
+      .stage.col {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      pre.code {
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.83rem;
+        line-height: 1.65;
+        padding: 22px 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+      }
+
+      pre.code .c-comment {
+        color: var(--code-comment);
+      }
+      pre.code .c-keyword {
+        color: var(--code-keyword);
+      }
+      pre.code .c-string {
+        color: var(--code-string);
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 32px 0 56px;
+        margin-top: 32px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        header.page {
+          padding: 40px 0 16px;
+        }
+        section.demo {
+          padding: 32px 0;
+        }
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v0.4.0</span>
+        </a>
+        <nav>
+          <a href="./docs.html" class="nav-hide-sm">Docs</a>
+          <a href="./components.html" class="active">Components</a>
+          <a href="./examples.html" class="nav-hide-sm">Examples</a>
+          <a href="./playground.html" class="nav-hide-sm">Playground</a>
+          <a href="./blog/" class="nav-hide-sm">Blog</a>
+          <a
+            href="https://github.com/ra9/tan-compose"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <header class="page">
+        <div class="wrap">
+          <div class="eyebrow">@ra9/tan-compose-kit</div>
+          <h1>Components, ready to drop in.</h1>
+          <p class="page-lede">
+            Battle-tested primitives built on
+            <code style="font-family: 'JetBrains Mono', monospace;">@ra9/tan-compose</code>.
+            Every component is a real custom element — works in plain HTML,
+            React, Vue, Astro, anywhere a custom element is allowed. Theme
+            via CSS custom properties on the host.
+          </p>
+          <div class="install-line">
+            <span class="prompt">$</span>
+            <span class="cmd">deno add jsr:@ra9/tan-compose-kit</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="demo" id="button">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-button&gt;</div>
+            <h2>Button</h2>
+            <p class="demo-lede">
+              Variants (primary / secondary / ghost / danger), three sizes,
+              disabled and loading states, full-width modifier. Content via
+              the default slot.
+            </p>
+          </div>
+          <div class="stage">
+            <tc-button variant="primary">Primary</tc-button>
+            <tc-button variant="secondary">Secondary</tc-button>
+            <tc-button variant="ghost">Ghost</tc-button>
+            <tc-button variant="danger">Danger</tc-button>
+            <tc-button size="sm">Small</tc-button>
+            <tc-button size="lg">Large</tc-button>
+            <tc-button loading>Loading</tc-button>
+            <tc-button disabled>Disabled</tc-button>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/button"</span>;
+
+&lt;tc-button variant="primary"&gt;Save&lt;/tc-button&gt;
+&lt;tc-button variant="danger" loading&gt;Deleting…&lt;/tc-button&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="input">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-input&gt;</div>
+            <h2>Input (form-associated)</h2>
+            <p class="demo-lede">
+              Submits with native <code>&lt;form&gt;</code> via
+              <code>ElementInternals</code>. Label, helper or error text,
+              disabled / required flags. Resets cleanly with the parent form.
+            </p>
+          </div>
+          <form id="kit-form" class="stage col">
+            <tc-input
+              label="Email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              required
+              helper="We'll never share this."
+            ></tc-input>
+            <tc-input
+              label="Display name"
+              name="name"
+              placeholder="Carlos"
+            ></tc-input>
+            <tc-input
+              label="Invalid example"
+              name="bad"
+              error="That doesn't look right."
+              value="oops"
+            ></tc-input>
+            <div style="display: flex; gap: 10px; margin-top: 8px;">
+              <tc-button id="kit-submit">Submit</tc-button>
+              <tc-button variant="ghost" id="kit-reset" type="reset">Reset</tc-button>
+            </div>
+            <div
+              id="kit-result"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted);"
+            >
+              Click submit to see what gets sent.
+            </div>
+          </form>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/input"</span>;
+
+&lt;form&gt;
+  &lt;tc-input label="Email" name="email" type="email" required&gt;&lt;/tc-input&gt;
+  &lt;tc-button&gt;Submit&lt;/tc-button&gt;
+&lt;/form&gt;</pre>
+        </div>
+      </section>
+
+      <section class="demo" id="table">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-table&gt;</div>
+            <h2>Datatable</h2>
+            <p class="demo-lede">
+              Paginated, filterable, sortable. Pass <code>rows</code> and
+              <code>columns</code> as JSON props. Emits
+              <code>tc-row-click</code> when a row is clicked.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-table id="kit-table" page-size="6" empty-text="Nothing matches."></tc-table>
+            <div
+              id="kit-table-out"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--ink-muted); margin-top: 4px;"
+            >
+              Click a row to see it here.
+            </div>
+          </div>
+<pre class="code"><span class="c-keyword">import</span> <span class="c-string">"@ra9/tan-compose-kit/table"</span>;
+
+<span class="c-keyword">const</span> table = document.querySelector(<span class="c-string">"tc-table"</span>);
+table.columns = [
+  { key: <span class="c-string">"name"</span>,    label: <span class="c-string">"Name"</span> },
+  { key: <span class="c-string">"role"</span>,    label: <span class="c-string">"Role"</span>, sortable: <span class="c-keyword">true</span> },
+  { key: <span class="c-string">"joined"</span>,  label: <span class="c-string">"Joined"</span>, sortable: <span class="c-keyword">true</span> },
+];
+table.rows = await fetch(<span class="c-string">"/api/people"</span>).then(r =&gt; r.json());
+table.addEventListener(<span class="c-string">"tc-row-click"</span>, (e) =&gt; console.log(e.detail.row));</pre>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="./index.html">Home</a>
+          <a href="./docs.html">Docs</a>
+          <a href="./examples.html">Examples</a>
+          <a href="./playground.html">Playground</a>
+          <a href="./blog/">Blog</a>
+          <a href="https://jsr.io/@ra9/tan-compose-kit" target="_blank" rel="noopener">JSR</a>
+          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module">
+      import "./dist/mod.kit.js";
+
+      // ---- form demo ----
+      const form = document.getElementById("kit-form");
+      const result = document.getElementById("kit-result");
+      const submit = document.getElementById("kit-submit");
+      const reset = document.getElementById("kit-reset");
+
+      submit.addEventListener("click", (e) => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const obj = Object.fromEntries(data.entries());
+        result.textContent = "form submitted: " + JSON.stringify(obj);
+        result.style.color = "#a16939";
+      });
+      reset.addEventListener("click", (e) => {
+        e.preventDefault();
+        form.reset();
+        result.textContent = "form reset.";
+        result.style.color = "";
+      });
+
+      // ---- table demo ----
+      const table = document.getElementById("kit-table");
+      const out = document.getElementById("kit-table-out");
+
+      table.columns = [
+        { key: "name", label: "Name", sortable: true },
+        { key: "role", label: "Role", sortable: true },
+        { key: "city", label: "City", sortable: true },
+        { key: "joined", label: "Joined", sortable: true },
+      ];
+      table.rows = [
+        { id: 1, name: "Ada Lovelace", role: "Engineer", city: "London", joined: "1843-09-01" },
+        { id: 2, name: "Linus Torvalds", role: "Engineer", city: "Helsinki", joined: "1991-08-25" },
+        { id: 3, name: "Grace Hopper", role: "Architect", city: "New York", joined: "1944-07-02" },
+        { id: 4, name: "Margaret Hamilton", role: "Engineer", city: "Boston", joined: "1965-06-15" },
+        { id: 5, name: "Alan Turing", role: "Researcher", city: "Manchester", joined: "1936-05-28" },
+        { id: 6, name: "Tim Berners-Lee", role: "Architect", city: "London", joined: "1989-03-12" },
+        { id: 7, name: "Donald Knuth", role: "Researcher", city: "Stanford", joined: "1962-09-20" },
+        { id: 8, name: "Hedy Lamarr", role: "Inventor", city: "Vienna", joined: "1942-08-11" },
+        { id: 9, name: "Brian Kernighan", role: "Engineer", city: "Princeton", joined: "1969-10-04" },
+        { id: 10, name: "Edsger Dijkstra", role: "Researcher", city: "Eindhoven", joined: "1956-04-22" },
+        { id: 11, name: "Barbara Liskov", role: "Architect", city: "Cambridge", joined: "1968-11-13" },
+        { id: 12, name: "Dennis Ritchie", role: "Engineer", city: "Murray Hill", joined: "1969-10-04" },
+      ];
+      table.addEventListener("tc-row-click", (e) => {
+        const row = e.detail.row;
+        out.textContent = `clicked: ${row.name} (${row.role}, ${row.city})`;
+        out.style.color = "#a16939";
+      });
+    </script>
+  </body>
+</html>
