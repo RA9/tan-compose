@@ -1,808 +1,831 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-            name="description"
-            content="Tan Compose - A lightweight library for building reusable web components with declarative syntax"
-        />
-        <title>Tan Compose - Build Reusable Web Components</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
-            rel="stylesheet"
-        />
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Tan Compose — a tiny declarative library for building Web Components."
+    />
+    <title>Tan Compose — Declarative Web Components</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #faf8f3;
+        --surface: #ffffff;
+        --ink: #14171f;
+        --ink-soft: #4a5061;
+        --ink-muted: #6b7280;
+        --rule: #ece5d3;
+        --rule-strong: #d9cfb8;
+        --accent: #a16939;
+        --accent-hover: #8a572d;
+        --accent-soft: #efe2cf;
+        --code-bg: #14171f;
+        --code-ink: #efe6d4;
+        --code-string: #d9b380;
+        --code-keyword: #f0a878;
+        --code-comment: #8a8678;
+        --shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
+        --shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
+      }
 
-            body {
-                font-family:
-                    "Inter",
-                    -apple-system,
-                    BlinkMacSystemFont,
-                    "Segoe UI",
-                    Roboto,
-                    sans-serif;
-                line-height: 1.6;
-                color: #1f2330;
-                background: #faf7f2;
-                min-height: 100vh;
-                -webkit-font-smoothing: antialiased;
-            }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 20px;
-            }
+      html {
+        scroll-behavior: smooth;
+      }
 
-            header {
-                padding: 90px 0 80px;
-                text-align: center;
-                color: #ffffff;
-                background:
-                    radial-gradient(
-                        ellipse at top,
-                        rgba(255, 255, 255, 0.18) 0%,
-                        rgba(255, 255, 255, 0) 60%
-                    ),
-                    linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                position: relative;
-                overflow: hidden;
-            }
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
 
-            header::after {
-                content: "";
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: -1px;
-                height: 60px;
-                background: linear-gradient(
-                    to bottom,
-                    rgba(250, 247, 242, 0),
-                    #faf7f2
-                );
-                pointer-events: none;
-            }
+      .wrap {
+        max-width: 880px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
 
-            .version-pill {
-                display: inline-block;
-                font-size: 0.78rem;
-                font-weight: 600;
-                padding: 4px 12px;
-                margin-bottom: 18px;
-                background: rgba(255, 255, 255, 0.18);
-                color: #ffffff;
-                border: 1px solid rgba(255, 255, 255, 0.35);
-                border-radius: 999px;
-                letter-spacing: 0.04em;
-                backdrop-filter: blur(6px);
-            }
+      /* Top nav */
+      .topbar {
+        border-bottom: 1px solid var(--rule);
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(8px);
+      }
 
-            h1 {
-                font-size: 3.5rem;
-                font-weight: 900;
-                margin-bottom: 20px;
-                color: #ffffff;
-                letter-spacing: -0.02em;
-            }
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+      }
 
-            .tagline {
-                font-size: 1.5rem;
-                font-weight: 300;
-                margin-bottom: 16px;
-                color: rgba(255, 255, 255, 0.95);
-            }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+      }
 
-            .cta-buttons {
-                display: flex;
-                gap: 20px;
-                justify-content: center;
-                flex-wrap: wrap;
-                margin-top: 40px;
-            }
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent);
+        display: inline-block;
+      }
 
-            .section {
-                background: #ffffff;
-                border: 1px solid #ece7dc;
-                border-radius: 16px;
-                padding: 60px 40px;
-                margin: 40px auto;
-                box-shadow: 0 12px 40px rgba(20, 24, 40, 0.06);
-            }
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        align-items: center;
+      }
 
-            .section h2 {
-                font-size: 2.25rem;
-                margin-bottom: 30px;
-                color: #1f2330;
-                text-align: center;
-                font-weight: 800;
-                letter-spacing: -0.01em;
-            }
+      .topbar nav a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
 
-            .section h3 {
-                color: #1f2330;
-                font-weight: 700;
-            }
+      .topbar nav a:hover,
+      .topbar nav a:focus-visible {
+        color: var(--accent);
+      }
 
-            .section p {
-                color: #4a5061;
-            }
+      .version-pill {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 1px solid var(--rule-strong);
+      }
 
-            .features-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 30px;
-                margin-top: 40px;
-            }
+      /* Hero */
+      .hero {
+        padding: 96px 0 72px;
+      }
 
-            .code-section {
-                background: #1e1e1e;
-                border-radius: 12px;
-                padding: 30px;
-                margin: 30px 0;
-                overflow-x: auto;
-            }
+      .hero h1 {
+        font-size: clamp(2.4rem, 5.2vw, 3.6rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        line-height: 1.05;
+        margin-bottom: 18px;
+      }
 
-            .code-section pre {
-                color: #d4d4d4;
-                font-family: "Courier New", monospace;
-                font-size: 14px;
-                line-height: 1.6;
-            }
+      .hero h1 .highlight {
+        color: var(--accent);
+      }
 
-            .code-section code {
-                color: #ce9178;
-            }
+      .hero .lede {
+        font-size: 1.18rem;
+        line-height: 1.55;
+        color: var(--ink-soft);
+        max-width: 620px;
+        margin-bottom: 28px;
+      }
 
-            .demo-area {
-                background: #faf7f2;
-                border-radius: 12px;
-                padding: 40px 30px;
-                margin: 32px 0;
-                border: 2px dashed #d9d2c3;
-                text-align: center;
-            }
+      .install-line {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.92rem;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 460px;
+        margin-bottom: 28px;
+        box-shadow: var(--shadow-sm);
+      }
 
-            .demo-area + .demo-area {
-                margin-top: 28px;
-            }
+      .install-line .prompt {
+        color: var(--ink-muted);
+        user-select: none;
+      }
 
-            footer {
-                text-align: center;
-                padding: 40px 20px;
-                color: #1f2330;
-                background: #ffffff;
-                border-top: 1px solid #ece7dc;
-                margin-top: 60px;
-            }
+      .install-line .cmd {
+        color: var(--ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-            .footer-links {
-                display: flex;
-                gap: 30px;
-                justify-content: center;
-                margin-top: 20px;
-                flex-wrap: wrap;
-            }
+      .cta-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
 
-            .footer-links a {
-                color: #4a5061;
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.2s ease;
-            }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 11px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        border: 1px solid transparent;
+        line-height: 1;
+      }
 
-            .footer-links a:hover,
-            .footer-links a:focus-visible {
-                color: #5b6cf0;
-                text-decoration: underline;
-            }
+      .btn-primary {
+        background: var(--ink);
+        color: #ffffff;
+      }
 
-            @media (max-width: 1024px) {
-                .features-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
+      .btn-primary:hover,
+      .btn-primary:focus-visible {
+        background: var(--accent);
+      }
 
-            @media (max-width: 768px) {
-                header {
-                    padding: 70px 0 60px;
-                }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--ink);
+        border-color: var(--rule-strong);
+      }
 
-                h1 {
-                    font-size: 2.5rem;
-                }
+      .btn-secondary:hover,
+      .btn-secondary:focus-visible {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
 
-                .tagline {
-                    font-size: 1.2rem;
-                }
+      /* Sections */
+      section {
+        padding: 64px 0;
+        border-top: 1px solid var(--rule);
+      }
 
-                .section {
-                    padding: 40px 20px;
-                }
+      .section-eyebrow {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
 
-                .features-grid {
-                    grid-template-columns: 1fr;
-                }
-            }
+      h2 {
+        font-size: 1.85rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin-bottom: 14px;
+      }
 
-            @media (max-width: 480px) {
-                header {
-                    padding: 56px 0 50px;
-                }
+      .section-lede {
+        color: var(--ink-soft);
+        font-size: 1.02rem;
+        margin-bottom: 36px;
+        max-width: 620px;
+      }
 
-                h1 {
-                    font-size: 2rem;
-                }
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 28px 0 12px;
+      }
 
-                .tagline {
-                    font-size: 1rem;
-                }
+      h3:first-child {
+        margin-top: 0;
+      }
 
-                .section {
-                    padding: 30px 15px;
-                }
+      /* Features grid */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        background: var(--surface);
+        overflow: hidden;
+      }
 
-                .cta-buttons {
-                    flex-direction: column;
-                    align-items: stretch;
-                    gap: 12px;
-                }
+      .feature {
+        padding: 26px 28px;
+        border-right: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+      }
 
-                .cta-buttons hero-button {
-                    width: 100%;
-                }
+      .feature:nth-child(2n) {
+        border-right: none;
+      }
 
-                .footer-links {
-                    flex-direction: column;
-                    gap: 15px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <header>
-            <div class="container">
-                <span class="version-pill" aria-label="Version 0.2.0">v0.2.0</span>
-                <h1>Tan Compose</h1>
-                <p class="tagline">
-                    Build production-ready web components with declarative
-                    syntax
-                </p>
-                <p style="font-size: 1.05rem; color: rgba(255, 255, 255, 0.85); margin-bottom: 32px;">
-                    Lightweight &middot; Type-safe &middot; Zero dependencies
-                </p>
+      .feature:nth-last-child(-n + 2) {
+        border-bottom: none;
+      }
 
-                <div class="cta-buttons">
-                    <hero-button
-                        data-variant="primary"
-                        data-link="https://github.com/ra9/tan-compose"
-                    >
-                        Get Started
-                    </hero-button>
-                    <hero-button data-variant="secondary" data-link="#examples">
-                        View Examples
-                    </hero-button>
-                    <hero-button
-                        data-variant="outline"
-                        data-link="https://github.com/ra9/tan-compose"
-                    >
-                        GitHub
-                    </hero-button>
-                </div>
+      .feature-label {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .feature h3 {
+        font-size: 1.02rem;
+        margin: 0 0 6px;
+      }
+
+      .feature p {
+        color: var(--ink-soft);
+        font-size: 0.94rem;
+        line-height: 1.5;
+      }
+
+      /* Code blocks */
+      pre.code {
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.85rem;
+        line-height: 1.65;
+        padding: 22px 24px;
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 0 0 18px;
+      }
+
+      pre.code .c-comment {
+        color: var(--code-comment);
+      }
+      pre.code .c-keyword {
+        color: var(--code-keyword);
+      }
+      pre.code .c-string {
+        color: var(--code-string);
+      }
+
+      .code-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 8px;
+      }
+
+      /* Demo blocks */
+      .demo {
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 12px;
+        padding: 32px 28px;
+        margin-bottom: 18px;
+      }
+
+      .demo-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 22px;
+      }
+
+      .demo-title {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .demo-tag {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.78rem;
+        color: var(--ink-muted);
+      }
+
+      .demo-stage {
+        background: var(--bg);
+        border: 1px dashed var(--rule-strong);
+        border-radius: 10px;
+        padding: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--rule);
+        padding: 36px 0 56px;
+        margin-top: 32px;
+      }
+
+      footer .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      footer p {
+        color: var(--ink-muted);
+        font-size: 0.9rem;
+      }
+
+      footer .links {
+        display: flex;
+        gap: 22px;
+      }
+
+      footer .links a {
+        color: var(--ink-soft);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      footer .links a:hover {
+        color: var(--accent);
+      }
+
+      /* Responsive */
+      @media (max-width: 720px) {
+        .hero {
+          padding: 56px 0 48px;
+        }
+
+        section {
+          padding: 48px 0;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+
+        .feature {
+          border-right: none;
+        }
+
+        .feature:nth-last-child(-n + 2) {
+          border-bottom: 1px solid var(--rule);
+        }
+
+        .feature:last-child {
+          border-bottom: none;
+        }
+
+        .code-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar nav {
+          gap: 14px;
+        }
+
+        .topbar nav .nav-hide-sm {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="./index.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          tan-compose
+          <span class="version-pill">v0.2.0</span>
+        </a>
+        <nav>
+          <a href="./docs.html" class="nav-hide-sm">Docs</a>
+          <a href="./examples.html">Examples</a>
+          <a
+            href="https://jsr.io/@ra9/tan-compose"
+            class="nav-hide-sm"
+            target="_blank"
+            rel="noopener"
+            >JSR</a
+          >
+          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener"
+            >GitHub</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero" style="border-top: none;">
+        <div class="wrap">
+          <h1>
+            Declarative
+            <span class="highlight">Web&nbsp;Components</span><br />
+            in a hundred lines.
+          </h1>
+          <p class="lede">
+            Tan Compose turns a plain JavaScript object into a real custom
+            element — Shadow&nbsp;DOM, theming, lifecycle hooks, reactive state,
+            and listener cleanup included. No framework, no compile step.
+          </p>
+
+          <div class="install-line">
+            <span class="prompt">$</span>
+            <span class="cmd">deno add jsr:@ra9/tan-compose</span>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="./docs.html">Read the docs &rarr;</a>
+            <a
+              class="btn btn-secondary"
+              href="https://github.com/ra9/tan-compose"
+              target="_blank"
+              rel="noopener"
+              >GitHub</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section id="features">
+        <div class="wrap">
+          <div class="section-eyebrow">Why tan-compose</div>
+          <h2>Tiny, predictable, browser-native.</h2>
+          <p class="section-lede">
+            One <code style="font-family: 'JetBrains Mono', monospace; font-size: 0.92em;">describe()</code>
+            call to define a component, one
+            <code style="font-family: 'JetBrains Mono', monospace; font-size: 0.92em;">build()</code>
+            call to register it. Everything else is the platform.
+          </p>
+
+          <div class="features">
+            <div class="feature">
+              <div class="feature-label">01 — runtime</div>
+              <h3>~5 KB minified</h3>
+              <p>Zero dependencies. Ships as a single ESM module.</p>
             </div>
-        </header>
+            <div class="feature">
+              <div class="feature-label">02 — encapsulation</div>
+              <h3>Shadow DOM by default</h3>
+              <p>Styles never leak. Theme via CSS custom properties on :host.</p>
+            </div>
+            <div class="feature">
+              <div class="feature-label">03 — lifecycle</div>
+              <h3>beforeMount / afterMount / unmount</h3>
+              <p>Predictable ordering. Errors are caught and logged with the tag name.</p>
+            </div>
+            <div class="feature">
+              <div class="feature-label">04 — reactivity</div>
+              <h3>Opt-in observed attrs</h3>
+              <p>Declare <code style="font-family: 'JetBrains Mono', monospace;">observedAttributes</code> and changes re-render. No magic.</p>
+            </div>
+            <div class="feature">
+              <div class="feature-label">05 — state</div>
+              <h3>setState triggers render</h3>
+              <p>Skips re-render when the value is <code style="font-family: 'JetBrains Mono', monospace;">Object.is</code>-equal.</p>
+            </div>
+            <div class="feature">
+              <div class="feature-label">06 — safety</div>
+              <h3>Listener cleanup</h3>
+              <p>Per-render cleanup queue. No leaked handlers on re-render or unmount.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <main class="container">
-            <!-- Features Section -->
-            <section class="section">
-                <h2>Why Tan Compose?</h2>
-                <div class="features-grid">
-                    <feature-card
-                        data-icon="⚡"
-                        data-title="Lightning Fast"
-                        data-description="Minimal overhead with native Web Components API"
-                    >
-                    </feature-card>
-                    <feature-card
-                        data-icon="🎨"
-                        data-title="Fully Customizable"
-                        data-description="Theme with CSS variables and custom styles"
-                    >
-                    </feature-card>
-                    <feature-card
-                        data-icon="🔒"
-                        data-title="Encapsulated"
-                        data-description="Shadow DOM ensures style isolation"
-                    >
-                    </feature-card>
-                    <feature-card
-                        data-icon="♻️"
-                        data-title="Reusable"
-                        data-description="Build once, use everywhere"
-                    >
-                    </feature-card>
-                    <feature-card
-                        data-icon="🎯"
-                        data-title="Type Safe"
-                        data-description="Full TypeScript support"
-                    >
-                    </feature-card>
-                    <feature-card
-                        data-icon="🚀"
-                        data-title="Production Ready"
-                        data-description="Memory-safe with proper lifecycle management"
-                    >
-                    </feature-card>
-                </div>
-            </section>
+      <!-- Quick start -->
+      <section id="quickstart">
+        <div class="wrap">
+          <div class="section-eyebrow">Quick start</div>
+          <h2>From zero to a custom element.</h2>
+          <p class="section-lede">
+            Install with one command. Define your component as a plain object.
+            Use it as HTML.
+          </p>
 
-            <!-- Quick Start Section -->
-            <section class="section" id="quickstart">
-                <h2>Quick Start</h2>
-
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #1f2330">
-                    Installation
-                </h3>
-                <div class="code-section">
-                    <pre><code># Deno
+          <h3>Install</h3>
+<pre class="code"><span class="c-comment"># Deno</span>
 deno add jsr:@ra9/tan-compose
 
-# Node / npm
-npx jsr add @ra9/tan-compose</code></pre>
-                </div>
+<span class="c-comment"># Node / npm (via JSR)</span>
+npx jsr add @ra9/tan-compose</pre>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #1f2330">
-                    Create Your First Component
-                </h3>
-                <div class="code-section">
-                    <pre>
-<code>import { describe, build } from 'tan-compose';
+          <h3>Define and register</h3>
+<pre class="code"><span class="c-keyword">import</span> { describe, build } <span class="c-keyword">from</span> <span class="c-string">"@ra9/tan-compose"</span>;
 
-const button = describe({
-  tag: 'button',
+<span class="c-keyword">const</span> button = describe({
+  tag: <span class="c-string">"button"</span>,
+  template: <span class="c-string">"Click me"</span>,
   styles: {
-    padding: '12px 24px',
-    backgroundColor: '#667eea',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer'
+    padding: <span class="c-string">"10px 18px"</span>,
+    background: <span class="c-string">"#14171f"</span>,
+    color: <span class="c-string">"white"</span>,
+    border: <span class="c-string">"none"</span>,
+    borderRadius: <span class="c-string">"6px"</span>,
+    cursor: <span class="c-string">"pointer"</span>,
   },
-  action: () => alert('Hello, Tan Compose!')
+  action: () =&gt; alert(<span class="c-string">"Hello, Tan Compose!"</span>),
 });
 
-build('my-button', button);</code></pre>
-                </div>
+build(<span class="c-string">"my-button"</span>, button);</pre>
 
-                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #1f2330">
-                    Use It
-                </h3>
-                <div class="code-section">
-                    <pre><code>&lt;my-button&gt;Click Me&lt;/my-button&gt;</code></pre>
-                </div>
-            </section>
+          <h3>Use in HTML</h3>
+<pre class="code">&lt;my-button&gt;&lt;/my-button&gt;</pre>
+        </div>
+      </section>
 
-            <!-- Live Demo Section -->
-            <section class="section" id="examples">
-                <h2>Live Demo</h2>
-                <p style="text-align: center; margin-bottom: 30px; color: #4a5061">
-                    Try these interactive components built with Tan Compose
-                </p>
+      <!-- Live demos -->
+      <section id="demos">
+        <div class="wrap">
+          <div class="section-eyebrow">Live demos</div>
+          <h2>Each block below is a real custom element.</h2>
+          <p class="section-lede">
+            Built with the same library you'd <code style="font-family: 'JetBrains Mono', monospace; font-size: 0.92em;">npm install</code>.
+            Open DevTools to inspect the Shadow DOM.
+          </p>
 
-                <div class="demo-area">
-                    <h3 style="margin-bottom: 20px; color: #1f2330">
-                        Interactive Counter
-                    </h3>
-                    <demo-counter></demo-counter>
-                </div>
-
-                <div class="demo-area">
-                    <h3 style="margin-bottom: 20px; color: #1f2330">
-                        Themed Buttons
-                    </h3>
-                    <demo-buttons></demo-buttons>
-                </div>
-
-                <div class="demo-area">
-                    <h3 style="margin-bottom: 20px; color: #1f2330">
-                        Custom Card
-                    </h3>
-                    <demo-card></demo-card>
-                </div>
-            </section>
-
-            <!-- API Section -->
-            <section class="section">
-                <h2>Core API</h2>
-
-                <div style="margin: 30px 0">
-                    <h3 style="color: #1f2330; margin-bottom: 15px">
-                        build(tagName, description)
-                    </h3>
-                    <p style="color: #4a5061; margin-bottom: 20px">
-                        Registers a new custom element with the browser.
-                    </p>
-
-                    <h3 style="color: #1f2330; margin-bottom: 15px">
-                        describe(options)
-                    </h3>
-                    <p style="color: #4a5061; margin-bottom: 20px">
-                        Creates a component description with properties like:
-                    </p>
-                    <ul style="color: #4a5061; margin-left: 40px; line-height: 2">
-                        <li><strong>tag</strong> - HTML element type</li>
-                        <li>
-                            <strong>theme</strong> - CSS variables for theming
-                        </li>
-                        <li><strong>styles</strong> - Inline styles object</li>
-                        <li>
-                            <strong>template</strong> - HTML template string
-                        </li>
-                        <li><strong>children</strong> - Nested components</li>
-                        <li><strong>action</strong> - Event handler</li>
-                        <li>
-                            <strong>beforeMount / afterMount</strong> -
-                            Lifecycle hooks
-                        </li>
-                        <li><strong>emit</strong> - Custom events</li>
-                    </ul>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <div class="container">
-                <p>&copy; 2026 Tan Compose. MIT License.</p>
-                <div class="footer-links">
-                    <a
-                        href="https://github.com/ra9/tan-compose"
-                        target="_blank"
-                        rel="noopener"
-                        >GitHub</a
-                    >
-                    <a
-                        href="https://github.com/ra9/tan-compose/issues"
-                        target="_blank"
-                        rel="noopener"
-                        >Issues</a
-                    >
-                    <a href="examples.html">Examples</a>
-                    <a href="docs.html">Docs</a>
-                    <a
-                        href="https://jsr.io/@ra9/tan-compose"
-                        target="_blank"
-                        rel="noopener"
-                        >JSR</a
-                    >
-                </div>
+          <div class="demo">
+            <div class="demo-head">
+              <div class="demo-title">Reactive counter</div>
+              <div class="demo-tag">&lt;tc-counter&gt;</div>
             </div>
-        </footer>
+            <div class="demo-stage">
+              <tc-counter></tc-counter>
+            </div>
+          </div>
 
-        <script type="module">
-            import { build, describe } from "./dist/mod.js";
+          <div class="demo">
+            <div class="demo-head">
+              <div class="demo-title">Themed buttons</div>
+              <div class="demo-tag">&lt;tc-button-row&gt;</div>
+            </div>
+            <div class="demo-stage">
+              <tc-button-row></tc-button-row>
+            </div>
+          </div>
 
-            // Hero Button Component
-            const heroButton = describe({
-                tag: "a",
-                theme: {
-                    primaryBg: "#ffffff",
-                    primaryText: "#333333",
-                    secondaryBg: "#6c757d",
-                    secondaryText: "#ffffff",
-                    outlineBorder: "#333333",
-                    outlineText: "#333333",
-                },
-                styles: {
-                    display: "inline-block",
-                    padding: "15px 35px",
-                    fontSize: "18px",
-                    fontWeight: "600",
-                    borderRadius: "50px",
-                    textDecoration: "none",
-                    transition: "all 0.3s ease",
-                    border: "2px solid transparent",
-                    cursor: "pointer",
-                },
-                afterMount: function () {
-                    const variant =
-                        this.getAttribute("data-variant") || "primary";
-                    const link = this.getAttribute("data-link") || "#";
+          <div class="demo">
+            <div class="demo-head">
+              <div class="demo-title">Composed card</div>
+              <div class="demo-tag">&lt;tc-card&gt;</div>
+            </div>
+            <div class="demo-stage">
+              <tc-card></tc-card>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
 
-                    this.setAttribute("href", link);
+    <footer>
+      <div class="wrap row">
+        <p>&copy; 2026 Tan Compose · MIT License</p>
+        <div class="links">
+          <a href="./docs.html">Docs</a>
+          <a href="./examples.html">Examples</a>
+          <a href="https://jsr.io/@ra9/tan-compose" target="_blank" rel="noopener">JSR</a>
+          <a href="https://github.com/ra9/tan-compose" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
 
-                    if (variant === "primary") {
-                        this.style.backgroundColor = "var(--primaryBg)";
-                        this.style.color = "var(--primaryText)";
-                        this.style.border = "1px solid #ddd";
-                    } else if (variant === "secondary") {
-                        this.style.backgroundColor = "var(--secondaryBg)";
-                        this.style.color = "var(--secondaryText)";
-                    } else if (variant === "outline") {
-                        this.style.backgroundColor = "transparent";
-                        this.style.color = "var(--outlineText)";
-                        this.style.borderColor = "var(--outlineBorder)";
-                    }
+    <script type="module">
+      import { build, describe } from "./dist/mod.js";
 
-                    this.addEventListener("mouseenter", () => {
-                        this.style.transform = "translateY(-2px)";
-                        this.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
-                    });
-
-                    this.addEventListener("mouseleave", () => {
-                        this.style.transform = "translateY(0)";
-                        this.style.boxShadow = "none";
-                    });
-                },
+      // ---- Reactive counter ----
+      build(
+        "tc-counter",
+        describe({
+          styles: {
+            display: "inline-flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+          },
+          template: `
+            <div class="display" style="font-size: 2.4rem; font-weight: 700; color: #14171f; min-width: 4ch; text-align: center;">0</div>
+            <div style="display: flex; gap: 8px;">
+              <button class="dec" type="button" style="width: 36px; height: 36px; font-size: 1.1rem; background: #14171f; color: #fff; border: none; border-radius: 8px; cursor: pointer;">−</button>
+              <button class="rst" type="button" style="height: 36px; padding: 0 14px; font-size: 0.85rem; background: #faf8f3; color: #14171f; border: 1px solid #d9cfb8; border-radius: 8px; cursor: pointer; font-family: inherit;">reset</button>
+              <button class="inc" type="button" style="width: 36px; height: 36px; font-size: 1.1rem; background: #a16939; color: #fff; border: none; border-radius: 8px; cursor: pointer;">+</button>
+            </div>
+          `,
+          afterMount: function () {
+            const root = this.shadowRoot;
+            const display = root.querySelector(".display");
+            let count = 0;
+            const sync = () => {
+              display.textContent = String(count);
+            };
+            root.querySelector(".dec").addEventListener("click", () => {
+              count -= 1;
+              sync();
             });
-
-            // Feature Card Component
-            const featureCard = describe({
-                tag: "div",
-                theme: {
-                    cardBg: "#ffffff",
-                    iconColor: "#6c757d",
-                    titleColor: "#333",
-                    textColor: "#666",
-                },
-                styles: {
-                    backgroundColor: "var(--cardBg)",
-                    padding: "30px",
-                    borderRadius: "12px",
-                    textAlign: "center",
-                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                    border: "1px solid #e9ecef",
-                },
-                afterMount: function () {
-                    const icon = this.getAttribute("data-icon") || "✨";
-                    const title = this.getAttribute("data-title") || "Feature";
-                    const description =
-                        this.getAttribute("data-description") || "";
-
-                    this.shadowRoot.querySelector(".container").innerHTML = `
-                    <div style="font-size: 3rem; margin-bottom: 15px; color: var(--iconColor);">${icon}</div>
-                    <h3 style="font-size: 1.5rem; margin-bottom: 10px; color: var(--titleColor);">${title}</h3>
-                    <p style="color: var(--textColor); line-height: 1.6;">${description}</p>
-                  `;
-
-                    this.addEventListener("mouseenter", () => {
-                        this.style.transform = "translateY(-5px)";
-                        this.style.boxShadow = "0 10px 30px rgba(0, 0, 0, 0.1)";
-                    });
-
-                    this.addEventListener("mouseleave", () => {
-                        this.style.transform = "translateY(0)";
-                        this.style.boxShadow = "none";
-                    });
-                },
+            root.querySelector(".inc").addEventListener("click", () => {
+              count += 1;
+              sync();
             });
-
-            // Demo Counter Component
-            const demoCounter = describe({
-                tag: "div",
-                styles: {
-                    display: "inline-block",
-                },
-                children: [
-                    describe({
-                        tag: "div",
-                        styles: {
-                            fontSize: "3rem",
-                            fontWeight: "bold",
-                            color: "#6c757d",
-                            marginBottom: "20px",
-                            textAlign: "center",
-                        },
-                        attributes: { id: "counter-value" },
-                        template: "0",
-                    }),
-                    describe({
-                        tag: "div",
-                        styles: {
-                            display: "flex",
-                            gap: "10px",
-                            justifyContent: "center",
-                        },
-                        children: [
-                            describe({
-                                tag: "button",
-                                template: "-",
-                                styles: {
-                                    padding: "10px 20px",
-                                    fontSize: "20px",
-                                    backgroundColor: "#dc3545",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "8px",
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                },
-                                action: function () {
-                                    const display =
-                                        document.getElementById(
-                                            "counter-value",
-                                        );
-                                    const current = parseInt(
-                                        display.textContent,
-                                    );
-                                    display.textContent = current - 1;
-                                },
-                            }),
-                            describe({
-                                tag: "button",
-                                template: "Reset",
-                                styles: {
-                                    padding: "10px 20px",
-                                    fontSize: "16px",
-                                    backgroundColor: "#6c757d",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "8px",
-                                    cursor: "pointer",
-                                },
-                                action: function () {
-                                    const display =
-                                        document.getElementById(
-                                            "counter-value",
-                                        );
-                                    display.textContent = "0";
-                                },
-                            }),
-                            describe({
-                                tag: "button",
-                                template: "+",
-                                styles: {
-                                    padding: "10px 20px",
-                                    fontSize: "20px",
-                                    backgroundColor: "#28a745",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "8px",
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                },
-                                action: function () {
-                                    const display =
-                                        document.getElementById(
-                                            "counter-value",
-                                        );
-                                    const current = parseInt(
-                                        display.textContent,
-                                    );
-                                    display.textContent = current + 1;
-                                },
-                            }),
-                        ],
-                    }),
-                ],
+            root.querySelector(".rst").addEventListener("click", () => {
+              count = 0;
+              sync();
             });
+          },
+        }),
+      );
 
-            // Demo Buttons Component
-            const demoButtons = describe({
-                tag: "div",
-                styles: {
-                    display: "flex",
-                    gap: "15px",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                },
-                children: [
-                    describe({
-                        tag: "button",
-                        template: "Primary",
-                        styles: {
-                            padding: "12px 24px",
-                            backgroundColor: "#007bff",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "16px",
-                        },
-                        action: () => alert("Primary button clicked!"),
-                    }),
-                    describe({
-                        tag: "button",
-                        template: "Success",
-                        styles: {
-                            padding: "12px 24px",
-                            backgroundColor: "#28a745",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "16px",
-                        },
-                        action: () => alert("Success button clicked!"),
-                    }),
-                    describe({
-                        tag: "button",
-                        template: "Danger",
-                        styles: {
-                            padding: "12px 24px",
-                            backgroundColor: "#dc3545",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "16px",
-                        },
-                        action: () => alert("Danger button clicked!"),
-                    }),
-                ],
-            });
+      // ---- Themed buttons ----
+      build(
+        "tc-button-row",
+        describe({
+          styles: {
+            display: "flex",
+            gap: "10px",
+            flexWrap: "wrap",
+            justifyContent: "center",
+          },
+          children: [
+            describe({
+              tag: "button",
+              template: "Primary",
+              styles: {
+                padding: "10px 18px",
+                background: "#14171f",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                fontWeight: "500",
+              },
+              action: () => alert("Primary clicked"),
+            }),
+            describe({
+              tag: "button",
+              template: "Accent",
+              styles: {
+                padding: "10px 18px",
+                background: "#a16939",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                fontWeight: "500",
+              },
+              action: () => alert("Accent clicked"),
+            }),
+            describe({
+              tag: "button",
+              template: "Ghost",
+              styles: {
+                padding: "10px 18px",
+                background: "transparent",
+                color: "#14171f",
+                border: "1px solid #d9cfb8",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "0.9rem",
+                fontWeight: "500",
+              },
+              action: () => alert("Ghost clicked"),
+            }),
+          ],
+        }),
+      );
 
-            // Demo Card Component
-            const demoCard = describe({
-                tag: "div",
-                theme: {
-                    cardBg: "#ffffff",
-                    primaryColor: "#6c757d",
-                    textColor: "#333",
-                },
-                styles: {
-                    backgroundColor: "var(--cardBg)",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "12px",
-                    padding: "30px",
-                    maxWidth: "500px",
-                    margin: "0 auto",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    textAlign: "left",
-                },
-                children: [
-                    describe({
-                        tag: "h3",
-                        template: "Beautiful Component Card",
-                        styles: {
-                            color: "var(--primaryColor)",
-                            marginBottom: "15px",
-                            fontSize: "1.8rem",
-                        },
-                    }),
-                    describe({
-                        tag: "p",
-                        template:
-                            "This card component is built entirely with Tan Compose. It features custom theming, nested children, and beautiful styling - all defined declaratively.",
-                        styles: {
-                            color: "var(--textColor)",
-                            lineHeight: "1.8",
-                            marginBottom: "20px",
-                        },
-                    }),
-                    describe({
-                        tag: "button",
-                        template: "Learn More",
-                        styles: {
-                            padding: "12px 24px",
-                            backgroundColor: "var(--primaryColor)",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "16px",
-                        },
-                        action: () => {
-                            window.location.href =
-                                "https://github.com/ra9/tan-compose";
-                        },
-                    }),
-                ],
-            });
-
-            // Build all components
-            build("hero-button", heroButton);
-            build("feature-card", featureCard);
-            build("demo-counter", demoCounter);
-            build("demo-buttons", demoButtons);
-            build("demo-card", demoCard);
-        </script>
-    </body>
+      // ---- Composed card ----
+      build(
+        "tc-card",
+        describe({
+          theme: {
+            cardSurface: "#ffffff",
+            cardBorder: "#ece5d3",
+            cardInk: "#14171f",
+            cardSoft: "#5a6072",
+            cardAccent: "#a16939",
+          },
+          styles: {
+            display: "block",
+            background: "var(--cardSurface)",
+            border: "1px solid var(--cardBorder)",
+            borderRadius: "12px",
+            padding: "26px",
+            maxWidth: "440px",
+            margin: "0 auto",
+          },
+          children: [
+            describe({
+              tag: "div",
+              template: "live",
+              styles: {
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                fontSize: "0.72rem",
+                color: "var(--cardAccent)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                marginBottom: "10px",
+              },
+            }),
+            describe({
+              tag: "h3",
+              template: "Composed from describe() calls",
+              styles: {
+                color: "var(--cardInk)",
+                fontSize: "1.15rem",
+                fontWeight: "700",
+                margin: "0 0 10px",
+                lineHeight: "1.3",
+              },
+            }),
+            describe({
+              tag: "p",
+              template:
+                "This card is six describe() calls and a build() — no JSX, no compiler, no runtime beyond the browser.",
+              styles: {
+                color: "var(--cardSoft)",
+                fontSize: "0.95rem",
+                lineHeight: "1.55",
+                margin: "0 0 18px",
+              },
+            }),
+            describe({
+              tag: "a",
+              template: "Read the docs →",
+              attributes: { href: "./docs.html" },
+              styles: {
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                fontSize: "0.85rem",
+                color: "var(--cardAccent)",
+                textDecoration: "none",
+                fontWeight: "600",
+              },
+            }),
+          ],
+        }),
+      );
+    </script>
+  </body>
 </html>
