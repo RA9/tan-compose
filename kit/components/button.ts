@@ -66,9 +66,7 @@ build(
         props.block ? " block" : ""
       }`;
       const inner = `${
-        props.loading
-          ? '<span class="spinner" aria-hidden="true"></span>'
-          : ""
+        props.loading ? '<span class="spinner" aria-hidden="true"></span>' : ""
       }
         <span class="content"><slot></slot></span>`;
       const href = String(props.href ?? "");
@@ -76,9 +74,7 @@ build(
       const isDisabled = !!(props.disabled || props.loading);
 
       if (isAnchor) {
-        const targetAttr = props.target
-          ? ` target="${esc(props.target)}"`
-          : "";
+        const targetAttr = props.target ? ` target="${esc(props.target)}"` : "";
         // When target=_blank and no explicit rel was provided, default to a
         // safe rel for new-window links.
         const relValue = props.rel

@@ -27,6 +27,23 @@ const ROOT = new URL("../", import.meta.url).pathname;
 const POSTS_DIR = `${ROOT}blog/posts`;
 const BLOG_DIR = `${ROOT}blog`;
 
+const SITE_URL = "https://ra9.github.io/tan-compose";
+const SITE_NAME = "Tan Compose";
+const SITE_DESCRIPTION =
+  "A tiny library for declaratively defining reusable Web Components, plus a 23-component kit and a curated icon set.";
+
+/** Pages outside the blog that should appear in sitemap.xml. */
+const TOP_PAGES: { path: string; changefreq: string; priority: string }[] = [
+  { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/docs.html", changefreq: "weekly", priority: "0.9" },
+  { path: "/components.html", changefreq: "weekly", priority: "0.9" },
+  { path: "/icons.html", changefreq: "monthly", priority: "0.7" },
+  { path: "/themes.html", changefreq: "monthly", priority: "0.7" },
+  { path: "/examples.html", changefreq: "monthly", priority: "0.7" },
+  { path: "/playground.html", changefreq: "monthly", priority: "0.6" },
+  { path: "/blog/", changefreq: "weekly", priority: "0.8" },
+];
+
 interface Frontmatter {
   title: string;
   date: string;
@@ -512,13 +529,30 @@ const SHARED_STYLE = `
 function renderPost(post: Post): string {
   const desc = post.description ?? post.excerpt;
   const version = post.version ?? "v1.1.0";
+  const url = `${SITE_URL}/blog/${post.slug}.html`;
+  const pubDate = isoDate(post.date);
+  const pageTitle = `${post.title} — Tan Compose blog`;
   return `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="${escapeHtml(desc)}" />
-    <title>${escapeHtml(post.title)} — Tan Compose blog</title>
+    <title>${escapeHtml(pageTitle)}</title>
+    <link rel="canonical" href="${escapeHtml(url)}" />
+    <link rel="alternate" type="application/rss+xml" title="Tan Compose blog" href="${SITE_URL}/blog/feed.xml" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${escapeHtml(post.title)}" />
+    <meta property="og:description" content="${escapeHtml(desc)}" />
+    <meta property="og:url" content="${escapeHtml(url)}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="article:published_time" content="${escapeHtml(pubDate)}" />
+    <meta property="article:section" content="${escapeHtml(post.tag)}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapeHtml(post.title)}" />
+    <meta name="twitter:description" content="${escapeHtml(desc)}" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -589,6 +623,18 @@ function renderIndex(posts: Post[]): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Tan Compose blog — release notes, tutorials, and posts about composing custom-element-based design systems." />
     <title>Blog — Tan Compose</title>
+    <link rel="canonical" href="${SITE_URL}/blog/" />
+    <link rel="alternate" type="application/rss+xml" title="Tan Compose blog" href="${SITE_URL}/blog/feed.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Blog — ${SITE_NAME}" />
+    <meta property="og:description" content="Release notes, design decisions, and tutorials for tan-compose and the kit." />
+    <meta property="og:url" content="${SITE_URL}/blog/" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Blog — ${SITE_NAME}" />
+    <meta name="twitter:description" content="Release notes, design decisions, and tutorials for tan-compose and the kit." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -800,6 +846,88 @@ ${items},
 }
 
 // ────────────────────────────────────────────────────────────────────
+// feed + sitemap
+// ────────────────────────────────────────────────────────────────────
+
+/** Escape XML special chars for use inside element text or attribute values. */
+function escapeXml(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+/** RFC 822 / RFC 1123 date format required by RSS 2.0. */
+function rfc822(d: unknown): string {
+  const date = d instanceof Date ? d : new Date(isoDate(d));
+  return date.toUTCString();
+}
+
+function renderFeed(posts: Post[]): string {
+  const lastBuild = rfc822(new Date());
+  const items = posts
+    .map((p) => {
+      const url = `${SITE_URL}/blog/${p.slug}.html`;
+      const pubDate = rfc822(p.date);
+      return `    <item>
+      <title>${escapeXml(p.title)}</title>
+      <link>${escapeXml(url)}</link>
+      <guid isPermaLink="true">${escapeXml(url)}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <category>${escapeXml(p.tag)}</category>
+      <description>${escapeXml(p.excerpt)}</description>
+    </item>`;
+    })
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escapeXml(SITE_NAME)} blog</title>
+    <link>${SITE_URL}/blog/</link>
+    <description>${escapeXml(SITE_DESCRIPTION)}</description>
+    <language>en</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+    <atom:link href="${SITE_URL}/blog/feed.xml" rel="self" type="application/rss+xml" />
+${items}
+  </channel>
+</rss>
+`;
+}
+
+function renderSitemap(posts: Post[]): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const top = TOP_PAGES.map((p) =>
+    `  <url>
+    <loc>${SITE_URL}${p.path}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`
+  ).join("\n");
+
+  const posted = posts
+    .map((p) =>
+      `  <url>
+    <loc>${SITE_URL}/blog/${p.slug}.html</loc>
+    <lastmod>${escapeXml(isoDate(p.date))}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>`
+    )
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${top}
+${posted}
+</urlset>
+`;
+}
+
+// ────────────────────────────────────────────────────────────────────
 // main
 // ────────────────────────────────────────────────────────────────────
 
@@ -840,8 +968,14 @@ async function main() {
   const indexHtml = renderIndex(posts);
   await Deno.writeTextFile(`${BLOG_DIR}/index.html`, indexHtml);
   wrote++;
+
+  await Deno.writeTextFile(`${BLOG_DIR}/feed.xml`, renderFeed(posts));
+  wrote++;
+  await Deno.writeTextFile(`${ROOT}sitemap.xml`, renderSitemap(posts));
+  wrote++;
+
   console.log(
-    `blog: wrote ${wrote} files (${posts.length} posts + index) from ${posts.length} markdown sources`,
+    `blog: wrote ${wrote} files (${posts.length} posts + index + feed.xml + sitemap.xml) from ${posts.length} markdown sources`,
   );
 }
 

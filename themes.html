@@ -8,6 +8,17 @@
       content="Theming @ra9/tan-compose-kit — semantic tokens, drop-in presets, and side-by-side interop with Bootstrap and Tailwind."
     />
     <title>Theming — Tan Compose</title>
+    <link rel="canonical" href="https://ra9.github.io/tan-compose/themes.html" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Theming — Tan Compose" />
+    <meta property="og:description" content="Semantic tokens, drop-in presets, and side-by-side interop with Bootstrap, Tailwind, Material, and shadcn/ui." />
+    <meta property="og:url" content="https://ra9.github.io/tan-compose/themes.html" />
+    <meta property="og:site_name" content="Tan Compose" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Theming — Tan Compose" />
+    <meta name="twitter:description" content="Semantic tokens, drop-in presets, and side-by-side interop with Bootstrap, Tailwind, Material, and shadcn/ui." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -137,6 +148,8 @@
             <tc-button data-theme="dark" variant="secondary" size="sm">Dark</tc-button>
             <tc-button data-theme="bootstrap" variant="secondary" size="sm">Bootstrap</tc-button>
             <tc-button data-theme="tailwind" variant="secondary" size="sm">Tailwind</tc-button>
+            <tc-button data-theme="material" variant="secondary" size="sm">Material</tc-button>
+            <tc-button data-theme="shadcn" variant="secondary" size="sm">shadcn</tc-button>
           </div>
 
           <div class="stage" id="theme-stage">
@@ -236,6 +249,16 @@
                 <td><code>@ra9/tan-compose-kit/themes/tailwind</code></td>
                 <td>Tailwind slate/indigo palette, default radius scale.</td>
               </tr>
+              <tr>
+                <td>material</td>
+                <td><code>@ra9/tan-compose-kit/themes/material</code></td>
+                <td>Material Design 3 indigo, Roboto, elevation-style shadows.</td>
+              </tr>
+              <tr>
+                <td>shadcn</td>
+                <td><code>@ra9/tan-compose-kit/themes/shadcn</code></td>
+                <td>shadcn/ui zinc neutrals, tighter radii, Inter typography.</td>
+              </tr>
             </tbody>
           </table>
 
@@ -333,6 +356,10 @@
           document.head.appendChild(themeStyle("bootstrap", BOOTSTRAP_CSS));
         } else if (name === "tailwind") {
           document.head.appendChild(themeStyle("tailwind", TAILWIND_CSS));
+        } else if (name === "material") {
+          document.head.appendChild(themeStyle("material", MATERIAL_CSS));
+        } else if (name === "shadcn") {
+          document.head.appendChild(themeStyle("shadcn", SHADCN_CSS));
         }
         // "light" leaves only the base tokens in place.
 
@@ -389,6 +416,34 @@
         --tc-color-rule: rgb(226 232 240); --tc-color-rule-strong: rgb(203 213 225);
         --tc-radius-sm: 0.25rem; --tc-radius-md: 0.375rem; --tc-radius-lg: 0.5rem;
         --tc-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.4);
+      }`;
+      const MATERIAL_CSS = `:root {
+        --tc-color-accent: #3f51b5; --tc-color-accent-hover: #303f9f; --tc-color-accent-soft: #e8eaf6;
+        --tc-color-info: #1976d2; --tc-color-info-bg: #e3f2fd; --tc-color-info-fg: #0d47a1;
+        --tc-color-success: #2e7d32; --tc-color-success-bg: #e8f5e9; --tc-color-success-fg: #1b5e20;
+        --tc-color-warning: #f57c00; --tc-color-warning-bg: #fff3e0; --tc-color-warning-fg: #e65100;
+        --tc-color-danger: #d32f2f; --tc-color-danger-bg: #ffebee; --tc-color-danger-fg: #b71c1c;
+        --tc-color-bg: #ffffff; --tc-color-surface: #ffffff; --tc-color-surface-alt: #f5f5f5;
+        --tc-color-ink: rgba(0, 0, 0, 0.87); --tc-color-ink-soft: rgba(0, 0, 0, 0.60); --tc-color-ink-muted: rgba(0, 0, 0, 0.42);
+        --tc-color-rule: #e0e0e0; --tc-color-rule-strong: #bdbdbd;
+        --tc-radius-sm: 4px; --tc-radius-md: 8px; --tc-radius-lg: 16px;
+        --tc-shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        --tc-shadow-md: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        --tc-shadow-lg: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        --tc-font-sans: Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+        --tc-focus-ring: 0 0 0 3px rgba(63, 81, 181, 0.24);
+      }`;
+      const SHADCN_CSS = `:root {
+        --tc-color-accent: hsl(240, 5.9%, 10%); --tc-color-accent-hover: hsl(240, 5.2%, 33.9%); --tc-color-accent-soft: hsl(240, 4.8%, 95.9%);
+        --tc-color-info: hsl(221.2, 83.2%, 53.3%); --tc-color-info-bg: hsl(214, 100%, 96.5%); --tc-color-info-fg: hsl(224, 71.4%, 4.1%);
+        --tc-color-success: hsl(142.1, 76.2%, 36.3%); --tc-color-success-bg: hsl(138, 76%, 96.7%); --tc-color-success-fg: hsl(140.4, 84.2%, 14.5%);
+        --tc-color-warning: hsl(32.1, 94.6%, 43.7%); --tc-color-warning-bg: hsl(48, 96.5%, 88.8%); --tc-color-warning-fg: hsl(15.5, 86.3%, 30.4%);
+        --tc-color-danger: hsl(0, 84.2%, 60.2%); --tc-color-danger-bg: hsl(0, 93%, 94.1%); --tc-color-danger-fg: hsl(0, 70%, 35.3%);
+        --tc-color-bg: hsl(0, 0%, 100%); --tc-color-surface: hsl(0, 0%, 100%); --tc-color-surface-alt: hsl(240, 4.8%, 95.9%);
+        --tc-color-ink: hsl(240, 10%, 3.9%); --tc-color-ink-soft: hsl(240, 3.8%, 46.1%); --tc-color-ink-muted: hsl(240, 4.4%, 56%);
+        --tc-color-rule: hsl(240, 5.9%, 90%); --tc-color-rule-strong: hsl(240, 5.9%, 80%);
+        --tc-radius-sm: 0.25rem; --tc-radius-md: 0.5rem; --tc-radius-lg: 0.75rem;
+        --tc-focus-ring: 0 0 0 2px hsl(0, 0%, 100%), 0 0 0 4px hsl(240, 10%, 3.9%);
       }`;
     </script>
   </body>
