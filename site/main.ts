@@ -18,6 +18,9 @@ import "../kit/themes/tokens.ts";
 // Kit components.
 import "../kit/mod.ts";
 
+// Icon set — registers <tc-icon>.
+import "../icons/mod.ts";
+
 // Site shell.
 import "./components/site-nav.ts";
 import "./components/site-footer.ts";

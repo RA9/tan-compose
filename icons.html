@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Icons — 44 inline SVG icons from the Lucide set, packaged as the <tc-icon> custom element."
+    />
+    <title>Icons — Tan Compose</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="./dist/site.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
+        line-height: 1.6;
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
+
+      header.page { padding: 64px 0 28px; }
+      .eyebrow {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--tc-color-accent, #a16939);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.1; margin-bottom: 14px;
+      }
+      .page-lede {
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 1.05rem; max-width: 620px;
+      }
+      .install-line {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.92rem;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        padding: 14px 18px;
+        margin: 24px 0 0;
+        max-width: 460px;
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .install-line .prompt { color: var(--tc-color-ink-muted, #6b7280); }
+
+      section.demo {
+        padding: 48px 0;
+        border-top: 1px solid var(--tc-color-rule, #ece5d3);
+      }
+      .demo-head { margin-bottom: 18px; }
+      .demo-tag {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.78rem;
+        color: var(--tc-color-accent, #a16939);
+        margin-bottom: 8px;
+      }
+      h2 {
+        font-size: 1.5rem; font-weight: 700;
+        letter-spacing: -0.01em; margin-bottom: 8px;
+      }
+      .demo-lede {
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 0.98rem;
+      }
+      .stage {
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
+        padding: 32px 24px;
+        margin: 16px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        align-items: center;
+        min-height: 80px;
+      }
+
+      /* Browse: search bar */
+      .browse-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin: 16px 0 12px;
+      }
+      .browse-toolbar tc-input { flex: 1; }
+      .browse-count {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.85rem;
+        color: var(--tc-color-ink-muted, #6b7280);
+        white-space: nowrap;
+      }
+
+      /* Browse: category section */
+      .category {
+        margin-top: 32px;
+      }
+      .category-title {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--tc-color-ink-muted, #6b7280);
+        margin-bottom: 12px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+      }
+      .icon-tile {
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        padding: 16px 8px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+        text-align: center;
+      }
+      .icon-tile:hover {
+        border-color: var(--tc-color-accent, #a16939);
+        background: var(--tc-color-accent-soft, #efe2cf);
+      }
+      .icon-tile:active { transform: scale(0.97); }
+      .icon-tile tc-icon {
+        color: var(--tc-color-ink, #14171f);
+        font-size: 24px;
+      }
+      .icon-tile .icon-name {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.72rem;
+        color: var(--tc-color-ink-soft, #4a5061);
+        line-height: 1.2;
+        word-break: break-word;
+      }
+      .icon-tile.copied {
+        border-color: var(--tc-color-accent, #a16939);
+        background: var(--tc-color-accent-soft, #efe2cf);
+      }
+      .icon-tile.copied .icon-name::after {
+        content: " ✓";
+        color: var(--tc-color-accent, #a16939);
+      }
+
+      .empty {
+        padding: 28px;
+        text-align: center;
+        color: var(--tc-color-ink-muted, #6b7280);
+        font-size: 0.92rem;
+        border: 1px dashed var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        margin-top: 12px;
+      }
+
+      /* Size demo */
+      .size-row {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .size-row .size-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .size-row .size-label {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.78rem;
+        color: var(--tc-color-ink-muted, #6b7280);
+      }
+
+      /* Color demo */
+      .color-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+      .color-cell {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-size: 0.95rem;
+      }
+
+      /* Props table */
+      .props {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+        margin-top: 8px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        overflow: hidden;
+      }
+      .props th, .props td {
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+        vertical-align: top;
+      }
+      .props tr:last-child td { border-bottom: none; }
+      .props th {
+        background: var(--tc-color-bg, #faf8f3);
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--tc-color-ink-muted, #6b7280);
+      }
+      .props td code {
+        background: var(--tc-color-bg, #faf8f3);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      /* Code-block syntax tokens (consumed by <tc-code>'s slotted spans). */
+      .tc-kw { color: #f0a878; }
+      .tc-str { color: #d9b380; }
+      .tc-com { color: #8a8678; font-style: italic; }
+      .tc-tag { color: #d9b380; }
+
+      @media (max-width: 720px) {
+        header.page { padding: 40px 0 16px; }
+        section.demo { padding: 32px 0; }
+        .browse-toolbar { flex-direction: column; align-items: stretch; }
+        .grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+      }
+    </style>
+  </head>
+  <body>
+    <site-nav active="icons" version="v1.1.0"></site-nav>
+
+    <main>
+      <header class="page">
+        <div class="wrap">
+          <div class="eyebrow">@ra9/tan-compose-icons</div>
+          <h1>Icons, every page can use.</h1>
+          <p class="page-lede">
+            44 commonly-needed icons drawn from the
+            <a
+              href="https://lucide.dev"
+              target="_blank"
+              rel="noopener"
+              style="color: var(--tc-color-accent, #a16939);"
+              >Lucide</a
+            >
+            set, packaged as a single
+            <code>&lt;tc-icon&gt;</code> custom element. Inline SVG, inherits
+            <code>currentColor</code>, no font file, no sprite sheet, no build
+            step.
+          </p>
+          <div class="install-line">
+            <span class="prompt">$</span>
+            <span class="cmd">deno add jsr:@ra9/tan-compose-icons</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="demo" id="basics">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-icon name="..."&gt;</div>
+            <h2>Basic usage</h2>
+            <p class="demo-lede">
+              Import once, drop the tag in any HTML. Pass the icon
+              <code>name</code> as an attribute.
+            </p>
+          </div>
+          <div class="stage">
+            <tc-icon name="check" size="32"></tc-icon>
+            <tc-icon name="search" size="32"></tc-icon>
+            <tc-icon name="settings" size="32"></tc-icon>
+            <tc-icon name="user" size="32"></tc-icon>
+            <tc-icon name="mail" size="32"></tc-icon>
+            <tc-icon name="calendar" size="32"></tc-icon>
+            <tc-icon name="trash" size="32"></tc-icon>
+            <tc-icon name="moon" size="32"></tc-icon>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-icons"</span>;
+
+&lt;tc-icon name="check"&gt;&lt;/tc-icon&gt;
+&lt;tc-icon name="search" size="32"&gt;&lt;/tc-icon&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="props">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">props</div>
+            <h2>Props</h2>
+            <p class="demo-lede">
+              All five attributes are optional except <code>name</code>.
+            </p>
+          </div>
+          <table class="props">
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Default</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>name</code></td>
+                <td>—</td>
+                <td>
+                  One of 44 icon names. Unknown names render a small placeholder
+                  square with a <code>?</code> mark so missing icons are visible.
+                </td>
+              </tr>
+              <tr>
+                <td><code>size</code></td>
+                <td><code>1em</code></td>
+                <td>
+                  Any CSS length: <code>16</code>, <code>20px</code>,
+                  <code>1.2em</code>, <code>2rem</code>. Applies to both width
+                  and height.
+                </td>
+              </tr>
+              <tr>
+                <td><code>stroke</code></td>
+                <td><code>currentColor</code></td>
+                <td>
+                  Stroke color. By default the icon inherits color from the
+                  surrounding text — change CSS <code>color</code> on a parent
+                  and the icon follows.
+                </td>
+              </tr>
+              <tr>
+                <td><code>fill</code></td>
+                <td><code>none</code></td>
+                <td>
+                  Fill color. Most Lucide icons are stroke-only outlines, so the
+                  default is correct; override for filled-style variants.
+                </td>
+              </tr>
+              <tr>
+                <td><code>title</code></td>
+                <td><em>(empty)</em></td>
+                <td>
+                  Accessible name. When set, the SVG gets <code>role="img"</code> +
+                  <code>aria-label</code>; when empty, it gets
+                  <code>aria-hidden="true"</code> (decorative).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="demo" id="sizing">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">size</div>
+            <h2>Sizing</h2>
+            <p class="demo-lede">
+              <code>size</code> takes any CSS length. Omit it and the icon sizes
+              with the surrounding text (<code>1em</code>).
+            </p>
+          </div>
+          <div class="stage">
+            <div class="size-row">
+              <div class="size-cell">
+                <tc-icon name="check-circle" size="16"></tc-icon>
+                <span class="size-label">16</span>
+              </div>
+              <div class="size-cell">
+                <tc-icon name="check-circle" size="20"></tc-icon>
+                <span class="size-label">20</span>
+              </div>
+              <div class="size-cell">
+                <tc-icon name="check-circle" size="24"></tc-icon>
+                <span class="size-label">24</span>
+              </div>
+              <div class="size-cell">
+                <tc-icon name="check-circle" size="32"></tc-icon>
+                <span class="size-label">32</span>
+              </div>
+              <div class="size-cell">
+                <tc-icon name="check-circle" size="48"></tc-icon>
+                <span class="size-label">48</span>
+              </div>
+              <div class="size-cell">
+                <tc-icon name="check-circle" size="64"></tc-icon>
+                <span class="size-label">64</span>
+              </div>
+            </div>
+          </div>
+<tc-code language="ts">&lt;tc-icon name="check-circle" size="16"&gt;&lt;/tc-icon&gt;
+&lt;tc-icon name="check-circle" size="32"&gt;&lt;/tc-icon&gt;
+&lt;tc-icon name="check-circle" size="2.5em"&gt;&lt;/tc-icon&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="color">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">currentColor</div>
+            <h2>Color via <code>currentColor</code></h2>
+            <p class="demo-lede">
+              The default stroke is <code>currentColor</code>, so a parent's
+              CSS <code>color</code> wins. This makes icons drop cleanly into
+              text, buttons, links, badges — anything with a foreground color.
+            </p>
+          </div>
+          <div class="stage">
+            <div class="color-row">
+              <span class="color-cell" style="color: var(--tc-color-ink, #14171f);">
+                <tc-icon name="alert-circle" size="20"></tc-icon>
+                Default
+              </span>
+              <span class="color-cell" style="color: var(--tc-color-accent, #a16939);">
+                <tc-icon name="alert-circle" size="20"></tc-icon>
+                Accent
+              </span>
+              <span class="color-cell" style="color: #c63838;">
+                <tc-icon name="alert-circle" size="20"></tc-icon>
+                Danger
+              </span>
+              <span class="color-cell" style="color: #2f9e44;">
+                <tc-icon name="check-circle" size="20"></tc-icon>
+                Success
+              </span>
+              <span class="color-cell" style="color: #6b7280;">
+                <tc-icon name="info" size="20"></tc-icon>
+                Muted
+              </span>
+            </div>
+          </div>
+<tc-code language="ts">&lt;span style="color: tomato;"&gt;
+  &lt;tc-icon name="alert-circle"&gt;&lt;/tc-icon&gt;
+&lt;/span&gt;
+
+&lt;tc-button variant="primary"&gt;
+  &lt;tc-icon name="download"&gt;&lt;/tc-icon&gt; Download
+&lt;/tc-button&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="a11y">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">title</div>
+            <h2>Accessibility</h2>
+            <p class="demo-lede">
+              Pass <code>title</code> when the icon carries meaning (icon-only
+              buttons, status indicators). Leave it empty when the icon is
+              decorative and an adjacent text label already describes it.
+            </p>
+          </div>
+          <div class="stage">
+            <button
+              aria-label="Delete item"
+              style="
+                display: inline-flex; align-items: center; gap: 8px;
+                padding: 8px 12px;
+                background: transparent;
+                border: 1px solid var(--tc-color-rule, #ece5d3);
+                border-radius: var(--tc-radius-md, 10px);
+                cursor: pointer;
+                color: var(--tc-color-ink, #14171f);
+                font: inherit;
+              "
+            >
+              <tc-icon name="trash" size="18" title="Delete"></tc-icon>
+            </button>
+            <span
+              style="
+                display: inline-flex; align-items: center; gap: 6px;
+                color: #2f9e44; font-weight: 500;
+              "
+            >
+              <tc-icon name="check-circle" size="18"></tc-icon>
+              Saved
+            </span>
+          </div>
+<tc-code language="ts"><span class="tc-com">// icon-only button — needs an accessible name</span>
+&lt;button aria-label="Delete item"&gt;
+  &lt;tc-icon name="trash" title="Delete"&gt;&lt;/tc-icon&gt;
+&lt;/button&gt;
+
+<span class="tc-com">// decorative — text already says "Saved"</span>
+&lt;span&gt;&lt;tc-icon name="check-circle"&gt;&lt;/tc-icon&gt; Saved&lt;/span&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="browse">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">browse</div>
+            <h2>Browse all 44 icons</h2>
+            <p class="demo-lede">
+              Click any tile to copy its name to your clipboard.
+            </p>
+          </div>
+
+          <div class="browse-toolbar">
+            <tc-input
+              id="icon-search"
+              placeholder="Search icons…"
+              aria-label="Search icons"
+            ></tc-input>
+            <span class="browse-count" id="icon-count">44 icons</span>
+          </div>
+
+          <div id="icon-results"></div>
+        </div>
+      </section>
+
+      <section class="demo" id="license">
+        <div class="wrap">
+          <tc-callout variant="info" title="Built on Lucide (ISC)">
+            Icon paths are taken from
+            <a
+              href="https://lucide.dev"
+              target="_blank"
+              rel="noopener"
+              style="color: var(--tc-color-accent, #a16939);"
+              >lucide.dev</a
+            >, licensed under
+            <a
+              href="https://github.com/lucide-icons/lucide/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener"
+              style="color: var(--tc-color-accent, #a16939);"
+              >ISC</a
+            >. Need an icon that isn't here? Open
+            <code>icons/icons.ts</code> and add it — entries are alphabetical
+            and the format is just the SVG inner content for a 24×24 viewBox
+            at stroke-width 2.
+          </tc-callout>
+        </div>
+      </section>
+    </main>
+
+    <site-footer></site-footer>
+
+    <script type="module">
+      const CATEGORIES = [
+        {
+          title: "Alerts & status",
+          icons: ["alert-circle", "alert-triangle", "info", "check", "check-circle", "x", "x-circle"],
+        },
+        {
+          title: "Navigation",
+          icons: [
+            "arrow-up", "arrow-right", "arrow-down", "arrow-left",
+            "chevron-up", "chevron-right", "chevron-down", "chevron-left",
+            "external-link",
+          ],
+        },
+        {
+          title: "Common actions",
+          icons: [
+            "plus", "minus", "search", "filter",
+            "more-horizontal", "more-vertical",
+            "settings", "edit", "trash", "copy",
+            "save", "download", "upload",
+          ],
+        },
+        {
+          title: "Domain",
+          icons: ["user", "users", "mail", "calendar", "clock", "home"],
+        },
+        {
+          title: "Controls",
+          icons: [
+            "menu", "log-in", "log-out",
+            "moon", "sun", "eye", "eye-off",
+            "loader", "refresh",
+          ],
+        },
+      ];
+
+      const TOTAL = CATEGORIES.reduce((n, c) => n + c.icons.length, 0);
+
+      const search = document.getElementById("icon-search");
+      const results = document.getElementById("icon-results");
+      const count = document.getElementById("icon-count");
+
+      let query = "";
+
+      function render() {
+        const q = query.trim().toLowerCase();
+        let shown = 0;
+        const html = CATEGORIES.map((cat) => {
+          const matches = cat.icons.filter((n) => !q || n.includes(q));
+          if (matches.length === 0) return "";
+          shown += matches.length;
+          const tiles = matches
+            .map(
+              (n) => `
+                <button class="icon-tile" data-name="${n}" aria-label="Copy ${n}">
+                  <tc-icon name="${n}" size="24"></tc-icon>
+                  <span class="icon-name">${n}</span>
+                </button>
+              `,
+            )
+            .join("");
+          return `
+            <div class="category">
+              <div class="category-title">${cat.title} · ${matches.length}</div>
+              <div class="grid">${tiles}</div>
+            </div>
+          `;
+        }).join("");
+
+        if (shown === 0) {
+          results.innerHTML = `
+            <div class="empty">
+              No icons match "${escapeHtml(q)}". Try a shorter query — or open
+              <code>icons/icons.ts</code> and add the one you need.
+            </div>
+          `;
+        } else {
+          results.innerHTML = html;
+        }
+
+        count.textContent =
+          shown === TOTAL ? `${TOTAL} icons` : `${shown} of ${TOTAL}`;
+      }
+
+      function escapeHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function onSearch(value) {
+        query = String(value ?? "");
+        render();
+      }
+
+      // tc-input dispatches a custom "tc-input" event; the native "input"
+      // event also bubbles up — listen for both so we don't miss either.
+      search.addEventListener("tc-input", (e) => onSearch(e.detail?.value));
+      search.addEventListener("input", (e) => onSearch(e.target?.value));
+
+      // Click-to-copy on tiles. Delegated so we don't rewire on every render.
+      results.addEventListener("click", async (e) => {
+        const tile = e.target.closest(".icon-tile");
+        if (!tile) return;
+        const name = tile.dataset.name;
+        if (!name) return;
+        try {
+          await navigator.clipboard.writeText(name);
+        } catch {
+          // Clipboard API blocked — still flash the visual cue.
+        }
+        tile.classList.add("copied");
+        setTimeout(() => tile.classList.remove("copied"), 900);
+      });
+
+      render();
+    </script>
+  </body>
+</html>

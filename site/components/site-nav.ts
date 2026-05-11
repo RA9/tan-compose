@@ -6,7 +6,7 @@
  *
  * Props:
  *   active   string — id of the current page; highlights the matching link.
- *            One of: "home" | "docs" | "components" | "themes" |
+ *            One of: "home" | "docs" | "components" | "icons" | "themes" |
  *                    "examples" | "playground" | "blog"
  *   version  string — text shown in the version pill (default "v1.1.0")
  */
@@ -49,6 +49,12 @@ build(
           id: "components",
           label: "Components",
           href: `${base}components.html`,
+        },
+        {
+          id: "icons",
+          label: "Icons",
+          href: `${base}icons.html`,
+          hideOnSmall: true,
         },
         {
           id: "themes",
