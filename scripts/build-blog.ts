@@ -308,17 +308,20 @@ function tokenize(lang: string, src: string): string {
 function preprocessDirectives(md: string): string {
   // :::callout [variant=...] [title="..."]\n ... \n:::
   return md.replace(
-    /^:::callout([^\n]*)\n([\s\S]*?)\n:::\s*$/gm,
+    /^:::callout([^\n]*)\n([\s\S]*?)\n:::[ \t]*$/gm,
     (_match, args, body) => {
       const variant = /variant=(\w+)/.exec(args)?.[1] ?? "info";
       const titleMatch = /title="([^"]+)"/.exec(args);
       const title = titleMatch ? ` title="${escapeHtml(titleMatch[1])}"` : "";
       // Run nested markdown on the body so callouts can contain prose.
-      const innerHtml = marked.parse(body.trim(), {
+      // Trim innerHtml — a blank line inside the HTML block would terminate
+      // it early, and the next `##` heading would get swallowed by a new
+      // HTML block starting at the closing tag.
+      const innerHtml = (marked.parse(body.trim(), {
         async: false,
         breaks: false,
         gfm: true,
-      }) as string;
+      }) as string).trim();
       return `<tc-callout variant="${
         escapeHtml(variant)
       }"${title}>\n${innerHtml}\n</tc-callout>`;
