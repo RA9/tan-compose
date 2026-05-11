@@ -1,6 +1,6 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
@@ -25,6 +25,7 @@
     "./code": "./components/code.ts",
     "./callout": "./components/callout.ts",
     "./toc": "./components/toc.ts",
+    "./pagination": "./components/pagination.ts",
     "./themes/tokens": "./themes/tokens.ts",
     "./themes/dark": "./themes/dark.ts",
     "./themes/bootstrap": "./themes/bootstrap.ts",
@@ -38,7 +39,7 @@
   },
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
-    "check": "deno check mod.ts components/button.ts components/input.ts components/textarea.ts components/select.ts components/checkbox.ts components/switch.ts components/file.ts components/radio-group.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts components/stack.ts components/cluster.ts components/grid.ts components/code.ts components/callout.ts components/toc.ts themes/tokens.ts themes/dark.ts themes/bootstrap.ts themes/tailwind.ts themes/material.ts themes/shadcn.ts",
+    "check": "deno check mod.ts components/button.ts components/input.ts components/textarea.ts components/select.ts components/checkbox.ts components/switch.ts components/file.ts components/radio-group.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts components/stack.ts components/cluster.ts components/grid.ts components/code.ts components/callout.ts components/toc.ts components/pagination.ts themes/tokens.ts themes/dark.ts themes/bootstrap.ts themes/tailwind.ts themes/material.ts themes/shadcn.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

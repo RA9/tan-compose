@@ -3,6 +3,32 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.4.0] - 2026-05-11
+
+> The "papercuts from dogfooding" release. Three small wins discovered while
+> rebuilding the docs site with the kit itself.
+
+### Added
+
+- **`<tc-pagination>`** — prev/next plus a windowed list of page numbers with
+  ellipses for skipped ranges. Configurable `current`, `total`, `siblings`,
+  and `boundaries`. Emits `tc-page-change` with `{ page }` so the parent can
+  guard, clamp, or kick off an async load before accepting the change.
+- **`href` / `target` / `rel` on `<tc-button>`** — when `href` is set, the
+  button renders as an `<a>` instead of a `<button>`, with the same styling
+  and variants. `target="_blank"` auto-adds `rel="noopener"`. Disabled
+  anchors drop `href` and set `aria-disabled="true"`.
+
+### Changed
+
+- `<tc-code>`'s syntax-token colors now flow through `--tc-code-kw`,
+  `--tc-code-str`, `--tc-code-com`, `--tc-code-num`, and `--tc-code-tag`
+  (which default to `--tc-code-*-base` for themes to override). Previously
+  the demo site hard-coded these as page-level `.tc-kw { color: … }` rules
+  that shadowed the slotted theming. Removed those rules from every page
+  and from the blog build template so dark / Bootstrap / Tailwind / Material
+  / Shadcn themes can adjust code-block contrast.
+
 ## [1.3.0] - 2026-05-10
 
 > The "docs primitives" release. Three new components needed before we can

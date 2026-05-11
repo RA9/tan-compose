@@ -93,13 +93,6 @@
         min-height: 80px;
       }
       .stage.col { flex-direction: column; align-items: stretch; }
-
-      /* Code-block syntax tokens (consumed by <tc-code>'s slotted spans). */
-      .tc-kw { color: #f0a878; }
-      .tc-str { color: #d9b380; }
-      .tc-com { color: #8a8678; font-style: italic; }
-      .tc-tag { color: #d9b380; }
-
       @media (max-width: 720px) {
         header.page { padding: 40px 0 16px; }
         section.demo { padding: 32px 0; }
@@ -149,10 +142,30 @@
             <tc-button loading>Loading</tc-button>
             <tc-button disabled>Disabled</tc-button>
           </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            Pass <code>href</code> and the button renders as an
+            <code>&lt;a&gt;</code> instead — same styling, link semantics.
+            Use <code>target="_blank"</code> for new-window links (gets
+            <code>rel="noopener"</code> automatically).
+          </p>
+          <div class="stage">
+            <tc-button variant="primary" href="./docs.html">Read the docs →</tc-button>
+            <tc-button variant="secondary" href="./examples.html">Browse examples</tc-button>
+            <tc-button
+              variant="ghost"
+              href="https://github.com/ra9/tan-compose"
+              target="_blank"
+            >GitHub ↗</tc-button>
+            <tc-button variant="primary" href="./docs.html" disabled>Disabled link</tc-button>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/button"</span>;
 
 &lt;tc-button variant="primary"&gt;Save&lt;/tc-button&gt;
-&lt;tc-button variant="danger" loading&gt;Deleting…&lt;/tc-button&gt;</tc-code>
+&lt;tc-button variant="danger" loading&gt;Deleting…&lt;/tc-button&gt;
+
+<span class="tc-com">// Pass href to render as an anchor instead of a button.</span>
+&lt;tc-button variant="primary" href="/docs"&gt;Read the docs&lt;/tc-button&gt;
+&lt;tc-button href="https://github.com/..." target="_blank"&gt;GitHub&lt;/tc-button&gt;</tc-code>
         </div>
       </section>
 
@@ -801,6 +814,46 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
 &lt;tc-skeleton width="60%" height="14px"&gt;&lt;/tc-skeleton&gt;</tc-code>
         </div>
       </section>
+
+      <section class="demo" id="pagination">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">&lt;tc-pagination&gt;</div>
+            <h2>Pagination</h2>
+            <p class="demo-lede">
+              Prev/next plus a windowed list of page numbers. Set
+              <code>current</code> and <code>total</code>; the component
+              emits <code>tc-page-change</code> with the requested page —
+              the parent decides whether to accept. <code>siblings</code>
+              and <code>boundaries</code> control the window shape.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-pagination
+              id="kit-pager"
+              current="1"
+              total="12"
+              siblings="1"
+              boundaries="1"
+            ></tc-pagination>
+            <div
+              id="kit-pager-out"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--tc-color-ink-muted, #6b7280);"
+            >
+              current: 1 (click a page to change)
+            </div>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/pagination"</span>;
+
+<span class="tc-kw">const</span> pager = document.querySelector(<span class="tc-str">"tc-pagination"</span>);
+pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
+  pager.current = e.detail.page;
+  loadPage(e.detail.page);
+});
+
+&lt;tc-pagination current="1" total="20" siblings="2"&gt;&lt;/tc-pagination&gt;</tc-code>
+        </div>
+      </section>
     </main>
 
     <site-footer></site-footer>
@@ -924,6 +977,15 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             setTimeout(() => t.remove(), 200);
           });
         });
+      });
+
+      // ---- pagination demo ----
+      const pager = document.getElementById("kit-pager");
+      const pagerOut = document.getElementById("kit-pager-out");
+      pager.addEventListener("tc-page-change", (e) => {
+        pager.current = e.detail.page;
+        pagerOut.textContent = "current: " + e.detail.page;
+        pagerOut.style.color = "var(--tc-color-accent, #a16939)";
       });
     </script>
   </body>

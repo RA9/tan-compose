@@ -37,6 +37,7 @@ import { tagName as gridTag } from "./components/grid.ts";
 import { tagName as codeTag } from "./components/code.ts";
 import { tagName as calloutTag } from "./components/callout.ts";
 import { tagName as tocTag } from "./components/toc.ts";
+import { tagName as paginationTag } from "./components/pagination.ts";
 
 /** Tag names of every component this module registers. */
 export const tags = {
@@ -67,4 +68,5 @@ export const tags = {
   code: codeTag,
   callout: calloutTag,
   toc: tocTag,
+  pagination: paginationTag,
 } as const;

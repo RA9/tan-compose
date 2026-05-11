@@ -507,11 +507,6 @@ const SHARED_STYLE = `
         header.post-head { padding: 36px 0 8px; }
         article { padding: 12px 0 36px; }
       }
-
-      .tc-kw  { color: #f0a878; }
-      .tc-str { color: #d9b380; }
-      .tc-com { color: #8a8678; font-style: italic; }
-      .tc-tag { color: #d9b380; }
 `;
 
 function renderPost(post: Post): string {
@@ -769,18 +764,22 @@ ${items},
           pager.innerHTML = "";
         } else {
           pager.innerHTML = \`
-            <span>page \${page} of \${totalPages} · \${all.length} post\${all.length === 1 ? "" : "s"}</span>
-            <span>
-              <tc-button id="prev" size="sm" variant="ghost" \${page === 1 ? "disabled" : ""}>← Prev</tc-button>
-              <tc-button id="next" size="sm" variant="ghost" \${page === totalPages ? "disabled" : ""}>Next →</tc-button>
-            </span>
+            <span>\${all.length} post\${all.length === 1 ? "" : "s"}</span>
+            <tc-pagination
+              id="pager-controls"
+              current="\${page}"
+              total="\${totalPages}"
+              size="sm"
+              label="Blog post pagination"
+            ></tc-pagination>
           \`;
-          document.getElementById("prev")?.addEventListener("click", () => {
-            if (page > 1) { page--; render(); }
-          });
-          document.getElementById("next")?.addEventListener("click", () => {
-            if (page < totalPages) { page++; render(); }
-          });
+          document
+            .getElementById("pager-controls")
+            ?.addEventListener("tc-page-change", (e) => {
+              page = e.detail.page;
+              render();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            });
         }
       }
 

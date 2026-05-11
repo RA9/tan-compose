@@ -2,12 +2,19 @@
  * `<tc-button>` — a styled button with variants, sizes, disabled and loading
  * states. Accepts content via the default slot.
  *
+ * Renders as a real `<button>` by default. If `href` is set, renders as an
+ * `<a>` instead — same styling, semantics of a link. Useful for CTAs and
+ * navigation that should look like buttons.
+ *
  * Props:
  *   variant   "primary" | "secondary" | "ghost" | "danger" (default "primary")
  *   size      "sm" | "md" | "lg" (default "md")
  *   disabled  boolean (default false, reflects)
  *   loading   boolean (default false)
  *   block     boolean (default false) — full-width
+ *   href      string  optional — render as an anchor pointing here
+ *   target    string  optional — only applied when href is set
+ *   rel       string  optional — only applied when href is set
  *
  * Theme variables exposed on :host (override at the page level):
  *   --tc-btn-primary-bg, --tc-btn-primary-fg
@@ -32,6 +39,9 @@ build(
       disabled: { type: "boolean", default: false, reflect: true },
       loading: { type: "boolean", default: false },
       block: { type: "boolean", default: false },
+      href: { type: "string", default: "" },
+      target: { type: "string", default: "" },
+      rel: { type: "string", default: "" },
     },
     theme: {
       "tc-btn-primary-bg": "var(--tc-color-ink, #14171f)",
@@ -51,20 +61,62 @@ build(
       display: "inline-block",
       "vertical-align": "middle",
     },
-    template: ({ props }) => `
+    template: ({ props }) => {
+      const cls = `root v-${esc(props.variant)} s-${esc(props.size)}${
+        props.block ? " block" : ""
+      }`;
+      const inner = `${
+        props.loading
+          ? '<span class="spinner" aria-hidden="true"></span>'
+          : ""
+      }
+        <span class="content"><slot></slot></span>`;
+      const href = String(props.href ?? "");
+      const isAnchor = href.length > 0;
+      const isDisabled = !!(props.disabled || props.loading);
+
+      if (isAnchor) {
+        const targetAttr = props.target
+          ? ` target="${esc(props.target)}"`
+          : "";
+        // When target=_blank and no explicit rel was provided, default to a
+        // safe rel for new-window links.
+        const relValue = props.rel
+          ? String(props.rel)
+          : String(props.target) === "_blank"
+          ? "noopener"
+          : "";
+        const relAttr = relValue ? ` rel="${esc(relValue)}"` : "";
+        // Disabled anchors: omit href (so click does nothing) and mark
+        // aria-disabled. The .root:disabled CSS still applies via the
+        // aria-disabled rule below.
+        const hrefAttr = isDisabled ? "" : ` href="${esc(href)}"`;
+        const ariaDisabled = isDisabled ? ` aria-disabled="true"` : "";
+        const tabIndex = isDisabled ? ` tabindex="-1"` : "";
+        return `
+      <a
+        part="button"
+        class="${cls}"${hrefAttr}${targetAttr}${relAttr}${ariaDisabled}${tabIndex}
+        role="button"
+      >
+        ${inner}
+      </a>${BUTTON_STYLE}`;
+      }
+
+      return `
       <button
         part="button"
-        class="root v-${esc(props.variant)} s-${esc(props.size)}${
-      props.block ? " block" : ""
-    }"
-        ${props.disabled || props.loading ? "disabled" : ""}
+        class="${cls}"
+        ${isDisabled ? "disabled" : ""}
         type="button"
       >
-        ${
-      props.loading ? '<span class="spinner" aria-hidden="true"></span>' : ""
-    }
-        <span class="content"><slot></slot></span>
-      </button>
+        ${inner}
+      </button>${BUTTON_STYLE}`;
+    },
+  }),
+);
+
+const BUTTON_STYLE = `
       <style>
         .root {
           font-family: var(--tc-btn-font);
@@ -79,10 +131,19 @@ build(
           gap: 8px;
           line-height: 1;
           white-space: nowrap;
+          text-decoration: none;
+          color: inherit;
         }
         .root.block { width: 100%; display: flex; }
-        .root:disabled { opacity: 0.55; cursor: not-allowed; }
-        .root:not(:disabled):active { transform: translateY(1px); }
+        .root:disabled,
+        .root[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+        .root:not(:disabled):not([aria-disabled="true"]):active {
+          transform: translateY(1px);
+        }
+        a.root:focus-visible {
+          outline: 2px solid currentColor;
+          outline-offset: 2px;
+        }
 
         .s-sm { font-size: 0.82rem; padding: 6px 12px; }
         .s-md { font-size: 0.92rem; padding: 9px 16px; }
@@ -107,10 +168,14 @@ build(
           color: var(--tc-btn-danger-fg);
         }
 
-        .v-primary:not(:disabled):hover,
-        .v-danger:not(:disabled):hover { filter: brightness(1.08); }
-        .v-secondary:not(:disabled):hover,
-        .v-ghost:not(:disabled):hover { background: rgba(20, 23, 31, 0.04); }
+        .v-primary:not(:disabled):not([aria-disabled="true"]):hover,
+        .v-danger:not(:disabled):not([aria-disabled="true"]):hover {
+          filter: brightness(1.08);
+        }
+        .v-secondary:not(:disabled):not([aria-disabled="true"]):hover,
+        .v-ghost:not(:disabled):not([aria-disabled="true"]):hover {
+          background: rgba(20, 23, 31, 0.04);
+        }
 
         .spinner {
           width: 12px; height: 12px; border-radius: 50%;
@@ -124,9 +189,7 @@ build(
           to   { transform: rotate(360deg); }
         }
       </style>
-    `,
-  }),
-);
+`;
 
 function esc(s: unknown): string {
   return String(s ?? "")
