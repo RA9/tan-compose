@@ -3,17 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="How tan-compose's keyed list reconciliation works — annotated walkthrough of buildKeyedList in build.ts."
-    />
+    <meta name="description" content="How tan-compose&#39;s keyed list reconciliation works — annotated walkthrough of buildKeyedList in build.ts." />
     <title>Keyed list reconciliation in ~60 lines — Tan Compose blog</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <script type="module" src="../dist/site.js"></script>
     <style>
       * {
@@ -21,11 +15,7 @@
         padding: 0;
         box-sizing: border-box;
       }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
+      html { scroll-behavior: smooth; }
       body {
         font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         font-size: 16px;
@@ -34,137 +24,129 @@
         background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      .wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
-      code {
-        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.92em;
-      }
-
-      .wrap {
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-
-      .wrap-narrow {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-
-      header.post-head {
-        padding: 56px 0 12px;
-      }
-
+      header.post-head { padding: 56px 0 12px; }
       .post-eyebrow {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
         color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
-
       h1 {
         font-size: clamp(1.9rem, 4vw, 2.5rem);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.15;
-        margin-bottom: 14px;
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.15; margin-bottom: 14px;
       }
-
+      .article-subtitle {
+        font-size: 1.18rem;
+        line-height: 1.5;
+        color: var(--tc-color-ink-soft, #4a5061);
+        margin: 4px 0 12px;
+        max-width: 620px;
+      }
       .article-meta {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.82rem;
         color: var(--tc-color-ink-muted, #6b7280);
-        margin-top: 6px;
       }
 
-      article {
-        padding: 24px 0 56px;
-      }
-
+      article { padding: 24px 0 56px; }
       article p {
         color: var(--tc-color-ink, #14171f);
-        font-size: 1.02rem;
-        line-height: 1.72;
+        font-size: 1.02rem; line-height: 1.72;
         margin: 0 0 18px;
       }
-
       article p.lede {
         font-size: 1.12rem;
         color: var(--tc-color-ink-soft, #4a5061);
         margin-bottom: 24px;
       }
-
       article h2 {
-        font-size: 1.45rem;
-        font-weight: 700;
+        font-size: 1.45rem; font-weight: 700;
         letter-spacing: -0.01em;
         margin: 36px 0 14px;
       }
-
       article h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 28px 0 10px;
+        font-size: 1.05rem; font-weight: 600;
+        margin: 24px 0 8px;
       }
-
       article a {
         color: var(--tc-color-accent, #a16939);
         text-decoration: underline;
         text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
       }
-
-      article a:hover {
-        text-decoration-color: var(--tc-color-accent, #a16939);
-      }
-
-      article p code,
-      article li code {
+      article a:hover { text-decoration-color: var(--tc-color-accent, #a16939); }
+      article p code, article li code {
         background: var(--tc-color-accent-soft, #efe2cf);
         color: var(--tc-color-accent-hover, #8a572d);
-        padding: 1px 6px;
-        border-radius: 4px;
+        padding: 1px 6px; border-radius: 4px;
       }
-
-      article ul {
-        margin: 0 0 18px 22px;
-        color: var(--tc-color-ink, #14171f);
+      article ul, article ol { margin: 0 0 18px 22px; }
+      article li { line-height: 1.7; margin-bottom: 6px; }
+      article blockquote {
+        border-left: 3px solid var(--tc-color-accent, #a16939);
+        padding: 4px 0 4px 18px;
+        margin: 24px 0;
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 0.98rem;
       }
-
-      article li {
-        line-height: 1.7;
-        margin-bottom: 6px;
-      }
+      article blockquote p { margin-bottom: 8px; color: inherit; font-size: inherit; }
+      article blockquote p:last-child { margin-bottom: 0; }
 
       hr.rule {
-        border: none;
-        height: 1px;
+        border: none; height: 1px;
         background: var(--tc-color-rule, #ece5d3);
         margin: 36px 0 24px;
       }
+      .closing { color: var(--tc-color-ink-soft, #4a5061); }
 
-      .closing {
+      table.compact {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 8px 0 22px;
+        font-size: 0.94rem;
+      }
+      table.compact th, table.compact td {
+        text-align: left;
+        padding: 7px 10px;
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+      }
+      table.compact th {
+        background: var(--tc-color-bg, #faf8f3);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
         color: var(--tc-color-ink-soft, #4a5061);
+      }
+      table.compact th.num, table.compact th.delta,
+      table.compact td.num, table.compact td.delta {
+        text-align: right;
+      }
+      table.compact td.num, table.compact td.delta {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-variant-numeric: tabular-nums;
+      }
+      table.compact td.delta { color: var(--tc-color-accent-hover, #8a572d); }
+      table.compact tfoot td {
+        border-top: 2px solid var(--tc-color-rule-strong, #d9cfb8);
+        border-bottom: none;
+        font-weight: 700;
       }
 
       @media (max-width: 720px) {
-        header.post-head {
-          padding: 36px 0 8px;
-        }
-
-        article {
-          padding: 12px 0 36px;
-        }
+        header.post-head { padding: 36px 0 8px; }
+        article { padding: 12px 0 36px; }
       }
 
-      .tc-kw { color: #f0a878; }
+      .tc-kw  { color: #f0a878; }
       .tc-str { color: #d9b380; }
       .tc-com { color: #8a8678; font-style: italic; }
       .tc-tag { color: #d9b380; }
-    </style>
+</style>
   </head>
   <body>
     <site-nav active="blog" version="v1.1.0" base="../"></site-nav>
@@ -172,77 +154,34 @@
     <main>
       <header class="post-head">
         <div class="wrap-narrow">
-          <div class="post-eyebrow">deep dive</div>
+          <div class="post-eyebrow">internals</div>
           <h1>Keyed list reconciliation in ~60 lines</h1>
-          <div class="article-meta">Posted 2026-05-10 · v0.3.0</div>
+          <div class="article-meta">Posted 2026-05-10</div>
         </div>
       </header>
 
       <article>
         <div class="wrap-narrow">
-          <p class="lede">
-            The <code>for: { items, key, render }</code> field in v0.3 lets you
-            render a list of N items and have the same DOM nodes survive across
-            re-renders. This post walks through how it actually works — there's
-            no virtual DOM, no diff library, just a
-            <code>Map</code>, an identity check, and the live DOM.
-          </p>
-
-          <h2>The problem</h2>
-          <p>
-            Imagine a datatable with 1,000 rows and a search box. Every
-            keystroke filters <code>props.rows</code> down to the matching
-            subset and re-renders. The simple implementation — tear down all row
-            nodes, build new ones — works for ten rows. With a thousand, each
-            keystroke costs a relayout of the table, every focused input loses
-            focus, scroll position resets, and any per-row state (a half-typed
-            inline edit, an open menu) is gone.
-          </p>
-          <p>
-            Frameworks solve this with virtual-DOM diffing. tan-compose doesn't
-            ship a virtual DOM. It ships ~60 lines of careful bookkeeping
-            instead.
-          </p>
-
-          <h2>The shape of the cache</h2>
-          <p>
-            Every <code>for</code> block on a host element gets its own slot.
-            The slot is a <code>Map&lt;key, KeyedItem&gt;</code>:
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">type</span> KeyedItem = {
+<p class="lede">The <code>for: { items, key, render }</code> field in v0.3 lets you render a list of N items and have the same DOM nodes survive across re-renders. This post walks through how it actually works — there&#39;s no virtual DOM, no diff library, just a <code>Map</code>, an identity check, and the live DOM.</p>
+<h2>The problem</h2>
+<p>Imagine a datatable with 1,000 rows and a search box. Every keystroke filters <code>props.rows</code> down to the matching subset and re-renders. The simple implementation — tear down all row nodes, build new ones — works for ten rows. With a thousand, each keystroke costs a relayout of the table, every focused input loses focus, scroll position resets, and any per-row state (a half-typed inline edit, an open menu) is gone.</p>
+<p>Frameworks solve this with virtual-DOM diffing. tan-compose doesn&#39;t ship a virtual DOM. It ships ~60 lines of careful bookkeeping instead.</p>
+<h2>The shape of the cache</h2>
+<p>Every <code>for</code> block on a host element gets its own slot. The slot is a <code>Map&lt;key, KeyedItem&gt;</code>:</p>
+<tc-code language="ts"><span class="tc-kw">type</span> KeyedItem = {
   element: HTMLElement;
   lastItem: <span class="tc-kw">unknown</span>;
   cleanups: Array&lt;() =&gt; <span class="tc-kw">void</span>&gt;;
 };
 
 <span class="tc-kw">type</span> ListSlot = {
-  cache: Map&lt;<span class="tc-kw">string</span> | <span class="tc-kw">number</span>, KeyedItem&gt;;
+  cache: Map&lt;string | number, KeyedItem&gt;;
 };</tc-code>
-
-          <p>
-            <code>element</code> is the live DOM node for that key. <code
-            >lastItem</code>
-            is the data object we rendered with — used for the identity check
-            below. <code>cleanups</code> holds any teardown functions we
-            registered while rendering this row, so we can undo them cleanly
-            when the row goes away.
-          </p>
-
-          <p>
-            The host stores all its slots in a <code>WeakMap</code> keyed by the
-            <code>DescribeOptions</code> object that defined the for block.
-            Because <code>describe()</code> objects are stable across renders
-            (you build them once, the renderer reuses them), two renders of the
-            same component find the same slot.
-          </p>
-
-          <h2>The reconciliation pass</h2>
-          <p>
-            On every parent re-render, the for block runs this loop:
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">function</span> buildKeyedList(description, scope, getSlot) {
+<p><code>element</code> is the live DOM node for that key. <code>lastItem</code> is the data object we rendered with — used for the identity check below. <code>cleanups</code> holds any teardown functions we registered while rendering this row, so we can undo them cleanly when the row goes away.</p>
+<p>The host stores all its slots in a <code>WeakMap</code> keyed by the <code>DescribeOptions</code> object that defined the for block. Because <code>describe()</code> objects are stable across renders (you build them once, the renderer reuses them), two renders of the same component find the same slot.</p>
+<h2>The reconciliation pass</h2>
+<p>On every parent re-render, the for block runs this loop:</p>
+<tc-code language="ts"><span class="tc-kw">function</span> buildKeyedList(description, scope, getSlot) {
   <span class="tc-kw">const</span> list = description.<span class="tc-kw">for</span>;
   <span class="tc-kw">const</span> slot = getSlot(description);
   <span class="tc-kw">const</span> items = list.items(scope.ctx);
@@ -266,7 +205,7 @@
     }
 
     newCache.set(key, entry);
-    frag.appendChild(entry.element);      <span class="tc-com">// re-appending moves, doesn't clone</span>
+    frag.appendChild(entry.element);      <span class="tc-com">// re-appending moves, doesn&#39;t clone</span>
   }
 
   <span class="tc-kw">for</span> (<span class="tc-kw">const</span> [key, entry] <span class="tc-kw">of</span> slot.cache) {
@@ -276,102 +215,27 @@
   slot.cache = newCache;
   <span class="tc-kw">return</span> frag;
 }</tc-code>
+<p>That&#39;s the whole thing. Three observations.</p>
+<h3>1. Re-appending an existing node moves it</h3>
+<p>When we call <code>frag.appendChild(entry.element)</code> on a node that&#39;s currently attached to the document tree, the DOM doesn&#39;t clone it — it removes it from its old parent and inserts it at the new position. Reordering is implicit. We don&#39;t have to compute a longest-common-subsequence diff or track move operations. The DOM does it for us, in order.</p>
+<h3>2. The identity check is <code>Object.is</code></h3>
+<p><code>cached.lastItem === item</code> via <code>Object.is</code> decides whether to reuse the row&#39;s DOM verbatim or re-render it. This is a deliberate contract with the user: if you mutate an array entry in place, the renderer can&#39;t tell anything changed and your row will look stale. Always replace the object reference when its contents change.</p>
+<p>This is the same contract React, Solid, and most modern frameworks make. The cost of supporting deep equality would be walking every property of every row on every render — unacceptable for a table that exists specifically because deep equality is expensive.</p>
+<h3>3. Cleanups are per-row</h3>
+<p>When <code>list.render()</code> produces a row that registers event listeners (a <code>delete</code> button, a hover handler), those cleanup functions get pushed into the row&#39;s own <code>cleanups</code> array — not the parent&#39;s. When the row gets removed from the list, we run just that row&#39;s cleanups. When the host disconnects, we walk every slot and flush them all.</p>
+<h2>What we deliberately don&#39;t do</h2>
+<ul>
+<li><strong>No virtual DOM.</strong> The cache holds real <code>HTMLElement</code> references. There&#39;s no shadow tree, no fiber, no patch list. Just the document and a <code>Map</code>.</li>
+<li><strong>No partial row updates.</strong> When a row&#39;s data changes (its identity flips) we re-render the whole row. For the simple shape <code>render: (row) =&gt; describe(...)</code> that means rebuilding a few elements, not the whole list. Granular text-node updates would require parsing the template — a much larger project.</li>
+<li><strong>No move-cost optimization.</strong> If your list reverses, every node moves. The DOM handles this cheaply enough at typical list sizes. If you&#39;re rendering 100k rows, you want windowing, not better diffing.</li>
+<li><strong>No reorder-only signal.</strong> We don&#39;t tell renderers &quot;this row only moved.&quot; If you need that, listen for the row&#39;s <code>connectedMoveCallback</code> in a future browser version, or attach an <code>IntersectionObserver</code> in <code>afterMount</code>.</li>
+</ul>
+<h2>The complexity budget</h2>
+<p>The whole feature is two types, one map per slot, and one ~30-line function. It runs once per render of the parent. Memory is O(N) in the row count. Time is O(N) in the new array plus O(M) in the old cache for the removal pass — so O(N+M).</p>
+<p>That&#39;s enough to make a 1,000-row datatable feel instant on a keystroke filter. It&#39;s not enough to build Notion. But Notion wasn&#39;t the goal.</p>
+<hr class="rule" />
+<p class="closing">See <a href="../docs.html#for">docs.html#for</a> for the API reference, or open <a href="https://github.com/ra9/tan-compose/blob/main/build.ts">build.ts on GitHub</a> for the actual implementation.</p>
 
-          <p>That's the whole thing. Three observations.</p>
-
-          <h3>1. Re-appending an existing node moves it</h3>
-          <p>
-            When we call <code>frag.appendChild(entry.element)</code> on a node
-            that's currently attached to the document tree, the DOM doesn't
-            clone it — it removes it from its old parent and inserts it at the
-            new position. Reordering is implicit. We don't have to compute a
-            longest-common-subsequence diff or track move operations. The DOM
-            does it for us, in order.
-          </p>
-
-          <h3>2. The identity check is <code>Object.is</code></h3>
-          <p>
-            <code>cached.lastItem === item</code> via <code>Object.is</code>
-            decides whether to reuse the row's DOM verbatim or re-render it.
-            This is a deliberate contract with the user: if you mutate an array
-            entry in place, the renderer can't tell anything changed and your
-            row will look stale. Always replace the object reference when its
-            contents change.
-          </p>
-          <p>
-            This is the same contract React, Solid, and most modern frameworks
-            make. The cost of supporting deep equality would be walking every
-            property of every row on every render — unacceptable for a table
-            that exists specifically because deep equality is expensive.
-          </p>
-
-          <h3>3. Cleanups are per-row</h3>
-          <p>
-            When <code>list.render()</code> produces a row that registers event
-            listeners (a <code>delete</code> button, a hover handler), those
-            cleanup functions get pushed into the row's own <code
-            >cleanups</code> array — not the parent's. When the row gets removed
-            from the list, we run just that row's cleanups. When the host
-            disconnects, we walk every slot and flush them all.
-          </p>
-
-          <h2>What we deliberately don't do</h2>
-
-          <ul>
-            <li>
-              <strong>No virtual DOM.</strong> The cache holds real
-              <code>HTMLElement</code> references. There's no shadow tree, no
-              fiber, no patch list. Just the document and a
-              <code>Map</code>.
-            </li>
-            <li>
-              <strong>No partial row updates.</strong> When a row's data changes
-              (its identity flips) we re-render the whole row. For the simple
-              shape <code>render: (row) =&gt; describe(...)</code>
-              that means rebuilding a few elements, not the whole list. Granular
-              text-node updates would require parsing the template — a much
-              larger project.
-            </li>
-            <li>
-              <strong>No move-cost optimization.</strong> If your list reverses,
-              every node moves. The DOM handles this cheaply enough at typical
-              list sizes. If you're rendering 100k rows, you want windowing, not
-              better diffing.
-            </li>
-            <li>
-              <strong>No reorder-only signal.</strong> We don't tell renderers
-              "this row only moved." If you need that, listen for the row's
-              <code>connectedMoveCallback</code> in a future browser version, or
-              attach an
-              <code>IntersectionObserver</code> in
-              <code>afterMount</code>.
-            </li>
-          </ul>
-
-          <h2>The complexity budget</h2>
-          <p>
-            The whole feature is two types, one map per slot, and one ~30-line
-            function. It runs once per render of the parent. Memory is O(N) in
-            the row count. Time is O(N) in the new array plus O(M) in the old
-            cache for the removal pass — so O(N+M).
-          </p>
-          <p>
-            That's enough to make a 1,000-row datatable feel instant on a
-            keystroke filter. It's not enough to build Notion. But Notion wasn't
-            the goal.
-          </p>
-
-          <hr class="rule" />
-
-          <p class="closing">
-            See <a href="../docs.html#for">docs.html#for</a> for the API
-            reference, or open
-            <a
-              href="https://github.com/ra9/tan-compose/blob/main/build.ts"
-              target="_blank"
-              rel="noopener"
-            >build.ts on GitHub</a> for the actual implementation.
-          </p>
         </div>
       </article>
     </main>

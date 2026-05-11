@@ -3,17 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="A tutorial: build a small CRUD app — list, add, edit, delete tasks — using @ra9/tan-compose-kit and ~80 lines of glue."
-    />
+    <meta name="description" content="A tutorial: build a small CRUD app — list, add, edit, delete tasks — using @ra9/tan-compose-kit and ~80 lines of glue." />
     <title>Build a tasks app in ~80 lines — Tan Compose blog</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <script type="module" src="../dist/site.js"></script>
     <style>
       * {
@@ -21,9 +15,7 @@
         padding: 0;
         box-sizing: border-box;
       }
-      html {
-        scroll-behavior: smooth;
-      }
+      html { scroll-behavior: smooth; }
       body {
         font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         font-size: 16px;
@@ -32,39 +24,29 @@
         background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
-      code {
-        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.92em;
-      }
-      .wrap {
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-      .wrap-narrow {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      .wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
-      header.post-head {
-        padding: 56px 0 12px;
-      }
+      header.post-head { padding: 56px 0 12px; }
       .post-eyebrow {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
         color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
       h1 {
         font-size: clamp(1.9rem, 4vw, 2.5rem);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.15;
-        margin-bottom: 14px;
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.15; margin-bottom: 14px;
+      }
+      .article-subtitle {
+        font-size: 1.18rem;
+        line-height: 1.5;
+        color: var(--tc-color-ink-soft, #4a5061);
+        margin: 4px 0 12px;
+        max-width: 620px;
       }
       .article-meta {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
@@ -72,13 +54,10 @@
         color: var(--tc-color-ink-muted, #6b7280);
       }
 
-      article {
-        padding: 24px 0 56px;
-      }
+      article { padding: 24px 0 56px; }
       article p {
         color: var(--tc-color-ink, #14171f);
-        font-size: 1.02rem;
-        line-height: 1.72;
+        font-size: 1.02rem; line-height: 1.72;
         margin: 0 0 18px;
       }
       article p.lede {
@@ -87,14 +66,12 @@
         margin-bottom: 24px;
       }
       article h2 {
-        font-size: 1.45rem;
-        font-weight: 700;
+        font-size: 1.45rem; font-weight: 700;
         letter-spacing: -0.01em;
         margin: 36px 0 14px;
       }
       article h3 {
-        font-size: 1.05rem;
-        font-weight: 600;
+        font-size: 1.05rem; font-weight: 600;
         margin: 24px 0 8px;
       }
       article a {
@@ -102,56 +79,74 @@
         text-decoration: underline;
         text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
       }
-      article a:hover {
-        text-decoration-color: var(--tc-color-accent, #a16939);
-      }
+      article a:hover { text-decoration-color: var(--tc-color-accent, #a16939); }
       article p code, article li code {
         background: var(--tc-color-accent-soft, #efe2cf);
         color: var(--tc-color-accent-hover, #8a572d);
-        padding: 1px 6px;
-        border-radius: 4px;
+        padding: 1px 6px; border-radius: 4px;
       }
-
-      article ul {
-        margin: 0 0 18px 22px;
-      }
-      article li {
-        line-height: 1.7;
-        margin-bottom: 6px;
-      }
-
-      .pull {
+      article ul, article ol { margin: 0 0 18px 22px; }
+      article li { line-height: 1.7; margin-bottom: 6px; }
+      article blockquote {
         border-left: 3px solid var(--tc-color-accent, #a16939);
         padding: 4px 0 4px 18px;
         margin: 24px 0;
         color: var(--tc-color-ink-soft, #4a5061);
         font-size: 0.98rem;
       }
+      article blockquote p { margin-bottom: 8px; color: inherit; font-size: inherit; }
+      article blockquote p:last-child { margin-bottom: 0; }
 
       hr.rule {
-        border: none;
-        height: 1px;
+        border: none; height: 1px;
         background: var(--tc-color-rule, #ece5d3);
         margin: 36px 0 24px;
       }
-      .closing {
+      .closing { color: var(--tc-color-ink-soft, #4a5061); }
+
+      table.compact {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 8px 0 22px;
+        font-size: 0.94rem;
+      }
+      table.compact th, table.compact td {
+        text-align: left;
+        padding: 7px 10px;
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+      }
+      table.compact th {
+        background: var(--tc-color-bg, #faf8f3);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
         color: var(--tc-color-ink-soft, #4a5061);
+      }
+      table.compact th.num, table.compact th.delta,
+      table.compact td.num, table.compact td.delta {
+        text-align: right;
+      }
+      table.compact td.num, table.compact td.delta {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-variant-numeric: tabular-nums;
+      }
+      table.compact td.delta { color: var(--tc-color-accent-hover, #8a572d); }
+      table.compact tfoot td {
+        border-top: 2px solid var(--tc-color-rule-strong, #d9cfb8);
+        border-bottom: none;
+        font-weight: 700;
       }
 
       @media (max-width: 720px) {
-        header.post-head {
-          padding: 36px 0 8px;
-        }
-        article {
-          padding: 12px 0 36px;
-        }
+        header.post-head { padding: 36px 0 8px; }
+        article { padding: 12px 0 36px; }
       }
 
-      .tc-kw { color: #f0a878; }
+      .tc-kw  { color: #f0a878; }
       .tc-str { color: #d9b380; }
       .tc-com { color: #8a8678; font-style: italic; }
       .tc-tag { color: #d9b380; }
-    </style>
+</style>
   </head>
   <body>
     <site-nav active="blog" version="v1.1.0" base="../"></site-nav>
@@ -161,125 +156,81 @@
         <div class="wrap-narrow">
           <div class="post-eyebrow">tutorial · kit</div>
           <h1>Build a tasks app in ~80 lines</h1>
-          <div class="article-meta">
-            Posted 2026-05-10 · uses kit v0.3 · @ra9/tan-compose v0.4
-          </div>
+          <div class="article-meta">Posted 2026-05-10</div>
         </div>
       </header>
 
       <article>
         <div class="wrap-narrow">
-          <p class="lede">
-            A small CRUD app — list, add, edit, delete tasks, with stats at the
-            top — built end-to-end with
-            <code>@ra9/tan-compose-kit</code>. No framework, no build step, no
-            JSX. The whole thing fits in one HTML file plus about eighty lines
-            of JavaScript.
-          </p>
+<p class="lede">A small CRUD app — list, add, edit, delete tasks, with stats at the top — built end-to-end with <code>@ra9/tan-compose-kit</code>. No framework, no build step, no JSX. The whole thing fits in one HTML file plus about eighty lines of JavaScript.</p>
+<h2>What we&#39;re building</h2>
+<p>A page that shows a list of tasks. At the top: four stat cards (Total, Done, Open, Overdue). Below that: a form to add a task. Below that: a sortable, filterable, paginated table. Clicking a task opens a modal where you can mark it done or delete it. Deletes prompt for confirmation. Every mutation flashes a toast.</p>
+<p>That&#39;s a real internal tool. Most teams reach for React, install Tailwind, set up a build step, and write a hundred files for it. We&#39;re going to do it with eight HTML elements and a script tag.</p>
+<h2>Step 0: the page shell</h2>
+<p>Start with one HTML file. Pull in the kit bundle and lay out the chrome:</p>
+<tc-code language="html">&lt;!<span class="tc-tag">doctype</span> html&gt;
+&lt;<span class="tc-tag">html</span>&gt;
+&lt;<span class="tc-tag">head</span>&gt;
+  &lt;<span class="tc-tag">meta</span> charset=<span class="tc-str">&quot;utf-8&quot;</span> /&gt;
+  &lt;<span class="tc-tag">title</span>&gt;Tasks&lt;/<span class="tc-tag">title</span>&gt;
+  &lt;<span class="tc-tag">script</span> type=<span class="tc-str">&quot;module&quot;</span> src=<span class="tc-str">&quot;https://esm.sh/jsr/@ra9/tan-compose-kit@0.3&quot;</span>&gt;&lt;/<span class="tc-tag">script</span>&gt;
+&lt;/<span class="tc-tag">head</span>&gt;
+&lt;<span class="tc-tag">body</span> style=<span class="tc-str">&quot;font-family: system-ui; padding: 32px; max-width: 960px; margin: auto;&quot;</span>&gt;
+  &lt;<span class="tc-tag">h1</span>&gt;Tasks&lt;/<span class="tc-tag">h1</span>&gt;
 
-          <h2>What we're building</h2>
-          <p>
-            A page that shows a list of tasks. At the top: four stat cards
-            (Total, Done, Open, Overdue). Below that: a form to add a task.
-            Below that: a sortable, filterable, paginated table. Clicking a task
-            opens a modal where you can mark it done or delete it. Deletes
-            prompt for confirmation. Every mutation flashes a toast.
-          </p>
-          <p>
-            That's a real internal tool. Most teams reach for React, install
-            Tailwind, set up a build step, and write a hundred files for it.
-            We're going to do it with eight HTML elements and a script tag.
-          </p>
+  &lt;<span class="tc-tag">section</span> id=<span class="tc-str">&quot;stats&quot;</span> style=<span class="tc-str">&quot;display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 24px;&quot;</span>&gt;
+    &lt;<span class="tc-tag">tc-stat</span> id=<span class="tc-str">&quot;s-total&quot;</span>   label=<span class="tc-str">&quot;Total&quot;</span>   value=<span class="tc-str">&quot;0&quot;</span>&gt;&lt;/<span class="tc-tag">tc-stat</span>&gt;
+    &lt;<span class="tc-tag">tc-stat</span> id=<span class="tc-str">&quot;s-done&quot;</span>    label=<span class="tc-str">&quot;Done&quot;</span>    value=<span class="tc-str">&quot;0&quot;</span>&gt;&lt;/<span class="tc-tag">tc-stat</span>&gt;
+    &lt;<span class="tc-tag">tc-stat</span> id=<span class="tc-str">&quot;s-open&quot;</span>    label=<span class="tc-str">&quot;Open&quot;</span>    value=<span class="tc-str">&quot;0&quot;</span>&gt;&lt;/<span class="tc-tag">tc-stat</span>&gt;
+    &lt;<span class="tc-tag">tc-stat</span> id=<span class="tc-str">&quot;s-overdue&quot;</span> label=<span class="tc-str">&quot;Overdue&quot;</span> value=<span class="tc-str">&quot;0&quot;</span>&gt;&lt;/<span class="tc-tag">tc-stat</span>&gt;
+  &lt;/<span class="tc-tag">section</span>&gt;
 
-          <h2>Step 0: the page shell</h2>
-          <p>
-            Start with one HTML file. Pull in the kit bundle and lay out the
-            chrome:
-          </p>
+  &lt;<span class="tc-tag">form</span> id=<span class="tc-str">&quot;new-task&quot;</span> style=<span class="tc-str">&quot;display: flex; gap: 8px; align-items: end; margin-bottom: 24px;&quot;</span>&gt;
+    &lt;<span class="tc-tag">tc-input</span>  id=<span class="tc-str">&quot;f-title&quot;</span>    name=<span class="tc-str">&quot;title&quot;</span>    label=<span class="tc-str">&quot;New task&quot;</span>   required style=<span class="tc-str">&quot;flex: 2&quot;</span>&gt;&lt;/<span class="tc-tag">tc-input</span>&gt;
+    &lt;<span class="tc-tag">tc-select</span> id=<span class="tc-str">&quot;f-priority&quot;</span> name=<span class="tc-str">&quot;priority&quot;</span> label=<span class="tc-str">&quot;Priority&quot;</span>          style=<span class="tc-str">&quot;flex: 1&quot;</span>&gt;&lt;/<span class="tc-tag">tc-select</span>&gt;
+    &lt;<span class="tc-tag">tc-input</span>  id=<span class="tc-str">&quot;f-due&quot;</span>      name=<span class="tc-str">&quot;due&quot;</span>      type=<span class="tc-str">&quot;date&quot;</span> label=<span class="tc-str">&quot;Due&quot;</span>   style=<span class="tc-str">&quot;flex: 1&quot;</span>&gt;&lt;/<span class="tc-tag">tc-input</span>&gt;
+    &lt;<span class="tc-tag">tc-button</span> variant=<span class="tc-str">&quot;primary&quot;</span>&gt;Add&lt;/<span class="tc-tag">tc-button</span>&gt;
+  &lt;/<span class="tc-tag">form</span>&gt;
 
-          <tc-code language="html">&lt;!doctype html&gt;
-&lt;html&gt;
-&lt;head&gt;
-  &lt;meta charset="utf-8" /&gt;
-  &lt;title&gt;Tasks&lt;/title&gt;
-  &lt;script type="module" src="https://esm.sh/jsr/@ra9/tan-compose-kit@0.3"&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body style="font-family: system-ui; padding: 32px; max-width: 960px; margin: auto;"&gt;
-  &lt;h1&gt;Tasks&lt;/h1&gt;
+  &lt;<span class="tc-tag">tc-table</span> id=<span class="tc-str">&quot;tbl&quot;</span> page-size=<span class="tc-str">&quot;8&quot;</span>&gt;&lt;/<span class="tc-tag">tc-table</span>&gt;
 
-  &lt;section id="stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 24px;"&gt;
-    &lt;tc-stat id="s-total"   label="Total"   value="0"&gt;&lt;/tc-stat&gt;
-    &lt;tc-stat id="s-done"    label="Done"    value="0"&gt;&lt;/tc-stat&gt;
-    &lt;tc-stat id="s-open"    label="Open"    value="0"&gt;&lt;/tc-stat&gt;
-    &lt;tc-stat id="s-overdue" label="Overdue" value="0"&gt;&lt;/tc-stat&gt;
-  &lt;/section&gt;
-
-  &lt;form id="new-task" style="display: flex; gap: 8px; align-items: end; margin-bottom: 24px;"&gt;
-    &lt;tc-input  id="f-title"    name="title"    label="New task"   required style="flex: 2"&gt;&lt;/tc-input&gt;
-    &lt;tc-select id="f-priority" name="priority" label="Priority"          style="flex: 1"&gt;&lt;/tc-select&gt;
-    &lt;tc-input  id="f-due"      name="due"      type="date" label="Due"   style="flex: 1"&gt;&lt;/tc-input&gt;
-    &lt;tc-button variant="primary"&gt;Add&lt;/tc-button&gt;
-  &lt;/form&gt;
-
-  &lt;tc-table id="tbl" page-size="8"&gt;&lt;/tc-table&gt;
-
-  &lt;tc-modal id="m"&gt;&lt;/tc-modal&gt;
-  &lt;div id="toasts" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px;"&gt;&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;</tc-code>
-
-          <p>
-            That's the entire visible structure. Stats grid, form, table, modal,
-            toast host. Every <code>tc-*</code> element is a real custom element
-            registered the moment the script loads.
-          </p>
-
-          <h2>Step 1: the data</h2>
-          <p>
-            Keep it simple — an array of objects. In a real app you'd replace
-            this with a fetch. The shape:
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">let</span> tasks = [
-  { id: 1, title: <span class="tc-str">"Audit auth flow"</span>,        priority: <span class="tc-str">"high"</span>,   due: <span class="tc-str">"2026-05-12"</span>, done: <span class="tc-kw">false</span> },
-  { id: 2, title: <span class="tc-str">"Update onboarding copy"</span>, priority: <span class="tc-str">"medium"</span>, due: <span class="tc-str">"2026-05-15"</span>, done: <span class="tc-kw">false</span> },
-  { id: 3, title: <span class="tc-str">"Renew certs"</span>,            priority: <span class="tc-str">"low"</span>,    due: <span class="tc-str">"2026-05-08"</span>, done: <span class="tc-kw">true</span>  },
+  &lt;<span class="tc-tag">tc-modal</span> id=<span class="tc-str">&quot;m&quot;</span>&gt;&lt;/<span class="tc-tag">tc-modal</span>&gt;
+  &lt;<span class="tc-tag">div</span> id=<span class="tc-str">&quot;toasts&quot;</span> style=<span class="tc-str">&quot;position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px;&quot;</span>&gt;&lt;/<span class="tc-tag">div</span>&gt;
+&lt;/<span class="tc-tag">body</span>&gt;
+&lt;/<span class="tc-tag">html</span>&gt;</tc-code>
+<p>That&#39;s the entire visible structure. Stats grid, form, table, modal, toast host. Every <code>tc-*</code> element is a real custom element registered the moment the script loads.</p>
+<h2>Step 1: the data</h2>
+<p>Keep it simple — an array of objects. In a real app you&#39;d replace this with a fetch. The shape:</p>
+<tc-code language="ts"><span class="tc-kw">let</span> tasks = [
+  { id: 1, title: <span class="tc-str">&quot;Audit auth flow&quot;</span>,        priority: <span class="tc-str">&quot;high&quot;</span>,   due: <span class="tc-str">&quot;2026-05-12&quot;</span>, done: <span class="tc-kw">false</span> },
+  { id: 2, title: <span class="tc-str">&quot;Update onboarding copy&quot;</span>, priority: <span class="tc-str">&quot;medium&quot;</span>, due: <span class="tc-str">&quot;2026-05-15&quot;</span>, done: <span class="tc-kw">false</span> },
+  { id: 3, title: <span class="tc-str">&quot;Renew certs&quot;</span>,            priority: <span class="tc-str">&quot;low&quot;</span>,    due: <span class="tc-str">&quot;2026-05-08&quot;</span>, done: <span class="tc-kw">true</span>  },
 ];
 <span class="tc-kw">let</span> nextId = 4;</tc-code>
-
-          <p>
-            One <code>tasks</code> array. One <code>nextId</code>
-            counter. That's the whole "store."
-          </p>
-
-          <h2>Step 2: rendering — one function</h2>
-          <p>
-            The rule: every mutation runs through one <code>render()</code>
-            function that pushes the latest data into the components. Components
-            handle their own re-renders internally; we just update their props.
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">const</span> tbl = document.getElementById(<span class="tc-str">"tbl"</span>);
+<p>One <code>tasks</code> array. One <code>nextId</code> counter. That&#39;s the whole &quot;store.&quot;</p>
+<h2>Step 2: rendering — one function</h2>
+<p>The rule: every mutation runs through one <code>render()</code> function that pushes the latest data into the components. Components handle their own re-renders internally; we just update their props.</p>
+<tc-code language="ts"><span class="tc-kw">const</span> tbl = document.getElementById(<span class="tc-str">&quot;tbl&quot;</span>);
 tbl.columns = [
-  { key: <span class="tc-str">"title"</span>,    label: <span class="tc-str">"Title"</span>,    sortable: <span class="tc-kw">true</span> },
-  { key: <span class="tc-str">"priority"</span>, label: <span class="tc-str">"Priority"</span>, sortable: <span class="tc-kw">true</span> },
-  { key: <span class="tc-str">"due"</span>,      label: <span class="tc-str">"Due"</span>,      sortable: <span class="tc-kw">true</span> },
-  { key: <span class="tc-str">"status"</span>,   label: <span class="tc-str">"Status"</span> },
+  { key: <span class="tc-str">&quot;title&quot;</span>,    label: <span class="tc-str">&quot;Title&quot;</span>,    sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">&quot;priority&quot;</span>, label: <span class="tc-str">&quot;Priority&quot;</span>, sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">&quot;due&quot;</span>,      label: <span class="tc-str">&quot;Due&quot;</span>,      sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">&quot;status&quot;</span>,   label: <span class="tc-str">&quot;Status&quot;</span> },
 ];
 
-<span class="tc-kw">const</span> sel = document.getElementById(<span class="tc-str">"f-priority"</span>);
+<span class="tc-kw">const</span> sel = document.getElementById(<span class="tc-str">&quot;f-priority&quot;</span>);
 sel.options = [
-  { value: <span class="tc-str">"low"</span>,    label: <span class="tc-str">"Low"</span>    },
-  { value: <span class="tc-str">"medium"</span>, label: <span class="tc-str">"Medium"</span> },
-  { value: <span class="tc-str">"high"</span>,   label: <span class="tc-str">"High"</span>   },
+  { value: <span class="tc-str">&quot;low&quot;</span>,    label: <span class="tc-str">&quot;Low&quot;</span>    },
+  { value: <span class="tc-str">&quot;medium&quot;</span>, label: <span class="tc-str">&quot;Medium&quot;</span> },
+  { value: <span class="tc-str">&quot;high&quot;</span>,   label: <span class="tc-str">&quot;High&quot;</span>   },
 ];
-sel.value = <span class="tc-str">"medium"</span>;
+sel.value = <span class="tc-str">&quot;medium&quot;</span>;
 
 <span class="tc-kw">function</span> render() {
   <span class="tc-com">// table rows = derived view of tasks</span>
   tbl.rows = tasks.map(t =&gt; ({
     ...t,
-    status: t.done ? <span class="tc-str">"✓ done"</span> : isOverdue(t) ? <span class="tc-str">"⚠ overdue"</span> : <span class="tc-str">"open"</span>,
+    status: t.done ? <span class="tc-str">&quot;✓ done&quot;</span> : isOverdue(t) ? <span class="tc-str">&quot;⚠ overdue&quot;</span> : <span class="tc-str">&quot;open&quot;</span>,
   }));
 
   <span class="tc-com">// stats</span>
@@ -288,13 +239,13 @@ sel.value = <span class="tc-str">"medium"</span>;
   <span class="tc-kw">const</span> open = total - done;
   <span class="tc-kw">const</span> overdue = tasks.filter(t =&gt; !t.done &amp;&amp; isOverdue(t)).length;
 
-  document.getElementById(<span class="tc-str">"s-total"</span>).value   = String(total);
-  document.getElementById(<span class="tc-str">"s-done"</span>).value    = String(done);
-  document.getElementById(<span class="tc-str">"s-open"</span>).value    = String(open);
-  <span class="tc-kw">const</span> overdueEl = document.getElementById(<span class="tc-str">"s-overdue"</span>);
+  document.getElementById(<span class="tc-str">&quot;s-total&quot;</span>).value   = String(total);
+  document.getElementById(<span class="tc-str">&quot;s-done&quot;</span>).value    = String(done);
+  document.getElementById(<span class="tc-str">&quot;s-open&quot;</span>).value    = String(open);
+  <span class="tc-kw">const</span> overdueEl = document.getElementById(<span class="tc-str">&quot;s-overdue&quot;</span>);
   overdueEl.value = String(overdue);
-  overdueEl.trend = overdue &gt; 0 ? <span class="tc-str">"down"</span> : <span class="tc-str">"neutral"</span>;
-  overdueEl.delta = overdue &gt; 0 ? <span class="tc-str">"needs attention"</span> : <span class="tc-str">""</span>;
+  overdueEl.trend = overdue &gt; 0 ? <span class="tc-str">&quot;down&quot;</span> : <span class="tc-str">&quot;neutral&quot;</span>;
+  overdueEl.delta = overdue &gt; 0 ? <span class="tc-str">&quot;needs attention&quot;</span> : <span class="tc-str">&quot;&quot;</span>;
 }
 
 <span class="tc-kw">function</span> isOverdue(t) {
@@ -302,204 +253,110 @@ sel.value = <span class="tc-str">"medium"</span>;
 }
 
 render();</tc-code>
-
-          <p>
-            Notice what we're <em>not</em> doing: there's no
-            <code>tableRoot.replaceChild</code>, no
-            <code>tableInstance.update()</code>, no diff library. We assign
-            <code>tbl.rows = [...]</code>. The component sees the prop change,
-            re-renders its template, and reuses the rows that haven't changed.
-            Same for
-            <code>sel.options</code> and the stat cards' values.
-          </p>
-
-          <h2>Step 3: adding a task</h2>
-          <p>
-            Listen for the form's submit, push to the array, re-render, toast.
-          </p>
-
-          <tc-code language="ts">document.getElementById(<span class="tc-str">"new-task"</span>).addEventListener(<span class="tc-str">"submit"</span>, (e) =&gt; {
+<p>Notice what we&#39;re <em>not</em> doing: there&#39;s no <code>tableRoot.replaceChild</code>, no <code>tableInstance.update()</code>, no diff library. We assign <code>tbl.rows = [...]</code>. The component sees the prop change, re-renders its template, and reuses the rows that haven&#39;t changed. Same for <code>sel.options</code> and the stat cards&#39; values.</p>
+<h2>Step 3: adding a task</h2>
+<p>Listen for the form&#39;s submit, push to the array, re-render, toast.</p>
+<tc-code language="ts">document.getElementById(<span class="tc-str">&quot;new-task&quot;</span>).addEventListener(<span class="tc-str">&quot;submit&quot;</span>, (e) =&gt; {
   e.preventDefault();
   <span class="tc-kw">const</span> data = <span class="tc-kw">new</span> FormData(e.target);
-  <span class="tc-kw">const</span> title = data.get(<span class="tc-str">"title"</span>);
+  <span class="tc-kw">const</span> title = data.get(<span class="tc-str">&quot;title&quot;</span>);
   <span class="tc-kw">if</span> (!title) <span class="tc-kw">return</span>;
   tasks = [
     ...tasks,
     {
       id: nextId++,
       title,
-      priority: data.get(<span class="tc-str">"priority"</span>) || <span class="tc-str">"medium"</span>,
-      due: data.get(<span class="tc-str">"due"</span>) || <span class="tc-str">""</span>,
+      priority: data.get(<span class="tc-str">&quot;priority&quot;</span>) || <span class="tc-str">&quot;medium&quot;</span>,
+      due: data.get(<span class="tc-str">&quot;due&quot;</span>) || <span class="tc-str">&quot;&quot;</span>,
       done: <span class="tc-kw">false</span>,
     },
   ];
   e.target.reset();
   render();
-  toast(<span class="tc-str">"success"</span>, <span class="tc-str">"Task added"</span>);
+  toast(<span class="tc-str">&quot;success&quot;</span>, <span class="tc-str">&quot;Task added&quot;</span>);
 });</tc-code>
-
-          <p>
-            <code>FormData</code> works because every form field —
-            <code>&lt;tc-input&gt;</code>, <code>&lt;tc-select&gt;</code>
-            — is form-associated. The form gets <code>title</code>,
-            <code>priority</code>, and <code>due</code> for free. Reset works
-            the same way: <code>e.target.reset()</code>
-            walks every form-associated child and calls its
-            <code>formResetCallback</code>.
-          </p>
-
-          <div class="pull">
-            <strong>Why this works:</strong> in v0.4 of
-            <code>@ra9/tan-compose</code>, declaring <code>formAssociated:
-              true</code> wires <code>internals.setFormValue</code>
-            automatically when a <code>value</code> prop changes. The kit's
-            input/select/checkbox/switch all opt in. They behave exactly like
-            native form controls.
-          </div>
-
-          <h2>Step 4: clicking a row → modal</h2>
-          <p>
-            <code>&lt;tc-table&gt;</code> emits <code>tc-row-click</code>
-            with the row in <code>event.detail</code>. We use that to open the
-            modal:
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">const</span> modal = document.getElementById(<span class="tc-str">"m"</span>);
+<p><code>FormData</code> works because every form field — <code>&lt;tc-input&gt;</code>, <code>&lt;tc-select&gt;</code> — is form-associated. The form gets <code>title</code>, <code>priority</code>, and <code>due</code> for free. Reset works the same way: <code>e.target.reset()</code> walks every form-associated child and calls its <code>formResetCallback</code>.</p>
+<blockquote>
+<p><strong>Why this works:</strong> in v0.4 of <code>@ra9/tan-compose</code>, declaring <code>formAssociated: true</code> wires <code>internals.setFormValue</code> automatically when a <code>value</code> prop changes. The kit&#39;s input/select/checkbox/switch all opt in. They behave exactly like native form controls.</p>
+</blockquote>
+<h2>Step 4: clicking a row → modal</h2>
+<p><code>&lt;tc-table&gt;</code> emits <code>tc-row-click</code> with the row in <code>event.detail</code>. We use that to open the modal:</p>
+<tc-code language="ts"><span class="tc-kw">const</span> modal = document.getElementById(<span class="tc-str">&quot;m&quot;</span>);
 <span class="tc-kw">let</span> selected = <span class="tc-kw">null</span>;
 
-tbl.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; {
+tbl.addEventListener(<span class="tc-str">&quot;tc-row-click&quot;</span>, (e) =&gt; {
   selected = e.detail.row;
   modal.title = selected.title;
-  modal.innerHTML = `
-    &lt;p&gt;Priority: &lt;tc-badge variant="${variantFor(selected.priority)}"&gt;${selected.priority}&lt;/tc-badge&gt;&lt;/p&gt;
-    &lt;p&gt;Due: ${selected.due || "—"}&lt;/p&gt;
-    &lt;p&gt;Status: ${selected.done ? "Done" : "Open"}&lt;/p&gt;
-    &lt;div slot="footer"&gt;
-      &lt;tc-button variant="ghost"   id="m-close"&gt;Close&lt;/tc-button&gt;
-      &lt;tc-button variant="primary" id="m-toggle"&gt;${selected.done ? "Mark as open" : "Mark as done"}&lt;/tc-button&gt;
-      &lt;tc-button variant="danger"  id="m-delete"&gt;Delete&lt;/tc-button&gt;
+  modal.innerHTML = <span class="tc-str">`
+    &lt;p&gt;Priority: &lt;tc-badge variant=&quot;${variantFor(selected.priority)}&quot;&gt;${selected.priority}&lt;/tc-badge&gt;&lt;/p&gt;
+    &lt;p&gt;Due: ${selected.due || &quot;—&quot;}&lt;/p&gt;
+    &lt;p&gt;Status: ${selected.done ? &quot;Done&quot; : &quot;Open&quot;}&lt;/p&gt;
+    &lt;div slot=&quot;footer&quot;&gt;
+      &lt;tc-button variant=&quot;ghost&quot;   id=&quot;m-close&quot;&gt;Close&lt;/tc-button&gt;
+      &lt;tc-button variant=&quot;primary&quot; id=&quot;m-toggle&quot;&gt;${selected.done ? &quot;Mark as open&quot; : &quot;Mark as done&quot;}&lt;/tc-button&gt;
+      &lt;tc-button variant=&quot;danger&quot;  id=&quot;m-delete&quot;&gt;Delete&lt;/tc-button&gt;
     &lt;/div&gt;
-  `;
+  `</span>;
   modal.open = <span class="tc-kw">true</span>;
 });
 
 <span class="tc-kw">function</span> variantFor(p) {
-  <span class="tc-kw">return</span> p === <span class="tc-str">"high"</span> ? <span class="tc-str">"danger"</span> : p === <span class="tc-str">"medium"</span> ? <span class="tc-str">"warning"</span> : <span class="tc-str">"info"</span>;
+  <span class="tc-kw">return</span> p === <span class="tc-str">&quot;high&quot;</span> ? <span class="tc-str">&quot;danger&quot;</span> : p === <span class="tc-str">&quot;medium&quot;</span> ? <span class="tc-str">&quot;warning&quot;</span> : <span class="tc-str">&quot;info&quot;</span>;
 }</tc-code>
-
-          <p>
-            We rebuild the modal's inner HTML each time so the buttons reflect
-            the current task's state. Then we listen at the modal level and
-            route by id — one listener handles all three buttons:
-          </p>
-
-          <tc-code language="ts">modal.addEventListener(<span class="tc-str">"click"</span>, (e) =&gt; {
+<p>We rebuild the modal&#39;s inner HTML each time so the buttons reflect the current task&#39;s state. Then we listen at the modal level and route by id — one listener handles all three buttons:</p>
+<tc-code language="ts">modal.addEventListener(<span class="tc-str">&quot;click&quot;</span>, (e) =&gt; {
   <span class="tc-kw">const</span> id = e.target.id;
   <span class="tc-kw">if</span> (!id || !selected) <span class="tc-kw">return</span>;
-  <span class="tc-kw">if</span> (id === <span class="tc-str">"m-close"</span>) {
+  <span class="tc-kw">if</span> (id === <span class="tc-str">&quot;m-close&quot;</span>) {
     modal.open = <span class="tc-kw">false</span>;
-  } <span class="tc-kw">else</span> <span class="tc-kw">if</span> (id === <span class="tc-str">"m-toggle"</span>) {
+  } <span class="tc-kw">else</span> <span class="tc-kw">if</span> (id === <span class="tc-str">&quot;m-toggle&quot;</span>) {
     tasks = tasks.map(t =&gt; t.id === selected.id ? { ...t, done: !t.done } : t);
     modal.open = <span class="tc-kw">false</span>;
     render();
-    toast(<span class="tc-str">"info"</span>, selected.done ? <span class="tc-str">"Re-opened."</span> : <span class="tc-str">"Marked done."</span>);
-  } <span class="tc-kw">else</span> <span class="tc-kw">if</span> (id === <span class="tc-str">"m-delete"</span>) {
-    <span class="tc-kw">if</span> (!confirm(<span class="tc-str">`Delete "${selected.title}"?`</span>)) <span class="tc-kw">return</span>;
+    toast(<span class="tc-str">&quot;info&quot;</span>, selected.done ? <span class="tc-str">&quot;Re-opened.&quot;</span> : <span class="tc-str">&quot;Marked done.&quot;</span>);
+  } <span class="tc-kw">else</span> <span class="tc-kw">if</span> (id === <span class="tc-str">&quot;m-delete&quot;</span>) {
+    <span class="tc-kw">if</span> (!confirm(<span class="tc-str">`Delete &quot;${selected.title}&quot;?`</span>)) <span class="tc-kw">return</span>;
     tasks = tasks.filter(t =&gt; t.id !== selected.id);
     modal.open = <span class="tc-kw">false</span>;
     render();
-    toast(<span class="tc-str">"warning"</span>, <span class="tc-str">"Task deleted"</span>);
+    toast(<span class="tc-str">&quot;warning&quot;</span>, <span class="tc-str">&quot;Task deleted&quot;</span>);
   }
 });</tc-code>
-
-          <p>
-            Setting <code>modal.open = false</code> closes the dialog. Pressing
-            Escape would do the same — it's the native
-            <code>&lt;dialog&gt;</code> behavior surfaced as a
-            <code>tc-close</code> event we could also listen for.
-          </p>
-
-          <h2>Step 5: toasts</h2>
-          <p>
-            One helper that creates a toast, opens it, and removes it on close.
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">const</span> toastsHost = document.getElementById(<span class="tc-str">"toasts"</span>);
+<p>Setting <code>modal.open = false</code> closes the dialog. Pressing Escape would do the same — it&#39;s the native <code>&lt;dialog&gt;</code> behavior surfaced as a <code>tc-close</code> event we could also listen for.</p>
+<h2>Step 5: toasts</h2>
+<p>One helper that creates a toast, opens it, and removes it on close.</p>
+<tc-code language="ts"><span class="tc-kw">const</span> toastsHost = document.getElementById(<span class="tc-str">&quot;toasts&quot;</span>);
 
 <span class="tc-kw">function</span> toast(variant, message) {
-  <span class="tc-kw">const</span> t = document.createElement(<span class="tc-str">"tc-toast"</span>);
+  <span class="tc-kw">const</span> t = document.createElement(<span class="tc-str">&quot;tc-toast&quot;</span>);
   t.variant = variant;
   t.message = message;
   t.duration = 3000;
   toastsHost.appendChild(t);
   requestAnimationFrame(() =&gt; { t.open = <span class="tc-kw">true</span>; });
-  t.addEventListener(<span class="tc-str">"tc-toast-close"</span>, () =&gt; {
+  t.addEventListener(<span class="tc-str">&quot;tc-toast-close&quot;</span>, () =&gt; {
     <span class="tc-com">// let the slide-out animation finish before removing the node</span>
     setTimeout(() =&gt; t.remove(), 200);
   });
 }</tc-code>
+<p>That&#39;s the whole feature. Auto-dismiss is built in via the <code>duration</code> prop. The slide animation is handled by the component&#39;s own CSS.</p>
+<h2>What we didn&#39;t write</h2>
+<p>For a comparable React app, we&#39;d have written:</p>
+<ul>
+<li>A build configuration (Vite, esbuild, Next).</li>
+<li>Component files for the table, the input, the select, the modal, the toast — easily 800+ lines of TSX before any business logic.</li>
+<li>A state library (or a custom <code>useReducer</code>) and 5–10 effects to keep stats in sync with tasks.</li>
+<li>An accessibility pass, because the default React modal isn&#39;t focus-trapped, the table doesn&#39;t roving-focus, and the toast doesn&#39;t have <code>role=&quot;status&quot;</code>.</li>
+</ul>
+<p>Total runtime cost: probably 150 KB of framework-and-deps before the app&#39;s own code. The kit&#39;s bundle is about 53 KB minified and includes everything we used here.</p>
+<h2>The complete script</h2>
+<p>All the JS for the app — wired into the page above — comes out to roughly 80 lines including the rendering function and the helpers. No imports beyond the single CDN tag.</p>
+<h2>Where it goes from here</h2>
+<p>This is the &quot;hello world&quot; size of an internal tool, but the same shape scales. Backend integration: swap the in-memory <code>tasks</code> for fetch calls, debounce saves, drop a <code>&lt;tc-skeleton&gt;</code> while loading. Per-row actions: replace the modal with a <code>&lt;tc-tabs&gt;</code> showing details / activity / history. Filtering: there&#39;s already a search box on the table for free.</p>
+<p>None of that requires more JavaScript than you&#39;d write anyway. The kit is the chrome; you write the logic.</p>
+<hr class="rule" />
+<p class="closing">See the <a href="../components.html">Components</a> gallery for live demos of every primitive used here, or open the <a href="../playground.html">Playground</a> to try the snippets.</p>
 
-          <p>
-            That's the whole feature. Auto-dismiss is built in via the
-            <code>duration</code> prop. The slide animation is handled by the
-            component's own CSS.
-          </p>
-
-          <h2>What we didn't write</h2>
-          <p>
-            For a comparable React app, we'd have written:
-          </p>
-          <ul>
-            <li>A build configuration (Vite, esbuild, Next).</li>
-            <li>
-              Component files for the table, the input, the select, the modal,
-              the toast — easily 800+ lines of TSX before any business logic.
-            </li>
-            <li>
-              A state library (or a custom <code>useReducer</code>) and 5–10
-              effects to keep stats in sync with tasks.
-            </li>
-            <li>
-              An accessibility pass, because the default React modal isn't
-              focus-trapped, the table doesn't roving-focus, and the toast
-              doesn't have <code>role="status"</code>.
-            </li>
-          </ul>
-          <p>
-            Total runtime cost: probably 150 KB of framework-and-deps before the
-            app's own code. The kit's bundle is about 53 KB minified and
-            includes everything we used here.
-          </p>
-
-          <h2>The complete script</h2>
-          <p>
-            All the JS for the app — wired into the page above — comes out to
-            roughly 80 lines including the rendering function and the helpers.
-            No imports beyond the single CDN tag.
-          </p>
-
-          <h2>Where it goes from here</h2>
-          <p>
-            This is the &quot;hello world&quot; size of an internal tool, but
-            the same shape scales. Backend integration: swap the in-memory <code
-            >tasks</code> for fetch calls, debounce saves, drop a <code
-            >&lt;tc-skeleton&gt;</code> while loading. Per-row actions: replace
-            the modal with a
-            <code>&lt;tc-tabs&gt;</code> showing details / activity / history.
-            Filtering: there's already a search box on the table for free.
-          </p>
-          <p>
-            None of that requires more JavaScript than you'd write anyway. The
-            kit is the chrome; you write the logic.
-          </p>
-
-          <hr class="rule" />
-          <p class="closing">
-            See the <a href="../components.html">Components</a>
-            gallery for live demos of every primitive used here, or open the <a
-              href="../playground.html"
-            >Playground</a> to try the snippets.
-          </p>
         </div>
       </article>
     </main>

@@ -9,8 +9,10 @@
     "jsr:@std/json@~0.213.1": "0.213.1",
     "jsr:@std/jsonc@0.213": "0.213.1",
     "jsr:@std/path@0.213": "0.213.1",
+    "jsr:@std/yaml@1": "1.1.0",
     "npm:esbuild@0.20": "0.20.2",
-    "npm:happy-dom@15": "15.11.7"
+    "npm:happy-dom@15": "15.11.7",
+    "npm:marked@12": "12.0.2"
   },
   "jsr": {
     "@luca/esbuild-deno-loader@0.9.0": {
@@ -52,6 +54,9 @@
       "dependencies": [
         "jsr:@std/assert@~0.213.1"
       ]
+    },
+    "@std/yaml@1.1.0": {
+      "integrity": "fc1c5c63e05c4c5eb6118355f557958035d41940d6c29d35b306ef7155d6edb0"
     }
   },
   "npm": {
@@ -211,6 +216,10 @@
         "whatwg-mimetype"
       ]
     },
+    "marked@12.0.2": {
+      "integrity": "sha512-qXUm7e/YKFoqFPYPa3Ukg9xlI5cyAtGmyEIzMfW//m6kXwCy2Ps9DYf5ioijFKQ8qyuscrHoY04iJGctu2Kg0Q==",
+      "bin": true
+    },
     "webidl-conversions@7.0.0": {
       "integrity": "sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g=="
     },
@@ -228,7 +237,9 @@
     "dependencies": [
       "jsr:@luca/esbuild-deno-loader@0.9",
       "jsr:@std/assert@1",
-      "npm:happy-dom@15"
+      "jsr:@std/yaml@1",
+      "npm:happy-dom@15",
+      "npm:marked@12"
     ],
     "members": {
       "icons": {

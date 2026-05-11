@@ -3,17 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="A walk-through of the admin dashboard demo — how an in-memory store, a filter bar, two modals, and a theme switcher compose into a real internal tool with @ra9/tan-compose-kit."
-    />
+    <meta name="description" content="A walk-through of the admin dashboard demo — how an in-memory store, a filter bar, two modals, and a theme switcher compose into a real internal tool with @ra9/tan-compose-kit." />
     <title>Anatomy of an admin dashboard — Tan Compose blog</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <script type="module" src="../dist/site.js"></script>
     <style>
       * {
@@ -21,9 +15,7 @@
         padding: 0;
         box-sizing: border-box;
       }
-      html {
-        scroll-behavior: smooth;
-      }
+      html { scroll-behavior: smooth; }
       body {
         font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         font-size: 16px;
@@ -32,39 +24,29 @@
         background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
-      code {
-        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.92em;
-      }
-      .wrap {
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-      .wrap-narrow {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      .wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
-      header.post-head {
-        padding: 56px 0 12px;
-      }
+      header.post-head { padding: 56px 0 12px; }
       .post-eyebrow {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
         color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
       h1 {
         font-size: clamp(1.9rem, 4vw, 2.5rem);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.15;
-        margin-bottom: 14px;
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.15; margin-bottom: 14px;
+      }
+      .article-subtitle {
+        font-size: 1.18rem;
+        line-height: 1.5;
+        color: var(--tc-color-ink-soft, #4a5061);
+        margin: 4px 0 12px;
+        max-width: 620px;
       }
       .article-meta {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
@@ -72,13 +54,10 @@
         color: var(--tc-color-ink-muted, #6b7280);
       }
 
-      article {
-        padding: 24px 0 56px;
-      }
+      article { padding: 24px 0 56px; }
       article p {
         color: var(--tc-color-ink, #14171f);
-        font-size: 1.02rem;
-        line-height: 1.72;
+        font-size: 1.02rem; line-height: 1.72;
         margin: 0 0 18px;
       }
       article p.lede {
@@ -87,14 +66,12 @@
         margin-bottom: 24px;
       }
       article h2 {
-        font-size: 1.45rem;
-        font-weight: 700;
+        font-size: 1.45rem; font-weight: 700;
         letter-spacing: -0.01em;
         margin: 36px 0 14px;
       }
       article h3 {
-        font-size: 1.05rem;
-        font-weight: 600;
+        font-size: 1.05rem; font-weight: 600;
         margin: 24px 0 8px;
       }
       article a {
@@ -102,56 +79,74 @@
         text-decoration: underline;
         text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
       }
-      article a:hover {
-        text-decoration-color: var(--tc-color-accent, #a16939);
-      }
+      article a:hover { text-decoration-color: var(--tc-color-accent, #a16939); }
       article p code, article li code {
         background: var(--tc-color-accent-soft, #efe2cf);
         color: var(--tc-color-accent-hover, #8a572d);
-        padding: 1px 6px;
-        border-radius: 4px;
+        padding: 1px 6px; border-radius: 4px;
       }
-
-      article ul {
-        margin: 0 0 18px 22px;
-      }
-      article li {
-        line-height: 1.7;
-        margin-bottom: 6px;
-      }
-
-      .pull {
+      article ul, article ol { margin: 0 0 18px 22px; }
+      article li { line-height: 1.7; margin-bottom: 6px; }
+      article blockquote {
         border-left: 3px solid var(--tc-color-accent, #a16939);
         padding: 4px 0 4px 18px;
         margin: 24px 0;
         color: var(--tc-color-ink-soft, #4a5061);
         font-size: 0.98rem;
       }
+      article blockquote p { margin-bottom: 8px; color: inherit; font-size: inherit; }
+      article blockquote p:last-child { margin-bottom: 0; }
 
       hr.rule {
-        border: none;
-        height: 1px;
+        border: none; height: 1px;
         background: var(--tc-color-rule, #ece5d3);
         margin: 36px 0 24px;
       }
-      .closing {
+      .closing { color: var(--tc-color-ink-soft, #4a5061); }
+
+      table.compact {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 8px 0 22px;
+        font-size: 0.94rem;
+      }
+      table.compact th, table.compact td {
+        text-align: left;
+        padding: 7px 10px;
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+      }
+      table.compact th {
+        background: var(--tc-color-bg, #faf8f3);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
         color: var(--tc-color-ink-soft, #4a5061);
+      }
+      table.compact th.num, table.compact th.delta,
+      table.compact td.num, table.compact td.delta {
+        text-align: right;
+      }
+      table.compact td.num, table.compact td.delta {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-variant-numeric: tabular-nums;
+      }
+      table.compact td.delta { color: var(--tc-color-accent-hover, #8a572d); }
+      table.compact tfoot td {
+        border-top: 2px solid var(--tc-color-rule-strong, #d9cfb8);
+        border-bottom: none;
+        font-weight: 700;
       }
 
       @media (max-width: 720px) {
-        header.post-head {
-          padding: 36px 0 8px;
-        }
-        article {
-          padding: 12px 0 36px;
-        }
+        header.post-head { padding: 36px 0 8px; }
+        article { padding: 12px 0 36px; }
       }
 
-      .tc-kw { color: #f0a878; }
+      .tc-kw  { color: #f0a878; }
       .tc-str { color: #d9b380; }
       .tc-com { color: #8a8678; font-style: italic; }
       .tc-tag { color: #d9b380; }
-    </style>
+</style>
   </head>
   <body>
     <site-nav active="blog" version="v1.1.0" base="../"></site-nav>
@@ -159,207 +154,103 @@
     <main>
       <header class="post-head">
         <div class="wrap-narrow">
-          <div class="post-eyebrow">deep dive · demo</div>
+          <div class="post-eyebrow">kit · case study</div>
           <h1>Anatomy of an admin dashboard</h1>
-          <div class="article-meta">
-            Posted 2026-05-10 · uses kit v1.1 · ~1004 lines of HTML
-          </div>
+          <div class="article-meta">Posted 2026-05-10</div>
         </div>
       </header>
 
       <article>
         <div class="wrap-narrow">
-          <p class="lede">
-            The <a href="../demo/admin/">admin dashboard demo</a> is a real
-            internal-tool shape — stat cards, a filter bar, a paginated customer
-            table, click-to-detail and invite modals, toasts on every mutation,
-            a theme switcher in the top bar — built end-to-end with <code
-            >@ra9/tan-compose-kit</code>. One HTML file, no framework, no
-            bundler. This post walks through how it's composed and what each
-            pattern is doing.
-          </p>
-
-          <h2>The architecture in one breath</h2>
-          <p>
-            One file. One in-memory array of customers. One
-            <code>refresh()</code> function that recomputes the visible slice
-            and hands it to <code>&lt;tc-table&gt;</code>. Every mutation goes
-            through the same path:
-          </p>
-          <tc-code language="ts"><span class="tc-com">// ── data ───────────────────────────────────────────</span>
+<p class="lede">The <a href="../demo/admin/">admin dashboard demo</a> is a real internal-tool shape — stat cards, a filter bar, a paginated customer table, click-to-detail and invite modals, toasts on every mutation, a theme switcher in the top bar — built end-to-end with <code>@ra9/tan-compose-kit</code>. One HTML file, no framework, no bundler. This post walks through how it&#39;s composed and what each pattern is doing.</p>
+<h2>The architecture in one breath</h2>
+<p>One file. One in-memory array of customers. One <code>refresh()</code> function that recomputes the visible slice and hands it to <code>&lt;tc-table&gt;</code>. Every mutation goes through the same path:</p>
+<tc-code language="ts"><span class="tc-com">// ── data ───────────────────────────────────────────</span>
 <span class="tc-kw">let</span> customers = RAW_CUSTOMERS.map((r, i) =&gt; ({ ...r, id: i }));
-<span class="tc-kw">let</span> q = <span class="tc-str">""</span>;          <span class="tc-com">// search query</span>
-<span class="tc-kw">let</span> plan = <span class="tc-str">""</span>;       <span class="tc-com">// plan filter</span>
+<span class="tc-kw">let</span> q = <span class="tc-str">&quot;&quot;</span>;          <span class="tc-com">// search query</span>
+<span class="tc-kw">let</span> plan = <span class="tc-str">&quot;&quot;</span>;       <span class="tc-com">// plan filter</span>
 <span class="tc-kw">let</span> onlyActive = <span class="tc-kw">false</span>;
 
 <span class="tc-com">// ── derived view ───────────────────────────────────</span>
 <span class="tc-kw">function</span> refresh() {
   <span class="tc-kw">const</span> filtered = customers.filter(matchesFilters);
   table.rows = filtered.map(renderRow);
-  resultCount.textContent = `${filtered.length} matching of ${customers.length}`;
+  resultCount.textContent = <span class="tc-str">`${filtered.length} matching of ${customers.length}`</span>;
 }</tc-code>
-          <p>
-            That's the whole "store." When the user types into the search box,
-            <code>q</code> updates and <code>refresh()</code>
-            fires. When they pick a plan from the filter dropdown,
-            <code>plan</code> updates and <code>refresh()</code> fires. When
-            they delete a customer, <code>customers</code> mutates and <code
-            >refresh()</code> fires. The kit components handle the actual DOM
-            work.
-          </p>
-          <p>
-            For a 30-row table this is overkill. For a 30,000-row table it's
-            still fine because <code>&lt;tc-table&gt;</code> uses keyed
-            reconciliation under the hood — only the rows that actually changed
-            get rebuilt.
-          </p>
-
-          <h2>The filter bar reads from three controls</h2>
-          <p>
-            Three form-associated kit components sit above the table — a <code
-            >&lt;tc-input&gt;</code> for free-text search, a
-            <code>&lt;tc-select&gt;</code> for plan tier, and a
-            <code>&lt;tc-switch&gt;</code> for "active only." Each one is its
-            own little state cell:
-          </p>
-
-          <tc-code language="ts">search.addEventListener(<span class="tc-str">"input"</span>, (e) =&gt; {
-  q = (e.target.value || <span class="tc-str">""</span>).trim();
+<p>That&#39;s the whole &quot;store.&quot; When the user types into the search box, <code>q</code> updates and <code>refresh()</code> fires. When they pick a plan from the filter dropdown, <code>plan</code> updates and <code>refresh()</code> fires. When they delete a customer, <code>customers</code> mutates and <code>refresh()</code> fires. The kit components handle the actual DOM work.</p>
+<p>For a 30-row table this is overkill. For a 30,000-row table it&#39;s still fine because <code>&lt;tc-table&gt;</code> uses keyed reconciliation under the hood — only the rows that actually changed get rebuilt.</p>
+<h2>The filter bar reads from three controls</h2>
+<p>Three form-associated kit components sit above the table — a <code>&lt;tc-input&gt;</code> for free-text search, a <code>&lt;tc-select&gt;</code> for plan tier, and a <code>&lt;tc-switch&gt;</code> for &quot;active only.&quot; Each one is its own little state cell:</p>
+<tc-code language="ts">search.addEventListener(<span class="tc-str">&quot;input&quot;</span>, (e) =&gt; {
+  q = (e.target.value || <span class="tc-str">&quot;&quot;</span>).trim();
   refresh();
 });
 
-planFilter.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
-  plan = e.detail.value || <span class="tc-str">""</span>;
+planFilter.addEventListener(<span class="tc-str">&quot;tc-change&quot;</span>, (e) =&gt; {
+  plan = e.detail.value || <span class="tc-str">&quot;&quot;</span>;
   refresh();
 });
 
-activeOnly.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
+activeOnly.addEventListener(<span class="tc-str">&quot;tc-change&quot;</span>, (e) =&gt; {
   onlyActive = e.detail.checked;
   refresh();
 });</tc-code>
-
-          <p>
-            Note the two event names. Plain <code>input</code> events fire on
-            the underlying native input inside
-            <code>&lt;tc-input&gt;</code>, but kit components also dispatch
-            their own semantic events (<code>tc-change</code>,
-            <code>tc-input</code>) so you can listen to whatever shape fits.
-            Pick one and stay consistent — I went with the kit's events for the
-            select and switch because they carry typed
-            <code>detail</code>, but used the native <code>input</code>
-            event for the text field because the native shape is already what I
-            want.
-          </p>
-
-          <h2>Embedding kit components inside table cells</h2>
-          <p>
-            <code>&lt;tc-table&gt;</code> escapes raw cell values by default —
-            an XSS guard that's especially important when cells display
-            user-controlled strings like emails or names. To embed kit
-            components, use a column-level <code>render</code> callback that
-            returns raw HTML. The caller takes responsibility for escaping
-            anything untrusted.
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">function</span> planVariant(p) {
-  <span class="tc-kw">return</span> p === <span class="tc-str">"Team"</span> ? <span class="tc-str">"info"</span> : p === <span class="tc-str">"Pro"</span> ? <span class="tc-str">"success"</span> : <span class="tc-str">"neutral"</span>;
+<p>Note the two event names. Plain <code>input</code> events fire on the underlying native input inside <code>&lt;tc-input&gt;</code>, but kit components also dispatch their own semantic events (<code>tc-change</code>, <code>tc-input</code>) so you can listen to whatever shape fits. Pick one and stay consistent — I went with the kit&#39;s events for the select and switch because they carry typed <code>detail</code>, but used the native <code>input</code> event for the text field because the native shape is already what I want.</p>
+<h2>Embedding kit components inside table cells</h2>
+<p><code>&lt;tc-table&gt;</code> escapes raw cell values by default — an XSS guard that&#39;s especially important when cells display user-controlled strings like emails or names. To embed kit components, use a column-level <code>render</code> callback that returns raw HTML. The caller takes responsibility for escaping anything untrusted.</p>
+<tc-code language="ts"><span class="tc-kw">function</span> planVariant(p) {
+  <span class="tc-kw">return</span> p === <span class="tc-str">&quot;Team&quot;</span> ? <span class="tc-str">&quot;info&quot;</span> : p === <span class="tc-str">&quot;Pro&quot;</span> ? <span class="tc-str">&quot;success&quot;</span> : <span class="tc-str">&quot;neutral&quot;</span>;
 }
 
 table.columns = [
-  { key: <span class="tc-str">"name"</span>,   label: <span class="tc-str">"Name"</span>,  sortable: <span class="tc-kw">true</span> },
-  { key: <span class="tc-str">"email"</span>,  label: <span class="tc-str">"Email"</span> },
+  { key: <span class="tc-str">&quot;name&quot;</span>,   label: <span class="tc-str">&quot;Name&quot;</span>,  sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">&quot;email&quot;</span>,  label: <span class="tc-str">&quot;Email&quot;</span> },
   {
-    key: <span class="tc-str">"plan"</span>, label: <span class="tc-str">"Plan"</span>,
+    key: <span class="tc-str">&quot;plan&quot;</span>, label: <span class="tc-str">&quot;Plan&quot;</span>,
     render: (row) =&gt;
-      <span class="tc-str">`&lt;tc-badge variant="${planVariant(row.plan)}"&gt;${row.plan}&lt;/tc-badge&gt;`</span>,
+      <span class="tc-str">`&lt;tc-badge variant=&quot;${planVariant(row.plan)}&quot;&gt;${row.plan}&lt;/tc-badge&gt;`</span>,
   },
   {
-    key: <span class="tc-str">"mrr"</span>, label: <span class="tc-str">"MRR"</span>, sortable: <span class="tc-kw">true</span>,
+    key: <span class="tc-str">&quot;mrr&quot;</span>, label: <span class="tc-str">&quot;MRR&quot;</span>, sortable: <span class="tc-kw">true</span>,
     render: (row) =&gt; fmtMRR(row.mrr),
   },
   {
-    key: <span class="tc-str">"status"</span>, label: <span class="tc-str">"Status"</span>,
+    key: <span class="tc-str">&quot;status&quot;</span>, label: <span class="tc-str">&quot;Status&quot;</span>,
     render: (row) =&gt;
-      <span class="tc-str">`&lt;tc-badge variant="${statusVariant(row.status)}" pill&gt;${row.status}&lt;/tc-badge&gt;`</span>,
+      <span class="tc-str">`&lt;tc-badge variant=&quot;${statusVariant(row.status)}&quot; pill&gt;${row.status}&lt;/tc-badge&gt;`</span>,
   },
-  { key: <span class="tc-str">"joined"</span>, label: <span class="tc-str">"Joined"</span>, sortable: <span class="tc-kw">true</span> },
+  { key: <span class="tc-str">&quot;joined&quot;</span>, label: <span class="tc-str">&quot;Joined&quot;</span>, sortable: <span class="tc-kw">true</span> },
 ];</tc-code>
+<p>The original row fields stay untouched — that&#39;s important for sorting, where <code>{ key: &quot;mrr&quot; }</code> still sees the underlying number even though the cell renders <code>fmtMRR</code>&#39;s display string. The <code>render</code> callback only affects what shows in the cell.</p>
+<blockquote>
+<p><strong>Why this works:</strong> custom elements parse and register the moment HTML containing them is added to the DOM, regardless of <em>how</em> it got there — innerHTML assignment is fine. There&#39;s no &quot;must be in JSX&quot; or &quot;must be in a template&quot; constraint. If the tag is registered, the browser upgrades it.</p>
+</blockquote>
+<p><code>render</code> is a function reference, so it only works when you set columns via the JS property (<code>table.columns = […]</code>) — not via a JSON attribute. For the dashboard case this is the natural path; for HTML-only setups, fall back to pre-computing display fields and accept that they&#39;ll render as text.</p>
+<h2>Two modals, two state owners</h2>
+<p>The dashboard has an Invite modal and a Detail modal. Both are <code>&lt;tc-modal&gt;</code> instances, but they own their state differently because they do different things.</p>
+<h3>Invite — the modal owns the form</h3>
+<p>The Invite modal contains a form. The form has its own state (the email being typed, the plan being selected, the optional personal message). That state lives entirely inside the modal until the user clicks &quot;Send invite,&quot; at which point we read it via <code>FormData</code>, push a new customer onto the array, close the modal, and toast.</p>
+<tc-code language="ts"><span class="tc-kw">const</span> inviteForm = document.getElementById(<span class="tc-str">&quot;invite-form&quot;</span>);
 
-          <p>
-            The original row fields stay untouched — that's important for
-            sorting, where <code>{ key: "mrr" }</code> still sees the underlying
-            number even though the cell renders <code>fmtMRR</code>'s display
-            string. The <code>render</code> callback only affects what shows in
-            the cell.
-          </p>
-
-          <div class="pull">
-            <strong>Why this works:</strong> custom elements parse and register
-            the moment HTML containing them is added to the DOM, regardless of
-            <em>how</em> it got there — innerHTML assignment is fine. There's no
-            "must be in JSX" or "must be in a template" constraint. If the tag
-            is registered, the browser upgrades it.
-          </div>
-
-          <p>
-            <code>render</code> is a function reference, so it only works when
-            you set columns via the JS property (<code>table.columns =
-              […]</code>) — not via a JSON attribute. For the dashboard case
-            this is the natural path; for HTML-only setups, fall back to
-            pre-computing display fields and accept that they'll render as text.
-          </p>
-
-          <h2>Two modals, two state owners</h2>
-          <p>
-            The dashboard has an Invite modal and a Detail modal. Both are <code
-            >&lt;tc-modal&gt;</code> instances, but they own their state
-            differently because they do different things.
-          </p>
-
-          <h3>Invite — the modal owns the form</h3>
-          <p>
-            The Invite modal contains a form. The form has its own state (the
-            email being typed, the plan being selected, the optional personal
-            message). That state lives entirely inside the modal until the user
-            clicks "Send invite," at which point we read it via <code
-            >FormData</code>, push a new customer onto the array, close the
-            modal, and toast.
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">const</span> inviteForm = document.getElementById(<span class="tc-str">"invite-form"</span>);
-
-inviteSubmit.addEventListener(<span class="tc-str">"click"</span>, () =&gt; {
+inviteSubmit.addEventListener(<span class="tc-str">&quot;click&quot;</span>, () =&gt; {
   <span class="tc-kw">const</span> data = Object.fromEntries(<span class="tc-kw">new</span> FormData(inviteForm));
   customers = [
-    { id: nextId++, name: data.email.split(<span class="tc-str">"@"</span>)[0], email: data.email,
-      plan: data.plan || <span class="tc-str">"Free"</span>, mrr: 0, status: <span class="tc-str">"trial"</span>,
+    { id: nextId++, name: data.email.split(<span class="tc-str">&quot;@&quot;</span>)[0], email: data.email,
+      plan: data.plan || <span class="tc-str">&quot;Free&quot;</span>, mrr: 0, status: <span class="tc-str">&quot;trial&quot;</span>,
       joined: today() },
     ...customers,
   ];
   inviteModal.open = <span class="tc-kw">false</span>;
   inviteForm.reset();
   refresh();
-  toast(<span class="tc-str">"success"</span>, <span class="tc-str">`Invite sent to ${data.email}`</span>);
+  toast(<span class="tc-str">&quot;success&quot;</span>, <span class="tc-str">`Invite sent to ${data.email}`</span>);
 });</tc-code>
+<p><code>FormData</code> works because every kit form field is form-associated. <code>form.reset()</code> works for the same reason — the kit&#39;s reset callbacks blank each field&#39;s value. There&#39;s nothing custom here; it&#39;s just HTML forms.</p>
+<h3>Detail — the modal reads from a captured row</h3>
+<p>The Detail modal opens when a table row is clicked. It reads the customer record once, populates its fields, and shows itself. While it&#39;s open, the modal&#39;s &quot;state&quot; is just <code>activeCustomer</code> — the captured row.</p>
+<tc-code language="ts"><span class="tc-kw">let</span> activeCustomer = <span class="tc-kw">null</span>;
 
-          <p>
-            <code>FormData</code> works because every kit form field is
-            form-associated. <code>form.reset()</code> works for the same reason
-            — the kit's reset callbacks blank each field's value. There's
-            nothing custom here; it's just HTML forms.
-          </p>
-
-          <h3>Detail — the modal reads from a captured row</h3>
-          <p>
-            The Detail modal opens when a table row is clicked. It reads the
-            customer record once, populates its fields, and shows itself. While
-            it's open, the modal's "state" is just
-            <code>activeCustomer</code> — the captured row.
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">let</span> activeCustomer = <span class="tc-kw">null</span>;
-
-table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; {
+table.addEventListener(<span class="tc-str">&quot;tc-row-click&quot;</span>, (e) =&gt; {
   <span class="tc-kw">const</span> row = e.detail.row;
   activeCustomer = customers.find((c) =&gt; c.id === row.id);
   detailName.textContent = activeCustomer.name;
@@ -368,135 +259,46 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; {
   detailModal.open = <span class="tc-kw">true</span>;
 });
 
-cancelSub.addEventListener(<span class="tc-str">"click"</span>, () =&gt; {
+cancelSub.addEventListener(<span class="tc-str">&quot;click&quot;</span>, () =&gt; {
   <span class="tc-kw">if</span> (!activeCustomer) <span class="tc-kw">return</span>;
-  activeCustomer.status = <span class="tc-str">"cancelled"</span>;
+  activeCustomer.status = <span class="tc-str">&quot;cancelled&quot;</span>;
   activeCustomer.mrr = 0;
   detailModal.open = <span class="tc-kw">false</span>;
   refresh();
-  toast(<span class="tc-str">"warning"</span>, <span class="tc-str">`${activeCustomer.name}'s subscription cancelled`</span>);
+  toast(<span class="tc-str">&quot;warning&quot;</span>, <span class="tc-str">`${activeCustomer.name}&#39;s subscription cancelled`</span>);
 });</tc-code>
-
-          <p>
-            Splitting the modals this way is deliberate. Invite owns its data
-            because it's a self-contained creation flow. Detail just looks at
-            and mutates an existing record, so the modal is a window onto the
-            store, not its own state cell.
-          </p>
-
-          <h2>The theme switcher is three constants and a style tag</h2>
-          <p>
-            One of the things that surprised me building this is how cheap a
-            working theme switcher is. The kit's tokens live on
-            <code>:root</code> and cascade through Shadow DOM, so to re-skin the
-            entire UI you just rewrite a few CSS variables. The switcher is a
-            <code>&lt;tc-select&gt;</code> with four options and ~30 lines of
-            glue:
-          </p>
-
-          <tc-code language="ts"><span class="tc-kw">function</span> applyTheme(name) {
-  document.querySelectorAll(<span class="tc-str">"style[data-tc-theme]"</span>).forEach((s) =&gt; s.remove());
-  <span class="tc-kw">if</span> (name === <span class="tc-str">"dark"</span>) inject(<span class="tc-str">"dark"</span>, DARK_CSS);
-  <span class="tc-kw">else if</span> (name === <span class="tc-str">"bootstrap"</span>) inject(<span class="tc-str">"bootstrap"</span>, BOOTSTRAP_CSS);
-  <span class="tc-kw">else if</span> (name === <span class="tc-str">"tailwind"</span>) inject(<span class="tc-str">"tailwind"</span>, TAILWIND_CSS);
-  <span class="tc-com">// "light" leaves the base tokens.css in place; nothing to do.</span>
+<p>Splitting the modals this way is deliberate. Invite owns its data because it&#39;s a self-contained creation flow. Detail just looks at and mutates an existing record, so the modal is a window onto the store, not its own state cell.</p>
+<h2>The theme switcher is three constants and a style tag</h2>
+<p>One of the things that surprised me building this is how cheap a working theme switcher is. The kit&#39;s tokens live on <code>:root</code> and cascade through Shadow DOM, so to re-skin the entire UI you just rewrite a few CSS variables. The switcher is a <code>&lt;tc-select&gt;</code> with four options and ~30 lines of glue:</p>
+<tc-code language="ts"><span class="tc-kw">function</span> applyTheme(name) {
+  document.querySelectorAll(<span class="tc-str">&quot;style[data-tc-theme]&quot;</span>).forEach((s) =&gt; s.remove());
+  <span class="tc-kw">if</span> (name === <span class="tc-str">&quot;dark&quot;</span>) inject(<span class="tc-str">&quot;dark&quot;</span>, DARK_CSS);
+  <span class="tc-kw">else</span> <span class="tc-kw">if</span> (name === <span class="tc-str">&quot;bootstrap&quot;</span>) inject(<span class="tc-str">&quot;bootstrap&quot;</span>, BOOTSTRAP_CSS);
+  <span class="tc-kw">else</span> <span class="tc-kw">if</span> (name === <span class="tc-str">&quot;tailwind&quot;</span>) inject(<span class="tc-str">&quot;tailwind&quot;</span>, TAILWIND_CSS);
+  <span class="tc-com">// &quot;light&quot; leaves the base tokens.css in place; nothing to do.</span>
 }
 
-themeSelect.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
-  applyTheme(e.detail.value || <span class="tc-str">"light"</span>);
+themeSelect.addEventListener(<span class="tc-str">&quot;tc-change&quot;</span>, (e) =&gt; {
+  applyTheme(e.detail.value || <span class="tc-str">&quot;light&quot;</span>);
 });</tc-code>
+<p><code>DARK_CSS</code>, <code>BOOTSTRAP_CSS</code>, and <code>TAILWIND_CSS</code> are string constants — the same CSS the bundled theme presets ship as ES modules. The demo inlines them so it doesn&#39;t have to fetch anything at switch-time. Production code would just <code>import &quot;@ra9/tan-compose-kit/themes/dark&quot;</code> and be done.</p>
+<p>The switcher also re-skins the page chrome (not just kit components) by setting matching <code>--bg</code> / <code>--surface</code> values on <code>:root</code>. Without that, the kit goes dark but the page stays cream — visually jarring.</p>
+<h2>What this dashboard <em>doesn&#39;t</em> do</h2>
+<p>For honesty&#39;s sake, the demo skips a few things any real internal tool would need. Each one has a natural shape in the kit:</p>
+<ul>
+<li><strong>Auth.</strong> No login. A real app would gate the dashboard behind a session check. The kit doesn&#39;t opine here — wire whatever auth you&#39;d use anyway and redirect on 401.</li>
+<li><strong>Real persistence.</strong> Customers live in a JS array. Replace <code>customers = customers.filter(...)</code> with a <code>fetch(&quot;/api/customers/123&quot;, { method: &quot;DELETE&quot; })</code> and call <code>refresh()</code> in the success callback. Drop in a <code>&lt;tc-skeleton&gt;</code> while loading.</li>
+<li><strong>Optimistic updates.</strong> The cancel-sub flow mutates locally, then fires a toast. A real app would optimistically update, kick off the request, and roll back on failure (with an error toast). Same shape, two extra branches.</li>
+<li><strong>Server-side pagination.</strong> <code>&lt;tc-table&gt;</code> paginates client-side. For 30k+ rows you&#39;d hand it just the current page and total count, then listen for <code>tc-page-change</code> (which I should probably add) to re-fetch.</li>
+<li><strong>Bulk actions.</strong> Multi-select would mean adding a checkbox column and tracking selected IDs. The kit&#39;s <code>&lt;tc-checkbox&gt;</code> handles the input; the rest is application logic.</li>
+</ul>
+<p>None of these change the architecture. They slot into the same <code>refresh()</code> path the demo already has.</p>
+<h2>The point</h2>
+<p>The demo is 1004 lines, of which maybe 500 are JavaScript and the rest is the dashboard markup, sample data, and the inline theme CSS. There is no build step. There is no framework runtime. Reading the source top to bottom takes ten minutes — every behavior is in plain sight, in the order it executes.</p>
+<p>That&#39;s the bet of this whole project: the platform plus a small, predictable component layer is enough for the kind of UI most teams actually ship. Not every component needs a framework. Some of them just need <code>customElements.define</code> and a few hundred lines of glue.</p>
+<hr class="rule" />
+<p class="closing">Run the demo at <a href="../demo/admin/">/demo/admin/</a>. Read the source at <a href="https://github.com/ra9/tan-compose/blob/main/demo/admin/index.html">demo/admin/index.html on GitHub</a>. Or browse the <a href="../components.html">Components</a> gallery to see each piece in isolation.</p>
 
-          <p>
-            <code>DARK_CSS</code>, <code>BOOTSTRAP_CSS</code>, and
-            <code>TAILWIND_CSS</code> are string constants — the same CSS the
-            bundled theme presets ship as ES modules. The demo inlines them so
-            it doesn't have to fetch anything at switch-time. Production code
-            would just
-            <code>import "@ra9/tan-compose-kit/themes/dark"</code> and be done.
-          </p>
-
-          <p>
-            The switcher also re-skins the page chrome (not just kit components)
-            by setting matching <code>--bg</code> /
-            <code>--surface</code> values on <code>:root</code>. Without that,
-            the kit goes dark but the page stays cream — visually jarring.
-          </p>
-
-          <h2>What this dashboard <em>doesn't</em> do</h2>
-          <p>
-            For honesty's sake, the demo skips a few things any real internal
-            tool would need. Each one has a natural shape in the kit:
-          </p>
-
-          <ul>
-            <li>
-              <strong>Auth.</strong> No login. A real app would gate the
-              dashboard behind a session check. The kit doesn't opine here —
-              wire whatever auth you'd use anyway and redirect on 401.
-            </li>
-            <li>
-              <strong>Real persistence.</strong> Customers live in a JS array.
-              Replace
-              <code>customers = customers.filter(...)</code> with a
-              <code>fetch("/api/customers/123", { method: "DELETE" })</code>
-              and call <code>refresh()</code> in the success callback. Drop in a
-              <code>&lt;tc-skeleton&gt;</code> while loading.
-            </li>
-            <li>
-              <strong>Optimistic updates.</strong> The cancel-sub flow mutates
-              locally, then fires a toast. A real app would optimistically
-              update, kick off the request, and roll back on failure (with an
-              error toast). Same shape, two extra branches.
-            </li>
-            <li>
-              <strong>Server-side pagination.</strong>
-              <code>&lt;tc-table&gt;</code> paginates client-side. For 30k+ rows
-              you'd hand it just the current page and total count, then listen
-              for <code>tc-page-change</code> (which I should probably add) to
-              re-fetch.
-            </li>
-            <li>
-              <strong>Bulk actions.</strong> Multi-select would mean adding a
-              checkbox column and tracking selected IDs. The kit's <code
-              >&lt;tc-checkbox&gt;</code> handles the input; the rest is
-              application logic.
-            </li>
-          </ul>
-
-          <p>
-            None of these change the architecture. They slot into the same <code
-            >refresh()</code> path the demo already has.
-          </p>
-
-          <h2>The point</h2>
-          <p>
-            The demo is 1004 lines, of which maybe 500 are JavaScript and the
-            rest is the dashboard markup, sample data, and the inline theme CSS.
-            There is no build step. There is no framework runtime. Reading the
-            source top to bottom takes ten minutes — every behavior is in plain
-            sight, in the order it executes.
-          </p>
-          <p>
-            That's the bet of this whole project: the platform plus a small,
-            predictable component layer is enough for the kind of UI most teams
-            actually ship. Not every component needs a framework. Some of them
-            just need
-            <code>customElements.define</code> and a few hundred lines of glue.
-          </p>
-
-          <hr class="rule" />
-
-          <p class="closing">
-            Run the demo at <a href="../demo/admin/">/demo/admin/</a>. Read the
-            source at
-            <a
-              href="https://github.com/ra9/tan-compose/blob/main/demo/admin/index.html"
-              target="_blank"
-              rel="noopener"
-            >demo/admin/index.html on GitHub</a>. Or browse the
-            <a href="../components.html">Components</a> gallery to see each
-            piece in isolation.
-          </p>
         </div>
       </article>
     </main>

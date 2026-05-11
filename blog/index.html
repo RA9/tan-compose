@@ -3,28 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Notes from building tan-compose — a tiny declarative library for Web Components."
-    />
+    <meta name="description" content="Tan Compose blog — release notes, tutorials, and posts about composing custom-element-based design systems." />
     <title>Blog — Tan Compose</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <script type="module" src="../dist/site.js"></script>
     <style>
-      /* Prose layout only. All chrome is provided by the kit. */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
         font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
         line-height: 1.6;
@@ -32,166 +19,80 @@
         background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
-      .wrap {
-        max-width: 880px;
-        margin: 0 auto;
-        padding: 0 24px;
-      }
-
-      header.page {
-        padding: 64px 0 28px;
-      }
+      header.page { padding: 64px 0 24px; }
       .eyebrow {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
         color: var(--tc-color-accent, #a16939);
         margin-bottom: 12px;
       }
       h1 {
         font-size: clamp(2rem, 4vw, 2.6rem);
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        line-height: 1.1;
-        margin-bottom: 14px;
+        font-weight: 800; letter-spacing: -0.02em;
+        line-height: 1.1; margin-bottom: 14px;
       }
-      .page-lede {
+      .lede {
         color: var(--tc-color-ink-soft, #4a5061);
-        font-size: 1.05rem;
-        max-width: 620px;
+        font-size: 1.05rem; max-width: 620px;
       }
 
-      /* Search bar uses tc-input from the kit. */
-      .search-row {
-        display: flex;
-        gap: 12px;
-        align-items: end;
-        margin-top: 28px;
-        padding: 16px;
-        background: var(--tc-color-surface, #ffffff);
-        border: 1px solid var(--tc-color-rule, #ece5d3);
-        border-radius: var(--tc-radius-lg, 12px);
-      }
-      .search-row tc-input {
-        flex: 1;
-      }
-      .search-meta {
-        font-family: var(--tc-font-mono, monospace);
-        font-size: 0.78rem;
-        color: var(--tc-color-ink-muted, #6b7280);
-        white-space: nowrap;
-        padding-bottom: 12px;
-      }
+      .search-row { margin: 28px 0 8px; }
+      .search-row tc-input { display: block; }
 
-      .feed {
-        padding: 24px 0 32px;
-      }
-
-      /* Cards now have proper horizontal padding so the hover highlight
-         sits inside a card-shaped area rather than running flush to the
-         page edge. The negative margin keeps the visual width matching
-         the rest of the wrap content. */
-      .post-card {
+      section.posts { padding: 0 0 64px; }
+      .post {
         display: block;
         text-decoration: none;
         color: inherit;
         padding: 24px 20px;
         margin: 0 -20px;
         border-top: 1px solid var(--tc-color-rule, #ece5d3);
-        border-radius: var(--tc-radius-md, 8px);
-        transition: background 0.15s ease, transform 0.15s ease;
+        border-radius: var(--tc-radius-md, 10px);
+        transition: background 0.15s ease;
       }
-      .post-card:first-child {
-        border-top: none;
-      }
-      .post-card:hover {
-        background: var(--tc-color-surface, #ffffff);
-        transform: translateX(2px);
-      }
-      .post-card:hover h2 {
-        color: var(--tc-color-accent, #a16939);
-      }
-
+      .post:hover { background: var(--tc-color-accent-soft, #efe2cf); }
       .post-meta {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-family: var(--tc-font-mono, monospace);
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-size: 0.78rem;
         color: var(--tc-color-ink-muted, #6b7280);
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
-      .post-tag {
-        background: var(--tc-color-accent-soft, #efe2cf);
-        color: var(--tc-color-accent-hover, #8a572d);
-        border: 1px solid var(--tc-color-rule-strong, #d9cfb8);
-        border-radius: var(--tc-radius-pill, 999px);
-        padding: 2px 8px;
-        font-size: 0.72rem;
-        font-weight: 500;
+      .post-meta .tag {
+        color: var(--tc-color-accent, #a16939);
+        margin-left: 6px;
       }
-      .post-card h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 8px;
+      .post h2 {
+        font-size: 1.3rem; font-weight: 700;
         letter-spacing: -0.01em;
-        transition: color 0.15s ease;
+        margin-bottom: 6px;
       }
-      .post-card p {
+      .post p {
         color: var(--tc-color-ink-soft, #4a5061);
         font-size: 0.98rem;
-        line-height: 1.6;
-        margin: 0;
-      }
-      .post-card .read-more {
-        display: inline-block;
-        margin-top: 12px;
-        font-family: var(--tc-font-mono, monospace);
-        font-size: 0.82rem;
-        color: var(--tc-color-accent, #a16939);
-      }
-
-      .empty {
-        padding: 48px 20px;
-        text-align: center;
-        color: var(--tc-color-ink-muted, #6b7280);
-        font-style: italic;
-        background: var(--tc-color-surface, #ffffff);
-        border: 1px dashed var(--tc-color-rule-strong, #d9cfb8);
-        border-radius: var(--tc-radius-md, 8px);
       }
 
       .pager {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 18px 0 64px;
-        margin: 12px -20px 0;
-      }
-      .pager .info {
-        font-family: var(--tc-font-mono, monospace);
-        font-size: 0.84rem;
+        display: flex; align-items: center; justify-content: space-between;
+        margin: 24px 0 0;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.85rem;
         color: var(--tc-color-ink-muted, #6b7280);
       }
-      .pager-buttons {
-        display: flex;
-        gap: 8px;
+      .empty {
+        padding: 28px;
+        text-align: center;
+        color: var(--tc-color-ink-muted, #6b7280);
+        font-size: 0.92rem;
+        border: 1px dashed var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        margin-top: 16px;
       }
 
       @media (max-width: 720px) {
-        .search-row {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 8px;
-        }
-        .search-meta {
-          padding: 0;
-          text-align: right;
-        }
+        header.page { padding: 40px 0 16px; }
       }
     </style>
   </head>
@@ -201,31 +102,24 @@
     <main>
       <header class="page">
         <div class="wrap">
-          <div class="eyebrow">Blog</div>
+          <div class="eyebrow">blog</div>
           <h1>Notes from building tan-compose.</h1>
-          <p class="page-lede">
-            Releases, design rationale, and short technical write-ups about the
-            library and the platform it sits on. Mostly first-person and
-            slightly opinionated.
+          <p class="lede">
+            Release notes, design decisions, and tutorials for
+            <code>@ra9/tan-compose</code> and the kit. Posts that survive
+            the moment they were written and explain the why, not just the
+            what.
           </p>
-
           <div class="search-row">
-            <tc-input
-              id="post-search"
-              label="Search posts"
-              name="q"
-              placeholder="Filter by title, tag, or excerpt…"
-              type="search"
-            ></tc-input>
-            <span class="search-meta" id="search-meta"></span>
+            <tc-input id="post-search" placeholder="Search posts…" aria-label="Search posts"></tc-input>
           </div>
         </div>
       </header>
 
-      <section class="feed">
+      <section class="posts">
         <div class="wrap">
-          <div id="post-feed"></div>
-          <div class="pager" id="pager"></div>
+          <div id="post-results"></div>
+          <div class="pager" id="post-pager"></div>
         </div>
       </section>
     </main>
@@ -233,161 +127,127 @@
     <site-footer base="../"></site-footer>
 
     <script type="module">
-      // ---- Posts (newest first) -----------------------------------------
       const POSTS = [
         {
-          href: "./built-the-site-with-the-kit.html",
-          date: "2026-05-10",
-          tag: "meta · rewrite",
-          title: "I rebuilt the docs site with the kit",
-          excerpt:
-            "Twelve pages, 2,470 fewer lines of HTML, three new shared primitives, and five small papercuts that I'd never have noticed without trying to live inside the library. The wins, the cost, the things I'd change next.",
-        },
-        {
-          href: "./anatomy-of-a-dashboard.html",
-          date: "2026-05-10",
-          tag: "deep dive · demo",
-          title: "Anatomy of an admin dashboard",
-          excerpt:
-            "How the /demo/admin/ page composes — an in-memory store, a filter bar reading from three controls, a keyed datatable that embeds badges in cells, two modals with different state owners, a theme switcher in three constants, and the production gaps that would slot into the same shape.",
-        },
-        {
-          href: "./build-a-tasks-app.html",
-          date: "2026-05-10",
-          tag: "tutorial · kit",
-          title: "Build a tasks app in ~80 lines",
-          excerpt:
-            "A small CRUD app — list, add, mark done, delete, with live stats and toasts — wired entirely from @ra9/tan-compose-kit. No framework, no build step. The whole thing is one HTML file and about eighty lines of JavaScript.",
-        },
-        {
-          href: "./feels-native.html",
-          date: "2026-05-10",
-          tag: "v0.4.0 · release",
-          title: "Making custom elements feel native",
-          excerpt:
-            "v0.4 ships refs, Form-Associated Custom Elements, and shared adopted stylesheets — the seams that let tan-compose components compose with <form>, integrate with non-tan-compose code, and stay performant when you have many instances of the same tag.",
-        },
-        {
           href: "./why-i-built-tan-compose.html",
-          date: "2026-05-10",
-          tag: "v0.3.0 · launch",
           title: "Why I built tan-compose",
+          date: "2026-05-10",
+          tag: "essay",
           excerpt:
             "On the framework tax for small UI, what the platform actually gives you, and the v0.3 building blocks for putting together real components — datatables, forms, anything bigger than a styled button — without reaching for React.",
         },
         {
-          href: "./keyed-reconciliation-in-60-lines.html",
+          href: "./feels-native.html",
+          title: "Making custom elements feel native",
           date: "2026-05-10",
-          tag: "deep dive",
+          tag: "v0.4.0 · release",
+          excerpt:
+            "v0.3 gave us building blocks. v0.4 is about the seams — refs, form-association, and adopted stylesheets that let a tan-compose element behave like a real platform primitive.",
+        },
+        {
+          href: "./built-the-site-with-the-kit.html",
+          title: "I rebuilt the docs site with the library it documents.",
+          date: "2026-05-10",
+          tag: "meta · rewrite",
+          excerpt:
+            "Twelve pages, 2,470 fewer lines of HTML, three new shared primitives, and five small papercuts that I'd never have noticed without trying to live inside the library. The wins, the cost, the things I'd change next.",
+        },
+        {
+          href: "./build-a-tasks-app.html",
+          title: "Build a tasks app in ~80 lines",
+          date: "2026-05-10",
+          tag: "tutorial · kit",
+          excerpt:
+            "A small CRUD app — list, add, mark done, delete, with live stats and toasts — wired entirely from @ra9/tan-compose-kit. No framework, no build step. The whole thing is one HTML file and about eighty lines of JavaScript.",
+        },
+        {
+          href: "./anatomy-of-a-dashboard.html",
+          title: "Anatomy of an admin dashboard",
+          date: "2026-05-10",
+          tag: "kit · case study",
+          excerpt:
+            "How the /demo/admin/ page composes — an in-memory store, a filter bar reading from three controls, a keyed datatable that embeds badges in cells, two modals with different state owners, a theme switcher in three constants, and the production gaps that would slot into the same shape.",
+        },
+        {
+          href: "./keyed-reconciliation-in-60-lines.html",
           title: "Keyed list reconciliation in ~60 lines",
+          date: "2026-05-10",
+          tag: "internals",
           excerpt:
             "How for: { items, key, render } actually works. The cache, the identity check, what gets torn down, and why no virtual DOM is involved. Annotated walk-through of the implementation in build.ts.",
         },
       ];
 
       const PAGE_SIZE = 5;
-
-      // ---- State --------------------------------------------------------
       let query = "";
-      let page = 0;
+      let page = 1;
 
-      const feed = document.getElementById("post-feed");
-      const pager = document.getElementById("pager");
-      const searchMeta = document.getElementById("search-meta");
       const search = document.getElementById("post-search");
+      const results = document.getElementById("post-results");
+      const pager = document.getElementById("post-pager");
 
-      function escapeHtml(s) {
-        return String(s)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
+      function filtered() {
+        const q = query.trim().toLowerCase();
+        if (!q) return POSTS;
+        return POSTS.filter((p) =>
+          (p.title + " " + p.tag + " " + p.excerpt).toLowerCase().includes(q)
+        );
       }
 
-      function matches(post, q) {
-        if (!q) return true;
-        const needle = q.toLowerCase();
-        return (
-          post.title.toLowerCase().includes(needle) ||
-          post.tag.toLowerCase().includes(needle) ||
-          post.excerpt.toLowerCase().includes(needle)
-        );
+      function escapeHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
       }
 
       function render() {
-        const filtered = POSTS.filter((p) => matches(p, query));
-        const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-        if (page >= totalPages) page = totalPages - 1;
-        if (page < 0) page = 0;
+        const all = filtered();
+        const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+        if (page > totalPages) page = totalPages;
+        const start = (page - 1) * PAGE_SIZE;
+        const slice = all.slice(start, start + PAGE_SIZE);
 
-        const slice = filtered.slice(
-          page * PAGE_SIZE,
-          page * PAGE_SIZE + PAGE_SIZE,
-        );
-
-        // Search meta
-        searchMeta.textContent = query
-          ? `${filtered.length} of ${POSTS.length} posts`
-          : `${POSTS.length} posts`;
-
-        // Feed
         if (slice.length === 0) {
-          feed.innerHTML = `<div class="empty">No posts match "${
-            escapeHtml(query)
-          }".</div>`;
+          results.innerHTML =
+            `<div class="empty">No posts match "${escapeHtml(query)}".</div>`;
         } else {
-          feed.innerHTML = slice.map((p) => `
-            <a class="post-card" href="${escapeHtml(p.href)}">
-              <div class="post-meta">
-                <span>${escapeHtml(p.date)}</span>
-                <span class="post-tag">${escapeHtml(p.tag)}</span>
-              </div>
-              <h2>${escapeHtml(p.title)}</h2>
-              <p>${escapeHtml(p.excerpt)}</p>
-              <span class="read-more">Read post &rarr;</span>
-            </a>
-          `).join("");
+          results.innerHTML = slice
+            .map((p) => `
+              <a class="post" href="${p.href}">
+                <div class="post-meta">${p.date}<span class="tag">${escapeHtml(p.tag)}</span></div>
+                <h2>${escapeHtml(p.title)}</h2>
+                <p>${escapeHtml(p.excerpt)}</p>
+              </a>
+            `)
+            .join("");
         }
 
-        // Pager
-        if (filtered.length <= PAGE_SIZE) {
+        if (totalPages <= 1) {
           pager.innerHTML = "";
-          pager.style.display = "none";
         } else {
-          pager.style.display = "flex";
           pager.innerHTML = `
-            <span class="info">page ${page + 1} of ${totalPages}</span>
-            <div class="pager-buttons">
-              <tc-button id="prev" variant="secondary" size="sm" ${
-            page === 0 ? "disabled" : ""
-          }>← prev</tc-button>
-              <tc-button id="next" variant="secondary" size="sm" ${
-            page >= totalPages - 1 ? "disabled" : ""
-          }>next →</tc-button>
-            </div>
+            <span>page ${page} of ${totalPages} · ${all.length} post${all.length === 1 ? "" : "s"}</span>
+            <span>
+              <tc-button id="prev" size="sm" variant="ghost" ${page === 1 ? "disabled" : ""}>← Prev</tc-button>
+              <tc-button id="next" size="sm" variant="ghost" ${page === totalPages ? "disabled" : ""}>Next →</tc-button>
+            </span>
           `;
-          const prev = pager.querySelector("#prev");
-          const next = pager.querySelector("#next");
-          prev?.addEventListener("click", () => {
-            page--;
-            render();
+          document.getElementById("prev")?.addEventListener("click", () => {
+            if (page > 1) { page--; render(); }
           });
-          next?.addEventListener("click", () => {
-            page++;
-            render();
+          document.getElementById("next")?.addEventListener("click", () => {
+            if (page < totalPages) { page++; render(); }
           });
         }
       }
 
-      // ---- Wire search --------------------------------------------------
-      // tc-input dispatches `tc-input` with detail.value; native `input`
-      // also bubbles. Listen to both so we catch whichever path fires.
       function onSearch(value) {
-        query = (value ?? "").trim();
-        page = 0;
+        query = String(value ?? "");
+        page = 1;
         render();
       }
+
       search.addEventListener("tc-input", (e) => onSearch(e.detail?.value));
       search.addEventListener("input", (e) => onSearch(e.target?.value));
 
