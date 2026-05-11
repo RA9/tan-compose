@@ -21,7 +21,7 @@
     "exclude": ["dist/", "coverage/"]
   },
   "fmt": {
-    "exclude": ["*.html", "dist/", "coverage/"]
+    "exclude": ["**/*.html", "dist/", "coverage/"]
   },
   "test": {
     "exclude": ["dist/", "coverage/"]
