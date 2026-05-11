@@ -123,16 +123,19 @@
         letter-spacing: 0.06em;
         color: var(--tc-color-ink-soft, #4a5061);
       }
-      table.compact td.num {
-        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+      table.compact th.num,
+      table.compact th.delta,
+      table.compact td.num,
+      table.compact td.delta {
         text-align: right;
+      }
+      table.compact td.num,
+      table.compact td.delta {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
         font-variant-numeric: tabular-nums;
       }
       table.compact td.delta {
-        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-        text-align: right;
         color: var(--tc-color-accent-hover, #8a572d);
-        font-variant-numeric: tabular-nums;
       }
       table.compact tfoot td {
         border-top: 2px solid var(--tc-color-rule-strong, #d9cfb8);
