@@ -1,23 +1,31 @@
 /**
- * Blog build pipeline.
+ * Site content build pipeline.
  *
- * Reads markdown posts from blog/posts/*.md, renders them through a
- * shared template, and writes the resulting html into blog/<slug>.html.
- * Also rebuilds blog/index.html's POSTS array from the frontmatter so
- * the index list stays in sync.
+ * Reads markdown sources from blog/posts/*.md and components/posts/*.md,
+ * renders each through its template, and writes html into blog/<slug>.html
+ * and components/<slug>.html. Also regenerates blog/index.html, the RSS
+ * feed, and sitemap.xml.
  *
  * Run with:
  *   deno task blog
  *
- * Authoring conventions:
+ * Authoring conventions (blog posts):
  *   - Frontmatter is YAML (---) with title, date, tag, excerpt, slug?
  *   - First paragraph is auto-tagged as `class="lede"`
- *   - A trailing `---` (horizontal rule) followed by one paragraph
- *     auto-tags that paragraph as `class="closing"`
+ *   - A trailing `---` (horizontal rule) followed by paragraphs
+ *     auto-tags those paragraphs as `class="closing"`
  *   - Fenced code blocks with language ts | js | html get tokenized
  *     into <tc-code> with .tc-kw / .tc-str / .tc-com / .tc-tag spans
  *   - Callouts: `:::callout variant=info title="..."` / `:::`
- *   - Tables and other raw HTML pass through (marked allows raw HTML)
+ *
+ * Authoring conventions (component pages):
+ *   - Frontmatter carries the structured surface area:
+ *       tag, slug, summary, import, props[], events[], slots[], cssVars[],
+ *       related[]
+ *   - Body markdown is the "Examples" section: prose + live demos +
+ *     tc-code blocks.
+ *   - The build renders the props/events/slots/CSS-vars tables before
+ *     the body so the prose flows naturally below the reference tables.
  */
 
 import { parse as parseYaml } from "@std/yaml";
@@ -26,6 +34,8 @@ import { marked } from "marked";
 const ROOT = new URL("../", import.meta.url).pathname;
 const POSTS_DIR = `${ROOT}blog/posts`;
 const BLOG_DIR = `${ROOT}blog`;
+const COMPONENTS_POSTS_DIR = `${ROOT}components/posts`;
+const COMPONENTS_DIR = `${ROOT}components`;
 
 const SITE_URL = "https://ra9.github.io/tan-compose";
 const SITE_NAME = "Tan Compose";
@@ -897,7 +907,7 @@ ${items}
 `;
 }
 
-function renderSitemap(posts: Post[]): string {
+function renderSitemap(posts: Post[], components: ComponentPage[]): string {
   const today = new Date().toISOString().slice(0, 10);
   const top = TOP_PAGES.map((p) =>
     `  <url>
@@ -919,12 +929,422 @@ function renderSitemap(posts: Post[]): string {
     )
     .join("\n");
 
+  const componentUrls = components
+    .map((c) =>
+      `  <url>
+    <loc>${SITE_URL}/components/${c.slug}.html</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`
+    )
+    .join("\n");
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${top}
 ${posted}
+${componentUrls}
 </urlset>
 `;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// component pages
+// ────────────────────────────────────────────────────────────────────
+
+interface PropSpec {
+  name: string;
+  type: string;
+  default?: string;
+  description: string;
+  reflects?: boolean;
+  [k: string]: unknown;
+}
+interface EventSpec {
+  name: string;
+  detail?: string;
+  description: string;
+  [k: string]: unknown;
+}
+interface SlotSpec {
+  name: string;
+  description: string;
+  [k: string]: unknown;
+}
+interface CssVarSpec {
+  name: string;
+  default?: string;
+  description: string;
+  [k: string]: unknown;
+}
+
+interface ComponentFrontmatter {
+  tag: string;
+  slug?: string;
+  summary: string;
+  description?: string;
+  category?: string;
+  importPath?: string;
+  props?: PropSpec[];
+  events?: EventSpec[];
+  slots?: SlotSpec[];
+  cssVars?: CssVarSpec[];
+  related?: string[];
+  draft?: boolean;
+}
+
+interface ComponentPage extends ComponentFrontmatter {
+  slug: string;
+  body: string;
+  html: string;
+}
+
+function renderComponentTable(
+  rows: ReadonlyArray<{ [k: string]: unknown }>,
+  cols: { key: string; label: string }[],
+): string {
+  const head = cols.map((c) => `<th>${escapeHtml(c.label)}</th>`).join("");
+  const body = rows
+    .map((r) => {
+      const tds = cols
+        .map((c) => {
+          const v = r[c.key];
+          if (v == null || v === "") return `<td>—</td>`;
+          const isCode = c.key === "name" || c.key === "type" ||
+            c.key === "default" || c.key === "detail";
+          return isCode
+            ? `<td><code>${escapeHtml(v)}</code></td>`
+            : `<td>${escapeHtml(v)}</td>`;
+        })
+        .join("");
+      return `<tr>${tds}</tr>`;
+    })
+    .join("");
+  return `<table class="api">
+  <thead><tr>${head}</tr></thead>
+  <tbody>${body}</tbody>
+</table>`;
+}
+
+function renderComponentPage(c: ComponentPage): string {
+  const url = `${SITE_URL}/components/${c.slug}.html`;
+  const description = c.description ?? c.summary;
+  const importPath = c.importPath ??
+    `@ra9/tan-compose-kit/${c.slug.replace(/^tc-/, "")}`;
+
+  const propsSection = c.props && c.props.length > 0
+    ? `
+      <section class="api-section" id="props">
+        <h2>Props</h2>
+        ${
+      renderComponentTable(c.props, [
+        { key: "name", label: "Name" },
+        { key: "type", label: "Type" },
+        { key: "default", label: "Default" },
+        { key: "description", label: "Description" },
+      ])
+    }
+      </section>`
+    : "";
+
+  const eventsSection = c.events && c.events.length > 0
+    ? `
+      <section class="api-section" id="events">
+        <h2>Events</h2>
+        ${
+      renderComponentTable(c.events, [
+        { key: "name", label: "Event" },
+        { key: "detail", label: "Detail" },
+        { key: "description", label: "When" },
+      ])
+    }
+      </section>`
+    : "";
+
+  const slotsSection = c.slots && c.slots.length > 0
+    ? `
+      <section class="api-section" id="slots">
+        <h2>Slots</h2>
+        ${
+      renderComponentTable(c.slots, [
+        { key: "name", label: "Slot" },
+        { key: "description", label: "Description" },
+      ])
+    }
+      </section>`
+    : "";
+
+  const cssVarsSection = c.cssVars && c.cssVars.length > 0
+    ? `
+      <section class="api-section" id="css-vars">
+        <h2>CSS variables</h2>
+        ${
+      renderComponentTable(c.cssVars, [
+        { key: "name", label: "Variable" },
+        { key: "default", label: "Default" },
+        { key: "description", label: "Description" },
+      ])
+    }
+      </section>`
+    : "";
+
+  const relatedSection = c.related && c.related.length > 0
+    ? `
+      <section class="api-section" id="related">
+        <h2>See also</h2>
+        <ul class="related">
+          ${
+      c.related
+        .map((slug) =>
+          `<li><a href="./${escapeHtml(slug)}.html"><code>&lt;tc-${
+            escapeHtml(slug)
+          }&gt;</code></a></li>`
+        )
+        .join("")
+    }
+        </ul>
+      </section>`
+    : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="${escapeHtml(description)}" />
+    <title>&lt;${escapeHtml(c.tag)}&gt; — Tan Compose</title>
+    <link rel="canonical" href="${escapeHtml(url)}" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="${escapeHtml(c.tag)} — Tan Compose" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${escapeHtml(url)}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapeHtml(c.tag)} — Tan Compose" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <script type="module" src="../dist/site.js"></script>
+    <style>${COMPONENT_STYLE}</style>
+  </head>
+  <body>
+    <site-nav active="components" version="v1.1.0" base="../"></site-nav>
+
+    <main>
+      <header class="page">
+        <div class="wrap">
+          <div class="eyebrow">${escapeHtml(c.category ?? "component")}</div>
+          <h1 class="tag-h1">&lt;${escapeHtml(c.tag)}&gt;</h1>
+          <p class="lede">${escapeHtml(c.summary)}</p>
+          <div class="install-line">
+            <span class="prompt">import</span>
+            <span class="cmd">"${escapeHtml(importPath)}"</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="wrap content">
+${propsSection}${eventsSection}${slotsSection}${cssVarsSection}
+        <section class="api-section examples-section">
+          <h2>Examples</h2>
+          ${c.html}
+        </section>
+${relatedSection}
+        <p class="back-link">
+          ← <a href="../components.html">All components</a>
+        </p>
+      </div>
+    </main>
+
+    <site-footer base="../"></site-footer>
+  </body>
+</html>
+`;
+}
+
+const COMPONENT_STYLE = `
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
+        line-height: 1.6;
+        color: var(--tc-color-ink, #14171f);
+        background: var(--tc-color-bg, #faf8f3);
+        -webkit-font-smoothing: antialiased;
+      }
+      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+      header.page { padding: 56px 0 24px; }
+      .eyebrow {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.78rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--tc-color-accent, #a16939);
+        margin-bottom: 12px;
+      }
+      .tag-h1 {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: clamp(1.6rem, 3vw, 2rem);
+        font-weight: 600; letter-spacing: -0.01em;
+        margin-bottom: 12px;
+      }
+      .lede {
+        color: var(--tc-color-ink-soft, #4a5061);
+        font-size: 1.05rem; max-width: 620px;
+        margin-bottom: 18px;
+      }
+      .install-line {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.92rem;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        padding: 14px 18px;
+        max-width: 520px;
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .install-line .prompt { color: var(--tc-color-accent, #a16939); }
+
+      .content { padding: 32px 24px 56px; }
+      .api-section { padding: 28px 0; border-top: 1px solid var(--tc-color-rule, #ece5d3); }
+      .api-section h2 {
+        font-size: 1.3rem; font-weight: 700;
+        letter-spacing: -0.01em; margin-bottom: 14px;
+      }
+      .api-section h3 {
+        font-size: 1.05rem; font-weight: 600;
+        margin: 28px 0 10px;
+      }
+      .api-section p {
+        color: var(--tc-color-ink, #14171f);
+        font-size: 1.0rem; line-height: 1.7;
+        margin: 0 0 14px;
+      }
+      .api-section ul, .api-section ol { margin: 0 0 14px 22px; }
+      .api-section li { line-height: 1.7; margin-bottom: 4px; }
+      .api-section a {
+        color: var(--tc-color-accent, #a16939);
+        text-decoration: underline;
+        text-decoration-color: var(--tc-color-rule-strong, #d9cfb8);
+      }
+      .api-section a:hover { text-decoration-color: var(--tc-color-accent, #a16939); }
+      .api-section p code, .api-section li code, .api-section td code {
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
+        padding: 1px 6px; border-radius: 4px;
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.9em;
+      }
+
+      table.api {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        overflow: hidden;
+        font-size: 0.92rem;
+      }
+      table.api th, table.api td {
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--tc-color-rule, #ece5d3);
+        vertical-align: top;
+      }
+      table.api tr:last-child td { border-bottom: none; }
+      table.api th {
+        background: var(--tc-color-bg, #faf8f3);
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--tc-color-ink-muted, #6b7280);
+      }
+      table.api td code {
+        background: var(--tc-color-bg, #faf8f3);
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: var(--tc-color-ink, #14171f);
+      }
+
+      .examples-section .stage {
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
+        padding: 24px;
+        margin: 12px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .examples-section .stage.col {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      ul.related { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+      ul.related li { margin: 0; }
+      ul.related a {
+        display: inline-block;
+        padding: 6px 12px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        font-size: 0.92rem;
+        text-decoration: none;
+      }
+      ul.related a:hover { border-color: var(--tc-color-accent, #a16939); }
+
+      .back-link {
+        margin-top: 32px;
+        color: var(--tc-color-ink-muted, #6b7280);
+        font-size: 0.92rem;
+      }
+      .back-link a { color: var(--tc-color-accent, #a16939); text-decoration: none; }
+      .back-link a:hover { text-decoration: underline; }
+
+      @media (max-width: 720px) {
+        header.page { padding: 32px 0 16px; }
+        .api-section { padding: 20px 0; }
+      }
+`;
+
+async function loadComponentPages(): Promise<ComponentPage[]> {
+  const pages: ComponentPage[] = [];
+  try {
+    await Deno.stat(COMPONENTS_POSTS_DIR);
+  } catch {
+    return pages;
+  }
+  for await (const entry of Deno.readDir(COMPONENTS_POSTS_DIR)) {
+    if (!entry.isFile || !entry.name.endsWith(".md")) continue;
+    const path = `${COMPONENTS_POSTS_DIR}/${entry.name}`;
+    const raw = await Deno.readTextFile(path);
+    const { meta, body } = splitFrontmatterComponent(raw);
+    if (meta.draft) continue;
+    const slug = meta.slug ?? entry.name.replace(/\.md$/, "");
+    const html = renderMarkdown(body);
+    pages.push({ ...meta, slug, body, html });
+  }
+  pages.sort((a, b) => a.slug.localeCompare(b.slug));
+  return pages;
+}
+
+function splitFrontmatterComponent(
+  src: string,
+): { meta: ComponentFrontmatter; body: string } {
+  const match = src.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) throw new Error("missing frontmatter");
+  const meta = parseYaml(match[1]) as ComponentFrontmatter;
+  return { meta, body: match[2] };
 }
 
 // ────────────────────────────────────────────────────────────────────
@@ -969,13 +1389,23 @@ async function main() {
   await Deno.writeTextFile(`${BLOG_DIR}/index.html`, indexHtml);
   wrote++;
 
+  const components = await loadComponentPages();
+  for (const c of components) {
+    const html = renderComponentPage(c);
+    await Deno.writeTextFile(`${COMPONENTS_DIR}/${c.slug}.html`, html);
+    wrote++;
+  }
+
   await Deno.writeTextFile(`${BLOG_DIR}/feed.xml`, renderFeed(posts));
   wrote++;
-  await Deno.writeTextFile(`${ROOT}sitemap.xml`, renderSitemap(posts));
+  await Deno.writeTextFile(
+    `${ROOT}sitemap.xml`,
+    renderSitemap(posts, components),
+  );
   wrote++;
 
   console.log(
-    `blog: wrote ${wrote} files (${posts.length} posts + index + feed.xml + sitemap.xml) from ${posts.length} markdown sources`,
+    `site: wrote ${wrote} files — ${posts.length} blog posts, ${components.length} component pages, feed.xml, sitemap.xml`,
   );
 }
 
