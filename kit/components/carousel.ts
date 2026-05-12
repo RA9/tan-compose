@@ -165,9 +165,7 @@ build(
       }--tc-carousel-index: ${value};"
         >
           <div class="viewport" part="viewport">
-            <div class="track" part="track">
-              <slot></slot>
-            </div>
+            <slot class="track" part="track"></slot>
           </div>
           ${
         showControls
@@ -213,17 +211,22 @@ build(
             overflow: hidden;
             height: var(--tc-carousel-height, auto);
           }
-          .track {
+          /* The slot itself is the flex track. Slotted children become
+             direct flex items of the slot — this is the pattern that
+             works across browsers, where slot+display:contents plus a
+             wrapper has inconsistent ::slotted() projection. */
+          slot.track {
             display: flex;
             transition: transform var(--tc-carousel-duration) cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(calc(var(--tc-carousel-index, 0) * -100%));
             min-height: 100%;
+            width: 100%;
           }
-          .root.v .track {
+          .root.v slot.track {
             flex-direction: column;
             transform: translateY(calc(var(--tc-carousel-index, 0) * -100%));
+            height: 100%;
           }
-          slot { display: contents; }
           ::slotted(*) {
             flex: 0 0 100%;
             min-width: 0;
@@ -235,13 +238,14 @@ build(
           }
 
           /* Fade transition stacks slides on top of each other. */
-          .root.fade .track {
+          .root.fade slot.track {
             display: block;
             transform: none;
             transition: none;
             position: relative;
             height: var(--tc-carousel-height, auto);
             min-height: var(--tc-carousel-height, auto);
+            width: 100%;
           }
           .root.fade ::slotted(*) {
             position: absolute;

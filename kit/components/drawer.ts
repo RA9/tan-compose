@@ -76,28 +76,11 @@ build(
     template: ({ props }) => {
       const side = String(props.side ?? "right");
       const size = esc(props.size ?? "min(420px, 92vw)");
-      const horizontal = side === "left" || side === "right";
       return `
         <dialog
           class="dlg side-${esc(side)}"
           aria-labelledby="${props.title ? "title" : ""}"
-          style="
-            ${
-        horizontal
-          ? `width: ${size}; height: 100%;`
-          : `width: 100%; height: ${size};`
-      }
-            ${
-        side === "left"
-          ? "top: 0; left: 0; right: auto; bottom: 0;"
-          : side === "right"
-          ? "top: 0; right: 0; left: auto; bottom: 0;"
-          : side === "top"
-          ? "top: 0; left: 0; right: 0; bottom: auto;"
-          : "bottom: 0; left: 0; right: 0; top: auto;"
-      }
-            margin: 0; max-width: 100vw; max-height: 100vh;
-          "
+          style="--tc-drawer-size: ${size};"
         >
           ${
         props.title || props.dismissible
@@ -119,9 +102,15 @@ build(
           <footer class="foot"><slot name="footer"></slot></footer>
         </dialog>
         <style>
+          /* Reset the modal-dialog UA centering, then re-position per side.
+             Use !important to defeat browser UA inset-inline-start: 0 etc.
+             that compete with our explicit positioning. */
           .dlg {
             padding: 0;
             border: none;
+            margin: 0 !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
             background: var(--tc-drawer-bg);
             color: var(--tc-drawer-ink);
             font-family: var(--tc-drawer-font);
@@ -131,23 +120,72 @@ build(
             overflow: hidden;
             transition: transform var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
           }
+          .dlg.side-left {
+            top: 0 !important;
+            left: 0 !important;
+            right: auto !important;
+            bottom: 0 !important;
+            width: var(--tc-drawer-size);
+            height: 100vh;
+            animation: tc-drawer-slide-left var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .dlg.side-right {
+            top: 0 !important;
+            right: 0 !important;
+            left: auto !important;
+            bottom: 0 !important;
+            width: var(--tc-drawer-size);
+            height: 100vh;
+            animation: tc-drawer-slide-right var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .dlg.side-top {
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: auto !important;
+            width: 100vw;
+            height: var(--tc-drawer-size);
+            animation: tc-drawer-slide-top var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .dlg.side-bottom {
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            width: 100vw;
+            height: var(--tc-drawer-size);
+            animation: tc-drawer-slide-bottom var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+
+          @keyframes tc-drawer-slide-left {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+          }
+          @keyframes tc-drawer-slide-right {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+          }
+          @keyframes tc-drawer-slide-top {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+          }
+          @keyframes tc-drawer-slide-bottom {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+          }
+
           .dlg::backdrop {
             background: var(--tc-drawer-backdrop);
             backdrop-filter: blur(2px);
-            opacity: 0;
-            transition: opacity var(--tc-drawer-duration) ease;
+            animation: tc-drawer-fade var(--tc-drawer-duration) ease;
           }
-          .dlg[open]::backdrop { opacity: 1; }
-
-          /* Starting transform per side, then translate to 0 when open. */
-          .dlg.side-left:not([open])  { transform: translateX(-100%); }
-          .dlg.side-right:not([open]) { transform: translateX(100%); }
-          .dlg.side-top:not([open])   { transform: translateY(-100%); }
-          .dlg.side-bottom:not([open]){ transform: translateY(100%); }
-          .dlg[open] { transform: translate(0, 0); }
+          @keyframes tc-drawer-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
 
           @media (prefers-reduced-motion: reduce) {
-            .dlg, .dlg::backdrop { transition: none; }
+            .dlg, .dlg::backdrop { animation: none; }
           }
 
           .head {

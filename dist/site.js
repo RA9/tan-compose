@@ -1471,9 +1471,7 @@ tr.empty td {
           style="${o?`--tc-carousel-height: ${Ie(o)};`:""}--tc-carousel-index: ${t};"
         >
           <div class="viewport" part="viewport">
-            <div class="track" part="track">
-              <slot></slot>
-            </div>
+            <slot class="track" part="track"></slot>
           </div>
           ${n?`
             <button type="button" class="ctrl prev" aria-label="Previous slide" part="control">
@@ -1503,17 +1501,22 @@ tr.empty td {
             overflow: hidden;
             height: var(--tc-carousel-height, auto);
           }
-          .track {
+          /* The slot itself is the flex track. Slotted children become
+             direct flex items of the slot \u2014 this is the pattern that
+             works across browsers, where slot+display:contents plus a
+             wrapper has inconsistent ::slotted() projection. */
+          slot.track {
             display: flex;
             transition: transform var(--tc-carousel-duration) cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(calc(var(--tc-carousel-index, 0) * -100%));
             min-height: 100%;
+            width: 100%;
           }
-          .root.v .track {
+          .root.v slot.track {
             flex-direction: column;
             transform: translateY(calc(var(--tc-carousel-index, 0) * -100%));
+            height: 100%;
           }
-          slot { display: contents; }
           ::slotted(*) {
             flex: 0 0 100%;
             min-width: 0;
@@ -1525,13 +1528,14 @@ tr.empty td {
           }
 
           /* Fade transition stacks slides on top of each other. */
-          .root.fade .track {
+          .root.fade slot.track {
             display: block;
             transform: none;
             transition: none;
             position: relative;
             height: var(--tc-carousel-height, auto);
             min-height: var(--tc-carousel-height, auto);
+            width: 100%;
           }
           .root.fade ::slotted(*) {
             position: absolute;
@@ -1772,15 +1776,11 @@ tr.empty td {
           .panel { transition: none; transform: none; }
         }
       </style>
-    `,events:{"click .trigger-wrap":(e,t)=>{let r=t.host;r.open=!r.open}},afterRender(){Oe(this)},afterMount(){let e=this,t=o=>{!e.open||!e.dismissible||o.composedPath().includes(e)||(e.open=!1,e.dispatchEvent(new CustomEvent("tc-close",{detail:{reason:"outside"},bubbles:!0,composed:!0})))},r=o=>{!e.open||!e.dismissible||o.key==="Escape"&&(e.open=!1,e.dispatchEvent(new CustomEvent("tc-close",{detail:{reason:"escape"},bubbles:!0,composed:!0})))},a=()=>{let o=e.shadowRoot?.querySelector(".panel");o?.matches(":popover-open")&&Be(e,o)};document.addEventListener("click",t,!0),document.addEventListener("keydown",r),globalThis.addEventListener("scroll",a,!0),globalThis.addEventListener("resize",a),e._popoverCleanup=()=>{document.removeEventListener("click",t,!0),document.removeEventListener("keydown",r),globalThis.removeEventListener("scroll",a,!0),globalThis.removeEventListener("resize",a)},Oe(e)},unmount(){this._popoverCleanup?.()}}));function Oe(e){let t=e.shadowRoot;if(!t)return;let r=t.querySelector(".panel");if(!r)return;let a=e.open,o=typeof r.showPopover=="function";if(a&&!r.matches(":popover-open")){if(o)try{r.showPopover()}catch{r.style.display="block"}else r.style.display="block";Be(e,r),e.dispatchEvent(new CustomEvent("tc-open",{bubbles:!0,composed:!0}))}else if(!a&&r.matches(":popover-open"))if(o)try{r.hidePopover()}catch{r.style.display="none"}else r.style.display="none"}function Be(e,t){let r=e.getBoundingClientRect();t.style.top="0px",t.style.left="0px";let a=t.getBoundingClientRect(),o=globalThis.innerWidth,n=globalThis.innerHeight,s=e.offset,i=e.placement||"bottom",l=u=>u==="top"?r.top-a.height-s>=4:u==="bottom"?r.bottom+a.height+s<=n-4:u==="left"?r.left-a.width-s>=4:u==="right"?r.right+a.width+s<=o-4:!0;if(!l(i)){let u={top:"bottom",bottom:"top",left:"right",right:"left"};l(u[i]??"bottom")&&(i=u[i])}let c=0,d=0;i==="top"?(c=r.top-a.height-s,d=r.left+r.width/2-a.width/2):i==="bottom"?(c=r.bottom+s,d=r.left+r.width/2-a.width/2):i==="left"?(c=r.top+r.height/2-a.height/2,d=r.left-a.width-s):i==="right"&&(c=r.top+r.height/2-a.height/2,d=r.right+s),c=Math.max(4,Math.min(n-a.height-4,c)),d=Math.max(4,Math.min(o-a.width-4,d)),t.style.top=`${c}px`,t.style.left=`${d}px`}var ur="tc-drawer";function le(e){return String(e??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}f(ur,p({props:{open:{type:"boolean",default:!1,reflect:!0},side:{type:"string",default:"right"},size:{type:"string",default:"min(420px, 92vw)"},dismissible:{type:"boolean",default:!0},title:{type:"string",default:""}},theme:{"tc-drawer-bg":"var(--tc-color-surface, #ffffff)","tc-drawer-ink":"var(--tc-color-ink, #14171f)","tc-drawer-rule":"var(--tc-color-rule, #ece5d3)","tc-drawer-soft":"var(--tc-color-ink-soft, #5a6072)","tc-drawer-shadow":"var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))","tc-drawer-backdrop":"rgba(20, 23, 31, 0.5)","tc-drawer-font":"var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)","tc-drawer-duration":"260ms"},styles:{display:"contents"},template:({props:e})=>{let t=String(e.side??"right"),r=le(e.size??"min(420px, 92vw)"),a=t==="left"||t==="right";return`
+    `,events:{"click .trigger-wrap":(e,t)=>{let r=t.host;r.open=!r.open}},afterRender(){Oe(this)},afterMount(){let e=this,t=o=>{!e.open||!e.dismissible||o.composedPath().includes(e)||(e.open=!1,e.dispatchEvent(new CustomEvent("tc-close",{detail:{reason:"outside"},bubbles:!0,composed:!0})))},r=o=>{!e.open||!e.dismissible||o.key==="Escape"&&(e.open=!1,e.dispatchEvent(new CustomEvent("tc-close",{detail:{reason:"escape"},bubbles:!0,composed:!0})))},a=()=>{let o=e.shadowRoot?.querySelector(".panel");o?.matches(":popover-open")&&Be(e,o)};document.addEventListener("click",t,!0),document.addEventListener("keydown",r),globalThis.addEventListener("scroll",a,!0),globalThis.addEventListener("resize",a),e._popoverCleanup=()=>{document.removeEventListener("click",t,!0),document.removeEventListener("keydown",r),globalThis.removeEventListener("scroll",a,!0),globalThis.removeEventListener("resize",a)},Oe(e)},unmount(){this._popoverCleanup?.()}}));function Oe(e){let t=e.shadowRoot;if(!t)return;let r=t.querySelector(".panel");if(!r)return;let a=e.open,o=typeof r.showPopover=="function";if(a&&!r.matches(":popover-open")){if(o)try{r.showPopover()}catch{r.style.display="block"}else r.style.display="block";Be(e,r),e.dispatchEvent(new CustomEvent("tc-open",{bubbles:!0,composed:!0}))}else if(!a&&r.matches(":popover-open"))if(o)try{r.hidePopover()}catch{r.style.display="none"}else r.style.display="none"}function Be(e,t){let r=e.getBoundingClientRect();t.style.top="0px",t.style.left="0px";let a=t.getBoundingClientRect(),o=globalThis.innerWidth,n=globalThis.innerHeight,s=e.offset,i=e.placement||"bottom",l=u=>u==="top"?r.top-a.height-s>=4:u==="bottom"?r.bottom+a.height+s<=n-4:u==="left"?r.left-a.width-s>=4:u==="right"?r.right+a.width+s<=o-4:!0;if(!l(i)){let u={top:"bottom",bottom:"top",left:"right",right:"left"};l(u[i]??"bottom")&&(i=u[i])}let c=0,d=0;i==="top"?(c=r.top-a.height-s,d=r.left+r.width/2-a.width/2):i==="bottom"?(c=r.bottom+s,d=r.left+r.width/2-a.width/2):i==="left"?(c=r.top+r.height/2-a.height/2,d=r.left-a.width-s):i==="right"&&(c=r.top+r.height/2-a.height/2,d=r.right+s),c=Math.max(4,Math.min(n-a.height-4,c)),d=Math.max(4,Math.min(o-a.width-4,d)),t.style.top=`${c}px`,t.style.left=`${d}px`}var ur="tc-drawer";function le(e){return String(e??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}f(ur,p({props:{open:{type:"boolean",default:!1,reflect:!0},side:{type:"string",default:"right"},size:{type:"string",default:"min(420px, 92vw)"},dismissible:{type:"boolean",default:!0},title:{type:"string",default:""}},theme:{"tc-drawer-bg":"var(--tc-color-surface, #ffffff)","tc-drawer-ink":"var(--tc-color-ink, #14171f)","tc-drawer-rule":"var(--tc-color-rule, #ece5d3)","tc-drawer-soft":"var(--tc-color-ink-soft, #5a6072)","tc-drawer-shadow":"var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))","tc-drawer-backdrop":"rgba(20, 23, 31, 0.5)","tc-drawer-font":"var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)","tc-drawer-duration":"260ms"},styles:{display:"contents"},template:({props:e})=>{let t=String(e.side??"right"),r=le(e.size??"min(420px, 92vw)");return`
         <dialog
           class="dlg side-${le(t)}"
           aria-labelledby="${e.title?"title":""}"
-          style="
-            ${a?`width: ${r}; height: 100%;`:`width: 100%; height: ${r};`}
-            ${t==="left"?"top: 0; left: 0; right: auto; bottom: 0;":t==="right"?"top: 0; right: 0; left: auto; bottom: 0;":t==="top"?"top: 0; left: 0; right: 0; bottom: auto;":"bottom: 0; left: 0; right: 0; top: auto;"}
-            margin: 0; max-width: 100vw; max-height: 100vh;
-          "
+          style="--tc-drawer-size: ${r};"
         >
           ${e.title||e.dismissible?`<header class="head">
                 ${e.title?`<h2 id="title" class="title">${le(e.title)}</h2>`:"<span></span>"}
@@ -1790,9 +1790,15 @@ tr.empty td {
           <footer class="foot"><slot name="footer"></slot></footer>
         </dialog>
         <style>
+          /* Reset the modal-dialog UA centering, then re-position per side.
+             Use !important to defeat browser UA inset-inline-start: 0 etc.
+             that compete with our explicit positioning. */
           .dlg {
             padding: 0;
             border: none;
+            margin: 0 !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
             background: var(--tc-drawer-bg);
             color: var(--tc-drawer-ink);
             font-family: var(--tc-drawer-font);
@@ -1802,23 +1808,72 @@ tr.empty td {
             overflow: hidden;
             transition: transform var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
           }
+          .dlg.side-left {
+            top: 0 !important;
+            left: 0 !important;
+            right: auto !important;
+            bottom: 0 !important;
+            width: var(--tc-drawer-size);
+            height: 100vh;
+            animation: tc-drawer-slide-left var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .dlg.side-right {
+            top: 0 !important;
+            right: 0 !important;
+            left: auto !important;
+            bottom: 0 !important;
+            width: var(--tc-drawer-size);
+            height: 100vh;
+            animation: tc-drawer-slide-right var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .dlg.side-top {
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: auto !important;
+            width: 100vw;
+            height: var(--tc-drawer-size);
+            animation: tc-drawer-slide-top var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .dlg.side-bottom {
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            width: 100vw;
+            height: var(--tc-drawer-size);
+            animation: tc-drawer-slide-bottom var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
+          }
+
+          @keyframes tc-drawer-slide-left {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+          }
+          @keyframes tc-drawer-slide-right {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+          }
+          @keyframes tc-drawer-slide-top {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+          }
+          @keyframes tc-drawer-slide-bottom {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+          }
+
           .dlg::backdrop {
             background: var(--tc-drawer-backdrop);
             backdrop-filter: blur(2px);
-            opacity: 0;
-            transition: opacity var(--tc-drawer-duration) ease;
+            animation: tc-drawer-fade var(--tc-drawer-duration) ease;
           }
-          .dlg[open]::backdrop { opacity: 1; }
-
-          /* Starting transform per side, then translate to 0 when open. */
-          .dlg.side-left:not([open])  { transform: translateX(-100%); }
-          .dlg.side-right:not([open]) { transform: translateX(100%); }
-          .dlg.side-top:not([open])   { transform: translateY(-100%); }
-          .dlg.side-bottom:not([open]){ transform: translateY(100%); }
-          .dlg[open] { transform: translate(0, 0); }
+          @keyframes tc-drawer-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
 
           @media (prefers-reduced-motion: reduce) {
-            .dlg, .dlg::backdrop { transition: none; }
+            .dlg, .dlg::backdrop { animation: none; }
           }
 
           .head {
