@@ -24,3 +24,4 @@ import "../icons/mod.ts";
 // Site shell.
 import "./components/site-nav.ts";
 import "./components/site-footer.ts";
+import "./components/site-search.ts";

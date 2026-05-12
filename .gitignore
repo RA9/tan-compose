@@ -13,3 +13,4 @@ blog/*.html
 blog/feed.xml
 components/*.html
 sitemap.xml
+search.json

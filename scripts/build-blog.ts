@@ -961,6 +961,165 @@ ${componentUrls}
 }
 
 // ────────────────────────────────────────────────────────────────────
+// search index
+// ────────────────────────────────────────────────────────────────────
+
+interface SearchDoc {
+  /** URL path relative to the site root, with no leading SITE_URL. */
+  url: string;
+  /** Human-readable title shown in the result row. */
+  title: string;
+  /** One-line description shown under the title. */
+  description: string;
+  /** "page" | "blog" | "component" — drives the row badge. */
+  category: string;
+  /** Optional tag (e.g. blog post eyebrow, component category). */
+  tag?: string;
+  /** ISO date for blog posts; helps rank recent ones higher. */
+  date?: string;
+  /** Concatenated body text for full-text matching. */
+  text: string;
+}
+
+/** Strip HTML tags and collapse whitespace for the searchable text body. */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z]+;|&#\d+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Truncate to a reasonable cap so search.json doesn't blow up. */
+function truncateText(text: string, max = 2000): string {
+  if (text.length <= max) return text;
+  return text.slice(0, max);
+}
+
+interface TopPageDoc {
+  url: string;
+  title: string;
+  description: string;
+  textPath?: string;
+}
+
+const TOP_PAGE_DOCS: TopPageDoc[] = [
+  {
+    url: "/",
+    title: "Tan Compose — Declarative Web Components",
+    description:
+      "A tiny declarative library for building Web Components. No JSX, no compiler, no framework runtime.",
+    textPath: "index.html",
+  },
+  {
+    url: "/docs.html",
+    title: "Documentation",
+    description:
+      "API reference, lifecycle, reactivity, and migration guide for @ra9/tan-compose.",
+    textPath: "docs.html",
+  },
+  {
+    url: "/components.html",
+    title: "Components",
+    description:
+      "Battle-tested primitives from @ra9/tan-compose-kit, ready to drop into any HTML page or framework.",
+    textPath: "components.html",
+  },
+  {
+    url: "/icons.html",
+    title: "Icons",
+    description: "44 inline SVG icons from the Lucide set, packaged as <tc-icon>.",
+    textPath: "icons.html",
+  },
+  {
+    url: "/themes.html",
+    title: "Themes",
+    description:
+      "Semantic tokens and drop-in presets — light, dark, Bootstrap, Tailwind, Material, shadcn.",
+    textPath: "themes.html",
+  },
+  {
+    url: "/examples.html",
+    title: "Examples",
+    description: "Interactive examples of components built with Tan Compose.",
+    textPath: "examples.html",
+  },
+  {
+    url: "/playground.html",
+    title: "Playground",
+    description:
+      "Write describe() and build() calls and see the result instantly.",
+    textPath: "playground.html",
+  },
+  {
+    url: "/blog/",
+    title: "Blog",
+    description:
+      "Release notes, design decisions, and tutorials for tan-compose and the kit.",
+  },
+];
+
+async function readPageText(filename: string): Promise<string> {
+  try {
+    const raw = await Deno.readTextFile(`${ROOT}${filename}`);
+    return truncateText(stripHtml(raw));
+  } catch {
+    return "";
+  }
+}
+
+async function buildSearchDocs(
+  posts: Post[],
+  components: ComponentPage[],
+): Promise<SearchDoc[]> {
+  const docs: SearchDoc[] = [];
+
+  for (const tp of TOP_PAGE_DOCS) {
+    const text = tp.textPath ? await readPageText(tp.textPath) : "";
+    docs.push({
+      url: tp.url,
+      title: tp.title,
+      description: tp.description,
+      category: "page",
+      text,
+    });
+  }
+
+  for (const p of posts) {
+    docs.push({
+      url: `/blog/${p.slug}.html`,
+      title: p.title,
+      description: p.excerpt,
+      category: "blog",
+      tag: p.tag,
+      date: isoDate(p.date),
+      text: truncateText(stripHtml(p.html)),
+    });
+  }
+
+  for (const c of components) {
+    docs.push({
+      url: `/components/${c.slug}.html`,
+      title: `<${c.tag}>`,
+      description: c.summary,
+      category: "component",
+      tag: c.category ?? "component",
+      text: truncateText(stripHtml(c.html)),
+    });
+  }
+
+  return docs;
+}
+
+function renderSearchIndex(docs: SearchDoc[]): string {
+  // Pretty-print for diff-ability; the gzip on the wire makes the size
+  // difference vs. minified JSON marginal.
+  return JSON.stringify({ docs, generatedAt: new Date().toISOString() }, null, 2);
+}
+
+// ────────────────────────────────────────────────────────────────────
 // component pages
 // ────────────────────────────────────────────────────────────────────
 
@@ -1415,8 +1574,12 @@ async function main() {
   );
   wrote++;
 
+  const searchDocs = await buildSearchDocs(posts, components);
+  await Deno.writeTextFile(`${ROOT}search.json`, renderSearchIndex(searchDocs));
+  wrote++;
+
   console.log(
-    `site: wrote ${wrote} files — ${posts.length} blog posts, ${components.length} component pages, feed.xml, sitemap.xml`,
+    `site: wrote ${wrote} files — ${posts.length} blog posts, ${components.length} component pages, feed.xml, sitemap.xml, search.json (${searchDocs.length} docs)`,
   );
 }
 

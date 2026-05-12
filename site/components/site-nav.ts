@@ -98,6 +98,7 @@ build(
               tan-compose
               <span class="version-pill">${esc(props.version)}</span>
             </a>
+            <site-search base="${esc(base)}" class="nav-search"></site-search>
             <nav aria-label="Primary">
               ${
         links.map((l) => {
