@@ -82,6 +82,20 @@
         font-size: 0.78rem;
         color: var(--tc-color-accent, #a16939);
         margin-bottom: 8px;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+      }
+      .demo-tag .docs-link {
+        margin-left: auto;
+        font-size: 0.78rem;
+        color: var(--tc-color-ink-muted, #6b7280);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.15s ease;
+      }
+      .demo-tag .docs-link:hover {
+        color: var(--tc-color-accent, #a16939);
       }
       h2 {
         font-size: 1.5rem; font-weight: 700;
@@ -135,7 +149,7 @@
       <section class="demo" id="button">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-button&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-button&gt;</span><a class="docs-link" href="./components/button.html">Docs &rarr;</a></div>
             <h2>Button</h2>
             <p class="demo-lede">
               Variants (primary / secondary / ghost / danger), three sizes,
@@ -183,7 +197,7 @@
       <section class="demo" id="input">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-input&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-input&gt;</span><a class="docs-link" href="./components/input.html">Docs &rarr;</a></div>
             <h2>Input (form-associated)</h2>
             <p class="demo-lede">
               Submits with native <code>&lt;form&gt;</code> via
@@ -234,7 +248,7 @@
       <section class="demo" id="select">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-select&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-select&gt;</span><a class="docs-link" href="./components/select.html">Docs &rarr;</a></div>
             <h2>Select</h2>
             <p class="demo-lede">
               Form-associated dropdown wrapping a native
@@ -272,7 +286,7 @@
       <section class="demo" id="tabs">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-tabs&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-tabs&gt;</span><a class="docs-link" href="./components/tabs.html">Docs &rarr;</a></div>
             <h2>Tabs</h2>
             <p class="demo-lede">
               Tablist with arrow-key roving focus, named slots per panel,
@@ -312,7 +326,7 @@
       <section class="demo" id="modal">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-modal&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-modal&gt;</span><a class="docs-link" href="./components/modal.html">Docs &rarr;</a></div>
             <h2>Modal</h2>
             <p class="demo-lede">
               Backed by the native <code>&lt;dialog&gt;</code> for proper
@@ -349,7 +363,7 @@
       <section class="demo" id="toast">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-toast&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-toast&gt;</span><a class="docs-link" href="./components/toast.html">Docs &rarr;</a></div>
             <h2>Toast</h2>
             <p class="demo-lede">
               Inline notification with variant, auto-dismiss, and a close
@@ -380,7 +394,7 @@ t.open = <span class="tc-kw">true</span>;</tc-code>
       <section class="demo" id="stat">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-stat&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-stat&gt;</span><a class="docs-link" href="./components/stat.html">Docs &rarr;</a></div>
             <h2>Stat</h2>
             <p class="demo-lede">
               Pure-presentation card for a metric. Label, value, optional
@@ -408,7 +422,7 @@ t.open = <span class="tc-kw">true</span>;</tc-code>
       <section class="demo" id="table">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-table&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-table&gt;</span><a class="docs-link" href="./components/table.html">Docs &rarr;</a></div>
             <h2>Datatable</h2>
             <p class="demo-lede">
               Paginated, filterable, sortable. Pass <code>rows</code> and
@@ -441,7 +455,7 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
       <section class="demo" id="textarea">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-textarea&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-textarea&gt;</span><a class="docs-link" href="./components/textarea.html">Docs &rarr;</a></div>
             <h2>Textarea</h2>
             <p class="demo-lede">
               Multi-line form-associated input. Same chrome as
@@ -467,7 +481,7 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
       <section class="demo" id="radio-group">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-radio-group&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-radio-group&gt;</span><a class="docs-link" href="./components/radio-group.html">Docs &rarr;</a></div>
             <h2>Radio group</h2>
             <p class="demo-lede">
               Single-choice form-associated control. Pass options as a JSON
@@ -498,7 +512,7 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
       <section class="demo" id="file">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-file&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-file&gt;</span><a class="docs-link" href="./components/file.html">Docs &rarr;</a></div>
             <h2>File</h2>
             <p class="demo-lede">
               Form-associated file picker with a styled trigger button.
@@ -530,7 +544,7 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
       <section class="demo" id="code">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-code&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></div>
+            <div class="demo-tag"><span>&lt;tc-code&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></span><a class="docs-link" href="./components/code.html">Docs &rarr;</a></div>
             <h2>Code block</h2>
             <p class="demo-lede">
               Styled code surface with optional <code>copy</code> button
@@ -568,7 +582,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="callout">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-callout&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></div>
+            <div class="demo-tag"><span>&lt;tc-callout&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></span><a class="docs-link" href="./components/callout.html">Docs &rarr;</a></div>
             <h2>Callout</h2>
             <p class="demo-lede">
               Note / info / success / warning / danger admonition box
@@ -605,7 +619,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="toc">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-toc&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></div>
+            <div class="demo-tag"><span>&lt;tc-toc&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.3</span></span><a class="docs-link" href="./components/toc.html">Docs &rarr;</a></div>
             <h2>Table of contents</h2>
             <p class="demo-lede">
               Auto-builds a sticky sidebar of links by scanning a target
@@ -646,7 +660,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="stack">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-stack&gt; · &lt;tc-cluster&gt; · &lt;tc-grid&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-stack&gt; · &lt;tc-cluster&gt; · &lt;tc-grid&gt;</span><a class="docs-link" href="./components/stack.html">Docs &rarr;</a></div>
             <h2>Layout primitives</h2>
             <p class="demo-lede">
               Three small components for the most common compositions:
@@ -696,7 +710,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="checkbox">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-checkbox&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-checkbox&gt;</span><a class="docs-link" href="./components/checkbox.html">Docs &rarr;</a></div>
             <h2>Checkbox</h2>
             <p class="demo-lede">
               Form-associated checkbox wrapping a native input. Label,
@@ -717,7 +731,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="switch">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-switch&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-switch&gt;</span><a class="docs-link" href="./components/switch.html">Docs &rarr;</a></div>
             <h2>Switch</h2>
             <p class="demo-lede">
               Accessible toggle with role="switch". Form-associated;
@@ -738,7 +752,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="card">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-card&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-card&gt;</span><a class="docs-link" href="./components/card.html">Docs &rarr;</a></div>
             <h2>Card</h2>
             <p class="demo-lede">
               Layout primitive with title/subtitle and named slots for
@@ -774,7 +788,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="badge">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-badge&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-badge&gt;</span><a class="docs-link" href="./components/badge.html">Docs &rarr;</a></div>
             <h2>Badge</h2>
             <p class="demo-lede">
               Compact label for status. Five variants and two sizes; opt
@@ -800,7 +814,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="skeleton">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-skeleton&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-skeleton&gt;</span><a class="docs-link" href="./components/skeleton.html">Docs &rarr;</a></div>
             <h2>Skeleton</h2>
             <p class="demo-lede">
               Placeholder shown while content loads. Configure
@@ -829,7 +843,7 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
       <section class="demo" id="pagination">
         <div class="wrap">
           <div class="demo-head">
-            <div class="demo-tag">&lt;tc-pagination&gt;</div>
+            <div class="demo-tag"><span>&lt;tc-pagination&gt;</span><a class="docs-link" href="./components/pagination.html">Docs &rarr;</a></div>
             <h2>Pagination</h2>
             <p class="demo-lede">
               Prev/next plus a windowed list of page numbers. Set
