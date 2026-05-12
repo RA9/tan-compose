@@ -273,6 +273,12 @@ build(
     },
     events: {
       // Open on control click (unless click came from a chip-remove).
+      // setState triggers a synchronous re-render that destroys the
+      // .control element, which fires a focusout on the way out. That
+      // schedules a "close if not focus-within" microtask. To beat it
+      // we focus the freshly-rendered search SYNCHRONOUSLY after the
+      // setState so the host is :focus-within by the time the
+      // microtask runs.
       "click .control": (e, ctx) => {
         const target = e.target as HTMLElement;
         if (target.closest(".chip-remove")) return;
@@ -281,11 +287,8 @@ build(
         const wasOpen = !!ctx.getState("open");
         ctx.setState("open", true);
         if (!wasOpen) ctx.emit("tc-open");
-        // Focus the search after render.
-        queueMicrotask(() => {
-          const search = ctx.refs.search as HTMLInputElement | null;
-          search?.focus();
-        });
+        const search = ctx.refs.search as HTMLInputElement | null;
+        search?.focus();
       },
       // Open on caret keyboard activation (Enter/Space on the control).
       "keydown .control": (e, ctx) => {
@@ -296,10 +299,8 @@ build(
           if (host.disabled) return;
           ctx.setState("open", true);
           ctx.emit("tc-open");
-          queueMicrotask(() => {
-            const search = ctx.refs.search as HTMLInputElement | null;
-            search?.focus();
-          });
+          const search = ctx.refs.search as HTMLInputElement | null;
+          search?.focus();
         }
       },
       // Search input typing → filter + update query state.
@@ -437,6 +438,32 @@ build(
       const fd = new FormData();
       for (const v of selected) fd.append(name, v);
       host.internals.setFormValue(fd);
+    },
+    afterRender() {
+      // The framework rebuilds shadow content via innerHTML on every
+      // state change, which destroys the focused search input. If the
+      // popup is open we restore focus to the freshly-rendered search
+      // element so typing actually lands somewhere visible. Caret goes
+      // to the end of the typed text so subsequent keys append.
+      const host = this as unknown as HTMLElement & {
+        shadowRoot?: ShadowRoot | null;
+        // The kit's host exposes refs and a state getter for use here.
+        refs?: { search?: HTMLInputElement | null };
+        getState?: (k: string) => unknown;
+      };
+      const open = host.getState ? !!host.getState("open") : false;
+      if (!open) return;
+      const search = host.refs?.search ?? null;
+      if (!search) return;
+      const active = host.shadowRoot?.activeElement;
+      if (active === search) return;
+      search.focus();
+      const len = search.value.length;
+      try {
+        search.setSelectionRange(len, len);
+      } catch {
+        // some input types (e.g. type="email") don't support selection.
+      }
     },
   }),
 );
