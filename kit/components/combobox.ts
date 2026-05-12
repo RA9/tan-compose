@@ -196,14 +196,7 @@ build(
             aria-expanded="${isOpen ? "true" : "false"}"
             role="combobox"
           />`
-        : `<input
-            type="text"
-            class="search hidden-search"
-            tabindex="-1"
-            aria-hidden="true"
-            value=""
-            ${disabled ? "disabled" : ""}
-          />`;
+        : "";
 
       const optionsHtml = filtered.length === 0
         ? `<div class="empty">${esc(props["empty-text"] ?? "No results")}</div>`
@@ -607,13 +600,6 @@ const COMBOBOX_STYLE = `
             padding: 4px 0;
             flex: 1 1 60px;
             min-width: 60px;
-          }
-          .search.hidden-search {
-            width: 0;
-            min-width: 0;
-            opacity: 0;
-            pointer-events: none;
-            flex: 0;
           }
 
           .chip {

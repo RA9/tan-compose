@@ -1242,14 +1242,7 @@ tr.empty td {
             aria-autocomplete="list"
             aria-expanded="${l?"true":"false"}"
             role="combobox"
-          />`:`<input
-            type="text"
-            class="search hidden-search"
-            tabindex="-1"
-            aria-hidden="true"
-            value=""
-            ${o?"disabled":""}
-          />`,ke=f.length===0?`<div class="empty">${h(e["empty-text"]??"No results")}</div>`:f.map((m,q)=>{let _=b.has(m.value);return`<div
+          />`:"",ke=f.length===0?`<div class="empty">${h(e["empty-text"]??"No results")}</div>`:f.map((m,q)=>{let _=b.has(m.value);return`<div
               class="${["option",_?"selected":"",q===p?"focused":"",m.disabled?"disabled":""].filter(Boolean).join(" ")}"
               role="option"
               data-value="${h(m.value)}"
@@ -1356,13 +1349,6 @@ tr.empty td {
             padding: 4px 0;
             flex: 1 1 60px;
             min-width: 60px;
-          }
-          .search.hidden-search {
-            width: 0;
-            min-width: 0;
-            opacity: 0;
-            pointer-events: none;
-            flex: 0;
           }
 
           .chip {
