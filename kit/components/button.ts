@@ -30,6 +30,87 @@ const TAG = "tc-button";
 
 export const tagName = TAG;
 
+// Declared BEFORE build() because customElements.define() will
+// synchronously upgrade any <tc-button> elements already in the DOM
+// — that triggers the template, which reads this constant. If declared
+// after build(), the first render fires while BUTTON_STYLE is still in
+// the TDZ (var) / undefined (const-after-define), producing buttons
+// with no <style> at all.
+const BUTTON_STYLE = `
+      <style>
+        .root {
+          font-family: var(--tc-btn-font);
+          font-weight: 500;
+          border-radius: var(--tc-btn-radius);
+          cursor: pointer;
+          border: 1px solid transparent;
+          transition: opacity 0.15s ease, transform 0.05s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          line-height: 1;
+          white-space: nowrap;
+          text-decoration: none;
+          color: inherit;
+        }
+        .root.block { width: 100%; display: flex; }
+        .root:disabled,
+        .root[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+        .root:not(:disabled):not([aria-disabled="true"]):active {
+          transform: translateY(1px);
+        }
+        a.root:focus-visible {
+          outline: 2px solid currentColor;
+          outline-offset: 2px;
+        }
+
+        .s-sm { font-size: 0.82rem; padding: 6px 12px; }
+        .s-md { font-size: 0.92rem; padding: 9px 16px; }
+        .s-lg { font-size: 1.0rem;  padding: 12px 22px; }
+
+        .v-primary {
+          background: var(--tc-btn-primary-bg);
+          color: var(--tc-btn-primary-fg);
+        }
+        .v-secondary {
+          background: var(--tc-btn-secondary-bg);
+          color: var(--tc-btn-secondary-fg);
+          border-color: var(--tc-btn-secondary-border);
+        }
+        .v-ghost {
+          background: transparent;
+          color: var(--tc-btn-ghost-fg);
+          border-color: var(--tc-btn-ghost-border);
+        }
+        .v-danger {
+          background: var(--tc-btn-danger-bg);
+          color: var(--tc-btn-danger-fg);
+        }
+
+        .v-primary:not(:disabled):not([aria-disabled="true"]):hover,
+        .v-danger:not(:disabled):not([aria-disabled="true"]):hover {
+          filter: brightness(1.08);
+        }
+        .v-secondary:not(:disabled):not([aria-disabled="true"]):hover,
+        .v-ghost:not(:disabled):not([aria-disabled="true"]):hover {
+          background: rgba(20, 23, 31, 0.04);
+        }
+
+        .spinner {
+          width: 12px; height: 12px; border-radius: 50%;
+          border: 2px solid currentColor;
+          border-right-color: transparent;
+          animation: tc-btn-spin 0.7s linear infinite;
+        }
+
+        @keyframes tc-btn-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+      </style>
+`;
+
 build(
   TAG,
   describe({
@@ -111,81 +192,6 @@ build(
     },
   }),
 );
-
-const BUTTON_STYLE = `
-      <style>
-        .root {
-          font-family: var(--tc-btn-font);
-          font-weight: 500;
-          border-radius: var(--tc-btn-radius);
-          cursor: pointer;
-          border: 1px solid transparent;
-          transition: opacity 0.15s ease, transform 0.05s ease;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          line-height: 1;
-          white-space: nowrap;
-          text-decoration: none;
-          color: inherit;
-        }
-        .root.block { width: 100%; display: flex; }
-        .root:disabled,
-        .root[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
-        .root:not(:disabled):not([aria-disabled="true"]):active {
-          transform: translateY(1px);
-        }
-        a.root:focus-visible {
-          outline: 2px solid currentColor;
-          outline-offset: 2px;
-        }
-
-        .s-sm { font-size: 0.82rem; padding: 6px 12px; }
-        .s-md { font-size: 0.92rem; padding: 9px 16px; }
-        .s-lg { font-size: 1.0rem;  padding: 12px 22px; }
-
-        .v-primary {
-          background: var(--tc-btn-primary-bg);
-          color: var(--tc-btn-primary-fg);
-        }
-        .v-secondary {
-          background: var(--tc-btn-secondary-bg);
-          color: var(--tc-btn-secondary-fg);
-          border-color: var(--tc-btn-secondary-border);
-        }
-        .v-ghost {
-          background: transparent;
-          color: var(--tc-btn-ghost-fg);
-          border-color: var(--tc-btn-ghost-border);
-        }
-        .v-danger {
-          background: var(--tc-btn-danger-bg);
-          color: var(--tc-btn-danger-fg);
-        }
-
-        .v-primary:not(:disabled):not([aria-disabled="true"]):hover,
-        .v-danger:not(:disabled):not([aria-disabled="true"]):hover {
-          filter: brightness(1.08);
-        }
-        .v-secondary:not(:disabled):not([aria-disabled="true"]):hover,
-        .v-ghost:not(:disabled):not([aria-disabled="true"]):hover {
-          background: rgba(20, 23, 31, 0.04);
-        }
-
-        .spinner {
-          width: 12px; height: 12px; border-radius: 50%;
-          border: 2px solid currentColor;
-          border-right-color: transparent;
-          animation: tc-btn-spin 0.7s linear infinite;
-        }
-
-        @keyframes tc-btn-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-      </style>
-`;
 
 function esc(s: unknown): string {
   return String(s ?? "")
