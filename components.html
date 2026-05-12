@@ -118,6 +118,73 @@
         min-height: 80px;
       }
       .stage.col { flex-direction: column; align-items: stretch; }
+
+      /* Inner sidebar layout (only inside .page-layout). */
+      .page-layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 40px;
+        align-items: start;
+      }
+      .components-sidebar {
+        position: sticky;
+        top: 72px;
+        align-self: start;
+        max-height: calc(100vh - 92px);
+        overflow-y: auto;
+        padding: 24px 0;
+      }
+      .components-sidebar h3 {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--tc-color-ink-muted, #6b7280);
+        margin: 18px 0 6px;
+      }
+      .components-sidebar h3:first-child { margin-top: 0; }
+      .components-sidebar a {
+        display: block;
+        padding: 5px 10px;
+        font-size: 0.88rem;
+        color: var(--tc-color-ink-soft, #4a5061);
+        text-decoration: none;
+        border-radius: var(--tc-radius-sm, 6px);
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .components-sidebar a:hover {
+        background: var(--tc-color-accent-soft, #efe2cf);
+      }
+      .components-sidebar a.active {
+        color: var(--tc-color-accent, #a16939);
+        background: var(--tc-color-accent-soft, #efe2cf);
+        font-weight: 500;
+      }
+      /* Inside the content column, sections need full width — drop the
+         centered .wrap max so the layout's own column controls width. */
+      .components-content > section.demo > .wrap {
+        max-width: none;
+        padding: 0;
+      }
+      .components-content > section.demo:first-child {
+        padding-top: 24px;
+        border-top: none;
+      }
+
+      @media (max-width: 900px) {
+        .page-layout {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .components-sidebar { display: none; }
+        .components-content > section.demo > .wrap {
+          padding: 0;
+        }
+      }
       @media (max-width: 720px) {
         header.page { padding: 40px 0 16px; }
         section.demo { padding: 32px 0; }
@@ -145,6 +212,44 @@
           </div>
         </div>
       </header>
+
+      <div class="page-layout">
+        <aside class="components-sidebar" aria-label="Components index">
+          <h3>Form fields</h3>
+          <a href="#button" data-target="button">Button</a>
+          <a href="#input" data-target="input">Input</a>
+          <a href="#textarea" data-target="textarea">Textarea</a>
+          <a href="#select" data-target="select">Select</a>
+          <a href="#checkbox" data-target="checkbox">Checkbox</a>
+          <a href="#switch" data-target="switch">Switch</a>
+          <a href="#file" data-target="file">File picker</a>
+          <a href="#radio-group" data-target="radio-group">Radio group</a>
+
+          <h3>Data</h3>
+          <a href="#table" data-target="table">Table</a>
+
+          <h3>Chrome</h3>
+          <a href="#tabs" data-target="tabs">Tabs</a>
+          <a href="#modal" data-target="modal">Modal</a>
+          <a href="#toast" data-target="toast">Toast</a>
+          <a href="#stat" data-target="stat">Stat</a>
+          <a href="#card" data-target="card">Card</a>
+          <a href="#badge" data-target="badge">Badge</a>
+          <a href="#skeleton" data-target="skeleton">Skeleton</a>
+
+          <h3>Layout</h3>
+          <a href="#stack" data-target="stack">Stack</a>
+          <a href="#stack" data-target="stack">Cluster</a>
+          <a href="#stack" data-target="stack">Grid</a>
+
+          <h3>Docs &amp; content</h3>
+          <a href="#code" data-target="code">Code</a>
+          <a href="#callout" data-target="callout">Callout</a>
+          <a href="#toc" data-target="toc">TOC</a>
+          <a href="#pagination" data-target="pagination">Pagination</a>
+        </aside>
+
+        <div class="components-content">
 
       <section class="demo" id="button">
         <div class="wrap">
@@ -879,6 +984,9 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
 &lt;tc-pagination current="1" total="20" siblings="2"&gt;&lt;/tc-pagination&gt;</tc-code>
         </div>
       </section>
+
+        </div><!-- /.components-content -->
+      </div><!-- /.page-layout -->
     </main>
 
     <site-footer></site-footer>
@@ -1012,6 +1120,53 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
         pagerOut.textContent = "current: " + e.detail.page;
         pagerOut.style.color = "var(--tc-color-accent, #a16939)";
       });
+
+      // ---- sidebar active highlighting ----
+      // Match every section's id to the sidebar links that point to it
+      // (a few links share the same target — e.g. cluster + grid both
+      // point at #stack — so we highlight ALL matching links).
+      const sidebar = document.querySelector(".components-sidebar");
+      if (sidebar) {
+        const linksByTarget = new Map();
+        sidebar.querySelectorAll("a[data-target]").forEach((a) => {
+          const t = a.dataset.target;
+          if (!linksByTarget.has(t)) linksByTarget.set(t, []);
+          linksByTarget.get(t).push(a);
+        });
+
+        function setActive(id) {
+          sidebar.querySelectorAll("a.active")
+            .forEach((a) => a.classList.remove("active"));
+          (linksByTarget.get(id) || []).forEach((a) => a.classList.add("active"));
+        }
+
+        const sections = document.querySelectorAll("section.demo[id]");
+        const visible = new Set();
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) visible.add(e.target);
+              else visible.delete(e.target);
+            }
+            // Pick the topmost visible section as "active".
+            let topmost = null;
+            let topY = Infinity;
+            visible.forEach((el) => {
+              const r = el.getBoundingClientRect();
+              if (r.top < topY) {
+                topY = r.top;
+                topmost = el;
+              }
+            });
+            if (topmost) setActive(topmost.id);
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach((s) => io.observe(s));
+
+        // Initialize with first section so the sidebar isn't empty on load.
+        if (sections.length > 0) setActive(sections[0].id);
+      }
     </script>
   </body>
 </html>
