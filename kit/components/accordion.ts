@@ -121,7 +121,9 @@ build(
         const target = e.target as HTMLElement | null;
         if (!target) return;
         if (target.tagName !== "SUMMARY") return;
-        const summaries = getDetails(host).map((d) => d.querySelector("summary"))
+        const summaries = getDetails(host).map((d) =>
+          d.querySelector("summary")
+        )
           .filter((s): s is HTMLElement => !!s);
         const idx = summaries.indexOf(target);
         if (idx === -1) return;

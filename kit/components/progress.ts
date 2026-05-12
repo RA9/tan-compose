@@ -55,8 +55,7 @@ build(
       "tc-progress-fill": "var(--tc-color-accent, #a16939)",
       "tc-progress-radius": "999px",
       "tc-progress-fg": "var(--tc-color-ink, #14171f)",
-      "tc-progress-font":
-        "var(--tc-font-mono, 'JetBrains Mono', monospace)",
+      "tc-progress-font": "var(--tc-font-mono, 'JetBrains Mono', monospace)",
     },
     styles: {
       display: "inline-block",
@@ -76,21 +75,25 @@ build(
         const stroke = size === "sm" ? 3 : size === "lg" ? 6 : 4;
         const radius = (dim - stroke) / 2;
         const circ = 2 * Math.PI * radius;
-        const dash = indeterminate
-          ? circ * 0.25
-          : (pct / 100) * circ;
+        const dash = indeterminate ? circ * 0.25 : (pct / 100) * circ;
         const ariaProps = indeterminate
           ? `role="progressbar" aria-valuetext="${esc(labelText)}"`
           : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
         return `
-          <div class="circ size-${esc(size)} ${indeterminate ? "indet" : ""}" ${ariaProps}>
+          <div class="circ size-${esc(size)} ${
+          indeterminate ? "indet" : ""
+        }" ${ariaProps}>
             <svg viewBox="0 0 ${dim} ${dim}" width="${dim}" height="${dim}" aria-hidden="true">
-              <circle class="track" cx="${dim / 2}" cy="${dim / 2}" r="${radius}" stroke-width="${stroke}" fill="none" />
+              <circle class="track" cx="${dim / 2}" cy="${
+          dim / 2
+        }" r="${radius}" stroke-width="${stroke}" fill="none" />
               <circle
                 class="fill"
                 cx="${dim / 2}" cy="${dim / 2}" r="${radius}"
                 stroke-width="${stroke}" fill="none"
-                stroke-dasharray="${dash.toFixed(3)} ${(circ - dash).toFixed(3)}"
+                stroke-dasharray="${dash.toFixed(3)} ${
+          (circ - dash).toFixed(3)
+        }"
                 stroke-dashoffset="${(circ / 4).toFixed(3)}"
                 stroke-linecap="round"
               />
@@ -107,7 +110,9 @@ build(
             .label {
               position: absolute;
               font-family: var(--tc-progress-font);
-              font-size: ${size === "sm" ? "0.55rem" : size === "lg" ? "0.92rem" : "0.74rem"};
+              font-size: ${
+          size === "sm" ? "0.55rem" : size === "lg" ? "0.92rem" : "0.74rem"
+        };
               font-weight: 600;
               color: var(--tc-progress-fg);
               line-height: 1;
@@ -138,7 +143,9 @@ build(
         ? `role="progressbar" aria-valuetext="${esc(labelText)}"`
         : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
       return `
-        <div class="bar size-${esc(size)} ${indeterminate ? "indet" : ""}" ${ariaProps}>
+        <div class="bar size-${esc(size)} ${
+        indeterminate ? "indet" : ""
+      }" ${ariaProps}>
           <div class="track">
             <div class="fill" style="width: ${pct.toFixed(2)}%"></div>
           </div>
@@ -171,7 +178,9 @@ build(
           }
           .label {
             font-family: var(--tc-progress-font);
-            font-size: ${size === "sm" ? "0.68rem" : size === "lg" ? "0.92rem" : "0.78rem"};
+            font-size: ${
+        size === "sm" ? "0.68rem" : size === "lg" ? "0.92rem" : "0.78rem"
+      };
             font-weight: 500;
             color: var(--tc-progress-fg);
             min-width: 3ch;

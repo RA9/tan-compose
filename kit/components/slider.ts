@@ -105,7 +105,9 @@ build(
           for (let i = 0; i < n; i++) {
             const v = min + i * step;
             const p = ((v - min) / (max - min)) * 100;
-            parts.push(`<span class="tick" style="left:${p.toFixed(2)}%"></span>`);
+            parts.push(
+              `<span class="tick" style="left:${p.toFixed(2)}%"></span>`,
+            );
           }
           ticks = parts.join("");
         }
@@ -115,7 +117,11 @@ build(
         ${
         label || showValue
           ? `<div class="head">
-              ${label ? `<label for="r" class="lbl">${esc(label)}</label>` : "<span></span>"}
+              ${
+            label
+              ? `<label for="r" class="lbl">${esc(label)}</label>`
+              : "<span></span>"
+          }
               ${
             showValue
               ? `<span class="val">${esc(String(value))}${esc(suffix)}</span>`

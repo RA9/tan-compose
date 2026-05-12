@@ -3,6 +3,97 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.6.0] - 2026-05-12
+
+> The "premium primitives" release. Eleven new components, kit grows from
+> 24 → 35.
+
+### Added
+
+- **`<tc-carousel>`** — slide / fade transitions, autoplay with
+  pause-on-hover, keyboard nav (`←` / `→`, `↑` / `↓`, `Home` / `End`),
+  pointer swipe, dot indicators, prev / next controls, vertical mode,
+  `prefers-reduced-motion` aware. Slides go in the default slot — the
+  component observes children via `MutationObserver` and a
+  `slotchange` listener, so dynamic add / remove just works. Props:
+  `value`, `autoplay`, `loop`, `orientation`, `transition`,
+  `indicators`, `controls`, `swipe`, `pauseOnHover`, `ariaLabel`,
+  `height`. Event: `tc-change`.
+
+- **`<tc-accordion>`** — disclosure group built on native
+  `<details>` elements. Children are slotted directly; the component
+  styles them and coordinates single-open behavior (one open at a
+  time) or `mode="multi"` (any number open). Arrow / `Home` / `End`
+  navigate between summaries; an animated caret is injected into the
+  light DOM so it survives slot projection. Event: `tc-change` with
+  the list of currently-open item ids.
+
+- **`<tc-tooltip>`** — hover / focus tooltip anchored to a slotted
+  trigger. Renders via the browser popover API, so it lives in the
+  top-layer and is never clipped by an ancestor's `transform`,
+  `backdrop-filter`, or `overflow: hidden`. Auto-flips to the
+  opposite side when its preferred placement would push it off-screen.
+  Props: `text`, `placement`, `delay`, `offset`, `disabled`.
+  Optional `content` slot for rich tooltip bodies (kbd shortcuts,
+  icons, etc.).
+
+- **`<tc-popover>`** — click-triggered floating panel for menus,
+  filter forms, and quick actions. Same top-layer treatment as the
+  tooltip; closes on outside click and `Esc` by default. Two slots:
+  `trigger` for the anchor, default for the panel body. Props:
+  `open` (reflects), `placement`, `offset`, `dismissible`. Events:
+  `tc-open`, `tc-close` (with `reason: "outside" | "escape" | "trigger" | "api"`).
+
+- **`<tc-drawer>`** — side sheet that slides in from any edge,
+  backed by `<dialog>` + `showModal()`. Focus is trapped, scroll is
+  preserved, and `Esc` dismisses for free. Props: `open`, `side`
+  (`left` / `right` / `top` / `bottom`), `size`, `dismissible`,
+  `title`. Slots: default + `footer`. Event: `tc-close` with the
+  dismiss reason.
+
+- **`<tc-progress>`** — linear or circular, determinate or
+  indeterminate, three sizes. Proper ARIA progressbar semantics
+  (`aria-valuenow / valuemin / valuemax` for determinate,
+  `aria-valuetext` for indeterminate). Indeterminate animations
+  slow down rather than stop when `prefers-reduced-motion: reduce`.
+  Optional inline value label.
+
+- **`<tc-stepper>`** — multi-step indicator for wizards, onboarding,
+  and checkout. Horizontal or vertical, optional `clickable` mode
+  that turns each step into a real `<button>` and emits
+  `tc-step-change`. Three states per step (done / current /
+  upcoming) with distinct marker styling and connector colors.
+
+- **`<tc-avatar>`** — image avatar with deterministic-tint initials
+  fallback (the same name always gets the same color across pages,
+  derived from a 7-stop palette). Status dot (`online` / `away` /
+  `busy` / `offline`), optional ring, five sizes (20 / 28 / 36 /
+  48 / 64 px), circle or square.
+
+- **`<tc-avatar-group>`** — overlapping cluster of avatars with an
+  overflow "+N" pill. Auto-inherits `size` to children, three
+  spacing densities (`tight` / `normal` / `loose`), hidden avatars
+  are pulled from the accessibility tree.
+
+- **`<tc-rating>`** — star rating input with optional half-star
+  precision (clip-path keeps half-fill exact at any zoom).
+  `role="slider"` when interactive, `role="img"` when read-only,
+  keyboard nav (`←` / `→` / `↑` / `↓` / `Home` / `End`), hover
+  preview, click-to-clear if you tap the current value.
+
+- **`<tc-slider>`** — themed range input built on
+  `<input type="range">`, so keyboard, touch, and screen-reader
+  behavior come from the platform. Adds optional ticks, label,
+  current-value display with custom suffix (`%`, `px`, etc.).
+  Events: `tc-input` (live, while dragging) and `tc-change` (on
+  commit).
+
+### Notes
+
+- Site bundle, component HTML pages, and `search.json` are
+  regenerated. The site components index page (`components.html`)
+  now showcases all 35 components in the kit.
+
 ## [1.5.0] - 2026-05-12
 
 > The "combobox + sturdier defaults" release.

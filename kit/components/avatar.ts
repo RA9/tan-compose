@@ -54,7 +54,9 @@ const PALETTE: Array<[string, string]> = [
 function tintFor(name: string): [string, string] {
   if (!name) return PALETTE[0];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  }
   const idx = Math.abs(hash) % PALETTE.length;
   return PALETTE[idx];
 }
@@ -98,11 +100,15 @@ build(
       const [bg, fg] = tintFor(name);
 
       return `
-        <span class="root size-${esc(size)} shape-${esc(shape)} ${ring ? "ringed" : ""}"
+        <span class="root size-${esc(size)} shape-${esc(shape)} ${
+        ring ? "ringed" : ""
+      }"
               style="--tc-avatar-tint-bg: ${bg}; --tc-avatar-tint-fg: ${fg};">
           ${
         src
-          ? `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'${
+          ? `<img src="${esc(src)}" alt="${
+            esc(alt)
+          }" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'${
             esc(initials(name))
           }'}))">`
           : `<span class="fallback" aria-label="${esc(alt)}">${

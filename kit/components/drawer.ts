@@ -82,7 +82,11 @@ build(
           class="dlg side-${esc(side)}"
           aria-labelledby="${props.title ? "title" : ""}"
           style="
-            ${horizontal ? `width: ${size}; height: 100%;` : `width: 100%; height: ${size};`}
+            ${
+        horizontal
+          ? `width: ${size}; height: 100%;`
+          : `width: 100%; height: ${size};`
+      }
             ${
         side === "left"
           ? "top: 0; left: 0; right: auto; bottom: 0;"

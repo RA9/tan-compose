@@ -160,7 +160,9 @@ build(
           role="region"
           aria-roledescription="carousel"
           aria-label="${ariaLabel}"
-          style="${height ? `--tc-carousel-height: ${esc(height)};` : ""}--tc-carousel-index: ${value};"
+          style="${
+        height ? `--tc-carousel-height: ${esc(height)};` : ""
+      }--tc-carousel-index: ${value};"
         >
           <div class="viewport" part="viewport">
             <div class="track" part="track">

@@ -128,8 +128,9 @@ build(
         if (host.disabled) return;
         clearTimeout(host._tooltipTimer);
         host._tooltipTimer = globalThis.setTimeout(() => {
-          if (typeof (tip as unknown as { showPopover?: () => void })
-            .showPopover === "function"
+          if (
+            typeof (tip as unknown as { showPopover?: () => void })
+              .showPopover === "function"
           ) {
             try {
               (tip as unknown as { showPopover: () => void }).showPopover();
@@ -169,7 +170,11 @@ build(
       host.addEventListener("keydown", onKey);
       // Reposition on scroll / resize while visible.
       const reposition = () => {
-        if ((tip as HTMLElement & { matches: (s: string) => boolean }).matches(":popover-open")) {
+        if (
+          (tip as HTMLElement & { matches: (s: string) => boolean }).matches(
+            ":popover-open",
+          )
+        ) {
           position(host, tip);
         }
       };

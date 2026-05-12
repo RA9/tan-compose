@@ -68,7 +68,11 @@ build(
       const clickable = !!props.clickable;
 
       const items = steps.map((s, i) => {
-        const state = i < active ? "done" : i === active ? "current" : "upcoming";
+        const state = i < active
+          ? "done"
+          : i === active
+          ? "current"
+          : "upcoming";
         const marker = state === "done"
           ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`
           : `${i + 1}`;
@@ -85,15 +89,15 @@ build(
               <span class="text">
                 <span class="title">${esc(s.title)}</span>
                 ${
-          s.description
-            ? `<span class="desc">${esc(s.description)}</span>`
-            : ""
+          s.description ? `<span class="desc">${esc(s.description)}</span>` : ""
         }
               </span>
             </${clickable ? "button" : "div"}>
             ${
           i < steps.length - 1
-            ? `<span class="line ${i < active ? "done" : ""}" aria-hidden="true"></span>`
+            ? `<span class="line ${
+              i < active ? "done" : ""
+            }" aria-hidden="true"></span>`
             : ""
         }
           </li>
@@ -101,7 +105,9 @@ build(
       }).join("");
 
       return `
-        <ol class="root ${vertical ? "v" : "h"} ${clickable ? "clickable" : ""}" aria-label="Progress">
+        <ol class="root ${vertical ? "v" : "h"} ${
+        clickable ? "clickable" : ""
+      }" aria-label="Progress">
           ${items}
         </ol>
         <style>
@@ -215,7 +221,10 @@ build(
     },
     events: {
       "click .row": (e, ctx) => {
-        const host = ctx.host as HTMLElement & { active: number; clickable: boolean };
+        const host = ctx.host as HTMLElement & {
+          active: number;
+          clickable: boolean;
+        };
         if (!host.clickable) return;
         const li = (e.target as HTMLElement).closest(".step") as
           | HTMLElement

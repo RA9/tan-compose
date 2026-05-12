@@ -77,26 +77,34 @@ build(
       for (let i = 1; i <= max; i++) {
         // pct: 0 (empty), 50 (half), 100 (full)
         const diff = display - (i - 1);
-        const pct = diff >= 1 ? 100 : diff >= 0.5 && allowHalf ? 50 : diff > 0 && !allowHalf ? 100 : 0;
+        const pct = diff >= 1
+          ? 100
+          : diff >= 0.5 && allowHalf
+          ? 50
+          : diff > 0 && !allowHalf
+          ? 100
+          : 0;
         const isHalf = pct === 50;
         stars.push(`
-          <span class="star ${isHalf ? "half" : pct === 100 ? "full" : "empty"}" data-index="${i}">
+          <span class="star ${
+          isHalf ? "half" : pct === 100 ? "full" : "empty"
+        }" data-index="${i}">
             <svg viewBox="0 0 24 24" width="${pxSize}" height="${pxSize}" aria-hidden="true">
               <path class="track" d="${STAR_PATH}" fill="var(--tc-rating-track)" />
               ${
-            pct > 0
-              ? `<path class="fill" d="${STAR_PATH}" fill="var(--tc-rating-fill)" clip-path="${
-                isHalf ? "inset(0 50% 0 0)" : "none"
-              }" />`
-              : ""
-          }
+          pct > 0
+            ? `<path class="fill" d="${STAR_PATH}" fill="var(--tc-rating-fill)" clip-path="${
+              isHalf ? "inset(0 50% 0 0)" : "none"
+            }" />`
+            : ""
+        }
             </svg>
             ${
-            allowHalf && !readonly
-              ? `<span class="hit-left" data-index="${i}" data-half="1"></span>
+          allowHalf && !readonly
+            ? `<span class="hit-left" data-index="${i}" data-half="1"></span>
                  <span class="hit-right" data-index="${i}" data-half="0"></span>`
-              : ""
-          }
+            : ""
+        }
           </span>
         `);
       }
@@ -195,8 +203,9 @@ build(
         const step = host.allowHalf ? 0.5 : 1;
         const previous = host.value;
         let next = previous;
-        if (ev.key === "ArrowRight" || ev.key === "ArrowUp") next = Math.min(host.max, previous + step);
-        else if (ev.key === "ArrowLeft" || ev.key === "ArrowDown") {
+        if (ev.key === "ArrowRight" || ev.key === "ArrowUp") {
+          next = Math.min(host.max, previous + step);
+        } else if (ev.key === "ArrowLeft" || ev.key === "ArrowDown") {
           next = Math.max(0, previous - step);
         } else if (ev.key === "Home") next = 0;
         else if (ev.key === "End") next = host.max;

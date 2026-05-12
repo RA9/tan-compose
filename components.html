@@ -225,6 +225,8 @@
           <a href="#switch" data-target="switch">Switch</a>
           <a href="#file" data-target="file">File picker</a>
           <a href="#radio-group" data-target="radio-group">Radio group</a>
+          <a href="#slider" data-target="slider">Slider</a>
+          <a href="#rating" data-target="rating">Rating</a>
 
           <h3>Data</h3>
           <a href="#table" data-target="table">Table</a>
@@ -232,11 +234,19 @@
           <h3>Chrome</h3>
           <a href="#tabs" data-target="tabs">Tabs</a>
           <a href="#modal" data-target="modal">Modal</a>
+          <a href="#drawer" data-target="drawer">Drawer</a>
           <a href="#toast" data-target="toast">Toast</a>
           <a href="#stat" data-target="stat">Stat</a>
           <a href="#card" data-target="card">Card</a>
           <a href="#badge" data-target="badge">Badge</a>
           <a href="#skeleton" data-target="skeleton">Skeleton</a>
+          <a href="#carousel" data-target="carousel">Carousel</a>
+          <a href="#accordion" data-target="accordion">Accordion</a>
+          <a href="#tooltip" data-target="tooltip">Tooltip</a>
+          <a href="#popover" data-target="popover">Popover</a>
+          <a href="#progress" data-target="progress">Progress</a>
+          <a href="#stepper" data-target="stepper">Stepper</a>
+          <a href="#avatar" data-target="avatar">Avatar</a>
 
           <h3>Layout</h3>
           <a href="#stack" data-target="stack">Stack</a>
@@ -1041,6 +1051,358 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
         </div>
       </section>
 
+      <section class="demo" id="carousel">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-carousel&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/carousel.html">Docs &rarr;</a></div>
+            <h2>Carousel</h2>
+            <p class="demo-lede">
+              Slide or fade through a default slot of children. Autoplay,
+              indicators, controls, pointer swipe, keyboard nav, vertical
+              mode — all opt-in via props. Top-layer-free; pairs with any
+              page layout.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-carousel autoplay="3500" ariaLabel="Carousel demo" style="max-width: 560px; --tc-carousel-height: 200px;">
+              <div style="display:grid;place-items:center;height:200px;background:linear-gradient(135deg,#a16939,#d9b78a);color:#fff;font-weight:600;font-size:1.4rem;">Slide one</div>
+              <div style="display:grid;place-items:center;height:200px;background:linear-gradient(135deg,#3a5a40,#a3b18a);color:#fff;font-weight:600;font-size:1.4rem;">Slide two</div>
+              <div style="display:grid;place-items:center;height:200px;background:linear-gradient(135deg,#1f3a66,#7eaad9);color:#fff;font-weight:600;font-size:1.4rem;">Slide three</div>
+            </tc-carousel>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/carousel"</span>;
+
+&lt;tc-carousel autoplay="3500"&gt;
+  &lt;div&gt;Slide one&lt;/div&gt;
+  &lt;div&gt;Slide two&lt;/div&gt;
+  &lt;div&gt;Slide three&lt;/div&gt;
+&lt;/tc-carousel&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="accordion">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-accordion&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/accordion.html">Docs &rarr;</a></div>
+            <h2>Accordion</h2>
+            <p class="demo-lede">
+              Disclosure group built on native <code>&lt;details&gt;</code>.
+              Single-open by default; <code>mode="multi"</code> lets several
+              stay open. Keyboard nav between summaries, animated caret.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-accordion style="max-width: 560px;">
+              <details open>
+                <summary>What's inside the kit?</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Form fields, layout primitives, overlays, data display, and content components — all themeable, all framework-neutral.</div>
+              </details>
+              <details>
+                <summary>Does it work in SSR / static sites?</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Yes. Web Components upgrade on the client; markup degrades to plain HTML in the meantime.</div>
+              </details>
+              <details>
+                <summary>How do I theme it?</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Override CSS custom properties on the host or globally. Every component documents its tokens.</div>
+              </details>
+            </tc-accordion>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/accordion"</span>;
+
+&lt;tc-accordion&gt;
+  &lt;details open&gt;&lt;summary&gt;Item one&lt;/summary&gt;&lt;p&gt;…&lt;/p&gt;&lt;/details&gt;
+  &lt;details&gt;&lt;summary&gt;Item two&lt;/summary&gt;&lt;p&gt;…&lt;/p&gt;&lt;/details&gt;
+&lt;/tc-accordion&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="tooltip">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-tooltip&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/tooltip.html">Docs &rarr;</a></div>
+            <h2>Tooltip</h2>
+            <p class="demo-lede">
+              Hover or focus tooltip anchored to a slotted trigger. Renders
+              in the browser top-layer (popover API), so nothing clips it.
+              Auto-flips placement when it would overflow.
+            </p>
+          </div>
+          <div class="stage" style="gap: 12px;">
+            <tc-tooltip text="Copy to clipboard">
+              <tc-button variant="ghost">Copy</tc-button>
+            </tc-tooltip>
+            <tc-tooltip text="Save the page" placement="bottom">
+              <tc-button variant="secondary">Save</tc-button>
+            </tc-tooltip>
+            <tc-tooltip placement="right">
+              <tc-button>With shortcut</tc-button>
+              <span slot="content" style="display:inline-flex;align-items:center;gap:6px;">Open <kbd style="background:rgba(255,255,255,0.12);padding:1px 5px;border-radius:3px;font-family:var(--tc-font-mono,monospace);font-size:0.7rem;">⌘O</kbd></span>
+            </tc-tooltip>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/tooltip"</span>;
+
+&lt;tc-tooltip text="Copy to clipboard"&gt;
+  &lt;tc-button variant="ghost"&gt;Copy&lt;/tc-button&gt;
+&lt;/tc-tooltip&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="popover">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-popover&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/popover.html">Docs &rarr;</a></div>
+            <h2>Popover</h2>
+            <p class="demo-lede">
+              Click-triggered floating panel — menus, filter forms, quick
+              actions. Outside click and <code>Esc</code> dismiss by
+              default. Auto-flips placement on overflow.
+            </p>
+          </div>
+          <div class="stage" style="gap: 12px;">
+            <tc-popover>
+              <tc-button slot="trigger" variant="secondary">Profile ▾</tc-button>
+              <div style="display:grid;gap:8px;">
+                <strong>Mia Carter</strong>
+                <span style="color:var(--tc-color-ink-soft);font-size:0.84rem;">mia@example.com</span>
+                <hr style="border:none;border-top:1px solid var(--tc-color-rule);margin:4px 0;">
+                <a href="#" style="color:inherit;text-decoration:none;font-size:0.9rem;">Account settings</a>
+                <a href="#" style="color:inherit;text-decoration:none;font-size:0.9rem;">Sign out</a>
+              </div>
+            </tc-popover>
+            <tc-popover placement="top">
+              <tc-button slot="trigger">Filter ▾</tc-button>
+              <div style="display:grid;gap:8px;min-width:200px;">
+                <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" checked> Active</label>
+                <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox"> Pending</label>
+                <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox"> Archived</label>
+              </div>
+            </tc-popover>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/popover"</span>;
+
+&lt;tc-popover&gt;
+  &lt;tc-button slot="trigger"&gt;Profile ▾&lt;/tc-button&gt;
+  &lt;div&gt;Menu content…&lt;/div&gt;
+&lt;/tc-popover&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="drawer">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-drawer&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/drawer.html">Docs &rarr;</a></div>
+            <h2>Drawer</h2>
+            <p class="demo-lede">
+              Side sheet that slides in from any edge. Backed by the native
+              <code>&lt;dialog&gt;</code>: focus is trapped and the page
+              scroll stays put. <code>side</code> picks the edge,
+              <code>size</code> the width or height.
+            </p>
+          </div>
+          <div class="stage" style="gap: 10px;">
+            <tc-button id="kit-drawer-right">Open right →</tc-button>
+            <tc-button id="kit-drawer-left" variant="secondary">← Open left</tc-button>
+            <tc-button id="kit-drawer-bottom" variant="secondary">Open from bottom ↓</tc-button>
+            <tc-drawer id="kit-drawer-r" title="Filters">
+              <div style="display:grid;gap:12px;">
+                <label>Search<br><tc-input placeholder="Keyword…"></tc-input></label>
+                <label><input type="checkbox"> Include children</label>
+                <label><input type="checkbox" checked> Active only</label>
+              </div>
+              <div slot="footer">
+                <tc-button variant="ghost" id="kit-drawer-r-cancel">Cancel</tc-button>
+                <tc-button id="kit-drawer-r-apply">Apply</tc-button>
+              </div>
+            </tc-drawer>
+            <tc-drawer id="kit-drawer-l" side="left" title="Navigation">
+              <nav style="display:grid;gap:6px;">
+                <a href="#" style="color:inherit;text-decoration:none;padding:8px 4px;">Dashboard</a>
+                <a href="#" style="color:inherit;text-decoration:none;padding:8px 4px;">Projects</a>
+                <a href="#" style="color:inherit;text-decoration:none;padding:8px 4px;">Team</a>
+              </nav>
+            </tc-drawer>
+            <tc-drawer id="kit-drawer-b" side="bottom" size="min(280px, 50vh)" title="Quick add">
+              <p>This pattern works well on mobile for action sheets.</p>
+            </tc-drawer>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/drawer"</span>;
+
+&lt;tc-drawer id="filters" title="Filters" side="right"&gt;
+  &lt;div&gt;…body…&lt;/div&gt;
+  &lt;div slot="footer"&gt;&lt;tc-button&gt;Apply&lt;/tc-button&gt;&lt;/div&gt;
+&lt;/tc-drawer&gt;
+
+<span class="tc-com">// Toggle open</span>
+document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="progress">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-progress&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/progress.html">Docs &rarr;</a></div>
+            <h2>Progress</h2>
+            <p class="demo-lede">
+              Linear or circular, determinate or indeterminate, three sizes.
+              Proper ARIA progressbar semantics, and the indeterminate
+              animations respect <code>prefers-reduced-motion</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <div style="display:grid;gap:14px;max-width:400px;">
+              <tc-progress value="30"></tc-progress>
+              <tc-progress value="68" showLabel></tc-progress>
+              <tc-progress indeterminate size="sm"></tc-progress>
+            </div>
+            <div style="display:flex;gap:24px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+              <tc-progress variant="circular" value="55" showLabel></tc-progress>
+              <tc-progress variant="circular" value="80" size="lg" showLabel></tc-progress>
+              <tc-progress variant="circular" indeterminate size="lg"></tc-progress>
+            </div>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/progress"</span>;
+
+&lt;tc-progress value="68" showLabel&gt;&lt;/tc-progress&gt;
+&lt;tc-progress variant="circular" value="80" size="lg" showLabel&gt;&lt;/tc-progress&gt;
+&lt;tc-progress indeterminate&gt;&lt;/tc-progress&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="stepper">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-stepper&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/stepper.html">Docs &rarr;</a></div>
+            <h2>Stepper</h2>
+            <p class="demo-lede">
+              Multi-step indicator for wizards, onboarding, checkout.
+              Horizontal or vertical, optional <code>clickable</code> mode
+              to let users jump between steps.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-stepper
+              active="1"
+              steps='[
+                {"title":"Account","description":"Email & password"},
+                {"title":"Profile","description":"Name & avatar"},
+                {"title":"Workspace","description":"Invite team"},
+                {"title":"Done"}
+              ]'
+            ></tc-stepper>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/stepper"</span>;
+
+&lt;tc-stepper
+  active="1"
+  steps='[
+    {"title":"Account"},
+    {"title":"Profile"},
+    {"title":"Workspace"},
+    {"title":"Done"}
+  ]'
+&gt;&lt;/tc-stepper&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="avatar">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-avatar&gt; · &lt;tc-avatar-group&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/avatar.html">Docs &rarr;</a></div>
+            <h2>Avatar</h2>
+            <p class="demo-lede">
+              User avatar with image and deterministic-tint initials fallback
+              — Mia is always blue, Jamal is always brown. Status dot, ring
+              for stacking, and an <code>avatar-group</code> for clusters
+              with overflow "+N".
+            </p>
+          </div>
+          <div class="stage col">
+            <div style="display:flex;gap:10px;align-items:flex-end;">
+              <tc-avatar name="Mia Carter" size="xs"></tc-avatar>
+              <tc-avatar name="Mia Carter" size="sm"></tc-avatar>
+              <tc-avatar name="Mia Carter" size="md"></tc-avatar>
+              <tc-avatar name="Mia Carter" size="lg"></tc-avatar>
+              <tc-avatar name="Mia Carter" size="xl"></tc-avatar>
+            </div>
+            <div style="display:flex;gap:14px;align-items:center;">
+              <tc-avatar name="Mia" status="online" size="lg"></tc-avatar>
+              <tc-avatar name="Jamal" status="away" size="lg"></tc-avatar>
+              <tc-avatar name="Aiko" status="busy" size="lg"></tc-avatar>
+              <tc-avatar name="Sven" status="offline" size="lg"></tc-avatar>
+            </div>
+            <tc-avatar-group max="4">
+              <tc-avatar name="Mia"></tc-avatar>
+              <tc-avatar name="Jamal"></tc-avatar>
+              <tc-avatar name="Aiko"></tc-avatar>
+              <tc-avatar name="Sven"></tc-avatar>
+              <tc-avatar name="Lila"></tc-avatar>
+              <tc-avatar name="Ravi"></tc-avatar>
+              <tc-avatar name="Olu"></tc-avatar>
+            </tc-avatar-group>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/avatar"</span>;
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/avatar-group"</span>;
+
+&lt;tc-avatar name="Mia Carter" status="online"&gt;&lt;/tc-avatar&gt;
+&lt;tc-avatar-group max="4"&gt;
+  &lt;tc-avatar name="Mia"&gt;&lt;/tc-avatar&gt;
+  &lt;tc-avatar name="Jamal"&gt;&lt;/tc-avatar&gt;
+  ...
+&lt;/tc-avatar-group&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="rating">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-rating&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/rating.html">Docs &rarr;</a></div>
+            <h2>Rating</h2>
+            <p class="demo-lede">
+              Star rating input with optional half-stars, keyboard nav,
+              hover preview, and a read-only display mode. Clip-path keeps
+              the half-fill exact at any zoom.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-rating id="kit-rating" value="3" allowHalf size="lg"></tc-rating>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <tc-rating value="4.5" allowHalf readonly></tc-rating>
+              <span style="color:var(--tc-color-ink-soft);font-size:0.92rem;">4.5 (281 reviews)</span>
+            </div>
+            <output id="kit-rating-out" style="color: var(--tc-color-ink-muted); font-family: var(--tc-font-mono, monospace); font-size: 0.84rem;">pick a rating above</output>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/rating"</span>;
+
+&lt;tc-rating value="3" allowHalf size="lg"&gt;&lt;/tc-rating&gt;
+&lt;tc-rating value="4.5" allowHalf readonly&gt;&lt;/tc-rating&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="slider">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-slider&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.6</span></span><a class="docs-link" href="./components/slider.html">Docs &rarr;</a></div>
+            <h2>Slider</h2>
+            <p class="demo-lede">
+              Themed range input. Built on native
+              <code>&lt;input type="range"&gt;</code> so keyboard and touch
+              behavior come for free. Optional ticks, label, suffix.
+            </p>
+          </div>
+          <div class="stage col">
+            <div style="display:grid;gap:18px;max-width:400px;">
+              <tc-slider label="Volume" value="60" suffix="%" showValue></tc-slider>
+              <tc-slider label="Font size" value="16" min="12" max="24" step="1" suffix="px" showValue showTicks></tc-slider>
+              <tc-slider label="Temperature" value="0.7" min="0" max="2" step="0.1" showValue></tc-slider>
+            </div>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/slider"</span>;
+
+&lt;tc-slider label="Volume" value="60" suffix="%" showValue&gt;&lt;/tc-slider&gt;
+&lt;tc-slider min="12" max="24" step="1" value="16" showTicks&gt;&lt;/tc-slider&gt;</tc-code>
+        </div>
+      </section>
+
         </div><!-- /.components-content -->
       </div><!-- /.page-layout -->
     </main>
@@ -1244,6 +1606,34 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
       }
       comboMulti.addEventListener("tc-change", refreshComboOut);
       comboSingle.addEventListener("tc-change", refreshComboOut);
+
+      // ---- drawer demo ----
+      const dR = document.getElementById("kit-drawer-r");
+      const dL = document.getElementById("kit-drawer-l");
+      const dB = document.getElementById("kit-drawer-b");
+      document.getElementById("kit-drawer-right").addEventListener("click", () => {
+        dR.open = true;
+      });
+      document.getElementById("kit-drawer-left").addEventListener("click", () => {
+        dL.open = true;
+      });
+      document.getElementById("kit-drawer-bottom").addEventListener("click", () => {
+        dB.open = true;
+      });
+      document.getElementById("kit-drawer-r-cancel").addEventListener("click", () => {
+        dR.open = false;
+      });
+      document.getElementById("kit-drawer-r-apply").addEventListener("click", () => {
+        dR.open = false;
+      });
+
+      // ---- rating demo ----
+      const rating = document.getElementById("kit-rating");
+      const ratingOut = document.getElementById("kit-rating-out");
+      rating.addEventListener("tc-change", (e) => {
+        ratingOut.textContent = "rating: " + e.detail.value;
+        ratingOut.style.color = "var(--tc-color-accent, #a16939)";
+      });
 
       // ---- sidebar active highlighting ----
       // Match every section's id to the sidebar links that point to it
