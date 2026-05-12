@@ -220,6 +220,7 @@
           <a href="#input" data-target="input">Input</a>
           <a href="#textarea" data-target="textarea">Textarea</a>
           <a href="#select" data-target="select">Select</a>
+          <a href="#combobox" data-target="combobox">Combobox</a>
           <a href="#checkbox" data-target="checkbox">Checkbox</a>
           <a href="#switch" data-target="switch">Switch</a>
           <a href="#file" data-target="file">File picker</a>
@@ -385,6 +386,61 @@
     { value: "ca", label: "Canada" },
   ];
 &lt;/script&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="combobox">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-combobox&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.5</span></span><a class="docs-link" href="./components/combobox.html">Docs &rarr;</a></div>
+            <h2>Combobox</h2>
+            <p class="demo-lede">
+              Searchable dropdown with optional multi-select, tag chips,
+              and per-option icon prefixes — the "select N from many"
+              widget that the native <code>&lt;select multiple&gt;</code>
+              isn't. Form-associated; submits one entry per selected
+              value with a <code>name</code>.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-combobox
+              id="kit-combo-multi"
+              label="Countries"
+              name="countries"
+              multiple
+              placeholder="Type to filter, ↑↓ to navigate…"
+              helper="Press Enter to select, Backspace to remove the last chip."
+            ></tc-combobox>
+            <tc-combobox
+              id="kit-combo-single"
+              label="Time zone"
+              name="tz"
+              placeholder="Pick one…"
+            ></tc-combobox>
+            <div
+              id="kit-combo-out"
+              style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--tc-color-ink-muted, #6b7280);"
+            >
+              No selection yet.
+            </div>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/combobox"</span>;
+
+<span class="tc-com">// HTML</span>
+&lt;tc-combobox label="Countries" name="countries" multiple&gt;&lt;/tc-combobox&gt;
+
+<span class="tc-com">// JS — feed it an options array</span>
+<span class="tc-kw">const</span> combo = document.querySelector(<span class="tc-str">"tc-combobox"</span>);
+combo.options = [
+  { value: <span class="tc-str">"US"</span>, label: <span class="tc-str">"United States"</span>, icon: <span class="tc-str">"🇺🇸"</span> },
+  { value: <span class="tc-str">"FR"</span>, label: <span class="tc-str">"France"</span>,        icon: <span class="tc-str">"🇫🇷"</span> },
+  { value: <span class="tc-str">"JP"</span>, label: <span class="tc-str">"Japan"</span>,         icon: <span class="tc-str">"🇯🇵"</span> },
+];
+
+combo.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
+  <span class="tc-kw">const</span> selected = e.detail.value; <span class="tc-com">// Array&lt;string&gt; in multiple mode</span>
+  ...
+});</tc-code>
         </div>
       </section>
 
@@ -1120,6 +1176,74 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
         pagerOut.textContent = "current: " + e.detail.page;
         pagerOut.style.color = "var(--tc-color-accent, #a16939)";
       });
+
+      // ---- combobox demo ----
+      const COUNTRIES = [
+        { value: "US", label: "United States", icon: "🇺🇸" },
+        { value: "CA", label: "Canada", icon: "🇨🇦" },
+        { value: "MX", label: "Mexico", icon: "🇲🇽" },
+        { value: "BR", label: "Brazil", icon: "🇧🇷" },
+        { value: "AR", label: "Argentina", icon: "🇦🇷" },
+        { value: "GB", label: "United Kingdom", icon: "🇬🇧" },
+        { value: "FR", label: "France", icon: "🇫🇷" },
+        { value: "DE", label: "Germany", icon: "🇩🇪" },
+        { value: "ES", label: "Spain", icon: "🇪🇸" },
+        { value: "IT", label: "Italy", icon: "🇮🇹" },
+        { value: "PT", label: "Portugal", icon: "🇵🇹" },
+        { value: "NL", label: "Netherlands", icon: "🇳🇱" },
+        { value: "SE", label: "Sweden", icon: "🇸🇪" },
+        { value: "PL", label: "Poland", icon: "🇵🇱" },
+        { value: "TR", label: "Türkiye", icon: "🇹🇷" },
+        { value: "EG", label: "Egypt", icon: "🇪🇬" },
+        { value: "NG", label: "Nigeria", icon: "🇳🇬" },
+        { value: "KE", label: "Kenya", icon: "🇰🇪" },
+        { value: "ZA", label: "South Africa", icon: "🇿🇦" },
+        { value: "LR", label: "Liberia", icon: "🇱🇷" },
+        { value: "GH", label: "Ghana", icon: "🇬🇭" },
+        { value: "MA", label: "Morocco", icon: "🇲🇦" },
+        { value: "AE", label: "United Arab Emirates", icon: "🇦🇪" },
+        { value: "SA", label: "Saudi Arabia", icon: "🇸🇦" },
+        { value: "IN", label: "India", icon: "🇮🇳" },
+        { value: "PK", label: "Pakistan", icon: "🇵🇰" },
+        { value: "BD", label: "Bangladesh", icon: "🇧🇩" },
+        { value: "ID", label: "Indonesia", icon: "🇮🇩" },
+        { value: "JP", label: "Japan", icon: "🇯🇵" },
+        { value: "KR", label: "South Korea", icon: "🇰🇷" },
+        { value: "CN", label: "China", icon: "🇨🇳" },
+        { value: "AU", label: "Australia", icon: "🇦🇺" },
+        { value: "NZ", label: "New Zealand", icon: "🇳🇿" },
+      ];
+      const TIMEZONES = [
+        { value: "UTC", label: "UTC" },
+        { value: "America/New_York", label: "New York (EST/EDT)" },
+        { value: "America/Los_Angeles", label: "Los Angeles (PST/PDT)" },
+        { value: "America/Chicago", label: "Chicago (CST/CDT)" },
+        { value: "Europe/London", label: "London (GMT/BST)" },
+        { value: "Europe/Paris", label: "Paris (CET/CEST)" },
+        { value: "Europe/Berlin", label: "Berlin (CET/CEST)" },
+        { value: "Africa/Monrovia", label: "Monrovia" },
+        { value: "Africa/Lagos", label: "Lagos" },
+        { value: "Asia/Tokyo", label: "Tokyo (JST)" },
+        { value: "Asia/Singapore", label: "Singapore (SGT)" },
+        { value: "Asia/Kolkata", label: "Kolkata (IST)" },
+        { value: "Australia/Sydney", label: "Sydney (AEST/AEDT)" },
+      ];
+
+      const comboMulti = document.getElementById("kit-combo-multi");
+      const comboSingle = document.getElementById("kit-combo-single");
+      const comboOut = document.getElementById("kit-combo-out");
+      comboMulti.options = COUNTRIES;
+      comboSingle.options = TIMEZONES;
+
+      function refreshComboOut() {
+        const m = comboMulti.value || "(none)";
+        const s = comboSingle.value || "(none)";
+        comboOut.textContent =
+          "countries: " + m + " · timezone: " + s;
+        comboOut.style.color = "var(--tc-color-accent, #a16939)";
+      }
+      comboMulti.addEventListener("tc-change", refreshComboOut);
+      comboSingle.addEventListener("tc-change", refreshComboOut);
 
       // ---- sidebar active highlighting ----
       // Match every section's id to the sidebar links that point to it

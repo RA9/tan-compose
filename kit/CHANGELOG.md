@@ -3,6 +3,34 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.5.0] - 2026-05-12
+
+> The "combobox + sturdier defaults" release.
+
+### Added
+
+- **`<tc-combobox>`** — searchable, optionally multi-select dropdown with
+  per-option icon prefixes (emoji or single glyph), tag chips for the
+  multi-select case, keyboard navigation (↑/↓/Enter/Esc/Backspace), and
+  form-association. Built for "select N from many" widgets like country
+  pickers with flags, tag editors, or assignee dropdowns — the cases
+  where the native `<select multiple>` is too clumsy. Multi-select
+  submits one FormData entry per chosen value when a `name` is set.
+  Props: `value`, `name`, `options`, `multiple`, `searchable`,
+  `placeholder`, `empty-text`, `label`, `helper`, `error`, `disabled`,
+  `required`, `max`. Events: `tc-change`, `tc-search`, `tc-open`,
+  `tc-close`. Shares the input's `--tc-input-*` theme tokens.
+
+### Changed
+
+- **`<tc-card>` padding is now sticky.** Previously the body padding
+  depended on the `padded` class being applied. If the class somehow
+  didn't render (e.g. a host with default-undefined prop), the body
+  ended up with zero padding. Padding is now the deterministic default
+  in CSS; the opt-out goes through an explicit `nopad` class that only
+  applies when `padded` is exactly `false`. Cards without a `padded`
+  attribute now reliably have padding out of the box.
+
 ## [1.4.0] - 2026-05-11
 
 > The "papercuts from dogfooding" release. Three small wins discovered while

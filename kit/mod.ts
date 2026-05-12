@@ -38,6 +38,7 @@ import { tagName as codeTag } from "./components/code.ts";
 import { tagName as calloutTag } from "./components/callout.ts";
 import { tagName as tocTag } from "./components/toc.ts";
 import { tagName as paginationTag } from "./components/pagination.ts";
+import { tagName as comboboxTag } from "./components/combobox.ts";
 
 /** Tag names of every component this module registers. */
 export const tags = {
@@ -69,4 +70,6 @@ export const tags = {
   callout: calloutTag,
   toc: tocTag,
   pagination: paginationTag,
+  // additional form fields
+  combobox: comboboxTag,
 } as const;

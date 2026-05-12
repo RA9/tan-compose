@@ -61,7 +61,10 @@ build(
         "card",
         props.bordered ? "bordered" : "",
         props.elevated ? "elevated" : "",
-        props.padded ? "padded" : "",
+        // Padding is the default; only stamp `nopad` when the user
+        // explicitly opted out. Defending against an undefined prop
+        // means the body still has padding out of the box.
+        props.padded === false ? "nopad" : "",
         hasHeaderProps ? "has-header" : "",
       ].filter(Boolean).join(" ");
 
@@ -95,25 +98,27 @@ build(
           .card.bordered { border: 1px solid var(--tc-card-rule); }
           .card.elevated { box-shadow: var(--tc-card-shadow); }
 
-          /* Body: always has its own padding when the card is padded.
-             This is the deterministic main padding — the head and foot
-             pad themselves separately. */
-          .card.padded .body {
+          /* Body padding is the deterministic default. The head and foot
+             pad themselves separately. Padding kicks in even if the
+             padded class somehow is not applied to the host, so consumers
+             get a sensibly-padded card out of the box without needing to
+             remember a flag. Override only when padded=false. */
+          .body {
             padding: var(--tc-card-padding-y) var(--tc-card-padding-x);
           }
 
           /* Head padding when title/subtitle props are set OR something
              is slotted into name="header". The body then trims its top
              padding so the two sections meet at --tc-card-gap. */
-          .card.padded.has-header .head,
-          .card.padded .head:has(::slotted(*)) {
+          .card.has-header .head,
+          .card .head:has(::slotted(*)) {
             padding:
               var(--tc-card-padding-y)
               var(--tc-card-padding-x)
               var(--tc-card-gap);
           }
-          .card.padded.has-header .head + .body,
-          .card.padded .head:has(::slotted(*)) + .body {
+          .card.has-header .head + .body,
+          .card .head:has(::slotted(*)) + .body {
             padding-top: 0;
           }
 
@@ -123,7 +128,7 @@ build(
           }
 
           /* Foot only renders when there's slotted footer content. */
-          .card.padded .foot:has(::slotted(*)) {
+          .card .foot:has(::slotted(*)) {
             padding:
               var(--tc-card-gap)
               var(--tc-card-padding-x)
@@ -159,11 +164,11 @@ build(
             color: var(--tc-card-soft);
           }
 
-          /* When padded=false, no padding anywhere. The user takes
-             over completely. */
-          .card:not(.padded) .body,
-          .card:not(.padded) .head,
-          .card:not(.padded) .foot { padding: 0; }
+          /* padded=false opt-out — the template applies "nopad" to the
+             host inner .card when the prop is false. */
+          .card.nopad .body,
+          .card.nopad .head,
+          .card.nopad .foot { padding: 0; }
         </style>
       `;
     },
