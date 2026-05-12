@@ -4,7 +4,7 @@
  * Pages load this single bundle (`<script type="module" src="./dist/site.js">`)
  * and get:
  *   - the kit's default light theme tokens
- *   - all 22 kit components registered
+ *   - all kit components registered
  *   - the site-specific shell components (<site-nav>, <site-footer>)
  *
  * Loading additional theme presets (dark / bootstrap / tailwind / etc.)

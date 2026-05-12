@@ -39,6 +39,17 @@ import { tagName as calloutTag } from "./components/callout.ts";
 import { tagName as tocTag } from "./components/toc.ts";
 import { tagName as paginationTag } from "./components/pagination.ts";
 import { tagName as comboboxTag } from "./components/combobox.ts";
+import { tagName as carouselTag } from "./components/carousel.ts";
+import { tagName as accordionTag } from "./components/accordion.ts";
+import { tagName as tooltipTag } from "./components/tooltip.ts";
+import { tagName as popoverTag } from "./components/popover.ts";
+import { tagName as drawerTag } from "./components/drawer.ts";
+import { tagName as progressTag } from "./components/progress.ts";
+import { tagName as stepperTag } from "./components/stepper.ts";
+import { tagName as avatarTag } from "./components/avatar.ts";
+import { tagName as avatarGroupTag } from "./components/avatar-group.ts";
+import { tagName as ratingTag } from "./components/rating.ts";
+import { tagName as sliderTag } from "./components/slider.ts";
 
 /** Tag names of every component this module registers. */
 export const tags = {
@@ -51,16 +62,27 @@ export const tags = {
   switch: switchTag,
   file: fileTag,
   radioGroup: radioGroupTag,
+  slider: sliderTag,
+  rating: ratingTag,
   // data
   table: tableTag,
   // layout / chrome
   tabs: tabsTag,
   modal: modalTag,
+  drawer: drawerTag,
   toast: toastTag,
   stat: statTag,
   card: cardTag,
   badge: badgeTag,
   skeleton: skeletonTag,
+  carousel: carouselTag,
+  accordion: accordionTag,
+  tooltip: tooltipTag,
+  popover: popoverTag,
+  progress: progressTag,
+  stepper: stepperTag,
+  avatar: avatarTag,
+  avatarGroup: avatarGroupTag,
   // primitives
   stack: stackTag,
   cluster: clusterTag,
