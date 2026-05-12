@@ -6,11 +6,13 @@ template, lifecycle hooks, and reactive state; one `build()` call registers it
 as a real custom element. No JSX, no compiler, no framework runtime — Shadow
 DOM, lifecycle, and reactivity are wired up for you on top of the platform.
 
-> **Status:** stable at **1.0**. The API is frozen; further changes will be
+> **Status:** stable at **1.1**. The API is frozen; further changes will be
 > additive. Pair with
-> [`@ra9/tan-compose-kit`](https://jsr.io/@ra9/tan-compose-kit) for 19
-> ready-made components and 4 theme presets (light, dark, Bootstrap, Tailwind)
-> on top of this engine.
+> [`@ra9/tan-compose-kit`](https://jsr.io/@ra9/tan-compose-kit) for 23
+> ready-made components and 6 theme presets (light, dark, Bootstrap, Tailwind,
+> Material, shadcn) on top of this engine, and
+> [`@ra9/tan-compose-icons`](https://jsr.io/@ra9/tan-compose-icons) for 44
+> inline-SVG icons that pair with the kit.
 
 ## Features
 

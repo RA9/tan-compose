@@ -1,10 +1,10 @@
 # @ra9/tan-compose-kit
 
 Battle-tested Web Components built on top of
-[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 19 components, 6 theme
-presets, ~70 KB minified for the whole bundle. No JSX, no compiler, no runtime
-framework — just custom elements you drop into HTML, React, Vue, Astro, or
-anywhere else custom elements work.
+[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 23 components, 6 theme
+presets, ~89 KB minified (~19 KB gzipped) for the whole bundle. No JSX, no
+compiler, no runtime framework — just custom elements you drop into HTML,
+React, Vue, Astro, or anywhere else custom elements work.
 
 ```bash
 deno add jsr:@ra9/tan-compose-kit

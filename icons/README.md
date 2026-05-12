@@ -1,7 +1,7 @@
 # @ra9/tan-compose-icons
 
 `<tc-icon>` — a tiny inline-SVG icon component for the
-[tan-compose](https://jsr.io/@ra9/tan-compose) ecosystem. Ships ~40 common icons
+[tan-compose](https://jsr.io/@ra9/tan-compose) ecosystem. Ships 44 common icons
 drawn from the [Lucide](https://lucide.dev) set, all 24×24 at 2px stroke, color
 via `currentColor`.
 
@@ -115,8 +115,8 @@ Useful when you want the icons but are rendering them via a different mechanism
 
 ## Per-bundle size
 
-The full bundle (component + 40 icons) is about 8 KB minified. Each icon path is
-a few hundred bytes; the component shell is ~2 KB.
+The full bundle (component + 44 icons) is about 11 KB minified (~4 KB gzipped).
+Each icon path is a few hundred bytes; the component shell is ~2 KB.
 
 ## License
 
