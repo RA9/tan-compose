@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-05-12
+
+### Fixed
+
+- **Re-renders no longer steal focus from inputs in the shadow tree.**
+  Every state-driven render does `innerHTML` replacement, which destroys
+  the focused element. Reactive form inputs (`<tc-input>`, `<tc-textarea>`,
+  `<tc-combobox>`, etc.) that updated a prop on every keystroke saw the
+  caret drop on each key — the user typed but nothing appeared because
+  focus was on a detached element. The render path now snapshots the
+  focused element's path within the shadow root and its `selectionStart` /
+  `selectionEnd` *before* `replaceChildren()`, then walks the same path
+  after `innerHTML` is rebuilt and restores focus + caret on the matching
+  new element. The path is captured as a list of
+  `(tagName, index-among-same-tag-siblings)` pairs, so it's stable as long
+  as the template renders the same DOM shape — which is the common case
+  for reactive inputs. No public API change.
+
 ## [1.1.0] - 2026-05-10
 
 ### Added

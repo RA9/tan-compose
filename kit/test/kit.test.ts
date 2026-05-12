@@ -77,6 +77,28 @@ test("tc-input: error prop paints the input invalid and shows the message", () =
   document.body.removeChild(el);
 });
 
+test("tc-input: typing keeps focus and value across re-renders (framework)", () => {
+  // Regression: a reactive prop setter triggers a synchronous re-render
+  // that replaces the input element. Before the framework-level focus
+  // snapshot, the new input had no focus and the user's caret
+  // disappeared mid-keystroke. The fix records focus + selection before
+  // replaceChildren and restores it after innerHTML is rebuilt.
+  const el = document.createElement(tags.input) as HTMLElement & {
+    value: string;
+  };
+  document.body.appendChild(el);
+  const inp1 = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+  inp1.focus();
+  // Simulate typing "ab" — set value and dispatch input, which sets
+  // host.value, which triggers a re-render.
+  inp1.value = "ab";
+  inp1.setSelectionRange(2, 2);
+  inp1.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+  const inp2 = el.shadowRoot!.querySelector("input") as HTMLInputElement;
+  assertEquals(inp2.value, "ab");
+  document.body.removeChild(el);
+});
+
 test("tc-table: renders rows and reflects row count", () => {
   const el = document.createElement(tags.table) as HTMLElement & {
     rows: Array<{ id: number; name: string; email: string }>;
@@ -314,7 +336,11 @@ test("tc-card body has padding when padded=true (regression)", () => {
   };
   document.body.appendChild(el);
   const card = el.shadowRoot!.querySelector(".card") as HTMLElement;
-  assert(card.classList.contains("padded"), "default is padded=true");
+  // Default state: no `nopad` class (padding is the CSS default).
+  assert(
+    !card.classList.contains("nopad"),
+    "default should not have nopad class",
+  );
   // The body padding rule references --tc-card-padding-y/x — confirm the CSS
   // is in the shadow root. Concatenate all <style> tags because the
   // theme/styles fallback emits its own.
@@ -322,18 +348,18 @@ test("tc-card body has padding when padded=true (regression)", () => {
     .map((s) => s.textContent ?? "")
     .join("\n");
   assert(
-    allCss.includes(".card.padded .body"),
-    "expected body padding rule in shadow CSS",
+    allCss.includes(".body {"),
+    "expected unconditional .body padding rule in shadow CSS",
   );
   assert(
     allCss.includes("--tc-card-padding-y") &&
       allCss.includes("--tc-card-padding-x"),
     "expected padding tokens to be referenced",
   );
-  // Flipping padded=false should remove the padded class.
+  // Flipping padded=false should stamp the nopad class to opt out.
   el.padded = false;
   const card2 = el.shadowRoot!.querySelector(".card") as HTMLElement;
-  assert(!card2.classList.contains("padded"));
+  assert(card2.classList.contains("nopad"), "padded=false should add nopad");
   document.body.removeChild(el);
 });
 
@@ -351,7 +377,10 @@ test("tc-card renders title/subtitle and applies bordered/elevated classes", () 
   const card = root.querySelector(".card") as HTMLElement;
   assert(card.classList.contains("bordered"));
   assert(card.classList.contains("elevated"));
-  assert(card.classList.contains("padded"));
+  assert(
+    !card.classList.contains("nopad"),
+    "padded is the default — no nopad class",
+  );
   assertEquals(root.querySelector(".title")?.textContent, "Hello");
   assertEquals(root.querySelector(".subtitle")?.textContent, "world");
   document.body.removeChild(el);

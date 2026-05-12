@@ -21,6 +21,12 @@ type ListSlot = {
   cache: Map<string | number, KeyedItem>;
 };
 
+interface FocusSnapshot {
+  path: { tag: string; idx: number }[];
+  selectionStart: number | null;
+  selectionEnd: number | null;
+}
+
 interface RenderScope {
   host: HostElement;
   cleanups: Array<() => void>;
@@ -298,6 +304,11 @@ export function build(tagName: string, description: DescribeOptions): string {
 
     private renderInternal(): void {
       this.rendering = true;
+      // Snapshot the focused element before we tear the shadow content
+      // down. After the new content is in place we walk the same path
+      // and restore focus + caret position so typing into a reactive
+      // input doesn't lose focus on every keystroke.
+      const focusSnapshot = this.captureFocusInShadow();
       try {
         runCleanups(this.renderCleanups);
         this.container.replaceChildren();
@@ -333,6 +344,10 @@ export function build(tagName: string, description: DescribeOptions): string {
         this.rendering = false;
       }
 
+      // Restore focus before afterRender so user hooks observe the
+      // post-restored state.
+      if (focusSnapshot) this.restoreFocusInShadow(focusSnapshot);
+
       if (this.renderQueued) {
         this.renderQueued = false;
         this.renderInternal();
@@ -343,6 +358,86 @@ export function build(tagName: string, description: DescribeOptions): string {
         description.afterRender?.call(this);
       } catch (err) {
         console.error(`[tan-compose] afterRender threw for <${tagName}>:`, err);
+      }
+    }
+
+    private captureFocusInShadow(): FocusSnapshot | null {
+      const root = this.shadowRoot;
+      if (!root) return null;
+      const active = root.activeElement as HTMLElement | null;
+      if (!active) return null;
+      // Walk from the active element up to the shadow root, recording
+      // each step as (tag, index-among-same-tag-siblings). The shadow
+      // root is the stop signal.
+      const path: { tag: string; idx: number }[] = [];
+      let node: Element | null = active;
+      while (node && (node as Node) !== (root as unknown as Node)) {
+        const parent = node.parentNode as ParentNode | null;
+        if (!parent) break;
+        const tag = node.tagName;
+        const siblings = Array.from(parent.children).filter(
+          (c) => c.tagName === tag,
+        );
+        const idx = siblings.indexOf(node as Element);
+        path.unshift({ tag, idx });
+        node = parent instanceof Element ? parent : null;
+        if (
+          !node && (parent as unknown as Node) === (root as unknown as Node)
+        ) {
+          break;
+        }
+      }
+      let selectionStart: number | null = null;
+      let selectionEnd: number | null = null;
+      if (
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement
+      ) {
+        try {
+          selectionStart = active.selectionStart;
+          selectionEnd = active.selectionEnd;
+        } catch {
+          // some input types (e.g. email, number) disallow selection.
+        }
+      }
+      return { path, selectionStart, selectionEnd };
+    }
+
+    private restoreFocusInShadow(snap: FocusSnapshot): void {
+      const root = this.shadowRoot;
+      if (!root) return;
+      let cursor: ParentNode = root;
+      for (const step of snap.path) {
+        const children = Array.from((cursor as Element).children ?? []);
+        // For the shadow root itself, fall back to all children via
+        // root.children which ShadowRoot exposes.
+        const all = children.length > 0
+          ? children
+          : Array.from((cursor as unknown as ShadowRoot).children ?? []);
+        const candidates = all.filter((c) => c.tagName === step.tag);
+        const target = candidates[step.idx];
+        if (!target) return;
+        cursor = target;
+      }
+      const el = cursor as unknown as HTMLElement;
+      if (!el || typeof el.focus !== "function") return;
+      // Don't steal focus if it's already on the right element (rare,
+      // but possible if something refocused between replaceChildren and
+      // innerHTML assignment).
+      if (root.activeElement === el) return;
+      el.focus();
+      if (
+        snap.selectionStart != null &&
+        (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)
+      ) {
+        try {
+          el.setSelectionRange(
+            snap.selectionStart,
+            snap.selectionEnd ?? snap.selectionStart,
+          );
+        } catch {
+          // ignored — some input types disallow selection access.
+        }
       }
     }
 
