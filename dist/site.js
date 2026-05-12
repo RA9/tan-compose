@@ -1278,14 +1278,16 @@ tr.empty td {
           part="popup"
           role="listbox"
           ${a?'aria-multiselectable="true"':""}
-          hidden="${l?"false":"true"}"
-          style="${l?"":"display: none;"}"
+          ${l?"":"hidden"}
         >${ke}</div>
         ${$e}
         ${Et}
       `},events:{"click .control":(e,t)=>{if(e.target.closest(".chip-remove")||t.host.disabled)return;let n=!!t.getState("open");t.setState("open",!0),n||t.emit("tc-open"),queueMicrotask(()=>{t.refs.search?.focus()})},"keydown .control":(e,t)=>{let r=e;if(r.key==="Enter"||r.key===" "){if(r.preventDefault(),t.host.disabled)return;t.setState("open",!0),t.emit("tc-open"),queueMicrotask(()=>{t.refs.search?.focus()})}},"input .search":(e,t)=>{let r=e.target.value;t.setState("query",r),t.setState("open",!0),t.setState("focusedIndex",0),t.emit("tc-search",{query:r})},"keydown .search":(e,t)=>{let r=e,a=e.target,n=t.host,o=!!n.multiple,i=n.options??[],c=me(i,String(t.getState("query")??""));if(r.key==="Backspace"&&a.value===""&&o){let s=R(n.value);s.length>0&&(s.pop(),n.value=N(s),V(t,s,n),t.emit("tc-change",{value:s.slice()}),r.preventDefault());return}if(r.key==="ArrowDown"){r.preventDefault(),t.setState("open",!0);let s=Number(t.getState("focusedIndex")??-1),l=Math.min(c.length-1,s+1);t.setState("focusedIndex",l);return}if(r.key==="ArrowUp"){r.preventDefault();let s=Number(t.getState("focusedIndex")??0),l=Math.max(0,s-1);t.setState("focusedIndex",l);return}if(r.key==="Enter"){r.preventDefault();let s=Number(t.getState("focusedIndex")??-1);s>=0&&s<c.length&&he(t,c[s],n);return}if(r.key==="Escape"){r.preventDefault(),t.setState("open",!1),t.setState("query",""),t.emit("tc-close");return}},"mousedown .option":(e,t)=>{e.preventDefault();let r=e.target.closest(".option");if(!r||r.classList.contains("disabled"))return;let a=r.dataset.value;if(a==null)return;let n=t.host,i=(n.options??[]).find(c=>c.value===a);i&&he(t,i,n)},"click .chip-remove":(e,t)=>{e.stopPropagation();let a=e.target.dataset.remove;if(a==null)return;let n=t.host,o=R(n.value).filter(i=>i!==a);n.value=N(o),V(t,o,n),t.emit("tc-change",{value:o.slice()})},"focusout .control":(e,t)=>{queueMicrotask(()=>{t.host.matches(":focus-within")||(t.setState("open",!1),t.setState("query",""),t.emit("tc-close"))})}},afterMount(){let e=this;if(!e.multiple||!e.internals)return;let t=R(e.value),r=String(e.name??"");if(!r){e.internals.setFormValue(N(t));return}let a=new FormData;for(let n of t)a.append(r,n);e.internals.setFormValue(a)}}));function me(e,t){if(!t)return e;let r=new RegExp(Mt(t),"i");return e.filter(a=>r.test(a.label)||r.test(a.value))}function he(e,t,r){let a=!!r.multiple,n=Number(r.max??0),o=R(r.value);if(a){let i;if(o.includes(t.value))i=o.filter(c=>c!==t.value);else{if(n>0&&o.length>=n)return;i=o.concat(t.value)}r.value=N(i),V(e,i,r),e.setState("query",""),e.emit("tc-change",{value:i.slice()}),queueMicrotask(()=>{e.refs.search?.focus()})}else r.value=t.value,V(e,[t.value],r),e.setState("query",""),e.setState("open",!1),e.emit("tc-change",{value:t.value}),e.emit("tc-close")}function V(e,t,r){let a=r.internals;if(!a)return;let n=String(r.name??"");if(!r.multiple){a.setFormValue(t[0]??"");return}if(!n){a.setFormValue(N(t));return}let o=new FormData;for(let i of t)o.append(n,i);a.setFormValue(o)}function h(e){return String(e??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}var Et=`
         <style>
-          :host { display: block; }
+          :host {
+            display: block;
+            position: relative;
+          }
           .label {
             display: block;
             font-family: var(--tc-input-font);
@@ -1408,6 +1410,8 @@ tr.empty td {
 
           .popup {
             position: absolute;
+            left: 0;
+            right: 0;
             margin-top: 4px;
             background: var(--tc-combobox-popup-bg);
             border: 1px solid var(--tc-input-border);
@@ -1417,8 +1421,6 @@ tr.empty td {
             overflow-y: auto;
             z-index: 50;
             padding: 4px;
-            min-width: 220px;
-            width: 100%;
             box-sizing: border-box;
           }
           .option {

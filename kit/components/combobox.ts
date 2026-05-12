@@ -272,8 +272,7 @@ build(
           part="popup"
           role="listbox"
           ${multiple ? 'aria-multiselectable="true"' : ""}
-          hidden="${isOpen ? "false" : "true"}"
-          style="${isOpen ? "" : "display: none;"}"
+          ${isOpen ? "" : "hidden"}
         >${optionsHtml}</div>
         ${helperHtml}
         ${COMBOBOX_STYLE}
@@ -536,7 +535,10 @@ function esc(s: unknown): string {
 
 const COMBOBOX_STYLE = `
         <style>
-          :host { display: block; }
+          :host {
+            display: block;
+            position: relative;
+          }
           .label {
             display: block;
             font-family: var(--tc-input-font);
@@ -659,6 +661,8 @@ const COMBOBOX_STYLE = `
 
           .popup {
             position: absolute;
+            left: 0;
+            right: 0;
             margin-top: 4px;
             background: var(--tc-combobox-popup-bg);
             border: 1px solid var(--tc-input-border);
@@ -668,8 +672,6 @@ const COMBOBOX_STYLE = `
             overflow-y: auto;
             z-index: 50;
             padding: 4px;
-            min-width: 220px;
-            width: 100%;
             box-sizing: border-box;
           }
           .option {
