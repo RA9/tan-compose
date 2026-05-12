@@ -370,10 +370,21 @@ function configureMarked(): void {
   marked.use({ renderer, gfm: true, breaks: false });
 }
 
-function renderMarkdown(md: string): string {
+interface RenderOptions {
+  /** Tag the first <p> as class="lede" and post-<hr> paragraphs as
+   *  class="closing". Blog posts want this; component pages do not. */
+  ledeAndClosing?: boolean;
+}
+
+function renderMarkdown(md: string, opts: RenderOptions = {}): string {
   const pre = preprocessDirectives(md);
   let html = marked.parse(pre, { async: false }) as string;
-  html = tagLedeAndClosing(html);
+  if (opts.ledeAndClosing) {
+    html = tagLedeAndClosing(html);
+  } else {
+    // Still upgrade plain <hr> to <hr class="rule" /> for visual consistency.
+    html = html.replace(/<hr>/g, `<hr class="rule" />`);
+  }
   return html;
 }
 
@@ -1360,7 +1371,7 @@ async function loadPosts(): Promise<Post[]> {
     const { meta, body } = splitFrontmatter(raw);
     if (meta.draft) continue;
     const slug = meta.slug ?? entry.name.replace(/\.md$/, "");
-    const html = renderMarkdown(body);
+    const html = renderMarkdown(body, { ledeAndClosing: true });
     posts.push({ ...meta, slug, body, html });
   }
   // Sort newest first. ISO date strings sort lexically; Date objects via getTime.
