@@ -78,20 +78,17 @@ function search(query: string, docs: SearchDoc[]): ScoredResult[] {
     let score = 0;
     for (const t of terms) {
       const term = t.raw;
-      // Exact match in title is strongest.
       if (title === term) score += 50;
       if (title.startsWith(term)) score += 20;
       if (title.includes(term)) score += 10;
       if (desc.includes(term)) score += 5;
       if (text.includes(term)) score += 1;
     }
-    // Multi-term bonus: all terms hit somewhere.
     const allHit = terms.every((t) =>
       t.re.test(doc.title) || t.re.test(desc) || t.re.test(text)
     );
     if (!allHit) continue;
     if (score === 0) continue;
-    // Blog recency boost.
     if (doc.category === "blog" && doc.date) {
       const days = (Date.now() - new Date(doc.date).getTime()) /
         (1000 * 60 * 60 * 24);
@@ -109,270 +106,11 @@ function findSnippet(query: string, text: string, max = 140): string {
   const lower = text.toLowerCase();
   const idx = lower.indexOf(q);
   if (idx === -1) return text.slice(0, max);
-  // Start a bit before the match so the term has surrounding context.
   const start = Math.max(0, idx - 40);
   const end = Math.min(text.length, start + max);
   const prefix = start > 0 ? "… " : "";
   const suffix = end < text.length ? " …" : "";
   return prefix + text.slice(start, end) + suffix;
-}
-
-function highlight(text: string, query: string): string {
-  const q = query.trim();
-  if (!q) return esc(text);
-  const terms = q.split(/\s+/).filter(Boolean);
-  let out = esc(text);
-  for (const term of terms) {
-    const re = new RegExp(`(${escapeRegex(esc(term))})`, "gi");
-    out = out.replace(re, '<mark>$1</mark>');
-  }
-  return out;
-}
-
-build(
-  TAG,
-  describe({
-    props: {
-      base: { type: "string", default: "" },
-    },
-    styles: { display: "inline-block" },
-    refs: {
-      input: ".search-input",
-      results: ".results",
-    },
-    template: ({ props, state }) => {
-      const base = String(props.base ?? "");
-      const query = String(state.query ?? "");
-      const open = !!state.open;
-      const focusIdx = Number(state.focusIdx ?? 0);
-      const results = (state.results as ScoredResult[] | undefined) ?? [];
-
-      const trigger = `
-        <button type="button" class="trigger" aria-label="Search the site (⌘K)">
-          <svg class="trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="7"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <span class="trigger-label">Search</span>
-          <kbd class="trigger-kbd" aria-hidden="true">⌘K</kbd>
-        </button>
-      `;
-
-      if (!open) {
-        return trigger + STYLE;
-      }
-
-      const resultsHtml = query.trim() === ""
-        ? `<div class="empty">Start typing to search the site — docs, components, blog posts, examples.</div>`
-        : results.length === 0
-        ? `<div class="empty">No results for "${esc(query)}". Try a shorter query.</div>`
-        : results
-          .map((r, i) => {
-            const cls = i === focusIdx ? "row focused" : "row";
-            const href = base + r.doc.url.replace(/^\//, "");
-            const snippet = findSnippet(query, r.doc.text);
-            return `
-              <a class="${cls}" data-index="${i}" href="${esc(href)}">
-                <span class="row-cat ${esc(r.doc.category)}">${
-              esc(r.doc.category)
-            }</span>
-                <div class="row-main">
-                  <div class="row-title">${highlight(r.doc.title, query)}</div>
-                  <div class="row-desc">${
-              highlight(r.doc.description, query)
-            }</div>
-                  <div class="row-snippet">${highlight(snippet, query)}</div>
-                </div>
-              </a>
-            `;
-          })
-          .join("");
-
-      const modal = `
-        <div class="overlay" data-overlay="true">
-          <div class="modal" role="dialog" aria-modal="true" aria-label="Site search">
-            <div class="modal-head">
-              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="7"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input
-                type="text"
-                class="search-input"
-                placeholder="Search docs, components, blog…"
-                value="${esc(query)}"
-                aria-label="Search"
-                aria-autocomplete="list"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <button type="button" class="close" aria-label="Close">Esc</button>
-            </div>
-            <div class="results" role="listbox">${resultsHtml}</div>
-            <div class="footer">
-              <span class="hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
-              <span class="hint"><kbd>↵</kbd> open</span>
-              <span class="hint"><kbd>esc</kbd> close</span>
-              <span class="count">${
-        results.length > 0 ? `${results.length} result${results.length === 1 ? "" : "s"}` : ""
-      }</span>
-            </div>
-          </div>
-        </div>
-      `;
-      return trigger + modal + STYLE;
-    },
-    events: {
-      "click .trigger": (_e, ctx) => {
-        const host = ctx.host as HTMLElement & { base?: string };
-        const base = String(host.base ?? "");
-        ctx.setState("open", true);
-        ctx.setState("query", "");
-        ctx.setState("focusIdx", 0);
-        ctx.setState("results", []);
-        loadDocs(base);
-      },
-      "click .close": (_e, ctx) => closePalette(ctx),
-      "click .overlay": (e, ctx) => {
-        // Only close when clicking the overlay backdrop, not the modal inner.
-        const t = e.target as HTMLElement;
-        if (t.dataset.overlay === "true") closePalette(ctx);
-      },
-      "input .search-input": (e, ctx) => {
-        const value = (e.target as HTMLInputElement).value;
-        const host = ctx.host as HTMLElement & { base?: string };
-        const base = String(host.base ?? "");
-        ctx.setState("query", value);
-        ctx.setState("focusIdx", 0);
-        // Run the search against the cached docs. If still loading,
-        // re-run when docs land.
-        if (cachedDocs) {
-          ctx.setState("results", search(value, cachedDocs));
-        } else {
-          loadDocs(base).then((docs) => {
-            ctx.setState("results", search(value, docs));
-          });
-        }
-      },
-      "keydown .search-input": (e, ctx) => {
-        const ev = e as KeyboardEvent;
-        const results = (ctx.getState("results") as ScoredResult[] | undefined) ??
-          [];
-        const idx = Number(ctx.getState("focusIdx") ?? 0);
-        if (ev.key === "ArrowDown") {
-          ev.preventDefault();
-          if (results.length === 0) return;
-          ctx.setState("focusIdx", Math.min(results.length - 1, idx + 1));
-          return;
-        }
-        if (ev.key === "ArrowUp") {
-          ev.preventDefault();
-          if (results.length === 0) return;
-          ctx.setState("focusIdx", Math.max(0, idx - 1));
-          return;
-        }
-        if (ev.key === "Enter") {
-          if (results.length === 0) return;
-          ev.preventDefault();
-          const target = results[idx];
-          if (target) {
-            const host = ctx.host as HTMLElement & { base?: string };
-            const base = String(host.base ?? "");
-            const href = base + target.doc.url.replace(/^\//, "");
-            globalThis.location.href = href;
-          }
-          return;
-        }
-        if (ev.key === "Escape") {
-          ev.preventDefault();
-          closePalette(ctx);
-          return;
-        }
-      },
-      "mouseover .row": (e, ctx) => {
-        const row = (e.target as HTMLElement).closest(".row") as HTMLElement | null;
-        if (!row) return;
-        const i = Number(row.dataset.index);
-        if (!Number.isNaN(i)) ctx.setState("focusIdx", i);
-      },
-    },
-    afterMount() {
-      // Global keyboard shortcut: ⌘K / Ctrl+K opens the palette.
-      const host = this as unknown as HTMLElement & {
-        base?: string;
-        getState?: (k: string) => unknown;
-        setState?: (k: string, v: unknown) => void;
-      };
-      const handler = (e: KeyboardEvent) => {
-        // Don't hijack when the user is typing into a form input on the
-        // page — except our own input, which is inside our shadow.
-        if (
-          e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey) && !e.altKey
-        ) {
-          e.preventDefault();
-          if (!host.setState) return;
-          host.setState("open", true);
-          host.setState("query", "");
-          host.setState("focusIdx", 0);
-          host.setState("results", []);
-          loadDocs(String(host.base ?? ""));
-          return;
-        }
-        if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-          const ae = document.activeElement as HTMLElement | null;
-          const tag = ae?.tagName.toLowerCase();
-          const isEditing = tag === "input" || tag === "textarea" ||
-            ae?.isContentEditable === true;
-          if (isEditing) return;
-          e.preventDefault();
-          if (!host.setState) return;
-          host.setState("open", true);
-          host.setState("query", "");
-          host.setState("focusIdx", 0);
-          host.setState("results", []);
-          loadDocs(String(host.base ?? ""));
-        }
-      };
-      document.addEventListener("keydown", handler);
-      // Cleanup on unmount — store the handler on the host so unmount
-      // can find it.
-      (host as unknown as { _searchKeyHandler?: typeof handler })
-        ._searchKeyHandler = handler;
-    },
-    unmount() {
-      const host = this as unknown as {
-        _searchKeyHandler?: (e: KeyboardEvent) => void;
-      };
-      if (host._searchKeyHandler) {
-        document.removeEventListener("keydown", host._searchKeyHandler);
-      }
-    },
-    afterRender() {
-      // When the palette opens, focus the input.
-      const host = this as unknown as HTMLElement & {
-        shadowRoot?: ShadowRoot | null;
-        refs?: { input?: HTMLInputElement | null };
-        getState?: (k: string) => unknown;
-      };
-      const open = host.getState ? !!host.getState("open") : false;
-      if (!open) return;
-      const input = host.refs?.input ?? null;
-      if (!input) return;
-      if (host.shadowRoot?.activeElement === input) return;
-      input.focus();
-    },
-  }),
-);
-
-interface MinCtx {
-  host: HTMLElement;
-  setState: (k: string, v: unknown) => void;
-}
-function closePalette(ctx: MinCtx): void {
-  ctx.setState("open", false);
-  ctx.setState("query", "");
-  ctx.setState("results", []);
-  ctx.setState("focusIdx", 0);
 }
 
 function esc(s: unknown): string {
@@ -384,6 +122,36 @@ function esc(s: unknown): string {
     .replace(/'/g, "&#39;");
 }
 
+function highlight(text: string, query: string): string {
+  const q = query.trim();
+  if (!q) return esc(text);
+  const terms = q.split(/\s+/).filter(Boolean);
+  let out = esc(text);
+  for (const term of terms) {
+    const re = new RegExp(`(${escapeRegex(esc(term))})`, "gi");
+    out = out.replace(re, "<mark>$1</mark>");
+  }
+  return out;
+}
+
+interface MinCtx {
+  host: HTMLElement;
+  setState: (k: string, v: unknown) => void;
+}
+
+function closePalette(ctx: MinCtx): void {
+  ctx.setState("open", false);
+  ctx.setState("query", "");
+  ctx.setState("results", []);
+  ctx.setState("focusIdx", 0);
+}
+
+// Declared BEFORE build() because customElements.define() synchronously
+// upgrades any <site-search> already in the DOM — that triggers the
+// template, which reads STYLE. esbuild's minifier converts `const` to
+// `var` so a STYLE declared after build() is hoisted-but-undefined when
+// the template first runs, producing literal "undefined" in the output.
+// See kit/components/button.ts for the same pattern.
 const STYLE = `
         <style>
           :host { display: inline-block; }
@@ -420,30 +188,29 @@ const STYLE = `
             line-height: 1.4;
           }
 
-          .overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 23, 31, 0.45);
-            backdrop-filter: blur(2px);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 96px 16px 16px;
-            z-index: 1000;
-          }
-          .modal {
+          dialog.modal {
             background: var(--tc-color-surface, #ffffff);
             border: 1px solid var(--tc-color-rule, #ece5d3);
             border-radius: var(--tc-radius-lg, 12px);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            width: 100%;
+            padding: 0;
+            width: calc(100% - 32px);
             max-width: 640px;
             max-height: calc(100vh - 120px);
-            display: flex;
-            flex-direction: column;
+            inset: 96px auto auto 50%;
+            transform: translateX(-50%);
+            margin: 0;
             overflow: hidden;
             font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
             color: var(--tc-color-ink, #14171f);
+          }
+          dialog.modal[open] {
+            display: flex;
+            flex-direction: column;
+          }
+          dialog.modal::backdrop {
+            background: rgba(20, 23, 31, 0.45);
+            backdrop-filter: blur(2px);
           }
 
           .modal-head {
@@ -583,8 +350,268 @@ const STYLE = `
           @media (max-width: 600px) {
             .trigger { min-width: 120px; }
             .trigger-label { display: none; }
-            .overlay { padding: 40px 8px 8px; }
+            dialog.modal {
+              inset: 40px 8px auto 8px;
+              transform: none;
+              width: auto;
+              max-width: none;
+            }
             .row-snippet { display: none; }
           }
         </style>
 `;
+
+build(
+  TAG,
+  describe({
+    props: {
+      base: { type: "string", default: "" },
+    },
+    styles: { display: "inline-block" },
+    refs: {
+      input: ".search-input",
+      results: ".results",
+      dialog: "dialog.modal",
+    },
+    template: ({ props, state }) => {
+      const base = String(props.base ?? "");
+      const query = String(state.query ?? "");
+      const focusIdx = Number(state.focusIdx ?? 0);
+      const results = (state.results as ScoredResult[] | undefined) ?? [];
+
+      const trigger = `
+        <button type="button" class="trigger" aria-label="Search the site (⌘K)">
+          <svg class="trigger-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="trigger-label">Search</span>
+          <kbd class="trigger-kbd" aria-hidden="true">⌘K</kbd>
+        </button>
+      `;
+
+      const resultsHtml = query.trim() === ""
+        ? `<div class="empty">Start typing to search the site — docs, components, blog posts, examples.</div>`
+        : results.length === 0
+        ? `<div class="empty">No results for "${esc(query)}". Try a shorter query.</div>`
+        : results
+          .map((r, i) => {
+            const cls = i === focusIdx ? "row focused" : "row";
+            const href = base + r.doc.url.replace(/^\//, "");
+            const snippet = findSnippet(query, r.doc.text);
+            return `
+              <a class="${cls}" data-index="${i}" href="${esc(href)}">
+                <span class="row-cat ${esc(r.doc.category)}">${
+              esc(r.doc.category)
+            }</span>
+                <div class="row-main">
+                  <div class="row-title">${highlight(r.doc.title, query)}</div>
+                  <div class="row-desc">${
+              highlight(r.doc.description, query)
+            }</div>
+                  <div class="row-snippet">${highlight(snippet, query)}</div>
+                </div>
+              </a>
+            `;
+          })
+          .join("");
+
+      // The dialog is always present in markup. afterRender syncs its
+      // open state with state.open by calling showModal() / close().
+      // showModal() puts the dialog in the browser top-layer, escaping
+      // every ancestor stacking context (in particular site-nav's
+      // .topbar, which creates one via backdrop-filter).
+      const dialog = `
+        <dialog class="modal" aria-label="Site search">
+          <div class="modal-head">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search docs, components, blog…"
+              value="${esc(query)}"
+              aria-label="Search"
+              aria-autocomplete="list"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button type="button" class="close" aria-label="Close">Esc</button>
+          </div>
+          <div class="results" role="listbox">${resultsHtml}</div>
+          <div class="footer">
+            <span class="hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+            <span class="hint"><kbd>↵</kbd> open</span>
+            <span class="hint"><kbd>esc</kbd> close</span>
+            <span class="count">${
+        results.length > 0
+          ? `${results.length} result${results.length === 1 ? "" : "s"}`
+          : ""
+      }</span>
+          </div>
+        </dialog>
+      `;
+      return trigger + dialog + STYLE;
+    },
+    events: {
+      "click .trigger": (_e, ctx) => {
+        const host = ctx.host as HTMLElement & { base?: string };
+        const base = String(host.base ?? "");
+        ctx.setState("open", true);
+        ctx.setState("query", "");
+        ctx.setState("focusIdx", 0);
+        ctx.setState("results", []);
+        loadDocs(base);
+      },
+      "click .close": (_e, ctx) => closePalette(ctx),
+      "input .search-input": (e, ctx) => {
+        const value = (e.target as HTMLInputElement).value;
+        const host = ctx.host as HTMLElement & { base?: string };
+        const base = String(host.base ?? "");
+        ctx.setState("query", value);
+        ctx.setState("focusIdx", 0);
+        if (cachedDocs) {
+          ctx.setState("results", search(value, cachedDocs));
+        } else {
+          loadDocs(base).then((docs) => {
+            ctx.setState("results", search(value, docs));
+          });
+        }
+      },
+      "keydown .search-input": (e, ctx) => {
+        const ev = e as KeyboardEvent;
+        const results =
+          (ctx.getState("results") as ScoredResult[] | undefined) ?? [];
+        const idx = Number(ctx.getState("focusIdx") ?? 0);
+        if (ev.key === "ArrowDown") {
+          ev.preventDefault();
+          if (results.length === 0) return;
+          ctx.setState("focusIdx", Math.min(results.length - 1, idx + 1));
+          return;
+        }
+        if (ev.key === "ArrowUp") {
+          ev.preventDefault();
+          if (results.length === 0) return;
+          ctx.setState("focusIdx", Math.max(0, idx - 1));
+          return;
+        }
+        if (ev.key === "Enter") {
+          if (results.length === 0) return;
+          ev.preventDefault();
+          const target = results[idx];
+          if (target) {
+            const host = ctx.host as HTMLElement & { base?: string };
+            const base = String(host.base ?? "");
+            const href = base + target.doc.url.replace(/^\//, "");
+            globalThis.location.href = href;
+          }
+          return;
+        }
+        // Escape is handled by the dialog itself (fires the `close`
+        // event, see afterRender). Leaving this here would double-handle
+        // and fight the dialog's native cancel.
+      },
+      "mouseover .row": (e, ctx) => {
+        const row = (e.target as HTMLElement).closest(".row") as
+          | HTMLElement
+          | null;
+        if (!row) return;
+        const i = Number(row.dataset.index);
+        if (!Number.isNaN(i)) ctx.setState("focusIdx", i);
+      },
+    },
+    afterMount() {
+      const host = this as unknown as HTMLElement & {
+        base?: string;
+        getState?: (k: string) => unknown;
+        setState?: (k: string, v: unknown) => void;
+      };
+      const handler = (e: KeyboardEvent) => {
+        if (
+          e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey) && !e.altKey
+        ) {
+          e.preventDefault();
+          if (!host.setState) return;
+          host.setState("open", true);
+          host.setState("query", "");
+          host.setState("focusIdx", 0);
+          host.setState("results", []);
+          loadDocs(String(host.base ?? ""));
+          return;
+        }
+        if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+          const ae = document.activeElement as HTMLElement | null;
+          const tag = ae?.tagName.toLowerCase();
+          const isEditing = tag === "input" || tag === "textarea" ||
+            ae?.isContentEditable === true;
+          if (isEditing) return;
+          e.preventDefault();
+          if (!host.setState) return;
+          host.setState("open", true);
+          host.setState("query", "");
+          host.setState("focusIdx", 0);
+          host.setState("results", []);
+          loadDocs(String(host.base ?? ""));
+        }
+      };
+      document.addEventListener("keydown", handler);
+      (host as unknown as { _searchKeyHandler?: typeof handler })
+        ._searchKeyHandler = handler;
+    },
+    unmount() {
+      const host = this as unknown as {
+        _searchKeyHandler?: (e: KeyboardEvent) => void;
+      };
+      if (host._searchKeyHandler) {
+        document.removeEventListener("keydown", host._searchKeyHandler);
+      }
+    },
+    afterRender() {
+      const host = this as unknown as HTMLElement & {
+        shadowRoot?: ShadowRoot | null;
+        refs?: {
+          input?: HTMLInputElement | null;
+          dialog?: HTMLDialogElement | null;
+        };
+        getState?: (k: string) => unknown;
+        setState?: (k: string, v: unknown) => void;
+      };
+      const dialog = host.refs?.dialog ?? null;
+      if (!dialog) return;
+      const open = host.getState ? !!host.getState("open") : false;
+
+      // Each render produces a fresh <dialog> element (innerHTML
+      // replaces the previous one). Its initial state is closed, so we
+      // always have to (re)open it via showModal() when state.open is
+      // true. Attach `close` / backdrop-click listeners here too — they
+      // get GC'd with the old dialog.
+      if (open && !dialog.open) {
+        dialog.showModal();
+        const input = host.refs?.input ?? null;
+        input?.focus();
+        dialog.addEventListener("close", () => {
+          if (host.getState?.("open")) {
+            host.setState?.("open", false);
+            host.setState?.("query", "");
+            host.setState?.("results", []);
+            host.setState?.("focusIdx", 0);
+          }
+        });
+        dialog.addEventListener("click", (e) => {
+          if (e.target === dialog) dialog.close();
+        });
+        return;
+      }
+      if (!open && dialog.open) {
+        dialog.close();
+        return;
+      }
+      if (open) {
+        const input = host.refs?.input ?? null;
+        if (input && host.shadowRoot?.activeElement !== input) input.focus();
+      }
+    },
+  }),
+);
