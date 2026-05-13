@@ -30,7 +30,10 @@ jobs:
 
       - name: Publish kit to JSR
         working-directory: kit
-        # --allow-dirty: the workspace test step above re-resolves
-        # the jsr:@ra9/tan-compose import and updates deno.lock,
-        # which `jsr publish` would otherwise refuse to proceed past.
-        run: npx jsr publish --allow-dirty
+        # Use `deno publish` directly instead of `npx jsr publish` —
+        # the jsr wrapper doesn't forward --allow-dirty to its
+        # bundled deno binary, and the workspace test step above
+        # re-resolves the jsr:@ra9/tan-compose import which rewrites
+        # deno.lock. The lockfile churn is benign (not part of the
+        # publish bundle), so --allow-dirty is the right call.
+        run: deno publish --allow-dirty
