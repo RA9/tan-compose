@@ -3,6 +3,25 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.6.2] - 2026-05-13
+
+> Patch release. Fixes a publish-time import-map bug that broke the npm
+> shim and any consumer that resolved `@ra9/tan-compose` against the
+> published package instead of the monorepo.
+
+### Fixed
+
+- **`@ra9/tan-compose` import resolved to the kit itself in published
+  builds.** `kit/deno.json` mapped the core to `../mod.ts` — a local
+  monorepo path. JSR's publish + npm-compat shim couldn't follow that
+  path outside the package, so it fell back to resolving the bare
+  specifier against the kit's own files. Consumers got an error like
+  `The requested module './ra9__tan-compose-kit.mjs' does not provide
+  an export named 'build'`. Now the entry is
+  `jsr:@ra9/tan-compose@^1.1.1`, which workspace resolution still
+  satisfies locally (Deno prefers the workspace member with that name)
+  but publishes as a real cross-package dependency.
+
 ## [1.6.1] - 2026-05-13
 
 > Patch release. README + a couple of layout fixes shaken out by real-use
