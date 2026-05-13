@@ -28,6 +28,10 @@ jobs:
       - name: Run tests (workspace)
         run: deno test --allow-read --allow-env --allow-net --allow-write
 
+      - name: Build CDN bundles (kit/dist)
+        working-directory: kit
+        run: deno task bundle
+
       - name: Publish kit to JSR
         working-directory: kit
         # Use `deno publish` directly instead of `npx jsr publish` —

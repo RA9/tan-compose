@@ -244,14 +244,14 @@
     "members": {
       "icons": {
         "dependencies": [
-          "jsr:@ra9/tan-compose@^1.1.1",
+          "jsr:@ra9/tan-compose@^1.1.0",
           "jsr:@std/assert@1",
           "npm:happy-dom@15"
         ]
       },
       "kit": {
         "dependencies": [
-          "jsr:@ra9/tan-compose@^1.1.1",
+          "jsr:@ra9/tan-compose@^1.1.0",
           "jsr:@std/assert@1",
           "npm:happy-dom@15"
         ]

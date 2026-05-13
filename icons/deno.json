@@ -29,7 +29,7 @@
     ]
   },
   "imports": {
-    "@ra9/tan-compose": "jsr:@ra9/tan-compose@^1.1.1",
+    "@ra9/tan-compose": "jsr:@ra9/tan-compose@^1.1.0",
     "@std/assert": "jsr:@std/assert@1",
     "happy-dom": "npm:happy-dom@15"
   }

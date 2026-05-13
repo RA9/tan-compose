@@ -23,6 +23,26 @@ npx jsr add @ra9/tan-compose-kit
 <tc-table id="t" page-size="10"></tc-table>
 ```
 
+### From a CDN, no build step
+
+Each release ships a pre-built `kit/dist/kit.min.js` (all 35 components,
+core inlined) plus per-theme bundles. Load them straight from jsDelivr —
+jsDelivr serves the file byte-for-byte at the matching tag, so what you
+ship is what the browser runs (no esm.sh transformer in the loop):
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.6.3/kit/dist/themes/tokens.min.js"></script>
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.6.3/kit/dist/kit.min.js"></script>
+
+<tc-button variant="primary">Save</tc-button>
+```
+
+Swap the tag (`@kit-v1.6.3`) for whichever version you want to pin to.
+Available theme bundles: `tokens`, `dark`, `bootstrap`, `tailwind`,
+`material`, `shadcn`.
+
 [**Live demo**](https://ra9.github.io/tan-compose/components.html) ·
 [**Themes**](https://ra9.github.io/tan-compose/themes.html) ·
 [**Admin dashboard**](https://ra9.github.io/tan-compose/demo/admin/) ·

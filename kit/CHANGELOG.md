@@ -3,6 +3,39 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.6.3] - 2026-05-13
+
+> Adds pre-built CDN bundles (`kit/dist/`) so consumers can skip the
+> esm.sh / JSR-npm-shim transformer and load the kit byte-for-byte from
+> jsDelivr.
+
+### Added
+
+- **`kit/dist/kit.min.js`** (and `kit.js`, sourcemaps) — esbuild-bundled,
+  ~160 KB minified, includes all 35 components with the core inlined.
+  No second network fetch needed at runtime.
+- **`kit/dist/themes/<name>.min.js`** for each preset
+  (`tokens`, `dark`, `bootstrap`, `tailwind`, `material`, `shadcn`).
+- `kit/bundle.ts` + `deno task bundle` to regenerate dist locally; the
+  publish workflow runs it before `deno publish` so each tagged release
+  ships fresh artifacts.
+
+### Changed
+
+- Cross-package import constraint relaxed from `jsr:@ra9/tan-compose@^1.1.1`
+  to `^1.1.0` (the core's actually-published version on JSR). Local
+  workspace resolution still picks up the in-tree v1.1.1 source for
+  development.
+
+### Usage
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.6.3/kit/dist/themes/tokens.min.js"></script>
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.6.3/kit/dist/kit.min.js"></script>
+```
+
 ## [1.6.2] - 2026-05-13
 
 > Patch release. Fixes a publish-time import-map bug that broke the npm

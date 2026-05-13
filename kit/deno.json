@@ -1,6 +1,6 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
@@ -56,7 +56,8 @@
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",
     "ci": "deno task fmt:check && deno task lint && deno task check && deno task test",
-    "bundle": "deno run --allow-read --allow-write --allow-env --allow-net --allow-run bundle.ts"
+    "bundle": "deno run --allow-read --allow-write --allow-env --allow-net --allow-run bundle.ts",
+    "prepublish": "deno task bundle"
   },
   "fmt": {
     "exclude": ["coverage/"]
@@ -71,7 +72,7 @@
     ]
   },
   "imports": {
-    "@ra9/tan-compose": "jsr:@ra9/tan-compose@^1.1.1",
+    "@ra9/tan-compose": "jsr:@ra9/tan-compose@^1.1.0",
     "@std/assert": "jsr:@std/assert@1",
     "happy-dom": "npm:happy-dom@15"
   }
