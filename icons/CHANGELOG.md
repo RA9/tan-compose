@@ -6,6 +6,20 @@ versioned independently of `@ra9/tan-compose` and `@ra9/tan-compose-kit`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-05-13
+
+### Fixed
+
+- **`@ra9/tan-compose` import resolved to the icons package itself in
+  published builds.** `icons/deno.json` mapped the core to `../mod.ts` —
+  a monorepo-local path JSR's publish + npm-compat shim couldn't follow,
+  so the bare specifier fell back to the icons package's own file.
+  Consumers got an error like `The requested module
+  './ra9__tan-compose-icons.mjs' does not provide an export named
+  'build'`. Now the entry is `jsr:@ra9/tan-compose@^1.1.1`. Workspace
+  resolution still wins locally (Deno prefers the matching workspace
+  member name), so dev loop is unchanged. Same fix as kit v1.6.2.
+
 ## [0.1.1] - 2026-05-10
 
 ### Added
