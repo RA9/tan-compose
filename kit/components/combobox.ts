@@ -81,6 +81,199 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Declared BEFORE build() — see kit/components/button.ts:33-38 for why.
+// (esbuild minify converts `const` to `var`; a STYLE declared after
+// build() is hoisted-but-undefined when the synchronous define()
+// upgrade runs the template.)
+const COMBOBOX_STYLE = `
+        <style>
+          :host {
+            display: block;
+            position: relative;
+          }
+          .label {
+            display: block;
+            font-family: var(--tc-input-font);
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--tc-input-fg);
+            margin-bottom: 6px;
+          }
+          .req { color: var(--tc-input-error); }
+
+          .control {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 4px 8px 4px 10px;
+            border: 1px solid var(--tc-input-border);
+            border-radius: var(--tc-input-radius);
+            background: var(--tc-input-bg);
+            color: var(--tc-input-fg);
+            font-family: var(--tc-input-font);
+            cursor: text;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          .control:hover { border-color: var(--tc-input-border-focus); }
+          .control.open,
+          .control:focus-within {
+            border-color: var(--tc-input-border-focus);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc-input-border-focus) 18%, transparent);
+            outline: none;
+          }
+          .control.invalid { border-color: var(--tc-input-error); }
+          .control.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--tc-color-bg, #f5f1e6);
+          }
+
+          .display {
+            flex: 1 1 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            min-width: 0;
+          }
+          .placeholder {
+            color: var(--tc-input-helper);
+            font-size: 0.92rem;
+          }
+          .single {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.92rem;
+          }
+          .single-icon { line-height: 1; }
+          .search {
+            border: none;
+            outline: none;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            font-size: 0.92rem;
+            padding: 4px 0;
+            flex: 1 1 60px;
+            min-width: 60px;
+          }
+
+          .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 4px 2px 8px;
+            background: var(--tc-combobox-chip-bg);
+            color: var(--tc-combobox-chip-fg);
+            border-radius: var(--tc-radius-pill, 999px);
+            font-size: 0.82rem;
+            line-height: 1.2;
+            max-width: 100%;
+          }
+          .chip-icon { line-height: 1; }
+          .chip-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
+          }
+          .chip-remove {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            padding: 2px 6px;
+            font-size: 0.95rem;
+            border-radius: 50%;
+            line-height: 1;
+            font-family: inherit;
+          }
+          .chip-remove:hover { background: rgba(0, 0, 0, 0.08); }
+          .chip-remove:disabled { cursor: not-allowed; }
+
+          .caret {
+            color: var(--tc-input-helper);
+            margin-left: 4px;
+            font-size: 0.85rem;
+            line-height: 1;
+            pointer-events: none;
+            transition: transform 0.15s ease;
+          }
+          .control.open .caret { transform: rotate(180deg); }
+
+          .popup {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: var(--tc-combobox-popup-bg);
+            border: 1px solid var(--tc-input-border);
+            border-radius: var(--tc-input-radius);
+            box-shadow: var(--tc-shadow-md, 0 8px 24px rgba(0, 0, 0, 0.08));
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 50;
+            padding: 4px;
+            box-sizing: border-box;
+          }
+          .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border-radius: var(--tc-radius-sm, 6px);
+            font-size: 0.92rem;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.3;
+          }
+          .option .check {
+            width: 16px;
+            display: inline-flex;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--tc-color-accent, #a16939);
+          }
+          .option .opt-icon { line-height: 1; flex: 0 0 auto; }
+          .option .opt-label {
+            flex: 1 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .option:hover,
+          .option.focused {
+            background: var(--tc-combobox-popup-hover);
+          }
+          .option.selected {
+            background: var(--tc-combobox-popup-active);
+            color: var(--tc-color-accent-hover, #8a572d);
+            font-weight: 500;
+          }
+          .option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+          .empty {
+            padding: 12px;
+            text-align: center;
+            color: var(--tc-input-helper);
+            font-size: 0.92rem;
+          }
+
+          .helper {
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: var(--tc-input-helper);
+            font-family: var(--tc-input-font);
+          }
+          .helper.error { color: var(--tc-input-error); }
+        </style>
+`;
+
 build(
   TAG,
   describe({
@@ -552,192 +745,3 @@ function esc(s: unknown): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
-const COMBOBOX_STYLE = `
-        <style>
-          :host {
-            display: block;
-            position: relative;
-          }
-          .label {
-            display: block;
-            font-family: var(--tc-input-font);
-            font-size: 0.84rem;
-            font-weight: 500;
-            color: var(--tc-input-fg);
-            margin-bottom: 6px;
-          }
-          .req { color: var(--tc-input-error); }
-
-          .control {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-height: 40px;
-            padding: 4px 8px 4px 10px;
-            border: 1px solid var(--tc-input-border);
-            border-radius: var(--tc-input-radius);
-            background: var(--tc-input-bg);
-            color: var(--tc-input-fg);
-            font-family: var(--tc-input-font);
-            cursor: text;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-          }
-          .control:hover { border-color: var(--tc-input-border-focus); }
-          .control.open,
-          .control:focus-within {
-            border-color: var(--tc-input-border-focus);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc-input-border-focus) 18%, transparent);
-            outline: none;
-          }
-          .control.invalid { border-color: var(--tc-input-error); }
-          .control.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: var(--tc-color-bg, #f5f1e6);
-          }
-
-          .display {
-            flex: 1 1 auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-            min-width: 0;
-          }
-          .placeholder {
-            color: var(--tc-input-helper);
-            font-size: 0.92rem;
-          }
-          .single {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.92rem;
-          }
-          .single-icon { line-height: 1; }
-          .search {
-            border: none;
-            outline: none;
-            background: transparent;
-            color: inherit;
-            font: inherit;
-            font-size: 0.92rem;
-            padding: 4px 0;
-            flex: 1 1 60px;
-            min-width: 60px;
-          }
-
-          .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 4px 2px 8px;
-            background: var(--tc-combobox-chip-bg);
-            color: var(--tc-combobox-chip-fg);
-            border-radius: var(--tc-radius-pill, 999px);
-            font-size: 0.82rem;
-            line-height: 1.2;
-            max-width: 100%;
-          }
-          .chip-icon { line-height: 1; }
-          .chip-label {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-          }
-          .chip-remove {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: inherit;
-            padding: 2px 6px;
-            font-size: 0.95rem;
-            border-radius: 50%;
-            line-height: 1;
-            font-family: inherit;
-          }
-          .chip-remove:hover { background: rgba(0, 0, 0, 0.08); }
-          .chip-remove:disabled { cursor: not-allowed; }
-
-          .caret {
-            color: var(--tc-input-helper);
-            margin-left: 4px;
-            font-size: 0.85rem;
-            line-height: 1;
-            pointer-events: none;
-            transition: transform 0.15s ease;
-          }
-          .control.open .caret { transform: rotate(180deg); }
-
-          .popup {
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin-top: 4px;
-            background: var(--tc-combobox-popup-bg);
-            border: 1px solid var(--tc-input-border);
-            border-radius: var(--tc-input-radius);
-            box-shadow: var(--tc-shadow-md, 0 8px 24px rgba(0, 0, 0, 0.08));
-            max-height: 280px;
-            overflow-y: auto;
-            z-index: 50;
-            padding: 4px;
-            box-sizing: border-box;
-          }
-          .option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 10px;
-            border-radius: var(--tc-radius-sm, 6px);
-            font-size: 0.92rem;
-            cursor: pointer;
-            user-select: none;
-            line-height: 1.3;
-          }
-          .option .check {
-            width: 16px;
-            display: inline-flex;
-            justify-content: center;
-            font-size: 0.85rem;
-            color: var(--tc-color-accent, #a16939);
-          }
-          .option .opt-icon { line-height: 1; flex: 0 0 auto; }
-          .option .opt-label {
-            flex: 1 1 auto;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-          .option:hover,
-          .option.focused {
-            background: var(--tc-combobox-popup-hover);
-          }
-          .option.selected {
-            background: var(--tc-combobox-popup-active);
-            color: var(--tc-color-accent-hover, #8a572d);
-            font-weight: 500;
-          }
-          .option.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-          .empty {
-            padding: 12px;
-            text-align: center;
-            color: var(--tc-input-helper);
-            font-size: 0.92rem;
-          }
-
-          .helper {
-            margin-top: 6px;
-            font-size: 0.82rem;
-            color: var(--tc-input-helper);
-            font-family: var(--tc-input-font);
-          }
-          .helper.error { color: var(--tc-input-error); }
-        </style>
-`;

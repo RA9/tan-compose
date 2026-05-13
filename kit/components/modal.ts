@@ -27,6 +27,15 @@ const TAG = "tc-modal";
 
 export const tagName = TAG;
 
+// Declared BEFORE build() — see kit/components/button.ts:33-38. afterRender
+// reads DIALOG_LISTENERS.get(this); esbuild minify makes it `var`-hoisted,
+// so it'd be undefined when the synchronous define() upgrade runs the
+// first afterRender on a pre-existing <tc-modal>.
+const DIALOG_LISTENERS = new WeakMap<
+  HTMLElement,
+  { dialog: HTMLDialogElement; cleanup: () => void }
+>();
+
 build(
   TAG,
   describe({
@@ -155,12 +164,9 @@ build(
   }),
 );
 
-// Per-host registry of (live dialog node, close-listener cleanup). Renders
-// can replace the dialog node, so we keep track of which one we wired up.
-const DIALOG_LISTENERS = new WeakMap<
-  HTMLElement,
-  { dialog: HTMLDialogElement; cleanup: () => void }
->();
+// (DIALOG_LISTENERS — per-host registry of live dialog node + close-listener
+// cleanup — is declared above the build() call so it's initialised before
+// the synchronous define() upgrade runs afterRender.)
 
 function syncDialogOpen(host: HTMLElement) {
   const root = host.shadowRoot;

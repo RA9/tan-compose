@@ -131,6 +131,12 @@ tr.empty td {
 .pager button:disabled { opacity: 0.45; cursor: not-allowed; }
 `;
 
+// Declared BEFORE build() — see kit/components/button.ts:33-38. afterRender
+// reads FOCUS_INTENT.get(host); esbuild minify makes it `var`-hoisted, so
+// it'd be undefined when the synchronous define() upgrade runs the first
+// afterRender on a pre-existing <tc-table>.
+const FOCUS_INTENT = new WeakMap<HTMLElement, { caret: number }>();
+
 build(
   TAG,
   describe({
@@ -378,9 +384,10 @@ build(
   }),
 );
 
-// Per-host focus-restoration intent. Set on `input` in the filter; consumed
-// by afterRender on the next render to refocus the rebuilt input element.
-const FOCUS_INTENT = new WeakMap<HTMLElement, { caret: number }>();
+// (FOCUS_INTENT is declared above the build() call — see the comment there.
+// It's the per-host focus-restoration intent set on `input` in the filter
+// and consumed by afterRender on the next render to refocus the rebuilt
+// input element.)
 
 function visibleRows(
   props: Readonly<Record<string, unknown>>,

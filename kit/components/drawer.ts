@@ -31,6 +31,15 @@ const TAG = "tc-drawer";
 
 export const tagName = TAG;
 
+// Declared BEFORE build() — see kit/components/button.ts:33-38. afterRender
+// reads DIALOG_LISTENERS.get(this); esbuild minify makes it `var`-hoisted,
+// so it'd be undefined when the synchronous define() upgrade runs the
+// first afterRender on a pre-existing <tc-drawer>.
+const DIALOG_LISTENERS = new WeakMap<
+  HTMLElement,
+  { dialog: HTMLDialogElement; cleanup: () => void }
+>();
+
 interface HostExtras {
   open: boolean;
   side: string;
@@ -259,10 +268,8 @@ build(
   }),
 );
 
-const DIALOG_LISTENERS = new WeakMap<
-  HTMLElement,
-  { dialog: HTMLDialogElement; cleanup: () => void }
->();
+// (DIALOG_LISTENERS is declared above the build() call — see the comment
+// there for why.)
 
 function syncDialogOpen(host: HTMLElement) {
   const root = host.shadowRoot;

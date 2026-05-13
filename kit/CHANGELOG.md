@@ -3,6 +3,43 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.6.4] - 2026-05-13
+
+> Patch release. Fixes the `var`-hoisting bug in five more components.
+> If any of these tags were already in the static HTML when the kit
+> script loaded, the first render threw `Cannot read properties of
+> undefined`.
+
+### Fixed
+
+- **`<tc-callout>`** — `ICONS` declared after `build()` (reported bug:
+  `TypeError: Cannot read properties of undefined (reading 'info')` at
+  `callout.ts:65`).
+- **`<tc-code>`** — `COPY_SVG` and `CHECK_SVG` declared after `build()`.
+- **`<tc-combobox>`** — `COMBOBOX_STYLE` declared after `build()`.
+- **`<tc-modal>`** — `DIALOG_LISTENERS` `WeakMap` referenced inside
+  `afterRender` before its declaration ran.
+- **`<tc-drawer>`** — same `DIALOG_LISTENERS` issue.
+- **`<tc-table>`** — `FOCUS_INTENT` `WeakMap` same issue.
+
+Same root cause as kit v1.6.2's site-search fix and the original
+`<tc-button>` fix back in v1.2: esbuild's `minify: true` rewrites
+top-level `const` as `var`, which hoists the binding to `undefined`.
+When `customElements.define()` synchronously upgrades an already-in-DOM
+element, the template (or `afterRender`) runs while those module-level
+values are still in their hoisted-but-unassigned state.
+
+Audit covers every top-level declaration in `kit/components/*.ts`. The
+remaining `const X = …` lines after `build()` are all referenced from
+event handlers (which run only after the user interacts), so they were
+safe — but to keep the rule "declare before `build()`" easy to follow,
+the bundle pattern is now standardised across all components.
+
+### Build
+
+- `kit/deno.json` now excludes `dist/` from `fmt` and `lint` so the
+  minified bundles don't trip CI.
+
 ## [1.6.3] - 2026-05-13
 
 > Adds pre-built CDN bundles (`kit/dist/`) so consumers can skip the

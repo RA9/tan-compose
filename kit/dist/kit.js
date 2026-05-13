@@ -1779,6 +1779,7 @@ tr.empty td {
 }
 .pager button:disabled { opacity: 0.45; cursor: not-allowed; }
 `;
+var FOCUS_INTENT = /* @__PURE__ */ new WeakMap();
 build(
   TAG9,
   describe({
@@ -1988,7 +1989,6 @@ build(
     }
   })
 );
-var FOCUS_INTENT = /* @__PURE__ */ new WeakMap();
 function visibleRows(props, state) {
   const all = props.rows ?? [];
   const cols = props.columns ?? [];
@@ -2159,6 +2159,7 @@ function esc10(s) {
 // components/modal.ts
 var TAG11 = "tc-modal";
 var tagName11 = TAG11;
+var DIALOG_LISTENERS = /* @__PURE__ */ new WeakMap();
 build(
   TAG11,
   describe({
@@ -2269,7 +2270,6 @@ build(
     }
   })
 );
-var DIALOG_LISTENERS = /* @__PURE__ */ new WeakMap();
 function syncDialogOpen(host) {
   const root = host.shadowRoot;
   if (!root)
@@ -3004,6 +3004,8 @@ function esc19(s) {
 // components/code.ts
 var TAG20 = "tc-code";
 var tagName20 = TAG20;
+var COPY_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+var CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 build(
   TAG20,
   describe({
@@ -3126,8 +3128,6 @@ build(
     }
   })
 );
-var COPY_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
-var CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 function esc20(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
@@ -3135,6 +3135,13 @@ function esc20(s) {
 // components/callout.ts
 var TAG21 = "tc-callout";
 var tagName21 = TAG21;
+var ICONS = {
+  note: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+  success: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  danger: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`
+};
 build(
   TAG21,
   describe({
@@ -3225,13 +3232,6 @@ build(
     }
   })
 );
-var ICONS = {
-  note: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
-  info: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
-  success: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
-  warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
-  danger: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`
-};
 function esc21(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
@@ -3530,6 +3530,194 @@ function joinValues(values) {
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+var COMBOBOX_STYLE = `
+        <style>
+          :host {
+            display: block;
+            position: relative;
+          }
+          .label {
+            display: block;
+            font-family: var(--tc-input-font);
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--tc-input-fg);
+            margin-bottom: 6px;
+          }
+          .req { color: var(--tc-input-error); }
+
+          .control {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 4px 8px 4px 10px;
+            border: 1px solid var(--tc-input-border);
+            border-radius: var(--tc-input-radius);
+            background: var(--tc-input-bg);
+            color: var(--tc-input-fg);
+            font-family: var(--tc-input-font);
+            cursor: text;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          }
+          .control:hover { border-color: var(--tc-input-border-focus); }
+          .control.open,
+          .control:focus-within {
+            border-color: var(--tc-input-border-focus);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc-input-border-focus) 18%, transparent);
+            outline: none;
+          }
+          .control.invalid { border-color: var(--tc-input-error); }
+          .control.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: var(--tc-color-bg, #f5f1e6);
+          }
+
+          .display {
+            flex: 1 1 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            min-width: 0;
+          }
+          .placeholder {
+            color: var(--tc-input-helper);
+            font-size: 0.92rem;
+          }
+          .single {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.92rem;
+          }
+          .single-icon { line-height: 1; }
+          .search {
+            border: none;
+            outline: none;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            font-size: 0.92rem;
+            padding: 4px 0;
+            flex: 1 1 60px;
+            min-width: 60px;
+          }
+
+          .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 4px 2px 8px;
+            background: var(--tc-combobox-chip-bg);
+            color: var(--tc-combobox-chip-fg);
+            border-radius: var(--tc-radius-pill, 999px);
+            font-size: 0.82rem;
+            line-height: 1.2;
+            max-width: 100%;
+          }
+          .chip-icon { line-height: 1; }
+          .chip-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 200px;
+          }
+          .chip-remove {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            padding: 2px 6px;
+            font-size: 0.95rem;
+            border-radius: 50%;
+            line-height: 1;
+            font-family: inherit;
+          }
+          .chip-remove:hover { background: rgba(0, 0, 0, 0.08); }
+          .chip-remove:disabled { cursor: not-allowed; }
+
+          .caret {
+            color: var(--tc-input-helper);
+            margin-left: 4px;
+            font-size: 0.85rem;
+            line-height: 1;
+            pointer-events: none;
+            transition: transform 0.15s ease;
+          }
+          .control.open .caret { transform: rotate(180deg); }
+
+          .popup {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: var(--tc-combobox-popup-bg);
+            border: 1px solid var(--tc-input-border);
+            border-radius: var(--tc-input-radius);
+            box-shadow: var(--tc-shadow-md, 0 8px 24px rgba(0, 0, 0, 0.08));
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 50;
+            padding: 4px;
+            box-sizing: border-box;
+          }
+          .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            border-radius: var(--tc-radius-sm, 6px);
+            font-size: 0.92rem;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.3;
+          }
+          .option .check {
+            width: 16px;
+            display: inline-flex;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--tc-color-accent, #a16939);
+          }
+          .option .opt-icon { line-height: 1; flex: 0 0 auto; }
+          .option .opt-label {
+            flex: 1 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .option:hover,
+          .option.focused {
+            background: var(--tc-combobox-popup-hover);
+          }
+          .option.selected {
+            background: var(--tc-combobox-popup-active);
+            color: var(--tc-color-accent-hover, #8a572d);
+            font-weight: 500;
+          }
+          .option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+          .empty {
+            padding: 12px;
+            text-align: center;
+            color: var(--tc-input-helper);
+            font-size: 0.92rem;
+          }
+
+          .helper {
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: var(--tc-input-helper);
+            font-family: var(--tc-input-font);
+          }
+          .helper.error { color: var(--tc-input-error); }
+        </style>
+`;
 build(
   TAG24,
   describe({
@@ -3898,194 +4086,6 @@ function syncFormValue(_ctx, values, host) {
 function esc24(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
-var COMBOBOX_STYLE = `
-        <style>
-          :host {
-            display: block;
-            position: relative;
-          }
-          .label {
-            display: block;
-            font-family: var(--tc-input-font);
-            font-size: 0.84rem;
-            font-weight: 500;
-            color: var(--tc-input-fg);
-            margin-bottom: 6px;
-          }
-          .req { color: var(--tc-input-error); }
-
-          .control {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-height: 40px;
-            padding: 4px 8px 4px 10px;
-            border: 1px solid var(--tc-input-border);
-            border-radius: var(--tc-input-radius);
-            background: var(--tc-input-bg);
-            color: var(--tc-input-fg);
-            font-family: var(--tc-input-font);
-            cursor: text;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-          }
-          .control:hover { border-color: var(--tc-input-border-focus); }
-          .control.open,
-          .control:focus-within {
-            border-color: var(--tc-input-border-focus);
-            box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc-input-border-focus) 18%, transparent);
-            outline: none;
-          }
-          .control.invalid { border-color: var(--tc-input-error); }
-          .control.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: var(--tc-color-bg, #f5f1e6);
-          }
-
-          .display {
-            flex: 1 1 auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-            min-width: 0;
-          }
-          .placeholder {
-            color: var(--tc-input-helper);
-            font-size: 0.92rem;
-          }
-          .single {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.92rem;
-          }
-          .single-icon { line-height: 1; }
-          .search {
-            border: none;
-            outline: none;
-            background: transparent;
-            color: inherit;
-            font: inherit;
-            font-size: 0.92rem;
-            padding: 4px 0;
-            flex: 1 1 60px;
-            min-width: 60px;
-          }
-
-          .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 4px 2px 8px;
-            background: var(--tc-combobox-chip-bg);
-            color: var(--tc-combobox-chip-fg);
-            border-radius: var(--tc-radius-pill, 999px);
-            font-size: 0.82rem;
-            line-height: 1.2;
-            max-width: 100%;
-          }
-          .chip-icon { line-height: 1; }
-          .chip-label {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-          }
-          .chip-remove {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: inherit;
-            padding: 2px 6px;
-            font-size: 0.95rem;
-            border-radius: 50%;
-            line-height: 1;
-            font-family: inherit;
-          }
-          .chip-remove:hover { background: rgba(0, 0, 0, 0.08); }
-          .chip-remove:disabled { cursor: not-allowed; }
-
-          .caret {
-            color: var(--tc-input-helper);
-            margin-left: 4px;
-            font-size: 0.85rem;
-            line-height: 1;
-            pointer-events: none;
-            transition: transform 0.15s ease;
-          }
-          .control.open .caret { transform: rotate(180deg); }
-
-          .popup {
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin-top: 4px;
-            background: var(--tc-combobox-popup-bg);
-            border: 1px solid var(--tc-input-border);
-            border-radius: var(--tc-input-radius);
-            box-shadow: var(--tc-shadow-md, 0 8px 24px rgba(0, 0, 0, 0.08));
-            max-height: 280px;
-            overflow-y: auto;
-            z-index: 50;
-            padding: 4px;
-            box-sizing: border-box;
-          }
-          .option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 10px;
-            border-radius: var(--tc-radius-sm, 6px);
-            font-size: 0.92rem;
-            cursor: pointer;
-            user-select: none;
-            line-height: 1.3;
-          }
-          .option .check {
-            width: 16px;
-            display: inline-flex;
-            justify-content: center;
-            font-size: 0.85rem;
-            color: var(--tc-color-accent, #a16939);
-          }
-          .option .opt-icon { line-height: 1; flex: 0 0 auto; }
-          .option .opt-label {
-            flex: 1 1 auto;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-          .option:hover,
-          .option.focused {
-            background: var(--tc-combobox-popup-hover);
-          }
-          .option.selected {
-            background: var(--tc-combobox-popup-active);
-            color: var(--tc-color-accent-hover, #8a572d);
-            font-weight: 500;
-          }
-          .option.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-          .empty {
-            padding: 12px;
-            text-align: center;
-            color: var(--tc-input-helper);
-            font-size: 0.92rem;
-          }
-
-          .helper {
-            margin-top: 6px;
-            font-size: 0.82rem;
-            color: var(--tc-input-helper);
-            font-family: var(--tc-input-font);
-          }
-          .helper.error { color: var(--tc-input-error); }
-        </style>
-`;
 
 // components/carousel.ts
 var TAG25 = "tc-carousel";
@@ -5143,6 +5143,7 @@ function position2(host, panel) {
 // components/drawer.ts
 var TAG29 = "tc-drawer";
 var tagName29 = TAG29;
+var DIALOG_LISTENERS2 = /* @__PURE__ */ new WeakMap();
 function esc27(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
@@ -5345,7 +5346,6 @@ build(
     }
   })
 );
-var DIALOG_LISTENERS2 = /* @__PURE__ */ new WeakMap();
 function syncDialogOpen2(host) {
   const root = host.shadowRoot;
   if (!root)

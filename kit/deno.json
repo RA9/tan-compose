@@ -1,6 +1,6 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
@@ -60,7 +60,10 @@
     "prepublish": "deno task bundle"
   },
   "fmt": {
-    "exclude": ["coverage/"]
+    "exclude": ["coverage/", "dist/"]
+  },
+  "lint": {
+    "exclude": ["coverage/", "dist/"]
   },
   "publish": {
     "exclude": [
