@@ -30,4 +30,7 @@ jobs:
 
       - name: Publish kit to JSR
         working-directory: kit
-        run: npx jsr publish
+        # --allow-dirty: the workspace test step above re-resolves
+        # the jsr:@ra9/tan-compose import and updates deno.lock,
+        # which `jsr publish` would otherwise refuse to proceed past.
+        run: npx jsr publish --allow-dirty
