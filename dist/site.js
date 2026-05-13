@@ -1489,12 +1489,22 @@ tr.empty td {
           <div class="sr-status" aria-live="polite" aria-atomic="true"></div>
         </div>
         <style>
-          :host { display: block; position: relative; outline: none; }
+          /* :host width: 100% so the carousel fills its container even
+             inside flex parents. Combined with a user-set max-width on
+             the host, it becomes min(container, max-width) \u2014 the
+             intuitive responsive behaviour. */
+          :host {
+            display: block;
+            position: relative;
+            outline: none;
+            width: 100%;
+          }
           .root {
             position: relative;
             border-radius: var(--tc-carousel-radius);
             background: var(--tc-carousel-bg);
             overflow: hidden;
+            width: 100%;
           }
           .viewport {
             position: relative;
@@ -1792,7 +1802,18 @@ tr.empty td {
         <style>
           /* Reset the modal-dialog UA centering, then re-position per side.
              Use !important to defeat browser UA inset-inline-start: 0 etc.
-             that compete with our explicit positioning. */
+             that compete with our explicit positioning.
+
+             IMPORTANT: only apply display:flex when [open] is set. An
+             unconditional .dlg{display:flex} fights the UA's
+             dialog:not([open]){display:none} on cascade order in some
+             browsers and leaves the dialog visible as a block in the
+             page flow on initial load. */
+          .dlg:not([open]) { display: none !important; }
+          .dlg[open] {
+            display: flex;
+            flex-direction: column;
+          }
           .dlg {
             padding: 0;
             border: none;
@@ -1803,10 +1824,7 @@ tr.empty td {
             color: var(--tc-drawer-ink);
             font-family: var(--tc-drawer-font);
             box-shadow: var(--tc-drawer-shadow);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
-            transition: transform var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
           }
           .dlg.side-left {
             top: 0 !important;

@@ -199,12 +199,22 @@ build(
           <div class="sr-status" aria-live="polite" aria-atomic="true"></div>
         </div>
         <style>
-          :host { display: block; position: relative; outline: none; }
+          /* :host width: 100% so the carousel fills its container even
+             inside flex parents. Combined with a user-set max-width on
+             the host, it becomes min(container, max-width) — the
+             intuitive responsive behaviour. */
+          :host {
+            display: block;
+            position: relative;
+            outline: none;
+            width: 100%;
+          }
           .root {
             position: relative;
             border-radius: var(--tc-carousel-radius);
             background: var(--tc-carousel-bg);
             overflow: hidden;
+            width: 100%;
           }
           .viewport {
             position: relative;

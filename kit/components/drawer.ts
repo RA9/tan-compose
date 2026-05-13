@@ -104,7 +104,18 @@ build(
         <style>
           /* Reset the modal-dialog UA centering, then re-position per side.
              Use !important to defeat browser UA inset-inline-start: 0 etc.
-             that compete with our explicit positioning. */
+             that compete with our explicit positioning.
+
+             IMPORTANT: only apply display:flex when [open] is set. An
+             unconditional .dlg{display:flex} fights the UA's
+             dialog:not([open]){display:none} on cascade order in some
+             browsers and leaves the dialog visible as a block in the
+             page flow on initial load. */
+          .dlg:not([open]) { display: none !important; }
+          .dlg[open] {
+            display: flex;
+            flex-direction: column;
+          }
           .dlg {
             padding: 0;
             border: none;
@@ -115,10 +126,7 @@ build(
             color: var(--tc-drawer-ink);
             font-family: var(--tc-drawer-font);
             box-shadow: var(--tc-drawer-shadow);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
-            transition: transform var(--tc-drawer-duration) cubic-bezier(0.4, 0, 0.2, 1);
           }
           .dlg.side-left {
             top: 0 !important;
