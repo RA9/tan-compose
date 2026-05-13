@@ -541,9 +541,34 @@ const SHARED_STYLE = `
         font-weight: 700;
       }
 
+      /* Component demo stages embedded inside posts. Matches the
+         component-page stage so authors can copy the same markup. */
+      article .stage {
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
+        padding: 24px;
+        margin: 18px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        min-height: 60px;
+      }
+      article .stage.col {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      /* Embedded code blocks (tc-code is a custom element with its own
+         shadow; outside spacing is the post's job). */
+      article tc-code {
+        display: block;
+        margin: 0 0 22px;
+      }
       @media (max-width: 720px) {
         header.post-head { padding: 36px 0 8px; }
         article { padding: 12px 0 36px; }
+        article .stage { padding: 18px; }
       }
 `;
 
