@@ -3,6 +3,46 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.6.1] - 2026-05-13
+
+> Patch release. README + a couple of layout fixes shaken out by real-use
+> testing of the 1.6.0 components.
+
+### Fixed
+
+- **`<tc-drawer>` auto-opening on initial load.** The unconditional
+  `.dlg { display: flex }` rule was overriding the UA's
+  `dialog:not([open]) { display: none }` in some browsers, leaving the
+  drawer's content rendered inline in the page flow before any
+  interaction. Scoped `display: flex` to `.dlg[open]` and added
+  `.dlg:not([open]) { display: none !important }` for safety.
+- **`<tc-drawer>` slide-in animation never firing.** `transition` can't
+  animate `display: none → display: flex` (which is what `showModal()`
+  triggers), so the drawer just popped in. Replaced with per-side
+  `@keyframes` animations that re-run on each appearance.
+- **`<tc-carousel>` slides stacking vertically.** `slot { display: contents }`
+  + `.track { display: flex }` doesn't reliably project slotted children
+  as flex items across browsers — they ended up as a single inline-block
+  flex item with their content stacking vertically. Made the `<slot>`
+  itself the flex track instead.
+- **`<tc-carousel>` not shrinking below `max-width` in flex parents.**
+  Inside a `display: flex` container, a carousel with a user
+  `max-width` and default `flex-basis: auto` asserted its full max-width
+  and overflowed narrow viewports. Set `:host { width: 100% }` so the
+  carousel always fills its container, capped by any user-supplied
+  `max-width`.
+
+### Docs
+
+- **README catches up to v1.6.** Was stuck at the v1.3 snapshot — now
+  lists all 35 components across six categories, including the new
+  overlays (modal, drawer, tooltip, popover, toast) and docs/content
+  (code, callout, toc) sections.
+- **Blog post component-demo blocks now have proper spacing.** The post
+  template's `SHARED_STYLE` had no `.stage` or `tc-code` margin rules,
+  so live demos sat directly against the code block beneath them with no
+  breathing room.
+
 ## [1.6.0] - 2026-05-12
 
 > The "premium primitives" release. Eleven new components, kit grows from
