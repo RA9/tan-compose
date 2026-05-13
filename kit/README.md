@@ -1,8 +1,8 @@
 # @ra9/tan-compose-kit
 
 Battle-tested Web Components built on top of
-[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 24 components, 6 theme
-presets, ~93 KB minified (~20 KB gzipped) for the whole bundle. No JSX, no
+[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 35 components, 6 theme
+presets, ~195 KB minified (~42 KB gzipped) for the whole bundle. No JSX, no
 compiler, no runtime framework — just custom elements you drop into HTML,
 React, Vue, Astro, or anywhere else custom elements work.
 
@@ -41,16 +41,19 @@ Or import the whole kit at once with `import "@ra9/tan-compose-kit"`.
 
 ### Form fields
 
-| Tag                | Description                                                  |
-| ------------------ | ------------------------------------------------------------ |
-| `<tc-button>`      | Variants (primary/secondary/ghost/danger), 3 sizes, loading. |
-| `<tc-input>`       | Form-associated text input. label / helper / error chrome.   |
-| `<tc-textarea>`    | Multi-line input with the same chrome as `<tc-input>`.       |
-| `<tc-select>`      | Form-associated dropdown wrapping a native `<select>`.       |
-| `<tc-checkbox>`    | Form-associated checkbox; supports indeterminate state.      |
-| `<tc-switch>`      | Toggle with `role="switch"`. Form-associated.                |
-| `<tc-file>`        | Form-associated file picker with a styled trigger.           |
-| `<tc-radio-group>` | Single-choice group rendered from a JSON `options` prop.     |
+| Tag                | Description                                                       |
+| ------------------ | ----------------------------------------------------------------- |
+| `<tc-button>`      | Variants (primary/secondary/ghost/danger), 3 sizes, loading.      |
+| `<tc-input>`       | Form-associated text input. label / helper / error chrome.        |
+| `<tc-textarea>`    | Multi-line input with the same chrome as `<tc-input>`.            |
+| `<tc-select>`      | Form-associated dropdown wrapping a native `<select>`.            |
+| `<tc-combobox>`    | Searchable, optionally multi-select dropdown with icon prefixes.  |
+| `<tc-checkbox>`    | Form-associated checkbox; supports indeterminate state.           |
+| `<tc-switch>`      | Toggle with `role="switch"`. Form-associated.                     |
+| `<tc-file>`        | Form-associated file picker with a styled trigger.                |
+| `<tc-radio-group>` | Single-choice group rendered from a JSON `options` prop.          |
+| `<tc-slider>`      | Themed `<input type="range">` with ticks, label, suffix.          |
+| `<tc-rating>`      | Star rating with half-star precision, keyboard nav, readonly.     |
 
 All form fields participate in `<form>` submission via `ElementInternals` —
 `FormData`, `form.reset()`, the validity API, browser autofill all work as
@@ -58,21 +61,39 @@ expected.
 
 ### Data
 
-| Tag          | Description                                                            |
-| ------------ | ---------------------------------------------------------------------- |
-| `<tc-table>` | Sortable, filterable, paginated. Real keyed `for:` row reconciliation. |
+| Tag               | Description                                                            |
+| ----------------- | ---------------------------------------------------------------------- |
+| `<tc-table>`      | Sortable, filterable, paginated. Real keyed `for:` row reconciliation. |
+| `<tc-pagination>` | Prev/next + windowed page numbers with siblings/boundaries.            |
+
+### Overlays
+
+Top-layer rendering (popover API / native `<dialog>`) so nothing gets clipped
+by an ancestor's stacking context, `overflow: hidden`, or `transform`.
+
+| Tag            | Description                                                          |
+| -------------- | -------------------------------------------------------------------- |
+| `<tc-modal>`   | Native `<dialog>`-backed modal. Focus trap, footer slot.             |
+| `<tc-drawer>`  | Side sheet from any edge. Same `<dialog>` machinery as modal.        |
+| `<tc-tooltip>` | Hover/focus tooltip with auto-flip placement.                        |
+| `<tc-popover>` | Click-triggered floating panel. Outside-click + `Esc` dismiss.       |
+| `<tc-toast>`   | Inline notification with auto-dismiss + close button.                |
 
 ### Chrome / feedback
 
-| Tag             | Description                                                 |
-| --------------- | ----------------------------------------------------------- |
-| `<tc-tabs>`     | ARIA tablist with arrow-key roving focus and named slots.   |
-| `<tc-modal>`    | Native `<dialog>`-backed modal. Focus trap, footer slot.    |
-| `<tc-toast>`    | Inline notification with auto-dismiss + close button.       |
-| `<tc-stat>`     | Metric card: label, value, prefix/suffix, delta + trend.    |
-| `<tc-card>`     | Layout primitive. Title/subtitle, named slots for sections. |
-| `<tc-badge>`    | Status label. 5 variants × 2 sizes, optional pill rounding. |
-| `<tc-skeleton>` | Loading placeholder with shimmer (respects reduced motion). |
+| Tag                 | Description                                                 |
+| ------------------- | ----------------------------------------------------------- |
+| `<tc-tabs>`         | ARIA tablist with arrow-key roving focus and named slots.   |
+| `<tc-accordion>`    | Native `<details>` group. Single or multi-open.             |
+| `<tc-carousel>`     | Slide / fade carousel with autoplay, swipe, indicators.     |
+| `<tc-stepper>`      | Multi-step indicator. Horizontal/vertical, clickable mode.  |
+| `<tc-progress>`     | Linear or circular. Determinate or indeterminate.           |
+| `<tc-stat>`         | Metric card: label, value, prefix/suffix, delta + trend.    |
+| `<tc-card>`         | Layout primitive. Title/subtitle, named slots for sections. |
+| `<tc-badge>`        | Status label. 5 variants × 2 sizes, optional pill rounding. |
+| `<tc-avatar>`       | Image with deterministic-tint initials fallback, status.    |
+| `<tc-avatar-group>` | Overlapping avatar cluster with "+N" overflow pill.         |
+| `<tc-skeleton>`     | Loading placeholder with shimmer (respects reduced motion). |
 
 ### Layout primitives
 
@@ -81,6 +102,14 @@ expected.
 | `<tc-stack>`   | Vertical flow with token-scale `gap`.                          |
 | `<tc-cluster>` | Horizontal flex with wrap + `justify="between"` shorthand.     |
 | `<tc-grid>`    | Auto-fit grid; configure with `min` column width or `columns`. |
+
+### Docs & content
+
+| Tag            | Description                                                  |
+| -------------- | ------------------------------------------------------------ |
+| `<tc-code>`    | Code block with syntax-highlight spans and copy button.      |
+| `<tc-callout>` | Aside box (info/success/warning/danger) with optional title. |
+| `<tc-toc>`     | Auto-generated table of contents from a target's headings.   |
 
 ## Theming
 
