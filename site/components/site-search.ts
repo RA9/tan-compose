@@ -393,7 +393,9 @@ build(
       const resultsHtml = query.trim() === ""
         ? `<div class="empty">Start typing to search the site — docs, components, blog posts, examples.</div>`
         : results.length === 0
-        ? `<div class="empty">No results for "${esc(query)}". Try a shorter query.</div>`
+        ? `<div class="empty">No results for "${
+          esc(query)
+        }". Try a shorter query.</div>`
         : results
           .map((r, i) => {
             const cls = i === focusIdx ? "row focused" : "row";

@@ -1055,7 +1055,8 @@ const TOP_PAGE_DOCS: TopPageDoc[] = [
   {
     url: "/icons.html",
     title: "Icons",
-    description: "44 inline SVG icons from the Lucide set, packaged as <tc-icon>.",
+    description:
+      "44 inline SVG icons from the Lucide set, packaged as <tc-icon>.",
     textPath: "icons.html",
   },
   {
@@ -1141,7 +1142,11 @@ async function buildSearchDocs(
 function renderSearchIndex(docs: SearchDoc[]): string {
   // Pretty-print for diff-ability; the gzip on the wire makes the size
   // difference vs. minified JSON marginal.
-  return JSON.stringify({ docs, generatedAt: new Date().toISOString() }, null, 2);
+  return JSON.stringify(
+    { docs, generatedAt: new Date().toISOString() },
+    null,
+    2,
+  );
 }
 
 // ────────────────────────────────────────────────────────────────────
