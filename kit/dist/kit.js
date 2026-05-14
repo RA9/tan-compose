@@ -7311,9 +7311,11 @@ var ICON = {
   link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
   unlink: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07L11.5 5"/><path d="M5.16 11.75l-1.72 1.71a5 5 0 0 0 7.07 7.07L12.5 19"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`,
   undo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 7 3 13 9 13"/><path d="M21 17a8 8 0 0 0-15-3"/></svg>`,
-  redo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 7 21 13 15 13"/><path d="M3 17a8 8 0 0 1 15-3"/></svg>`
+  redo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 7 21 13 15 13"/><path d="M3 17a8 8 0 0 1 15-3"/></svg>`,
+  math: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6l4 14h6"/><path d="M4 19l4-7-3-4"/></svg>`,
+  codeblock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="9 9 7 12 9 15"/><polyline points="15 9 17 12 15 15"/></svg>`
 };
-var DEFAULT_TOOLBAR = "bold,italic,underline,strike,|,h1,h2,h3,paragraph,|,bullet,ordered,quote,code,|,link,unlink,|,undo,redo";
+var DEFAULT_TOOLBAR = "bold,italic,underline,strike,|,h1,h2,h3,paragraph,|,bullet,ordered,quote,code,codeblock,|,link,unlink,math,|,undo,redo";
 var TOOLBAR_REGISTRY = {
   bold: {
     key: "bold",
@@ -7421,6 +7423,18 @@ var TOOLBAR_REGISTRY = {
     icon: ICON.redo,
     command: "redo",
     shortcut: "\u2318\u21E7Z"
+  },
+  math: {
+    key: "math",
+    label: "Insert math (LaTeX)",
+    icon: ICON.math,
+    command: "math"
+  },
+  codeblock: {
+    key: "codeblock",
+    label: "Code block",
+    icon: ICON.codeblock,
+    command: "codeblock"
   }
 };
 var STYLE = `
@@ -7529,6 +7543,37 @@ var STYLE = `
     .surface a { color: var(--tc-color-accent, #a16939); text-decoration: underline; }
     .surface ul, .surface ol { padding-left: 1.4em; margin: 0; }
     .surface li + li { margin-top: 0.3em; }
+
+    /* Math nodes are atomic \u2014 contenteditable="false" so the caret
+       steps over them; the visual style differentiates rendered vs
+       fallback (missing renderer) so the integration gap is obvious. */
+    .surface .tc-math {
+      display: inline-block;
+      padding: 0 2px;
+    }
+    .surface .tc-math.display {
+      display: block;
+      margin: 8px 0;
+      text-align: center;
+    }
+    .surface .tc-math:hover {
+      outline: 1px dashed var(--tc-color-accent, #a16939);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+    .surface .tc-math .tc-math-src {
+      background: var(--tc-color-accent-soft, #efe2cf);
+      color: var(--tc-color-accent-hover, #8a572d);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--tc-editor-mono-font);
+      font-size: 0.92em;
+    }
+    .surface .tc-math.display .tc-math-src {
+      display: block;
+      padding: 6px 10px;
+    }
+
     ::slotted([slot="toolbar-extra"]) { display: contents; }
   </style>
 `;
@@ -7598,6 +7643,7 @@ build(
     },
     afterMount() {
       installEditor(this);
+      renderMathInSurface(this);
     },
     afterRender() {
       const host = this;
@@ -7612,6 +7658,7 @@ build(
         updateEmptyState(surface);
       }
       installEditor(host);
+      renderMathInSurface(host);
     },
     unmount() {
       const host = this;
@@ -7661,6 +7708,32 @@ function installEditor(rawHost) {
       if (!url)
         return;
       document.execCommand("createLink", false, url);
+    } else if (cmd === "math") {
+      const latex = globalThis.prompt(
+        "LaTeX (e.g. E = mc^2). Wrap with $$ for display."
+      )?.trim();
+      if (!latex)
+        return;
+      const isDisplay = latex.startsWith("$$") && latex.endsWith("$$");
+      const clean = isDisplay ? latex.replace(/^\$\$|\$\$$/g, "").trim() : latex;
+      insertMath(host, clean, isDisplay);
+    } else if (cmd === "codeblock") {
+      const sel = root.getSelection?.() ?? globalThis.getSelection();
+      if (!sel || sel.rangeCount === 0)
+        return;
+      const range = sel.getRangeAt(0);
+      const text = range.toString() || "// code";
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = text;
+      pre.appendChild(code);
+      range.deleteContents();
+      range.insertNode(pre);
+      const newRange = document.createRange();
+      newRange.selectNodeContents(code);
+      newRange.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
     } else if (cmd === "formatBlock") {
       document.execCommand("formatBlock", false, `<${value ?? "p"}>`);
     } else {
@@ -7760,6 +7833,67 @@ function emitInput(host, surface) {
     })
   );
 }
+function insertMath(host, latex, display) {
+  const root = host.shadowRoot;
+  if (!root)
+    return;
+  const surface = root.querySelector(".surface");
+  if (!surface)
+    return;
+  const sel = root.getSelection?.() ?? globalThis.getSelection();
+  if (!sel || sel.rangeCount === 0)
+    return;
+  const range = sel.getRangeAt(0);
+  const wrap = document.createElement(display ? "div" : "span");
+  wrap.className = display ? "tc-math display" : "tc-math inline";
+  wrap.setAttribute("contenteditable", "false");
+  wrap.dataset.latex = latex;
+  wrap.innerHTML = renderMathHtml(host, latex, display);
+  range.deleteContents();
+  range.insertNode(wrap);
+  const spacer = document.createTextNode("\u200B");
+  wrap.parentNode?.insertBefore(spacer, wrap.nextSibling);
+  const after = document.createRange();
+  after.setStartAfter(spacer);
+  after.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(after);
+  host.dispatchEvent(
+    new CustomEvent("tc-input", {
+      detail: { html: surface.innerHTML },
+      bubbles: true,
+      composed: true
+    })
+  );
+}
+function renderMathHtml(host, latex, display) {
+  if (host.mathRenderer) {
+    try {
+      return host.mathRenderer(latex, display);
+    } catch {
+    }
+  }
+  return `<code class="tc-math-src">${latex.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code>`;
+}
+function renderMathInSurface(host) {
+  const root = host.shadowRoot;
+  if (!root)
+    return;
+  const surface = root.querySelector(".surface");
+  if (!surface)
+    return;
+  const nodes = surface.querySelectorAll(".tc-math");
+  nodes.forEach((n) => {
+    const el = n;
+    const latex = el.dataset.latex ?? "";
+    const display = el.classList.contains("display");
+    const stamp = `${display ? "d" : "i"}:${latex}`;
+    if (el.dataset.stamp === stamp)
+      return;
+    el.innerHTML = renderMathHtml(host, latex, display);
+    el.dataset.stamp = stamp;
+  });
+}
 function updateActive(root, _surface) {
   const buttons = root.querySelectorAll(".tb-btn");
   buttons.forEach((btn) => {
@@ -7787,8 +7921,21 @@ var tagName38 = TAG38;
 function escHtml(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
-function inline(src) {
-  let out = escHtml(src);
+var MATH_MARK = "\0M\0";
+function inline(src, mathRenderer) {
+  const math = [];
+  const stash = (latex, display) => {
+    const idx = math.length;
+    math.push({ latex, display });
+    return `${MATH_MARK}${idx}${MATH_MARK}`;
+  };
+  let work = src;
+  work = work.replace(/\$\$([\s\S]+?)\$\$/g, (_m, l) => stash(l.trim(), true));
+  work = work.replace(
+    /(^|[\s(])\$([^\$\n][^\$\n]*?)\$(?=[\s.,;:!?)\]]|$)/g,
+    (_m, before, l) => `${before}${stash(l.trim(), false)}`
+  );
+  let out = escHtml(work);
   out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
   out = out.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   out = out.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, "<em>$1</em>");
@@ -7802,14 +7949,73 @@ function inline(src) {
     /\[([^\]]+)\]\(([^)]+)\)/g,
     (_m, label, url) => `<a href="${escHtml(url)}" target="_blank" rel="noopener">${label}</a>`
   );
+  out = out.replace(
+    new RegExp(`${MATH_MARK}(\\d+)${MATH_MARK}`, "g"),
+    (_m, idx) => {
+      const m = math[Number(idx)];
+      if (!m)
+        return "";
+      const latex = m.latex;
+      if (mathRenderer) {
+        try {
+          const rendered = mathRenderer(latex, m.display);
+          return m.display ? `<div class="tc-md-math display" data-latex="${escHtml(latex)}">${rendered}</div>` : `<span class="tc-md-math inline" data-latex="${escHtml(latex)}">${rendered}</span>`;
+        } catch (err) {
+          return m.display ? `<div class="tc-md-math error" title="${escHtml(String(err))}">${escHtml(latex)}</div>` : `<span class="tc-md-math error" title="${escHtml(String(err))}">${escHtml(latex)}</span>`;
+        }
+      }
+      return m.display ? `<div class="tc-md-math fallback display" data-latex="${escHtml(latex)}"><code>${escHtml(latex)}</code></div>` : `<span class="tc-md-math fallback inline" data-latex="${escHtml(latex)}"><code>${escHtml(latex)}</code></span>`;
+    }
+  );
   return out;
 }
-function renderMarkdown(src) {
+function renderTaskItem(content) {
+  const m = content.match(/^\[([ xX])\]\s+(.*)$/);
+  if (!m)
+    return "";
+  const checked = m[1].toLowerCase() === "x";
+  return `<li class="tc-md-task"><input type="checkbox" disabled${checked ? " checked" : ""}/><span>${m[2]}</span></li>`;
+}
+function renderTable(rows, align) {
+  const cell = (raw, tag, a) => {
+    const styled = a && a !== "left" ? ` style="text-align:${a}"` : "";
+    return `<${tag}${styled}>${raw}</${tag}>`;
+  };
+  const head = rows[0]?.map((c, i) => cell(c, "th", align[i])).join("") ?? "";
+  const body = rows.slice(1).map(
+    (r) => `<tr>${r.map((c, i) => cell(c, "td", align[i])).join("")}</tr>`
+  ).join("");
+  return `<table class="tc-md-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+function renderMarkdown(src, options) {
+  const mathRenderer = options?.mathRenderer;
+  const highlight = options?.highlight;
   const lines = src.replace(/\r\n?/g, "\n").split("\n");
   const out = [];
   let i = 0;
+  const inlineWith = (s) => inline(s, mathRenderer);
   while (i < lines.length) {
     const line = lines[i];
+    const callout = line.match(
+      /^:::\s*([a-zA-Z][\w-]*)(?:\s+(.+))?\s*$/
+    );
+    if (callout) {
+      const variant = callout[1].toLowerCase();
+      const title = (callout[2] ?? "").trim();
+      const buf2 = [];
+      i++;
+      while (i < lines.length && !/^:::\s*$/.test(lines[i])) {
+        buf2.push(lines[i]);
+        i++;
+      }
+      if (i < lines.length)
+        i++;
+      const inner = renderMarkdown(buf2.join("\n"), options);
+      out.push(
+        `<div class="tc-md-callout v-${escHtml(variant)}" role="${variant === "danger" ? "alert" : "note"}">${title ? `<div class="callout-title">${inlineWith(title)}</div>` : ""}<div class="callout-body">${inner}</div></div>`
+      );
+      continue;
+    }
     const fence = line.match(/^```(\S*)\s*$/);
     if (fence) {
       const lang = fence[1] ?? "";
@@ -7821,14 +8027,22 @@ function renderMarkdown(src) {
       }
       if (i < lines.length)
         i++;
+      const code = buf2.join("\n");
+      const highlighted = highlight && lang ? (() => {
+        try {
+          return highlight(code, lang);
+        } catch {
+          return escHtml(code);
+        }
+      })() : escHtml(code);
       const cls = lang ? ` class="lang-${escHtml(lang)}"` : "";
-      out.push(`<pre><code${cls}>${escHtml(buf2.join("\n"))}</code></pre>`);
+      out.push(`<pre><code${cls}>${highlighted}</code></pre>`);
       continue;
     }
     const h = line.match(/^(#{1,6})\s+(.*)$/);
     if (h) {
       const n = h[1].length;
-      out.push(`<h${n}>${inline(h[2])}</h${n}>`);
+      out.push(`<h${n}>${inlineWith(h[2])}</h${n}>`);
       i++;
       continue;
     }
@@ -7837,13 +8051,41 @@ function renderMarkdown(src) {
       i++;
       continue;
     }
+    if (/^\s*\|.+\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(lines[i + 1])) {
+      const headerCells = line.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+      const aligns = lines[i + 1].trim().replace(/^\||\|$/g, "").split("|").map((s) => {
+        const t = s.trim();
+        const left = t.startsWith(":");
+        const right = t.endsWith(":");
+        if (left && right)
+          return "center";
+        if (right)
+          return "right";
+        if (left)
+          return "left";
+        return "";
+      });
+      const bodyRows = [];
+      i += 2;
+      while (i < lines.length && /^\s*\|.+\|\s*$/.test(lines[i])) {
+        bodyRows.push(
+          lines[i].trim().replace(/^\||\|$/g, "").split("|").map(
+            (c) => inlineWith(c.trim())
+          )
+        );
+        i++;
+      }
+      const allRows = [headerCells.map((c) => inlineWith(c)), ...bodyRows];
+      out.push(renderTable(allRows, aligns));
+      continue;
+    }
     if (/^>\s?/.test(line)) {
       const buf2 = [];
       while (i < lines.length && /^>\s?/.test(lines[i])) {
         buf2.push(lines[i].replace(/^>\s?/, ""));
         i++;
       }
-      out.push(`<blockquote>${inline(buf2.join(" "))}</blockquote>`);
+      out.push(`<blockquote>${inlineWith(buf2.join(" "))}</blockquote>`);
       continue;
     }
     const liMatch = line.match(/^(\s*)(?:([-*+])|(\d+)\.)\s+(.*)$/);
@@ -7851,6 +8093,7 @@ function renderMarkdown(src) {
       const ordered = !!liMatch[3];
       const tag = ordered ? "ol" : "ul";
       const items = [];
+      let hasTaskItems = false;
       while (i < lines.length) {
         const m = lines[i].match(/^(\s*)(?:([-*+])|(\d+)\.)\s+(.*)$/);
         if (!m)
@@ -7858,10 +8101,18 @@ function renderMarkdown(src) {
         const isOrdered = !!m[3];
         if (isOrdered !== ordered)
           break;
-        items.push(`<li>${inline(m[4])}</li>`);
+        const content = m[4];
+        const task = renderTaskItem(content);
+        if (task) {
+          hasTaskItems = true;
+          items.push(task);
+        } else {
+          items.push(`<li>${inlineWith(content)}</li>`);
+        }
         i++;
       }
-      out.push(`<${tag}>${items.join("")}</${tag}>`);
+      const cls = hasTaskItems ? ' class="tc-md-tasks"' : "";
+      out.push(`<${tag}${cls}>${items.join("")}</${tag}>`);
       continue;
     }
     if (line.trim() === "") {
@@ -7872,13 +8123,13 @@ function renderMarkdown(src) {
     i++;
     while (i < lines.length) {
       const peek = lines[i];
-      if (peek.trim() === "" || /^#{1,6}\s+/.test(peek) || /^```/.test(peek) || /^>\s?/.test(peek) || /^(\s*)(?:[-*+]|\d+\.)\s+/.test(peek) || /^(?:-\s*){3,}$|^(?:\*\s*){3,}$|^(?:_\s*){3,}$/.test(peek.trim())) {
+      if (peek.trim() === "" || /^#{1,6}\s+/.test(peek) || /^```/.test(peek) || /^>\s?/.test(peek) || /^:::/.test(peek) || /^(\s*)(?:[-*+]|\d+\.)\s+/.test(peek) || /^\s*\|.+\|\s*$/.test(peek) || /^(?:-\s*){3,}$|^(?:\*\s*){3,}$|^(?:_\s*){3,}$/.test(peek.trim())) {
         break;
       }
       buf.push(peek);
       i++;
     }
-    out.push(`<p>${inline(buf.join(" "))}</p>`);
+    out.push(`<p>${inlineWith(buf.join(" "))}</p>`);
   }
   return out.join("\n");
 }
@@ -8122,6 +8373,87 @@ var MD_STYLE = `
     .preview ul, .preview ol { padding-left: 1.4em; margin: 0; }
     .preview img { max-width: 100%; height: auto; border-radius: 4px; }
 
+    /* Tables */
+    .preview .tc-md-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.92rem;
+    }
+    .preview .tc-md-table th,
+    .preview .tc-md-table td {
+      text-align: left;
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--tc-md-rule);
+    }
+    .preview .tc-md-table th {
+      background: var(--tc-color-bg, #faf8f3);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--tc-color-ink-muted, #6b7280);
+    }
+    .preview .tc-md-table tr:last-child td { border-bottom: none; }
+
+    /* Task lists */
+    .preview .tc-md-tasks { list-style: none; padding-left: 0; }
+    .preview .tc-md-task {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 2px 0;
+    }
+    .preview .tc-md-task input[type="checkbox"] {
+      transform: translateY(1px);
+      accent-color: var(--tc-color-accent, #a16939);
+    }
+
+    /* Callouts (:::variant) */
+    .preview .tc-md-callout {
+      border-left: 3px solid currentColor;
+      padding: 10px 14px;
+      border-radius: 4px;
+      color: var(--tc-color-ink-soft, #4a5061);
+      background: var(--tc-color-bg, #faf8f3);
+    }
+    .preview .tc-md-callout.v-info { color: var(--tc-color-info, #1f3a66); background: var(--tc-color-info-bg, #dde6f4); }
+    .preview .tc-md-callout.v-success { color: var(--tc-color-success, #155b40); background: var(--tc-color-success-bg, #dbece2); }
+    .preview .tc-md-callout.v-warning { color: var(--tc-color-warning, #7a4f0a); background: var(--tc-color-warning-bg, #f5e7cf); }
+    .preview .tc-md-callout.v-danger { color: var(--tc-color-danger, #7a1a14); background: var(--tc-color-danger-bg, #f4dad7); }
+    .preview .callout-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: inherit;
+    }
+    .preview .callout-body > :first-child { margin-top: 0; }
+    .preview .callout-body > :last-child { margin-bottom: 0; }
+
+    /* Math */
+    .preview .tc-md-math {
+      font-family: var(--tc-md-mono-font);
+    }
+    .preview .tc-md-math.display {
+      display: block;
+      text-align: center;
+      padding: 8px 0;
+      overflow-x: auto;
+    }
+    .preview .tc-md-math.fallback code {
+      background: var(--tc-color-rule, #ece5d3);
+      color: var(--tc-color-ink, #14171f);
+    }
+    .preview .tc-md-math.fallback.display {
+      background: var(--tc-color-rule, #ece5d3);
+      border-radius: 6px;
+    }
+    .preview .tc-md-math.fallback.display code {
+      background: none;
+      padding: 0;
+    }
+    .preview .tc-md-math.error {
+      color: var(--tc-color-danger, #b3261e);
+      font-style: italic;
+    }
+
     @media (max-width: 640px) {
       .panes { grid-template-columns: 1fr; }
       .source { border-right: none; border-bottom: 1px solid var(--tc-md-rule); }
@@ -8169,7 +8501,12 @@ build(
         return `<button type="button" class="tb-btn" data-op="${escHtml(t.key)}" title="${escHtml(t.label)}${sc}" aria-label="${escHtml(t.label)}">${TB_ICONS[t.key]}</button>`;
       }).join("");
       const modeButton = (m, label) => `<button type="button" data-mode="${m}" class="${mode === m ? "is-active" : ""}" aria-pressed="${mode === m ? "true" : "false"}">${label}</button>`;
-      const html = renderMarkdown(value);
+      const hostExt = props;
+      const renderer = hostExt.render ?? ((md) => renderMarkdown(md, {
+        mathRenderer: hostExt.mathRenderer,
+        highlight: hostExt.highlight
+      }));
+      const html = renderer(value);
       const panesCls = mode === "source" ? "panes source-only" : mode === "preview" ? "panes preview-only" : "panes";
       const styleVar = `--tc-md-min-height: ${escHtml(props.minHeight ?? "240px")};`;
       return `
@@ -8224,7 +8561,10 @@ function installMarkdown(rawHost) {
   const modeStrip = root.querySelector(".tb-mode");
   if (!ta || !preview)
     return;
-  const renderFn = host.render && typeof host.render === "function" ? host.render : renderMarkdown;
+  const renderFn = host.render && typeof host.render === "function" ? host.render : (md) => renderMarkdown(md, {
+    mathRenderer: host.mathRenderer,
+    highlight: host.highlight
+  });
   const sync = () => {
     const md = ta.value;
     host.value = md;

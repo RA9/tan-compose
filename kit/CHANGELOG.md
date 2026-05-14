@@ -3,6 +3,55 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.11.0] - 2026-05-14
+
+### Added — `<tc-markdown>` extensions
+
+The built-in markdown parser now handles four widely-asked-for
+extensions on top of the v1.10 baseline:
+
+- **Math** — `$inline$` and `$$display$$` syntax. Recognised by the
+  parser, rendered via a `mathRenderer` hook on the host:
+  ```js
+  document.querySelector("tc-markdown").mathRenderer = (latex, isDisplay) =>
+    katex.renderToString(latex, { displayMode: isDisplay });
+  ```
+  Without a hook the math falls back to a clearly-labelled
+  `<code>` block showing the LaTeX source — so the missing-renderer
+  state is obvious, not silent.
+- **Tables** — standard GFM pipe tables with `:--`, `--:`, `:--:`
+  alignment markers. Render as `<table class="tc-md-table">`.
+- **Task lists** — `- [ ]` / `- [x]` produce real disabled
+  checkboxes. Rendered list gets the `tc-md-tasks` class.
+- **Callouts** — `:::variant Optional title` … `:::` blocks. Five
+  variants follow the kit's semantic palette: note, info, success,
+  warning, danger.
+- **Code highlighting hook** — set `highlight = (code, lang) => html`
+  on the host to plug in Prism / Shiki / Highlight.js for fenced
+  blocks. Falls back to plain HTML-escaped code if not set.
+
+### Added — `<tc-editor>` math + code blocks
+
+- **Math toolbar button** — prompts for LaTeX (wrap with `$$…$$`
+  for display) and inserts an atomic
+  `<span class="tc-math" contenteditable="false" data-latex="…">`
+  wrapper. The caret steps over the wrapper as a single unit
+  (backspace removes the whole thing) so editing stays predictable.
+- **Code-block toolbar button** — wraps the selection (or inserts a
+  stub) in `<pre><code>` for multi-line code.
+- **`mathRenderer` hook** mirrors tc-markdown: set the function on
+  the host and the editor re-renders existing math nodes via
+  afterRender, stamping `data-stamp` to avoid redundant work.
+- Default toolbar now includes `codeblock` and `math` keys; pass a
+  custom `toolbar=` string to override the layout.
+
+### Theme
+
+- New CSS hooks for the markdown extensions: `.tc-md-table`,
+  `.tc-md-tasks`, `.tc-md-callout.v-*`, `.tc-md-math` —
+  semantically named so end-app stylesheets can override per
+  variant without touching the component.
+
 ## [1.10.0] - 2026-05-14
 
 > Editor primitives. Two complementary components for capturing rich

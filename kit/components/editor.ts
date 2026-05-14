@@ -51,6 +51,8 @@ import { build, describe } from "@ra9/tan-compose";
 const TAG = "tc-editor";
 export const tagName = TAG;
 
+type MathRenderer = (latex: string, displayMode: boolean) => string;
+
 interface HostExtras {
   value: string;
   placeholder: string;
@@ -59,6 +61,7 @@ interface HostExtras {
   minHeight: string;
   maxHeight: string;
   pasteAs: string;
+  mathRenderer?: MathRenderer;
   _editorCleanup?: () => void;
   _lastEmitted?: string;
 }
@@ -116,10 +119,14 @@ const ICON: Record<string, string> = {
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 7 3 13 9 13"/><path d="M21 17a8 8 0 0 0-15-3"/></svg>`,
   redo:
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 7 21 13 15 13"/><path d="M3 17a8 8 0 0 1 15-3"/></svg>`,
+  math:
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h6l4 14h6"/><path d="M4 19l4-7-3-4"/></svg>`,
+  codeblock:
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="9 9 7 12 9 15"/><polyline points="15 9 17 12 15 15"/></svg>`,
 };
 
 const DEFAULT_TOOLBAR =
-  "bold,italic,underline,strike,|,h1,h2,h3,paragraph,|,bullet,ordered,quote,code,|,link,unlink,|,undo,redo";
+  "bold,italic,underline,strike,|,h1,h2,h3,paragraph,|,bullet,ordered,quote,code,codeblock,|,link,unlink,math,|,undo,redo";
 
 const TOOLBAR_REGISTRY: Record<string, ToolbarEntry> = {
   bold: {
@@ -229,6 +236,18 @@ const TOOLBAR_REGISTRY: Record<string, ToolbarEntry> = {
     command: "redo",
     shortcut: "⌘⇧Z",
   },
+  math: {
+    key: "math",
+    label: "Insert math (LaTeX)",
+    icon: ICON.math,
+    command: "math",
+  },
+  codeblock: {
+    key: "codeblock",
+    label: "Code block",
+    icon: ICON.codeblock,
+    command: "codeblock",
+  },
 };
 
 const STYLE = `
@@ -337,6 +356,37 @@ const STYLE = `
     .surface a { color: var(--tc-color-accent, #a16939); text-decoration: underline; }
     .surface ul, .surface ol { padding-left: 1.4em; margin: 0; }
     .surface li + li { margin-top: 0.3em; }
+
+    /* Math nodes are atomic — contenteditable="false" so the caret
+       steps over them; the visual style differentiates rendered vs
+       fallback (missing renderer) so the integration gap is obvious. */
+    .surface .tc-math {
+      display: inline-block;
+      padding: 0 2px;
+    }
+    .surface .tc-math.display {
+      display: block;
+      margin: 8px 0;
+      text-align: center;
+    }
+    .surface .tc-math:hover {
+      outline: 1px dashed var(--tc-color-accent, #a16939);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+    .surface .tc-math .tc-math-src {
+      background: var(--tc-color-accent-soft, #efe2cf);
+      color: var(--tc-color-accent-hover, #8a572d);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--tc-editor-mono-font);
+      font-size: 0.92em;
+    }
+    .surface .tc-math.display .tc-math-src {
+      display: block;
+      padding: 6px 10px;
+    }
+
     ::slotted([slot="toolbar-extra"]) { display: contents; }
   </style>
 `;
@@ -423,6 +473,7 @@ build(
     },
     afterMount() {
       installEditor(this as HTMLElement);
+      renderMathInSurface(this as HTMLElement & HostExtras);
     },
     afterRender() {
       const host = this as HTMLElement & HostExtras;
@@ -441,6 +492,7 @@ build(
         updateEmptyState(surface);
       }
       installEditor(host);
+      renderMathInSurface(host);
     },
     unmount() {
       const host = this as HTMLElement & HostExtras;
@@ -494,6 +546,36 @@ function installEditor(rawHost: HTMLElement): void {
       const url = globalThis.prompt("URL")?.trim();
       if (!url) return;
       document.execCommand("createLink", false, url);
+    } else if (cmd === "math") {
+      const latex = globalThis.prompt(
+        "LaTeX (e.g. E = mc^2). Wrap with $$ for display.",
+      )?.trim();
+      if (!latex) return;
+      const isDisplay = latex.startsWith("$$") && latex.endsWith("$$");
+      const clean = isDisplay
+        ? latex.replace(/^\$\$|\$\$$/g, "").trim()
+        : latex;
+      insertMath(host, clean, isDisplay);
+    } else if (cmd === "codeblock") {
+      // Wrap selection (or insert a stub) in <pre><code>.
+      const sel = (root as ShadowRoot & {
+        getSelection?: () => Selection | null;
+      }).getSelection?.() ?? globalThis.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0);
+      const text = range.toString() || "// code";
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = text;
+      pre.appendChild(code);
+      range.deleteContents();
+      range.insertNode(pre);
+      // Move caret to end of code element.
+      const newRange = document.createRange();
+      newRange.selectNodeContents(code);
+      newRange.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
     } else if (cmd === "formatBlock") {
       // Some browsers require the angle-bracketed form.
       document.execCommand("formatBlock", false, `<${value ?? "p"}>`);
@@ -595,6 +677,93 @@ function emitInput(
       composed: true,
     }),
   );
+}
+
+/**
+ * Insert an atomic math element into the editor. The wrapper is
+ * `contenteditable="false"` so the cursor treats it as a single
+ * unit — backspace removes the whole thing, arrow keys step over
+ * it. The source LaTeX lives on `data-latex` for round-tripping.
+ */
+function insertMath(
+  host: HTMLElement & HostExtras,
+  latex: string,
+  display: boolean,
+): void {
+  const root = host.shadowRoot;
+  if (!root) return;
+  const surface = root.querySelector(".surface") as HTMLElement | null;
+  if (!surface) return;
+  const sel = (root as ShadowRoot & {
+    getSelection?: () => Selection | null;
+  }).getSelection?.() ?? globalThis.getSelection();
+  if (!sel || sel.rangeCount === 0) return;
+  const range = sel.getRangeAt(0);
+  const wrap = document.createElement(display ? "div" : "span");
+  wrap.className = display ? "tc-math display" : "tc-math inline";
+  wrap.setAttribute("contenteditable", "false");
+  wrap.dataset.latex = latex;
+  // Initial fallback rendering — replaced by renderMathInSurface
+  // once the host's mathRenderer is consulted.
+  wrap.innerHTML = renderMathHtml(host, latex, display);
+  range.deleteContents();
+  range.insertNode(wrap);
+  // Drop a zero-width space after so caret lands outside the wrap.
+  const spacer = document.createTextNode("​");
+  wrap.parentNode?.insertBefore(spacer, wrap.nextSibling);
+  const after = document.createRange();
+  after.setStartAfter(spacer);
+  after.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(after);
+  host.dispatchEvent(
+    new CustomEvent("tc-input", {
+      detail: { html: surface.innerHTML },
+      bubbles: true,
+      composed: true,
+    }),
+  );
+}
+
+function renderMathHtml(
+  host: HTMLElement & HostExtras,
+  latex: string,
+  display: boolean,
+): string {
+  if (host.mathRenderer) {
+    try {
+      return host.mathRenderer(latex, display);
+    } catch {
+      // fall through to source-text fallback
+    }
+  }
+  // Fallback so the missing-renderer state is obvious.
+  return `<code class="tc-math-src">${
+    latex.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  }</code>`;
+}
+
+/**
+ * Walk the surface for math elements and (re-)render any whose
+ * `data-latex` doesn't match what's currently displayed. Called from
+ * afterRender so toggling `host.mathRenderer` reflows existing math
+ * without losing edits in the rest of the document.
+ */
+function renderMathInSurface(host: HTMLElement & HostExtras): void {
+  const root = host.shadowRoot;
+  if (!root) return;
+  const surface = root.querySelector(".surface");
+  if (!surface) return;
+  const nodes = surface.querySelectorAll(".tc-math");
+  nodes.forEach((n) => {
+    const el = n as HTMLElement;
+    const latex = el.dataset.latex ?? "";
+    const display = el.classList.contains("display");
+    const stamp = `${display ? "d" : "i"}:${latex}`;
+    if (el.dataset.stamp === stamp) return;
+    el.innerHTML = renderMathHtml(host, latex, display);
+    el.dataset.stamp = stamp;
+  });
 }
 
 function updateActive(root: ShadowRoot, _surface: HTMLElement): void {
