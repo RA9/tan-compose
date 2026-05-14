@@ -3,6 +3,37 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.9.0] - 2026-05-14
+
+### Added — `<tc-chart>`
+
+- **Draw-in animations on every data layer.** Lines stroke-draw left to
+  right (Catmull-Rom-aware path animation via `stroke-dashoffset`);
+  area fills cross-fade; bars grow from the baseline with a staggered
+  left-to-right cascade; donut segments fade + scale in clockwise;
+  points pop after their line finishes drawing. Each respects
+  `prefers-reduced-motion: reduce` and skips entirely.
+- **Interactive legend.** Each legend item is now a real `<button>`
+  with `aria-pressed` semantics. Click (or `Enter` / `Space`) toggles
+  the corresponding series' visibility — the renderer filters hidden
+  series out and re-renders, the legend entry dims, the swatch goes
+  grey. Click again to bring it back.
+- **Legend typography.** Explicit font-family / font-weight / spacing
+  so the legend doesn't look like un-styled inline text — it matches
+  the chart's font tokens and gets a hover background pill.
+
+### Added — `<tc-card>`
+
+- **`size` prop** with values `"sm" | "md" | "lg"` (default `"md"`).
+  Each size scales padding, internal gap, title, and subtitle
+  together so cards stay visually balanced. `sm` for dense card
+  grids, `md` for the default content card, `lg` for hero-style
+  presentation cards.
+- **Responsive padding.** At viewports ≤ 480 px the card padding
+  shrinks automatically so a default `md` card doesn't burn ~40 px
+  of horizontal real estate on a 360 px phone. Hits every size
+  variant proportionally.
+
 ## [1.8.2] - 2026-05-14
 
 ### Fixed

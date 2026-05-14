@@ -36,6 +36,7 @@ build(
       padded: { type: "boolean", default: true },
       bordered: { type: "boolean", default: true },
       elevated: { type: "boolean", default: false },
+      size: { type: "string", default: "md" },
     },
     theme: {
       "tc-card-surface": "var(--tc-color-surface, #ffffff)",
@@ -57,8 +58,11 @@ build(
     },
     template: ({ props }) => {
       const hasHeaderProps = Boolean(props.title) || Boolean(props.subtitle);
+      const rawSize = String(props.size ?? "md").toLowerCase();
+      const size = ["sm", "md", "lg"].includes(rawSize) ? rawSize : "md";
       const classes = [
         "card",
+        `size-${size}`,
         props.bordered ? "bordered" : "",
         props.elevated ? "elevated" : "",
         // Padding is the default; only stamp `nopad` when the user
@@ -169,6 +173,50 @@ build(
           .card.nopad .body,
           .card.nopad .head,
           .card.nopad .foot { padding: 0; }
+
+          /* Per-instance size — overrides the padding tokens so all
+             three padding zones (head, body, foot) and the
+             internal gap scale together. sm tightens for inline /
+             dense card grids, lg expands for hero-style cards. */
+          .card.size-sm {
+            --tc-card-padding-x: 14px;
+            --tc-card-padding-y: 14px;
+            --tc-card-gap: 8px;
+            font-size: 0.92rem;
+          }
+          .card.size-md {
+            --tc-card-padding-x: 20px;
+            --tc-card-padding-y: 20px;
+            --tc-card-gap: 12px;
+          }
+          .card.size-lg {
+            --tc-card-padding-x: 28px;
+            --tc-card-padding-y: 26px;
+            --tc-card-gap: 16px;
+          }
+          .card.size-sm .title { font-size: 0.95rem; }
+          .card.size-lg .title { font-size: 1.18rem; }
+          .card.size-lg .subtitle { font-size: 0.95rem; }
+
+          /* Responsive: shrink padding on narrow viewports so cards
+             don't burn ~40 px of horizontal real estate on a 360 px
+             phone. Hits any size variant. */
+          @media (max-width: 480px) {
+            .card.size-md {
+              --tc-card-padding-x: 14px;
+              --tc-card-padding-y: 14px;
+              --tc-card-gap: 10px;
+            }
+            .card.size-lg {
+              --tc-card-padding-x: 18px;
+              --tc-card-padding-y: 18px;
+              --tc-card-gap: 12px;
+            }
+            .card.size-sm {
+              --tc-card-padding-x: 12px;
+              --tc-card-padding-y: 12px;
+            }
+          }
         </style>
       `;
     },

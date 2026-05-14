@@ -391,9 +391,10 @@ function renderCartesian(
         const title = `${esc(s.name)}${
           labels[i] ? ` · ${esc(labels[i])}` : ""
         }: ${esc(fmt(v))}`;
+        const barDelay = (i * 0.04).toFixed(3);
         layers.push(
           `<g class="${cls}">` +
-            `<rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" data-tip="${title}" data-color="${color}"><title>${title}</title></rect>` +
+            `<rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${barDelay}s"><title>${title}</title></rect>` +
             (showValues
               ? `<text class="value-label" x="${x + w / 2}" y="${
                 y - 4
@@ -422,13 +423,14 @@ function renderCartesian(
         const fillPath = linePath(topPts, smooth) +
           " L " + bottomPts.slice().reverse().map((p) => `${p.x} ${p.y}`)
           .join(" L ") + " Z";
+        const stackedDelay = (si * 0.15).toFixed(3);
         layers.push(
-          `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25" pointer-events="none"/>`,
+          `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25" pointer-events="none" style="animation-delay: ${stackedDelay}s"/>`,
         );
         layers.push(
           `<path class="series-line series-${si}" d="${
             linePath(topPts, smooth)
-          }" stroke="${color}" fill="none" pointer-events="none"/>`,
+          }" stroke="${color}" fill="none" pointer-events="none" style="animation-delay: ${stackedDelay}s"/>`,
         );
         // Hit targets along the stacked top so hover works on stacked area.
         topPts.forEach((p, i) => {
@@ -449,16 +451,17 @@ function renderCartesian(
           y: yAt(v),
         }));
         const d = linePath(pts, smooth);
+        const seriesDelay = (si * 0.15).toFixed(3);
         if (type === "area") {
           const baseY = yAt(yLo < 0 && yHi > 0 ? 0 : yLo);
           const fillPath = d +
             ` L ${pts[pts.length - 1].x} ${baseY} L ${pts[0].x} ${baseY} Z`;
           layers.push(
-            `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25"/>`,
+            `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25" style="animation-delay: ${seriesDelay}s"/>`,
           );
         }
         layers.push(
-          `<path class="series-line series-${si}" d="${d}" stroke="${color}" fill="none"/>`,
+          `<path class="series-line series-${si}" d="${d}" stroke="${color}" fill="none" style="animation-delay: ${seriesDelay}s"/>`,
         );
         if (!sparkline) {
           pts.forEach((p, i) => {
@@ -468,8 +471,9 @@ function renderCartesian(
             }: ${esc(fmt(v ?? 0))}`;
             // Visible point — pointer-events none so it doesn't intercept;
             // the bigger transparent hit circle below catches the hover.
+            const pointDelay = (si * 0.15 + i * 0.025 + 0.55).toFixed(3);
             layers.push(
-              `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" pointer-events="none"/>`,
+              `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" pointer-events="none" style="animation-delay: ${pointDelay}s"/>`,
             );
             layers.push(
               `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}"><title>${title}</title></circle>`,
@@ -513,8 +517,9 @@ function renderDonut(ctx: ChartCtx): string {
     const color = colorFor(i, ctx.palette);
     const pct = ((value / total) * 100).toFixed(1).replace(/\.0$/, "");
     const title = `${esc(s.name)}: ${esc(fmt(value))} (${pct}%)`;
+    const segDelay = (i * 0.08).toFixed(3);
     out.push(
-      `<path class="series-segment hit series-${i}" d="${path}" fill="${color}" data-tip="${title}" data-color="${color}"><title>${title}</title></path>`,
+      `<path class="series-segment hit series-${i}" d="${path}" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${segDelay}s"><title>${title}</title></path>`,
     );
     if (ctx.showValues) {
       const mid = (start + end) / 2;
@@ -531,14 +536,26 @@ function renderDonut(ctx: ChartCtx): string {
   return out.join("");
 }
 
-function renderLegend(series: Series[], palette: string[]): string {
+function renderLegend(
+  series: Series[],
+  palette: string[],
+  hidden: string[],
+): string {
   if (series.length === 0) return "";
   return `<div class="legend" part="legend">` +
     series.map((s, i) => {
       const color = colorFor(i, palette);
-      return `<span class="legend-item"><span class="swatch" style="background:${color}"></span>${
+      const isHidden = hidden.includes(s.name);
+      const cls = isHidden ? "legend-item is-hidden" : "legend-item";
+      return `<button class="${cls}" type="button" data-series="${
         esc(s.name)
-      }</span>`;
+      }" aria-pressed="${isHidden ? "true" : "false"}" title="${
+        isHidden ? "Show" : "Hide"
+      } series '${
+        esc(s.name)
+      }'"><span class="swatch" style="background:${color}"></span>${
+        esc(s.name)
+      }</button>`;
     }).join("") +
     `</div>`;
 }
@@ -713,24 +730,104 @@ const CHART_STYLE = `
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px 18px;
-      margin-top: 12px;
-      font-size: 0.86rem;
+      gap: 6px 4px;
+      margin-top: 14px;
+      font-family: var(--tc-chart-font);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: -0.005em;
       color: var(--tc-chart-fg, var(--tc-color-ink, #14171f));
     }
     .legend-item {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease, opacity 0.15s ease;
+      line-height: 1.3;
+    }
+    .legend-item:hover {
+      background: color-mix(in srgb, var(--tc-chart-fg, currentColor) 7%, transparent);
+    }
+    .legend-item:focus-visible {
+      outline: 2px solid var(--tc-color-accent, #a16939);
+      outline-offset: 2px;
+    }
+    .legend-item.is-hidden {
+      opacity: 0.45;
+    }
+    .legend-item.is-hidden .swatch {
+      background: var(--tc-chart-grid, #ece5d3) !important;
     }
     .swatch {
       width: 10px;
       height: 10px;
-      border-radius: 2px;
+      border-radius: 3px;
       flex: 0 0 auto;
+      transition: background 0.15s ease;
     }
+
+    /* Draw-in animations applied on every render where a data layer
+       lands. animation-fill-mode forwards keeps the final state; hit
+       elements remain at opacity 1 / scale 1 once finished. */
+    .series-line,
+    .series-fill {
+      animation: tc-chart-draw 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      stroke-dasharray: 3000;
+      stroke-dashoffset: 3000;
+    }
+    .series-fill {
+      animation-name: tc-chart-fade-in;
+      animation-duration: 0.7s;
+      stroke-dasharray: none;
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+    .series-point {
+      animation: tc-chart-pop 0.45s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+      opacity: 0;
+    }
+    rect.hit {
+      transform-origin: center bottom;
+      transform-box: fill-box;
+      animation: tc-chart-bar-grow 0.55s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+    }
+    .series-segment.hit {
+      animation: tc-chart-segment-in 0.55s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+      transform-origin: center;
+      transform-box: view-box;
+    }
+    @keyframes tc-chart-draw {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes tc-chart-fade-in {
+      to { opacity: 1; }
+    }
+    @keyframes tc-chart-pop {
+      0%   { opacity: 0; transform: scale(0.4); transform-origin: center; transform-box: fill-box; }
+      70%  { opacity: 1; transform: scale(1.15); transform-origin: center; transform-box: fill-box; }
+      100% { opacity: 1; transform: scale(1); transform-origin: center; transform-box: fill-box; }
+    }
+    @keyframes tc-chart-bar-grow {
+      from { transform: scaleY(0); }
+      to   { transform: scaleY(1); }
+    }
+    @keyframes tc-chart-segment-in {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .series-point, .series-segment { transition: none; }
+      .series-line, .series-fill, .series-point, rect.hit, .series-segment.hit {
+        animation: none;
+        stroke-dashoffset: 0 !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
     }
   </style>
 `;
@@ -786,9 +883,18 @@ build(
       const fetchedData = state.fetched as ChartData | undefined;
       const hasExplicit = !!explicitData &&
         Array.isArray(explicitData.series) && explicitData.series.length > 0;
-      const data = hasExplicit
+      const fullData = hasExplicit
         ? explicitData!
         : (fetchedData ?? { series: [] });
+      // Legend-toggle: the legend renders every series so users can
+      // turn them back on, but renderers see only the visible subset.
+      const hidden = Array.isArray(state.hiddenSeries)
+        ? (state.hiddenSeries as string[])
+        : [];
+      const data: ChartData = {
+        labels: fullData.labels,
+        series: (fullData.series ?? []).filter((s) => !hidden.includes(s.name)),
+      };
       const src = String(props.src ?? "");
       const loading = !!state.loading && !hasExplicit && !fetchedData;
       const error = src && state.error ? String(state.error) : "";
@@ -849,9 +955,9 @@ build(
             ${stateOverlay}
           </div>
           ${
-        props.showLegend && !isSparkline && data.series &&
-          data.series.length > 0
-          ? renderLegend(data.series, palette)
+        props.showLegend && !isSparkline && fullData.series &&
+          fullData.series.length > 0
+          ? renderLegend(fullData.series, palette, hidden)
           : ""
       }
           <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">${
@@ -860,6 +966,38 @@ build(
         </div>
         ${CHART_STYLE}
       `;
+    },
+    events: {
+      "click .legend-item": (e, ctx) => {
+        const target = (e.target as HTMLElement)?.closest(".legend-item") as
+          | HTMLElement
+          | null;
+        if (!target) return;
+        const name = target.dataset.series;
+        if (!name) return;
+        const cur = (ctx.getState("hiddenSeries") as string[] | undefined) ??
+          [];
+        const next = cur.includes(name)
+          ? cur.filter((n) => n !== name)
+          : [...cur, name];
+        ctx.setState("hiddenSeries", next);
+      },
+      "keydown .legend-item": (e, ctx) => {
+        const ev = e as KeyboardEvent;
+        if (ev.key !== "Enter" && ev.key !== " ") return;
+        ev.preventDefault();
+        const target = (ev.target as HTMLElement).closest(".legend-item") as
+          | HTMLElement
+          | null;
+        const name = target?.dataset.series;
+        if (!name) return;
+        const cur = (ctx.getState("hiddenSeries") as string[] | undefined) ??
+          [];
+        const next = cur.includes(name)
+          ? cur.filter((n) => n !== name)
+          : [...cur, name];
+        ctx.setState("hiddenSeries", next);
+      },
     },
     afterMount() {
       installChartHover(this as HTMLElement);
