@@ -2,7 +2,7 @@
 title: kit v1.6 — from 24 to 35 components
 slug: kit-1-6-from-24-to-35
 date: 2026-05-12
-tag: kit v1.6.0 · release
+tag: kit v1.6.0 · v1.7.0 · release
 version: v1.1.0
 description: Eleven new components land in @ra9/tan-compose-kit — carousel, drawer, tooltip, popover, progress, stepper, accordion, avatar (+ group), rating, slider. Top-layer rendering, native dialog, popover API, and a deterministic-tint initials fallback.
 excerpt: Eleven new components grow the kit from 24 to 35. The interesting bits aren't on the surface — they're the platform features each piece leans on. Native dialog for the drawer, popover API for the tooltip, MutationObserver for the carousel's slot, and a clip-path that keeps half-stars exact at any zoom.
@@ -263,6 +263,123 @@ These are the two pieces of chrome that compose pages rather than fields.
 </tc-carousel>
 ```
 
+## tc-chart — added in v1.7
+
+A week after the v1.6 release, one more component landed: `<tc-chart>`. Five chart types in a single element — line, area, bar, sparkline, donut — rendered as pure SVG (~11 KB minified), themeable through the same CSS tokens as the rest of the kit, and accessible by default. The motivation: Chart.js, Recharts, Apex, and ECharts all paint to `<canvas>`, which means series colors live in JS config rather than CSS tokens, and screen readers see exactly nothing in the chart area. tc-chart inverts both of those.
+
+<div class="stage">
+  <tc-chart
+    type="line"
+    height="240px"
+    ariaLabel="Sessions and signups, eight months"
+    style="width:100%;"
+    data='{
+      "labels": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],
+      "series": [
+        {"name":"Sessions","values":[420,460,510,530,640,720,790,830]},
+        {"name":"Signups","values":[80,95,110,130,140,180,210,240]}
+      ]
+    }'
+  ></tc-chart>
+</div>
+
+```html
+<tc-chart
+  type="line"
+  ariaLabel="Sessions and signups, eight months"
+  data='{
+    "labels": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],
+    "series": [
+      {"name":"Sessions","values":[420,460,510,530,640,720,790,830]},
+      {"name":"Signups","values":[80,95,110,130,140,180,210,240]}
+    ]
+  }'
+></tc-chart>
+```
+
+Stacked area for region-by-region breakdown — same `type="area"` plus `stacked`:
+
+<div class="stage">
+  <tc-chart
+    type="area"
+    stacked
+    height="220px"
+    style="width:100%;"
+    data='{
+      "labels": ["Q1","Q2","Q3","Q4"],
+      "series": [
+        {"name":"NA","values":[40,55,70,90]},
+        {"name":"EU","values":[30,40,50,60]},
+        {"name":"APAC","values":[20,25,40,55]}
+      ]
+    }'
+  ></tc-chart>
+</div>
+
+Composition donut for traffic mix — pass single-value entries and a `showValues` to label each segment in-place:
+
+<div class="stage">
+  <tc-chart
+    type="donut"
+    height="260px"
+    showValues
+    ariaLabel="Traffic by device"
+    style="width:100%; max-width: 320px;"
+    data='{
+      "series": [
+        {"name":"Mobile","value":52},
+        {"name":"Desktop","value":31},
+        {"name":"Tablet","value":12},
+        {"name":"Other","value":5}
+      ]
+    }'
+  ></tc-chart>
+</div>
+
+```html
+<tc-chart
+  type="donut"
+  showValues
+  ariaLabel="Traffic by device"
+  data='{
+    "series": [
+      {"name":"Mobile","value":52},
+      {"name":"Desktop","value":31},
+      {"name":"Tablet","value":12},
+      {"name":"Other","value":5}
+    ]
+  }'
+></tc-chart>
+```
+
+Brand it by setting `--tc-chart-color-1` through `--tc-chart-color-8` (or pass an explicit `colors='["#…", …]'` array). Theme switches reskin every chart on the page without re-instantiating anything — the `light → dark` toggle is a CSS variable flip, not a chart-library re-mount.
+
+For sparklines inline with text, drop the axes and legend:
+
+<div class="stage" style="gap: 8px; align-items: center;">
+  Revenue this quarter
+  <tc-chart
+    type="sparkline"
+    height="32px"
+    showLegend="false"
+    style="width: 140px;"
+    data='{ "series": [{"name":"r","values":[12,18,15,22,28,24,32,38]}] }'
+  ></tc-chart>
+  <strong>+216%</strong>
+</div>
+
+```html
+<tc-chart
+  type="sparkline"
+  height="32px"
+  showLegend="false"
+  style="width: 140px;"
+  data='{ "series": [{"name":"r","values":[12,18,15,22,28,24,32,38]}] }'
+></tc-chart>
+```
+
+Full prop list and a brand-theming example on the [tc-chart docs page](/components/chart.html).
+
 ## Composing a real flow
 
 The most interesting thing about a release like this isn't any single component — it's the patterns that fall out when you put them together. A "first-run" experience for a workspace app is `<tc-stepper>` at the top, `<tc-drawer>` for help docs, `<tc-progress>` while creating resources, `<tc-avatar-group>` on the team-invite step, `<tc-tooltip>` on the trickier fields, `<tc-rating>` at the end to ask how it went. That's seven of the eleven new components, plus existing form fields, all themed against the same tokens, all addressable by attribute, all framework-neutral.
@@ -280,6 +397,7 @@ The full list:
 - [`<tc-avatar-group>`](/components/avatar-group.html) — overlap with overflow pill
 - [`<tc-rating>`](/components/rating.html) — half-stars via clip-path, read-only mode
 - [`<tc-slider>`](/components/slider.html) — themed native range, ticks, suffix
+- [`<tc-chart>`](/components/chart.html) — line / area / bar / sparkline / donut, all SVG, all themeable (v1.7)
 
 Install:
 
