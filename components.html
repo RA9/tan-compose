@@ -230,6 +230,7 @@
 
           <h3>Data</h3>
           <a href="#table" data-target="table">Table</a>
+          <a href="#chart" data-target="chart">Chart</a>
 
           <h3>Chrome</h3>
           <a href="#tabs" data-target="tabs">Tabs</a>
@@ -1400,6 +1401,91 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
 
 &lt;tc-slider label="Volume" value="60" suffix="%" showValue&gt;&lt;/tc-slider&gt;
 &lt;tc-slider min="12" max="24" step="1" value="16" showTicks&gt;&lt;/tc-slider&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="chart">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag"><span>&lt;tc-chart&gt; <span style="color: var(--tc-color-ink-muted, #6b7280);">· new in 1.7</span></span><a class="docs-link" href="./components/chart.html">Docs &rarr;</a></div>
+            <h2>Chart</h2>
+            <p class="demo-lede">
+              Pure-SVG charts in five flavors — line, area, bar, sparkline,
+              donut — themeable through CSS tokens and accessible by
+              default. Every point and segment is a real DOM node a
+              screen reader can reach. ~11 KB minified, no canvas.
+            </p>
+          </div>
+          <div class="stage col">
+            <tc-chart
+              type="line"
+              height="240px"
+              ariaLabel="Sessions and signups across eight months"
+              style="width:100%;"
+              data='{
+                "labels": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],
+                "series": [
+                  {"name":"Sessions","values":[420,460,510,530,640,720,790,830]},
+                  {"name":"Signups","values":[80,95,110,130,140,180,210,240]}
+                ]
+              }'
+            ></tc-chart>
+            <tc-chart
+              type="bar"
+              height="220px"
+              style="width:100%;"
+              data='{
+                "labels": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+                "series": [
+                  {"name":"Reads","values":[120,150,180,170,190,80,60]},
+                  {"name":"Writes","values":[40,55,70,60,75,20,15]}
+                ]
+              }'
+            ></tc-chart>
+            <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+              <tc-chart
+                type="donut"
+                height="240px"
+                showValues
+                style="width: 280px;"
+                data='{
+                  "series": [
+                    {"name":"Mobile","value":52},
+                    {"name":"Desktop","value":31},
+                    {"name":"Tablet","value":12},
+                    {"name":"Other","value":5}
+                  ]
+                }'
+              ></tc-chart>
+              <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem;">
+                Revenue this quarter
+                <tc-chart
+                  type="sparkline"
+                  height="32px"
+                  showLegend="false"
+                  style="width: 140px;"
+                  data='{ "series": [{"name":"r","values":[12,18,15,22,28,24,32,38]}] }'
+                ></tc-chart>
+                <strong>+216%</strong>
+              </div>
+            </div>
+          </div>
+<tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/chart"</span>;
+
+&lt;tc-chart
+  type="line"
+  data='{
+    "labels": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],
+    "series": [
+      {"name":"Sessions","values":[420,460,510,530,640,720,790,830]},
+      {"name":"Signups","values":[80,95,110,130,140,180,210,240]}
+    ]
+  }'
+&gt;&lt;/tc-chart&gt;
+
+&lt;tc-chart type="bar" data='{ ... }'&gt;&lt;/tc-chart&gt;
+&lt;tc-chart type="donut" showValues data='{ "series": [...] }'&gt;&lt;/tc-chart&gt;
+&lt;tc-chart type="sparkline" height="32px" showLegend="false" data='{ ... }'&gt;&lt;/tc-chart&gt;</tc-code>
         </div>
       </section>
 
