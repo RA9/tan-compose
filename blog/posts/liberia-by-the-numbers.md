@@ -12,7 +12,7 @@ Liberia, founded as a republic in 1847, is one of Africa's oldest. It also has, 
 
 The story is also a useful test of `<tc-chart>`, the kit's chart component. Every chart on this page is **fetched at runtime from a JSON file** sitting next to the post (`/data/liberia/*.json`), themed with the same CSS tokens the rest of the kit uses, and re-skinable without re-instantiating anything. There's no Chart.js, no Recharts, no canvas. Hover any point and you'll see the underlying figure with its date and series.
 
-<div class="stage" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">
+<div class="stage" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:stretch;padding:14px;">
   <tc-stat label="Population (2023)" value="5.4" suffix="M"></tc-stat>
   <tc-stat label="Since 1960" value="+414" suffix="%"></tc-stat>
   <tc-stat label="Extreme poverty rate" value="51" suffix="%"></tc-stat>
