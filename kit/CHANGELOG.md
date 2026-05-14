@@ -3,6 +3,29 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.7.1] - 2026-05-14
+
+### Added
+
+- **`<tc-chart>` interactive hover tooltip.** Cursor-following pill
+  with a series color swatch and `name · label: value` text, shown
+  instantly on hover instead of waiting for the browser's native
+  `<title>` delay. Targets every line/area point, bar, and donut
+  segment.
+  - **Forgiving hit targets.** Line and area charts now layer a
+    transparent 12 px-radius hit circle on top of each visible point
+    so users don't have to land within the 3.5 px visual dot.
+  - **Edge-aware positioning.** Tip flips to the left or below the
+    cursor when it would overflow the chart bounds.
+  - **`<title>` fallback preserved.** Screen readers and the browser's
+    default behavior still work — the new tooltip is additive.
+
+### Theme
+
+- `--tc-chart-tooltip-bg`, `--tc-chart-tooltip-fg` for the tooltip
+  surface. Defaults to the ink/surface tokens so the dark and
+  bootstrap presets reskin it automatically.
+
 ## [1.7.0] - 2026-05-14
 
 > Adds `<tc-chart>` — five chart types in one component, pure SVG,

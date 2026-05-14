@@ -6600,7 +6600,7 @@ function renderCartesian(ctx, type) {
         }
         const title = `${esc33(s.name)}${labels[i] ? ` \xB7 ${esc33(labels[i])}` : ""}: ${esc33(fmt(v))}`;
         layers.push(
-          `<g class="${cls}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w / 2}" y="${y - 4}" text-anchor="middle">${esc33(fmt(v))}</text>` : "") + `</g>`
+          `<g class="${cls}"><rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" data-tip="${title}" data-color="${color}"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w / 2}" y="${y - 4}" text-anchor="middle">${esc33(fmt(v))}</text>` : "") + `</g>`
         );
       });
     });
@@ -6620,11 +6620,18 @@ function renderCartesian(ctx, type) {
         }
         const fillPath = linePath(topPts, smooth) + " L " + bottomPts.slice().reverse().map((p) => `${p.x} ${p.y}`).join(" L ") + " Z";
         layers.push(
-          `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25"/>`
+          `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25" pointer-events="none"/>`
         );
         layers.push(
-          `<path class="series-line series-${si}" d="${linePath(topPts, smooth)}" stroke="${color}" fill="none"/>`
+          `<path class="series-line series-${si}" d="${linePath(topPts, smooth)}" stroke="${color}" fill="none" pointer-events="none"/>`
         );
+        topPts.forEach((p, i) => {
+          const v = s.values?.[i] ?? 0;
+          const title = `${esc33(s.name)}${labels[i] ? ` \xB7 ${esc33(labels[i])}` : ""}: ${esc33(fmt(v))}`;
+          layers.push(
+            `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}"><title>${title}</title></circle>`
+          );
+        });
       });
     } else {
       series.forEach((s, si) => {
@@ -6649,11 +6656,14 @@ function renderCartesian(ctx, type) {
             const v = s.values?.[i];
             const title = `${esc33(s.name)}${labels[i] ? ` \xB7 ${esc33(labels[i])}` : ""}: ${esc33(fmt(v ?? 0))}`;
             layers.push(
-              `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}"><title>${title}</title></circle>`
+              `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" pointer-events="none"/>`
+            );
+            layers.push(
+              `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}"><title>${title}</title></circle>`
             );
             if (showValues) {
               layers.push(
-                `<text class="value-label" x="${p.x}" y="${p.y - 8}" text-anchor="middle">${esc33(fmt(v ?? 0))}</text>`
+                `<text class="value-label" x="${p.x}" y="${p.y - 8}" text-anchor="middle" pointer-events="none">${esc33(fmt(v ?? 0))}</text>`
               );
             }
           });
@@ -6686,7 +6696,7 @@ function renderDonut(ctx) {
     const pct = (value / total * 100).toFixed(1).replace(/\.0$/, "");
     const title = `${esc33(s.name)}: ${esc33(fmt(value))} (${pct}%)`;
     out.push(
-      `<path class="series-segment series-${i}" d="${path}" fill="${color}"><title>${title}</title></path>`
+      `<path class="series-segment hit series-${i}" d="${path}" fill="${color}" data-tip="${title}" data-color="${color}"><title>${title}</title></path>`
     );
     if (ctx.showValues) {
       const mid = (start + end) / 2;
@@ -6744,7 +6754,40 @@ var CHART_STYLE = `
       display: block;
       width: 100%;
       height: 100%;
+      position: relative;
     }
+    .tip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      background: var(--tc-chart-tooltip-bg, var(--tc-color-ink, #14171f));
+      color: var(--tc-chart-tooltip-fg, #ffffff);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      padding: 6px 10px;
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      white-space: nowrap;
+      opacity: 0;
+      transform: translate(-9999px, -9999px);
+      transition: opacity 0.1s ease;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--tc-chart-font);
+    }
+    .tip[data-open="1"] { opacity: 1; }
+    .tip-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex: 0 0 auto;
+      background: currentColor;
+    }
+    /* hit targets \u2014 invisible enlarged grab zones */
+    .hit { cursor: default; }
     svg { display: block; width: 100%; height: 100%; overflow: visible; }
     .grid {
       stroke: var(--tc-chart-grid, var(--tc-color-rule, #ece5d3));
@@ -6878,15 +6921,79 @@ build(
               preserveAspectRatio="${isDonut ? "xMidYMid meet" : "none"}"
               aria-hidden="true"
             >${body}</svg>
+            <div class="tip" role="tooltip">
+              <span class="tip-swatch"></span><span class="tip-text"></span>
+            </div>
           </div>
           ${props.showLegend && !isSparkline && data.series && data.series.length > 0 ? renderLegend(data.series, palette) : ""}
           <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">${esc33(desc)}</span>
         </div>
         ${CHART_STYLE}
       `;
+    },
+    afterMount() {
+      installChartHover(this);
+    },
+    afterRender() {
+      installChartHover(this);
+    },
+    unmount() {
+      const host = this;
+      host._chartHoverCleanup?.();
     }
   })
 );
+function installChartHover(host) {
+  const h = host;
+  h._chartHoverCleanup?.();
+  const root = h.shadowRoot;
+  if (!root)
+    return;
+  const canvas = root.querySelector(".canvas");
+  const tip = root.querySelector(".tip");
+  const tipText = tip?.querySelector(".tip-text");
+  const tipSwatch = tip?.querySelector(".tip-swatch");
+  if (!canvas || !tip || !tipText || !tipSwatch)
+    return;
+  const hide = () => {
+    tip.removeAttribute("data-open");
+    tip.style.transform = "translate(-9999px, -9999px)";
+  };
+  const onMove = (e) => {
+    const target = e.target?.closest?.(
+      "[data-tip]"
+    );
+    if (!target) {
+      hide();
+      return;
+    }
+    const text = target.getAttribute("data-tip") || "";
+    const color = target.getAttribute("data-color") || "currentColor";
+    tipText.textContent = text;
+    tipSwatch.style.background = color;
+    const rect = canvas.getBoundingClientRect();
+    const tw = tip.offsetWidth || 100;
+    const th = tip.offsetHeight || 24;
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    let x = px + 12;
+    let y = py - th - 8;
+    if (x + tw > rect.width - 4)
+      x = px - tw - 12;
+    if (y < 4)
+      y = py + 16;
+    tip.style.transform = `translate(${x}px, ${y}px)`;
+    tip.setAttribute("data-open", "1");
+  };
+  const onLeave = () => hide();
+  canvas.addEventListener("pointermove", onMove);
+  canvas.addEventListener("pointerleave", onLeave);
+  h._chartHoverCleanup = () => {
+    canvas.removeEventListener("pointermove", onMove);
+    canvas.removeEventListener("pointerleave", onLeave);
+    hide();
+  };
+}
 
 // mod.ts
 var tags = {

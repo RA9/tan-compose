@@ -32,14 +32,14 @@ ship is what the browser runs (no esm.sh transformer in the loop):
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.7.0/kit/dist/themes/tokens.min.js"></script>
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.7.1/kit/dist/themes/tokens.min.js"></script>
 <script type="module"
-  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.7.0/kit/dist/kit.min.js"></script>
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.7.1/kit/dist/kit.min.js"></script>
 
 <tc-button variant="primary">Save</tc-button>
 ```
 
-Swap the tag (`@kit-v1.7.0`) for whichever version you want to pin to.
+Swap the tag (`@kit-v1.7.1`) for whichever version you want to pin to.
 Available theme bundles: `tokens`, `dark`, `bootstrap`, `tailwind`,
 `material`, `shadcn`.
 

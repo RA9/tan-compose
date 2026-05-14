@@ -1,6 +1,6 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
