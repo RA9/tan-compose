@@ -38,10 +38,11 @@ var t=`:root {
   --tc-radius-lg:  12px;
   --tc-radius-pill: 999px;
 
-  /* shadow */
-  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-  --tc-shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-  --tc-shadow-lg: 0 24px 60px rgba(20, 23, 31, 0.18);
+  /* shadow \u2014 two-layer for depth. tuned so md is clearly elevated
+     against the page bg without looking dramatic. */
+  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.05), 0 1px 1px rgba(20, 23, 31, 0.03);
+  --tc-shadow-md: 0 4px 12px rgba(20, 23, 31, 0.10), 0 2px 4px rgba(20, 23, 31, 0.06);
+  --tc-shadow-lg: 0 18px 44px rgba(20, 23, 31, 0.16), 0 6px 14px rgba(20, 23, 31, 0.08);
 
   /* typography */
   --tc-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

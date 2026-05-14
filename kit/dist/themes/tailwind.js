@@ -38,10 +38,11 @@ var e=`:root {
   --tc-radius-lg:  12px;
   --tc-radius-pill: 999px;
 
-  /* shadow */
-  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-  --tc-shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-  --tc-shadow-lg: 0 24px 60px rgba(20, 23, 31, 0.18);
+  /* shadow \u2014 two-layer for depth. tuned so md is clearly elevated
+     against the page bg without looking dramatic. */
+  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.05), 0 1px 1px rgba(20, 23, 31, 0.03);
+  --tc-shadow-md: 0 4px 12px rgba(20, 23, 31, 0.10), 0 2px 4px rgba(20, 23, 31, 0.06);
+  --tc-shadow-lg: 0 18px 44px rgba(20, 23, 31, 0.16), 0 6px 14px rgba(20, 23, 31, 0.08);
 
   /* typography */
   --tc-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -60,7 +61,7 @@ var e=`:root {
   /* focus ring */
   --tc-focus-ring: 0 0 0 3px rgba(161, 105, 57, 0.18);
 }
-`,t=!1;function r(){if(typeof document>"u"||t)return;if(document.querySelector("style[data-tc-tokens]")){t=!0;return}let c=document.createElement("style");c.setAttribute("data-tc-tokens",""),c.textContent=e,document.head.insertBefore(c,document.head.firstChild),t=!0}r();var a=`:root {
+`,c=!1;function r(){if(typeof document>"u"||c)return;if(document.querySelector("style[data-tc-tokens]")){c=!0;return}let t=document.createElement("style");t.setAttribute("data-tc-tokens",""),t.textContent=e,document.head.insertBefore(t,document.head.firstChild),c=!0}r();var a=`:root {
   /* color \u2014 accent: indigo-500 / 600 / 100 */
   --tc-color-accent:       rgb(99 102 241);
   --tc-color-accent-hover: rgb(79 70 229);
@@ -103,4 +104,4 @@ var e=`:root {
   /* focus ring \u2014 indigo-500 at 25% */
   --tc-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.4);
 }
-`,o=!1;function n(){if(typeof document>"u"||o)return;if(document.querySelector("style[data-tc-theme='tailwind']")){o=!0;return}let c=document.createElement("style");c.setAttribute("data-tc-theme","tailwind"),c.textContent=a,document.head.appendChild(c),o=!0}n();export{n as injectTailwind,a as tailwindCss};
+`,o=!1;function n(){if(typeof document>"u"||o)return;if(document.querySelector("style[data-tc-theme='tailwind']")){o=!0;return}let t=document.createElement("style");t.setAttribute("data-tc-theme","tailwind"),t.textContent=a,document.head.appendChild(t),o=!0}n();export{n as injectTailwind,a as tailwindCss};

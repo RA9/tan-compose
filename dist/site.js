@@ -38,10 +38,11 @@ var zt=`:root {
   --tc-radius-lg:  12px;
   --tc-radius-pill: 999px;
 
-  /* shadow */
-  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-  --tc-shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-  --tc-shadow-lg: 0 24px 60px rgba(20, 23, 31, 0.18);
+  /* shadow \u2014 two-layer for depth. tuned so md is clearly elevated
+     against the page bg without looking dramatic. */
+  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.05), 0 1px 1px rgba(20, 23, 31, 0.03);
+  --tc-shadow-md: 0 4px 12px rgba(20, 23, 31, 0.10), 0 2px 4px rgba(20, 23, 31, 0.06);
+  --tc-shadow-lg: 0 18px 44px rgba(20, 23, 31, 0.16), 0 6px 14px rgba(20, 23, 31, 0.08);
 
   /* typography */
   --tc-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -848,19 +849,25 @@ tr.empty td {
           }
 
           /* Head padding when title/subtitle props are set OR something
-             is slotted into name="header". The body then trims its top
-             padding so the two sections meet at --tc-card-gap. */
-          .card.has-header .head,
+             is slotted into name="header". Rules split to dodge the
+             "one invalid selector drops the whole comma-list" trap \u2014
+             some browsers parse :has(::slotted(*)) inconsistently, and
+             a combined list would lose the simpler .has-header
+             selector along with it. */
+          .card.has-header .head {
+            padding:
+              var(--tc-card-padding-y)
+              var(--tc-card-padding-x)
+              var(--tc-card-gap);
+          }
           .card .head:has(::slotted(*)) {
             padding:
               var(--tc-card-padding-y)
               var(--tc-card-padding-x)
               var(--tc-card-gap);
           }
-          .card.has-header .head + .body,
-          .card .head:has(::slotted(*)) + .body {
-            padding-top: 0;
-          }
+          .card.has-header .head + .body { padding-top: 0; }
+          .card .head:has(::slotted(*)) + .body { padding-top: 0; }
 
           /* Hide an empty head \u2014 neither props nor slotted content. */
           .card:not(.has-header) .head:not(:has(::slotted(*))) {
@@ -912,45 +919,46 @@ tr.empty td {
 
           /* Per-instance size \u2014 overrides the padding tokens so all
              three padding zones (head, body, foot) and the
-             internal gap scale together. sm tightens for inline /
-             dense card grids, lg expands for hero-style cards. */
+             internal gap scale together. md matches the pre-size-
+             prop default (=var(--tc-space-5, 24 px)) so existing
+             cards don't visibly shrink when adopting v1.9. */
           .card.size-sm {
             --tc-card-padding-x: 14px;
             --tc-card-padding-y: 14px;
             --tc-card-gap: 8px;
-            font-size: 0.92rem;
+            font-size: 0.93rem;
           }
           .card.size-md {
-            --tc-card-padding-x: 20px;
-            --tc-card-padding-y: 20px;
-            --tc-card-gap: 12px;
+            --tc-card-padding-x: 24px;
+            --tc-card-padding-y: 22px;
+            --tc-card-gap: 14px;
           }
           .card.size-lg {
-            --tc-card-padding-x: 28px;
-            --tc-card-padding-y: 26px;
-            --tc-card-gap: 16px;
+            --tc-card-padding-x: 32px;
+            --tc-card-padding-y: 28px;
+            --tc-card-gap: 18px;
           }
-          .card.size-sm .title { font-size: 0.95rem; }
-          .card.size-lg .title { font-size: 1.18rem; }
-          .card.size-lg .subtitle { font-size: 0.95rem; }
+          .card.size-sm .title { font-size: 0.96rem; }
+          .card.size-lg .title { font-size: 1.22rem; letter-spacing: -0.015em; }
+          .card.size-lg .subtitle { font-size: 0.96rem; margin-top: 6px; }
 
           /* Responsive: shrink padding on narrow viewports so cards
-             don't burn ~40 px of horizontal real estate on a 360 px
-             phone. Hits any size variant. */
+             don't burn ~50 px of horizontal real estate on a 360 px
+             phone. Hits every size variant proportionally. */
           @media (max-width: 480px) {
-            .card.size-md {
-              --tc-card-padding-x: 14px;
-              --tc-card-padding-y: 14px;
-              --tc-card-gap: 10px;
-            }
-            .card.size-lg {
-              --tc-card-padding-x: 18px;
-              --tc-card-padding-y: 18px;
-              --tc-card-gap: 12px;
-            }
             .card.size-sm {
               --tc-card-padding-x: 12px;
               --tc-card-padding-y: 12px;
+            }
+            .card.size-md {
+              --tc-card-padding-x: 16px;
+              --tc-card-padding-y: 16px;
+              --tc-card-gap: 12px;
+            }
+            .card.size-lg {
+              --tc-card-padding-x: 20px;
+              --tc-card-padding-y: 20px;
+              --tc-card-gap: 14px;
             }
           }
         </style>

@@ -38,10 +38,11 @@ var e=`:root {
   --tc-radius-lg:  12px;
   --tc-radius-pill: 999px;
 
-  /* shadow */
-  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-  --tc-shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-  --tc-shadow-lg: 0 24px 60px rgba(20, 23, 31, 0.18);
+  /* shadow \u2014 two-layer for depth. tuned so md is clearly elevated
+     against the page bg without looking dramatic. */
+  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.05), 0 1px 1px rgba(20, 23, 31, 0.03);
+  --tc-shadow-md: 0 4px 12px rgba(20, 23, 31, 0.10), 0 2px 4px rgba(20, 23, 31, 0.06);
+  --tc-shadow-lg: 0 18px 44px rgba(20, 23, 31, 0.16), 0 6px 14px rgba(20, 23, 31, 0.08);
 
   /* typography */
   --tc-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -60,7 +61,7 @@ var e=`:root {
   /* focus ring */
   --tc-focus-ring: 0 0 0 3px rgba(161, 105, 57, 0.18);
 }
-`,c=!1;function r(){if(typeof document>"u"||c)return;if(document.querySelector("style[data-tc-tokens]")){c=!0;return}let o=document.createElement("style");o.setAttribute("data-tc-tokens",""),o.textContent=e,document.head.insertBefore(o,document.head.firstChild),c=!0}r();var s=`:root {
+`,t=!1;function r(){if(typeof document>"u"||t)return;if(document.querySelector("style[data-tc-tokens]")){t=!0;return}let o=document.createElement("style");o.setAttribute("data-tc-tokens",""),o.textContent=e,document.head.insertBefore(o,document.head.firstChild),t=!0}r();var a=`:root {
   /* color \u2014 accent: Bootstrap primary */
   --tc-color-accent:       #0d6efd;
   --tc-color-accent-hover: #0b5ed7;
@@ -104,4 +105,4 @@ var e=`:root {
   /* focus ring \u2014 Bootstrap blue at 25% */
   --tc-focus-ring: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
-`,t=!1;function a(){if(typeof document>"u"||t)return;if(document.querySelector("style[data-tc-theme='bootstrap']")){t=!0;return}let o=document.createElement("style");o.setAttribute("data-tc-theme","bootstrap"),o.textContent=s,document.head.appendChild(o),t=!0}a();export{s as bootstrapCss,a as injectBootstrap};
+`,c=!1;function s(){if(typeof document>"u"||c)return;if(document.querySelector("style[data-tc-theme='bootstrap']")){c=!0;return}let o=document.createElement("style");o.setAttribute("data-tc-theme","bootstrap"),o.textContent=a,document.head.appendChild(o),c=!0}s();export{a as bootstrapCss,s as injectBootstrap};

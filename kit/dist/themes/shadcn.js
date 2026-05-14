@@ -38,10 +38,11 @@ var e=`:root {
   --tc-radius-lg:  12px;
   --tc-radius-pill: 999px;
 
-  /* shadow */
-  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.04);
-  --tc-shadow-md: 0 8px 24px rgba(20, 23, 31, 0.06);
-  --tc-shadow-lg: 0 24px 60px rgba(20, 23, 31, 0.18);
+  /* shadow \u2014 two-layer for depth. tuned so md is clearly elevated
+     against the page bg without looking dramatic. */
+  --tc-shadow-sm: 0 1px 2px rgba(20, 23, 31, 0.05), 0 1px 1px rgba(20, 23, 31, 0.03);
+  --tc-shadow-md: 0 4px 12px rgba(20, 23, 31, 0.10), 0 2px 4px rgba(20, 23, 31, 0.06);
+  --tc-shadow-lg: 0 18px 44px rgba(20, 23, 31, 0.16), 0 6px 14px rgba(20, 23, 31, 0.08);
 
   /* typography */
   --tc-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -60,7 +61,7 @@ var e=`:root {
   /* focus ring */
   --tc-focus-ring: 0 0 0 3px rgba(161, 105, 57, 0.18);
 }
-`,o=!1;function r(){if(typeof document>"u"||o)return;if(document.querySelector("style[data-tc-tokens]")){o=!0;return}let c=document.createElement("style");c.setAttribute("data-tc-tokens",""),c.textContent=e,document.head.insertBefore(c,document.head.firstChild),o=!0}r();var s=`:root {
+`,t=!1;function r(){if(typeof document>"u"||t)return;if(document.querySelector("style[data-tc-tokens]")){t=!0;return}let c=document.createElement("style");c.setAttribute("data-tc-tokens",""),c.textContent=e,document.head.insertBefore(c,document.head.firstChild),t=!0}r();var s=`:root {
   /* color \u2014 accent: shadcn's primary (zinc-900 on light) */
   --tc-color-accent:       hsl(240, 5.9%, 10%);
   --tc-color-accent-hover: hsl(240, 5.2%, 33.9%);
@@ -109,4 +110,4 @@ var e=`:root {
   /* focus ring \u2014 black ring */
   --tc-focus-ring: 0 0 0 2px hsl(0, 0%, 100%), 0 0 0 4px hsl(240, 10%, 3.9%);
 }
-`,t=!1;function a(){if(typeof document>"u"||t)return;if(document.querySelector("style[data-tc-theme='shadcn']")){t=!0;return}let c=document.createElement("style");c.setAttribute("data-tc-theme","shadcn"),c.textContent=s,document.head.appendChild(c),t=!0}a();export{a as injectShadcn,s as shadcnCss};
+`,o=!1;function a(){if(typeof document>"u"||o)return;if(document.querySelector("style[data-tc-theme='shadcn']")){o=!0;return}let c=document.createElement("style");c.setAttribute("data-tc-theme","shadcn"),c.textContent=s,document.head.appendChild(c),o=!0}a();export{a as injectShadcn,s as shadcnCss};

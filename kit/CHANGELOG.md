@@ -3,6 +3,37 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.9.1] - 2026-05-14
+
+### Fixed
+
+- **`<tc-card>` head padding silently disappeared in some browsers.**
+  The combined selector
+  `.card.has-header .head, .card .head:has(::slotted(*))` meant any
+  browser that couldn't parse `:has(::slotted(*))` dropped *the entire
+  comma-list* (legacy CSS parsing rule), taking the simpler
+  `.has-header` selector down with it. Title text rendered at the
+  card's edge with no top/left padding, so it didn't line up with
+  the body content below. Split the rule into two independent
+  selectors so the `.has-header` path is always honored.
+- **`<tc-card>` size="md" was a regression on padding.** v1.9.0
+  introduced `size="md"` with a 20 px padding token, but the pre-
+  size-prop default resolved to `var(--tc-space-5, 20px)` which is
+  **24 px** when `themes/tokens` is loaded. So adopting v1.9.0
+  visibly shrunk every existing card by 4 px on each side. Rebumped
+  to `md = 24 px x / 22 px y / 14 px gap` so v1.9 matches v1.8 by
+  default.
+
+### Changed
+
+- **Shadow tokens have more presence.** Previous values
+  (`rgba(20, 23, 31, 0.06)` for `--tc-shadow-md`) were so faint that
+  an "elevated" card was visually indistinguishable from a plain
+  one. New values are layered, two-tone shadows that read clearly
+  against the default page background without looking heavy.
+  Affects `<tc-card elevated>`, `<tc-modal>`, `<tc-drawer>`,
+  `<tc-popover>`.
+
 ## [1.9.0] - 2026-05-14
 
 ### Added — `<tc-chart>`
