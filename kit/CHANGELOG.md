@@ -3,6 +3,16 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.8.1] - 2026-05-14
+
+### Fixed
+
+- **`<tc-stat>` cards no longer collapse to content height in grid /
+  flex rows.** The inner `.card` had no `height: 100%`, so when a row
+  contained one stat with a `delta` line and others without, the
+  others stayed shorter and the row looked uneven. Now the host
+  stretches and the card fills it with `flex: 1 1 auto`.
+
 ## [1.8.0] - 2026-05-14
 
 ### Added

@@ -2489,7 +2489,11 @@ build(
       "tc-stat-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
     },
     styles: {
-      display: "block"
+      // Stretch in flex / grid containers so multiple stats in a row
+      // share a baseline height. Otherwise the card with a `delta`
+      // line ends up taller than its siblings.
+      display: "flex",
+      height: "100%"
     },
     template: ({ props }) => {
       const trend = String(props.trend ?? "neutral");
@@ -2508,12 +2512,17 @@ build(
                 </div>` : ""}
         </div>
         <style>
+          :host { display: flex; height: 100%; }
           .card {
             background: var(--tc-stat-surface);
             border: 1px solid var(--tc-stat-rule);
             border-radius: var(--tc-stat-radius);
             padding: 18px 20px;
             font-family: var(--tc-stat-font);
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           }
           .label {
             font-size: 0.78rem;
