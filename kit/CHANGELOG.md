@@ -3,6 +3,20 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.8.2] - 2026-05-14
+
+### Fixed
+
+- **`<tc-stat>` widths uneven in grid / flex parent rows.** The 1.8.1
+  fix used `display: flex` on the host to stretch the card height,
+  but flex on the host meant the inner container sized to content
+  (default `flex: 0 1 auto`), so cards with longer labels (e.g.
+  "EXTREME POVERTY RATE") were visually wider than cards with short
+  ones ("SINCE 1960"). Switched the host to `display: block` and
+  pushed the height-fill responsibility down to `.card { height: 100% }`
+  — block-level boxes fill their grid cell uniformly, and the card
+  stretches vertically inside.
+
 ## [1.8.1] - 2026-05-14
 
 ### Fixed

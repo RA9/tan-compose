@@ -46,9 +46,11 @@ build(
     },
     styles: {
       // Stretch in flex / grid containers so multiple stats in a row
-      // share a baseline height. Otherwise the card with a `delta`
-      // line ends up taller than its siblings.
-      display: "flex",
+      // share a baseline height. `display: block` (not flex) so the
+      // host's box fills the grid cell uniformly — flex on the host
+      // makes the inner container size to its content and the cards
+      // end up unevenly wide.
+      display: "block",
       height: "100%",
     },
     template: ({ props }) => {
@@ -76,14 +78,15 @@ build(
       }
         </div>
         <style>
-          :host { display: flex; height: 100%; }
+          :host { display: block; height: 100%; }
           .card {
             background: var(--tc-stat-surface);
             border: 1px solid var(--tc-stat-rule);
             border-radius: var(--tc-stat-radius);
             padding: 18px 20px;
             font-family: var(--tc-stat-font);
-            flex: 1 1 auto;
+            box-sizing: border-box;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
