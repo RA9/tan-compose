@@ -3,6 +3,39 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.7.0] - 2026-05-14
+
+> Adds `<tc-chart>` — five chart types in one component, pure SVG,
+> themeable via CSS tokens, accessible by default, ~6 KB minified.
+
+### Added
+
+- **`<tc-chart>`** — SVG-based charts. Five types in one element:
+  - `line` (single or multi-series, optional smoothing)
+  - `area` (with optional `stacked`)
+  - `bar` (grouped or `stacked`)
+  - `sparkline` (axes / legend stripped for inline mini-trends)
+  - `donut` (or pie with `innerRadius="0"`)
+
+  Designed to replace Chart.js / Recharts / Apex for the common case
+  where the chart needs to:
+  - Respect the kit's CSS tokens (light → dark → branded → custom
+    presets all work without re-wiring)
+  - Expose data to screen readers (every point, bar, and segment is a
+    real DOM element with a `<title>` and structured aria description)
+  - Stay small (~6 KB instead of 100–400 KB)
+  - Render responsively without per-instance JS resize handlers
+    (SVG `viewBox`, host `width: 100%`)
+
+  Props: `type`, `data`, `height`, `smooth`, `stacked`, `showLegend`,
+  `showAxes`, `showGrid`, `showLabels`, `showValues`, `innerRadius`,
+  `yMin`, `yMax`, `ariaLabel`, `colors`. Theme tokens:
+  `--tc-chart-color-1` … `--tc-chart-color-8`, `--tc-chart-axis`,
+  `--tc-chart-grid`, `--tc-chart-label`, plus `--tc-chart-bg`,
+  `--tc-chart-fg`, `--tc-chart-font`.
+
+  Kit count: 35 → 36.
+
 ## [1.6.4] - 2026-05-13
 
 > Patch release. Fixes the `var`-hoisting bug in five more components.

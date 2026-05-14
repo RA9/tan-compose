@@ -1,8 +1,8 @@
 # @ra9/tan-compose-kit
 
 Battle-tested Web Components built on top of
-[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 35 components, 6 theme
-presets, ~195 KB minified (~42 KB gzipped) for the whole bundle. No JSX, no
+[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 36 components, 6 theme
+presets, ~205 KB minified (~45 KB gzipped) for the whole bundle. No JSX, no
 compiler, no runtime framework — just custom elements you drop into HTML,
 React, Vue, Astro, or anywhere else custom elements work.
 
@@ -32,14 +32,14 @@ ship is what the browser runs (no esm.sh transformer in the loop):
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.6.4/kit/dist/themes/tokens.min.js"></script>
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.7.0/kit/dist/themes/tokens.min.js"></script>
 <script type="module"
-  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.6.4/kit/dist/kit.min.js"></script>
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.7.0/kit/dist/kit.min.js"></script>
 
 <tc-button variant="primary">Save</tc-button>
 ```
 
-Swap the tag (`@kit-v1.6.4`) for whichever version you want to pin to.
+Swap the tag (`@kit-v1.7.0`) for whichever version you want to pin to.
 Available theme bundles: `tokens`, `dark`, `bootstrap`, `tailwind`,
 `material`, `shadcn`.
 
@@ -85,6 +85,7 @@ expected.
 | ----------------- | ---------------------------------------------------------------------- |
 | `<tc-table>`      | Sortable, filterable, paginated. Real keyed `for:` row reconciliation. |
 | `<tc-pagination>` | Prev/next + windowed page numbers with siblings/boundaries.            |
+| `<tc-chart>`      | SVG line / area / bar / sparkline / donut. Themed via CSS tokens.      |
 
 ### Overlays
 
