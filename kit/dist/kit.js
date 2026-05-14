@@ -6788,6 +6788,46 @@ var CHART_STYLE = `
     }
     /* hit targets \u2014 invisible enlarged grab zones */
     .hit { cursor: default; }
+
+    /* Loading / error overlay used while a src= fetch is in flight. */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--tc-chart-label, var(--tc-color-ink-muted, #6b7280));
+      background: color-mix(in srgb, var(--tc-chart-bg, var(--tc-color-surface, #ffffff)) 88%, transparent);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+    .overlay.loading::before {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--tc-chart-grid, #ece5d3);
+      border-top-color: var(--tc-color-accent, #a16939);
+      animation: tc-chart-spin 0.8s linear infinite;
+    }
+    .overlay.error {
+      color: var(--tc-color-danger-fg, #7a1a14);
+    }
+    .overlay.error small {
+      font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+      font-size: 0.74rem;
+      opacity: 0.8;
+    }
+    @keyframes tc-chart-spin {
+      to { transform: rotate(360deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .overlay.loading::before { animation-duration: 3s; }
+    }
     svg { display: block; width: 100%; height: 100%; overflow: visible; }
     .grid {
       stroke: var(--tc-chart-grid, var(--tc-color-rule, #ece5d3));
@@ -6874,7 +6914,16 @@ build(
       yMin: { type: "json", default: null },
       yMax: { type: "json", default: null },
       ariaLabel: { type: "string", default: "Chart" },
-      colors: { type: "json", default: null }
+      colors: { type: "json", default: null },
+      // Server-side data: fetch JSON from `src` and use it as `data`.
+      // If `data` is set explicitly it always wins. `srcKey` lets the
+      // chart drill into the response (e.g. "results.population" maps to
+      // `json.results.population`). `loadingText` and `errorText` are
+      // shown inside the chart while the fetch is pending / failed.
+      src: { type: "string", default: "" },
+      srcKey: { type: "string", default: "" },
+      loadingText: { type: "string", default: "Loading chart\u2026" },
+      errorText: { type: "string", default: "Couldn't load chart data" }
     },
     theme: {
       "tc-chart-bg": "transparent",
@@ -6885,10 +6934,17 @@ build(
       "tc-chart-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
     },
     styles: { display: "block" },
-    template: ({ props }) => {
+    template: ({ props, state }) => {
       const rawType = String(props.type ?? "line").toLowerCase();
       const type = ["line", "area", "bar", "sparkline", "donut"].includes(rawType) ? rawType : "line";
-      const data = props.data ?? { series: [] };
+      const explicitData = props.data;
+      const fetchedData = state.fetched;
+      const hasExplicit = !!explicitData && Array.isArray(explicitData.series) && explicitData.series.length > 0;
+      const data = hasExplicit ? explicitData : fetchedData ?? { series: [] };
+      const src = String(props.src ?? "");
+      const loading = !!state.loading && !hasExplicit && !fetchedData;
+      const error = src && state.error ? String(state.error) : "";
+      const stateOverlay = loading ? `<div class="overlay loading">${esc33(String(props.loadingText ?? "Loading chart\u2026"))}</div>` : error ? `<div class="overlay error" role="alert">${esc33(String(props.errorText ?? "Couldn't load chart data"))}<small>${esc33(error)}</small></div>` : "";
       const isSparkline = type === "sparkline";
       const isDonut = type === "donut";
       const customColors = props.colors;
@@ -6924,6 +6980,7 @@ build(
             <div class="tip" role="tooltip">
               <span class="tip-swatch"></span><span class="tip-text"></span>
             </div>
+            ${stateOverlay}
           </div>
           ${props.showLegend && !isSparkline && data.series && data.series.length > 0 ? renderLegend(data.series, palette) : ""}
           <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">${esc33(desc)}</span>
@@ -6933,13 +6990,16 @@ build(
     },
     afterMount() {
       installChartHover(this);
+      maybeFetch(this);
     },
     afterRender() {
       installChartHover(this);
+      maybeFetch(this);
     },
     unmount() {
       const host = this;
       host._chartHoverCleanup?.();
+      host._chartFetchAborter?.abort();
     }
   })
 );
@@ -6993,6 +7053,55 @@ function installChartHover(host) {
     canvas.removeEventListener("pointerleave", onLeave);
     hide();
   };
+}
+function maybeFetch(rawHost) {
+  const host = rawHost;
+  const src = String(host.src ?? "").trim();
+  if (!src)
+    return;
+  if (!host.getState || !host.setState)
+    return;
+  const last = host.getState("fetchedFrom");
+  if (last === src)
+    return;
+  host._chartFetchAborter?.abort();
+  const aborter = new AbortController();
+  host._chartFetchAborter = aborter;
+  host.setState("fetchedFrom", src);
+  host.setState("fetched", null);
+  host.setState("error", null);
+  host.setState("loading", true);
+  const key = String(host.srcKey ?? "").trim();
+  fetch(src, { signal: aborter.signal }).then((r) => {
+    if (!r.ok)
+      throw new Error(`${r.status} ${r.statusText}`);
+    return r.json();
+  }).then((json) => {
+    const resolved = key ? getByPath(json, key) : json;
+    if (!resolved || typeof resolved !== "object" || !Array.isArray(resolved.series)) {
+      throw new Error(
+        key ? `Payload at "${key}" doesn't look like ChartData` : `Payload doesn't look like ChartData`
+      );
+    }
+    if (aborter.signal.aborted)
+      return;
+    host.setState("fetched", resolved);
+    host.setState("loading", false);
+  }).catch((err) => {
+    if (aborter.signal.aborted)
+      return;
+    host.setState("loading", false);
+    host.setState(
+      "error",
+      err instanceof Error ? err.message : String(err)
+    );
+  });
+}
+function getByPath(obj, path) {
+  return path.split(".").reduce(
+    (o, k) => o && typeof o === "object" ? o[k] : void 0,
+    obj
+  );
 }
 
 // mod.ts

@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "title": "Liberia — access to basic services (% of population, 2022)",
+    "source": "WHO/UNICEF JMP for water and sanitation; World Bank for electricity. Sub-Saharan Africa averages alongside for reference.",
+    "note": "Sanitation is the wedge: half the population still uses unimproved facilities (latrines without slabs, open defecation).",
+    "last_updated": "2024-07"
+  },
+  "labels": [
+    "Electricity",
+    "Improved water",
+    "Basic sanitation",
+    "Mobile cellular",
+    "Internet usage"
+  ],
+  "series": [
+    {
+      "name": "Liberia",
+      "values": [30, 74, 18, 56, 26]
+    },
+    {
+      "name": "Sub-Saharan Africa avg",
+      "values": [52, 70, 33, 84, 36]
+    }
+  ]
+}

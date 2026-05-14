@@ -626,6 +626,46 @@ const CHART_STYLE = `
     }
     /* hit targets — invisible enlarged grab zones */
     .hit { cursor: default; }
+
+    /* Loading / error overlay used while a src= fetch is in flight. */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--tc-chart-label, var(--tc-color-ink-muted, #6b7280));
+      background: color-mix(in srgb, var(--tc-chart-bg, var(--tc-color-surface, #ffffff)) 88%, transparent);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+    .overlay.loading::before {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--tc-chart-grid, #ece5d3);
+      border-top-color: var(--tc-color-accent, #a16939);
+      animation: tc-chart-spin 0.8s linear infinite;
+    }
+    .overlay.error {
+      color: var(--tc-color-danger-fg, #7a1a14);
+    }
+    .overlay.error small {
+      font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+      font-size: 0.74rem;
+      opacity: 0.8;
+    }
+    @keyframes tc-chart-spin {
+      to { transform: rotate(360deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .overlay.loading::before { animation-duration: 3s; }
+    }
     svg { display: block; width: 100%; height: 100%; overflow: visible; }
     .grid {
       stroke: var(--tc-chart-grid, var(--tc-color-rule, #ece5d3));
@@ -714,6 +754,15 @@ build(
       yMax: { type: "json", default: null },
       ariaLabel: { type: "string", default: "Chart" },
       colors: { type: "json", default: null },
+      // Server-side data: fetch JSON from `src` and use it as `data`.
+      // If `data` is set explicitly it always wins. `srcKey` lets the
+      // chart drill into the response (e.g. "results.population" maps to
+      // `json.results.population`). `loadingText` and `errorText` are
+      // shown inside the chart while the fetch is pending / failed.
+      src: { type: "string", default: "" },
+      srcKey: { type: "string", default: "" },
+      loadingText: { type: "string", default: "Loading chart…" },
+      errorText: { type: "string", default: "Couldn't load chart data" },
     },
     theme: {
       "tc-chart-bg": "transparent",
@@ -725,14 +774,33 @@ build(
         "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: { display: "block" },
-    template: ({ props }) => {
+    template: ({ props, state }) => {
       const rawType = String(props.type ?? "line").toLowerCase();
       const type =
         (["line", "area", "bar", "sparkline", "donut"].includes(rawType)
           ? rawType
           : "line") as "line" | "area" | "bar" | "sparkline" | "donut";
-      const data = (props.data as ChartData | undefined) ??
-        { series: [] };
+      // Resolution: explicit `data` wins, then the cache from a `src`
+      // fetch, then an empty placeholder.
+      const explicitData = props.data as ChartData | undefined;
+      const fetchedData = state.fetched as ChartData | undefined;
+      const hasExplicit = !!explicitData &&
+        Array.isArray(explicitData.series) && explicitData.series.length > 0;
+      const data = hasExplicit
+        ? explicitData!
+        : (fetchedData ?? { series: [] });
+      const src = String(props.src ?? "");
+      const loading = !!state.loading && !hasExplicit && !fetchedData;
+      const error = src && state.error ? String(state.error) : "";
+      const stateOverlay = loading
+        ? `<div class="overlay loading">${
+          esc(String(props.loadingText ?? "Loading chart…"))
+        }</div>`
+        : error
+        ? `<div class="overlay error" role="alert">${
+          esc(String(props.errorText ?? "Couldn't load chart data"))
+        }<small>${esc(error)}</small></div>`
+        : "";
       const isSparkline = type === "sparkline";
       const isDonut = type === "donut";
 
@@ -778,6 +846,7 @@ build(
             <div class="tip" role="tooltip">
               <span class="tip-swatch"></span><span class="tip-text"></span>
             </div>
+            ${stateOverlay}
           </div>
           ${
         props.showLegend && !isSparkline && data.series &&
@@ -794,15 +863,21 @@ build(
     },
     afterMount() {
       installChartHover(this as HTMLElement);
+      maybeFetch(this as HTMLElement);
     },
     afterRender() {
       // Re-render rebuilds the shadow DOM, so the hit elements are new
       // each time. Re-wire the (idempotent) listener after every render.
       installChartHover(this as HTMLElement);
+      maybeFetch(this as HTMLElement);
     },
     unmount() {
-      const host = this as HTMLElement & { _chartHoverCleanup?: () => void };
+      const host = this as HTMLElement & {
+        _chartHoverCleanup?: () => void;
+        _chartFetchAborter?: AbortController;
+      };
       host._chartHoverCleanup?.();
+      host._chartFetchAborter?.abort();
     },
   }),
 );
@@ -875,4 +950,84 @@ function installChartHover(host: HTMLElement): void {
     canvas.removeEventListener("pointerleave", onLeave);
     hide();
   };
+}
+
+/**
+ * If the host has a `src` prop and we haven't fetched that URL yet,
+ * kick off a fetch. Stores progress in state (`loading`, `error`,
+ * `fetched`, `fetchedFrom`) so the template can paint the spinner /
+ * error overlay and switch to the resolved data when it lands.
+ *
+ * Idempotent: the `fetchedFrom` guard skips re-fetching when the
+ * component re-renders for unrelated reasons. A `src` change drops
+ * the cached fetched data so the next render shows the loader again.
+ */
+function maybeFetch(rawHost: HTMLElement): void {
+  const host = rawHost as HTMLElement & {
+    src?: string;
+    srcKey?: string;
+    getState?: (k: string) => unknown;
+    setState?: (k: string, v: unknown) => void;
+    _chartFetchAborter?: AbortController;
+  };
+  const src = String(host.src ?? "").trim();
+  if (!src) return;
+  if (!host.getState || !host.setState) return;
+
+  const last = host.getState("fetchedFrom") as string | undefined;
+  if (last === src) return;
+
+  // New URL → drop stale results so the overlay shows immediately.
+  host._chartFetchAborter?.abort();
+  const aborter = new AbortController();
+  host._chartFetchAborter = aborter;
+
+  host.setState("fetchedFrom", src);
+  host.setState("fetched", null);
+  host.setState("error", null);
+  host.setState("loading", true);
+
+  const key = String(host.srcKey ?? "").trim();
+  fetch(src, { signal: aborter.signal })
+    .then((r) => {
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    })
+    .then((json: unknown) => {
+      const resolved = key ? getByPath(json, key) : json;
+      if (
+        !resolved || typeof resolved !== "object" ||
+        !Array.isArray((resolved as ChartData).series)
+      ) {
+        throw new Error(
+          key
+            ? `Payload at "${key}" doesn't look like ChartData`
+            : `Payload doesn't look like ChartData`,
+        );
+      }
+      if (aborter.signal.aborted) return;
+      host.setState!("fetched", resolved);
+      host.setState!("loading", false);
+    })
+    .catch((err: unknown) => {
+      if (aborter.signal.aborted) return;
+      host.setState!("loading", false);
+      host.setState!(
+        "error",
+        err instanceof Error ? err.message : String(err),
+      );
+    });
+}
+
+/** Walk a dot-separated path through a plain JSON value. */
+function getByPath(obj: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>(
+    (
+      o,
+      k,
+    ) => (o && typeof o === "object"
+      ? (o as Record<string, unknown>)[k]
+      : undefined),
+    obj,
+  );
 }

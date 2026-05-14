@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "title": "Liberia — under-5 mortality (deaths per 1,000 live births)",
+    "source": "UN Inter-agency Group for Child Mortality Estimation (UN IGME) — SH.DYN.MORT",
+    "note": "The trajectory is real progress — from 263 deaths per 1,000 births in 1990 to 71 in 2023 — but the level is still nearly double the Sub-Saharan African average (38).",
+    "last_updated": "2024-07"
+  },
+  "labels": ["1990", "1995", "2000", "2005", "2010", "2015", "2020", "2023"],
+  "series": [
+    {
+      "name": "Liberia",
+      "values": [263, 233, 175, 138, 99, 78, 73, 71]
+    },
+    {
+      "name": "Sub-Saharan Africa avg",
+      "values": [180, 167, 154, 122, 84, 65, 53, 38]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "title": "Liberia — share of population by income tier (2022)",
+    "source": "World Bank LIBRA Household Income & Expenditure Survey, rounded.",
+    "note": "Roughly half of Liberians live below the $2.15/day extreme-poverty line; another third hover just above it.",
+    "last_updated": "2024-07"
+  },
+  "series": [
+    { "name": "Extreme poor (< $2.15/day)", "value": 51 },
+    { "name": "Poor ($2.15–$3.65/day)", "value": 32 },
+    { "name": "Lower-middle ($3.65–$6.85/day)", "value": 13 },
+    { "name": "Upper-middle / high (> $6.85/day)", "value": 4 }
+  ]
+}

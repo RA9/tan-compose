@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "title": "Liberia — GDP per capita (current USD)",
+    "source": "World Bank — NY.GDP.PCAP.CD. Sub-Saharan Africa average shown for context.",
+    "note": "Even at the 2023 peak Liberia's per-capita output is below its pre-war 1980 figure in real terms.",
+    "last_updated": "2024-07"
+  },
+  "labels": ["1980", "1990", "2000", "2005", "2010", "2015", "2020", "2023"],
+  "series": [
+    {
+      "name": "Liberia",
+      "values": [482, 296, 175, 220, 312, 727, 583, 758]
+    },
+    {
+      "name": "Sub-Saharan Africa avg",
+      "values": [707, 593, 503, 868, 1455, 1623, 1486, 1700]
+    }
+  ]
+}

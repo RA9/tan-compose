@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "title": "Liberia — access to electricity (% of population)",
+    "source": "World Bank Tracking SDG7 — EG.ELC.ACCS.ZS",
+    "note": "National figure obscures the urban / rural gap. In 2020 ~85% of Monrovia had grid access; rural Lofa, Gbarpolu, and River Gee were under 5%.",
+    "last_updated": "2024-07"
+  },
+  "labels": ["1990", "2000", "2005", "2010", "2015", "2020", "2023"],
+  "series": [
+    {
+      "name": "Liberia",
+      "values": [5, 3, 4, 5, 12, 28, 31]
+    },
+    {
+      "name": "Sub-Saharan Africa avg",
+      "values": [19, 25, 28, 33, 43, 48, 52]
+    }
+  ]
+}

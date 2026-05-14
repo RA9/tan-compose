@@ -3,6 +3,33 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.8.0] - 2026-05-14
+
+### Added
+
+- **`<tc-chart>` server-side data fetching.** New `src` prop loads
+  JSON from a URL and uses it as the chart's data, no `<script>` glue
+  required. Supports an optional `srcKey` to drill into a nested
+  payload (e.g. `srcKey="result.population"` pulls
+  `json.result.population` out of the response). Built-in:
+  - Loading overlay with an inline spinner — text customisable via
+    `loadingText="…"`.
+  - Error overlay that surfaces the fetch failure — text customisable
+    via `errorText="…"`.
+  - Automatic abort when the host unmounts or `src` changes, so a
+    page navigation mid-fetch doesn't leak a pending request.
+  - `data` still wins over `src` when both are present (explicit
+    beats fetched).
+
+  Theme tokens added for the overlays:
+  `--tc-chart-tooltip-bg` / `--tc-chart-tooltip-fg` (already present)
+  cover the tooltip; the overlay uses `--tc-chart-bg` and
+  `--tc-chart-label` so it inherits the chart's surface palette.
+
+  Companion blog post ships at `/blog/liberia-by-the-numbers.html`
+  — six charts hydrated from `/data/liberia/*.json` files, all themed
+  through the same CSS tokens.
+
 ## [1.7.1] - 2026-05-14
 
 ### Added
