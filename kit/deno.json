@@ -1,6 +1,6 @@
 {
   "name": "@ra9/tan-compose-kit",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "exports": {
     ".": "./mod.ts",
     "./button": "./components/button.ts",
@@ -39,6 +39,8 @@
     "./rating": "./components/rating.ts",
     "./slider": "./components/slider.ts",
     "./chart": "./components/chart.ts",
+    "./editor": "./components/editor.ts",
+    "./markdown": "./components/markdown.ts",
     "./themes/tokens": "./themes/tokens.ts",
     "./themes/dark": "./themes/dark.ts",
     "./themes/bootstrap": "./themes/bootstrap.ts",
@@ -52,7 +54,7 @@
   },
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
-    "check": "deno check mod.ts components/button.ts components/input.ts components/textarea.ts components/select.ts components/checkbox.ts components/switch.ts components/file.ts components/radio-group.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts components/stack.ts components/cluster.ts components/grid.ts components/code.ts components/callout.ts components/toc.ts components/pagination.ts components/combobox.ts components/carousel.ts components/accordion.ts components/tooltip.ts components/popover.ts components/drawer.ts components/progress.ts components/stepper.ts components/avatar.ts components/avatar-group.ts components/rating.ts components/slider.ts components/chart.ts themes/tokens.ts themes/dark.ts themes/bootstrap.ts themes/tailwind.ts themes/material.ts themes/shadcn.ts",
+    "check": "deno check mod.ts components/button.ts components/input.ts components/textarea.ts components/select.ts components/checkbox.ts components/switch.ts components/file.ts components/radio-group.ts components/table.ts components/tabs.ts components/modal.ts components/toast.ts components/stat.ts components/card.ts components/badge.ts components/skeleton.ts components/stack.ts components/cluster.ts components/grid.ts components/code.ts components/callout.ts components/toc.ts components/pagination.ts components/combobox.ts components/carousel.ts components/accordion.ts components/tooltip.ts components/popover.ts components/drawer.ts components/progress.ts components/stepper.ts components/avatar.ts components/avatar-group.ts components/rating.ts components/slider.ts components/chart.ts components/editor.ts components/markdown.ts themes/tokens.ts themes/dark.ts themes/bootstrap.ts themes/tailwind.ts themes/material.ts themes/shadcn.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

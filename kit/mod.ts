@@ -51,6 +51,8 @@ import { tagName as avatarGroupTag } from "./components/avatar-group.ts";
 import { tagName as ratingTag } from "./components/rating.ts";
 import { tagName as sliderTag } from "./components/slider.ts";
 import { tagName as chartTag } from "./components/chart.ts";
+import { tagName as editorTag } from "./components/editor.ts";
+import { tagName as markdownTag } from "./components/markdown.ts";
 
 /** Tag names of every component this module registers. */
 export const tags = {
@@ -68,6 +70,9 @@ export const tags = {
   // data
   table: tableTag,
   chart: chartTag,
+  // editors
+  editor: editorTag,
+  markdown: markdownTag,
   // layout / chrome
   tabs: tabsTag,
   modal: modalTag,

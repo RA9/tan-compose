@@ -1,8 +1,8 @@
 # @ra9/tan-compose-kit
 
 Battle-tested Web Components built on top of
-[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 36 components, 6 theme
-presets, ~205 KB minified (~45 KB gzipped) for the whole bundle. No JSX, no
+[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 38 components, 6 theme
+presets, ~225 KB minified (~50 KB gzipped) for the whole bundle. No JSX, no
 compiler, no runtime framework — just custom elements you drop into HTML,
 React, Vue, Astro, or anywhere else custom elements work.
 
@@ -32,14 +32,14 @@ ship is what the browser runs (no esm.sh transformer in the loop):
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.9.1/kit/dist/themes/tokens.min.js"></script>
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.10.0/kit/dist/themes/tokens.min.js"></script>
 <script type="module"
-  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.9.1/kit/dist/kit.min.js"></script>
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.10.0/kit/dist/kit.min.js"></script>
 
 <tc-button variant="primary">Save</tc-button>
 ```
 
-Swap the tag (`@kit-v1.9.1`) for whichever version you want to pin to.
+Swap the tag (`@kit-v1.10.0`) for whichever version you want to pin to.
 Available theme bundles: `tokens`, `dark`, `bootstrap`, `tailwind`,
 `material`, `shadcn`.
 
@@ -74,6 +74,8 @@ Or import the whole kit at once with `import "@ra9/tan-compose-kit"`.
 | `<tc-radio-group>` | Single-choice group rendered from a JSON `options` prop.          |
 | `<tc-slider>`      | Themed `<input type="range">` with ticks, label, suffix.          |
 | `<tc-rating>`      | Star rating with half-star precision, keyboard nav, readonly.     |
+| `<tc-editor>`      | Rich-text WYSIWYG on contenteditable. Configurable toolbar.       |
+| `<tc-markdown>`    | Markdown source editor with split-pane live preview.              |
 
 All form fields participate in `<form>` submission via `ElementInternals` —
 `FormData`, `form.reset()`, the validity API, browser autofill all work as

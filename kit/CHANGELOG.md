@@ -3,6 +3,33 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.10.0] - 2026-05-14
+
+> Editor primitives. Two complementary components for capturing rich
+> text without pulling in a 200 KB framework.
+
+### Added
+
+- **`<tc-editor>`** — rich-text WYSIWYG editor built on
+  `contenteditable`. Configurable toolbar (`toolbar="bold,italic,|,h1,…"`),
+  active-state buttons that reflect selection formatting, ⌘B / ⌘I /
+  ⌘U / ⌘K keyboard shortcuts, sanitised paste (defaults to plain
+  text), `<slot name="toolbar-extra">` for custom buttons, and theme
+  tokens for every chrome surface. Output is HTML via the `value`
+  property and the `tc-change` event.
+
+- **`<tc-markdown>`** — markdown source editor with live preview pane.
+  Three view modes (source / split / preview) toggled in the toolbar.
+  A tiny built-in parser handles GFM-style headings, paragraphs,
+  lists, blockquotes, fenced code blocks, **bold**, *italic*,
+  `code`, [links](url), images, and rules — for richer parsing
+  (footnotes, tables, plugins) pass a `render` function via property
+  and the component will route through it instead. Toolbar inserts
+  markdown syntax around the selection with the usual keyboard
+  shortcuts.
+
+  Kit count: 36 → 38.
+
 ## [1.9.1] - 2026-05-14
 
 ### Fixed
