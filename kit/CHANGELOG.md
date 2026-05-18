@@ -3,6 +3,29 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.11.1] - 2026-05-18
+
+### Fixed — `<tc-button>` padding override
+
+`<tc-button>` hardcoded its padding inside `.s-sm` / `.s-md` / `.s-lg`,
+leaving no way to tighten or loosen it without forking the component.
+Now exposes two override tokens that match the `tc-card` pattern:
+
+- `--tc-btn-padding-x`
+- `--tc-btn-padding-y`
+
+When unset (the default), each size keeps its previous padding
+(`6px 12px` / `9px 16px` / `12px 22px`). When set, both axes
+override every size:
+
+```css
+tc-button { --tc-btn-padding-x: 24px; --tc-btn-padding-y: 14px; }
+```
+
+Implemented via `initial` as the `:host` default so external rules on
+`tc-button` win over the in-shadow `:host` declaration without needing
+`!important`.
+
 ## [1.11.0] - 2026-05-14
 
 ### Added — `<tc-markdown>` extensions

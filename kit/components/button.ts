@@ -22,6 +22,9 @@
  *   --tc-btn-ghost-fg, --tc-btn-ghost-border
  *   --tc-btn-danger-bg, --tc-btn-danger-fg
  *   --tc-btn-radius, --tc-btn-font
+ *   --tc-btn-padding-x, --tc-btn-padding-y — when set, override the
+ *     per-size padding defaults across all sizes. Unset (default
+ *     `initial`) preserves the sm/md/lg defaults.
  */
 
 import { build, describe } from "@ra9/tan-compose";
@@ -65,9 +68,18 @@ const BUTTON_STYLE = `
           outline-offset: 2px;
         }
 
-        .s-sm { font-size: 0.82rem; padding: 6px 12px; }
-        .s-md { font-size: 0.92rem; padding: 9px 16px; }
-        .s-lg { font-size: 1.0rem;  padding: 12px 22px; }
+        .s-sm {
+          font-size: 0.82rem;
+          padding: var(--tc-btn-padding-y, 6px) var(--tc-btn-padding-x, 12px);
+        }
+        .s-md {
+          font-size: 0.92rem;
+          padding: var(--tc-btn-padding-y, 9px) var(--tc-btn-padding-x, 16px);
+        }
+        .s-lg {
+          font-size: 1.0rem;
+          padding: var(--tc-btn-padding-y, 12px) var(--tc-btn-padding-x, 22px);
+        }
 
         .v-primary {
           background: var(--tc-btn-primary-bg);
@@ -137,6 +149,8 @@ build(
       "tc-btn-radius": "var(--tc-radius-md, 8px)",
       "tc-btn-font":
         "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-btn-padding-x": "initial",
+      "tc-btn-padding-y": "initial",
     },
     styles: {
       display: "inline-block",
