@@ -3,6 +3,39 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.12.0] - 2026-05-18
+
+### Added — `<tc-button>` form submission
+
+`<tc-button>` can now act as a real form submit / reset button. New
+`type` prop accepts `"button" | "submit" | "reset"` (default
+`"button"`, preserving previous behavior).
+
+```html
+<form>
+  <tc-input name="email" required></tc-input>
+  <tc-button type="submit" variant="primary">Save</tc-button>
+  <tc-button type="reset" variant="ghost">Clear</tc-button>
+</form>
+```
+
+Why this needs explicit wiring: a `<button type="submit">` rendered
+inside a shadow root does NOT submit an outer light-DOM form on its
+own — submit-button-ness does not cross the shadow boundary. The
+component handles this by listening for clicks on the host, walking
+the light DOM with `closest("form")`, and calling
+`form.requestSubmit()` (or `.reset()`) directly.
+
+Two new cancelable, composed CustomEvents fire on the host:
+
+- `tc-submit` — `detail.form` is the resolved `<form>`. Calling
+  `e.preventDefault()` suppresses `form.requestSubmit()`.
+- `tc-reset` — same shape, controls `form.reset()`.
+
+`requestSubmit()` (not `submit()`) is used so native validation still
+runs and a real `submit` event still fires on the form. `type` is
+ignored when `href` is set — the anchor variant always navigates.
+
 ## [1.11.1] - 2026-05-18
 
 ### Fixed — `<tc-button>` padding override

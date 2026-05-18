@@ -12,9 +12,28 @@
  *   disabled  boolean (default false, reflects)
  *   loading   boolean (default false)
  *   block     boolean (default false) — full-width
+ *   type      "button" | "submit" | "reset" (default "button") — ignored
+ *             when `href` is set
  *   href      string  optional — render as an anchor pointing here
  *   target    string  optional — only applied when href is set
  *   rel       string  optional — only applied when href is set
+ *
+ * Events (composed, bubble out of the shadow root):
+ *   tc-submit  cancelable. Fires when a `type="submit"` button is
+ *              activated and a `<form>` ancestor is found. `detail.form`
+ *              is the form element. preventDefault() suppresses the
+ *              implicit `form.requestSubmit()`.
+ *   tc-reset   cancelable. Fires when a `type="reset"` button is
+ *              activated and a `<form>` ancestor is found. `detail.form`
+ *              is the form element. preventDefault() suppresses the
+ *              implicit `form.reset()`.
+ *
+ * Note on shadow DOM + forms: a `<button type="submit">` rendered
+ * inside this component's shadow root would NOT submit an outer form on
+ * its own — submit-button-ness does not pierce the shadow boundary.
+ * `tc-button` works around this by listening for clicks on the host and
+ * walking the light DOM with `closest("form")` to find the form, then
+ * calling `form.requestSubmit()` (or `.reset()`) itself.
  *
  * Theme variables exposed on :host (override at the page level):
  *   --tc-btn-primary-bg, --tc-btn-primary-fg
@@ -135,6 +154,7 @@ build(
       href: { type: "string", default: "" },
       target: { type: "string", default: "" },
       rel: { type: "string", default: "" },
+      type: { type: "string", default: "button" },
     },
     theme: {
       "tc-btn-primary-bg": "var(--tc-color-ink, #14171f)",
@@ -194,15 +214,60 @@ build(
       </a>${BUTTON_STYLE}`;
       }
 
+      const rawType = String(props.type ?? "button");
+      const btnType = rawType === "submit" || rawType === "reset"
+        ? rawType
+        : "button";
+
       return `
       <button
         part="button"
         class="${cls}"
         ${isDisabled ? "disabled" : ""}
-        type="button"
+        type="${btnType}"
       >
         ${inner}
       </button>${BUTTON_STYLE}`;
+    },
+    events: {
+      "click .root": (_event, ctx) => {
+        const host = ctx.host as HTMLElement & {
+          type: string;
+          href: string;
+          disabled: boolean;
+          loading: boolean;
+        };
+        if (host.disabled || host.loading) return;
+        // Anchor variant handles its own navigation; don't intercept.
+        if (String(host.href ?? "")) return;
+
+        const type = String(host.type ?? "button");
+        if (type !== "submit" && type !== "reset") return;
+
+        const form = host.closest("form");
+        if (!form) return;
+
+        // Dispatch a cancelable event so consumers can intercept and
+        // run validation / async work before the form submits.
+        const eventName = type === "submit" ? "tc-submit" : "tc-reset";
+        const ev = new CustomEvent(eventName, {
+          detail: { form },
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+        });
+        host.dispatchEvent(ev);
+        if (ev.defaultPrevented) return;
+
+        if (type === "submit") {
+          // requestSubmit() runs validation and dispatches a real
+          // `submit` event — submit() skips both, which is rarely
+          // what you want.
+          form.requestSubmit();
+        } else {
+          form.reset();
+        }
+      },
     },
   }),
 );

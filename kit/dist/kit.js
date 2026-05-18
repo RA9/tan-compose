@@ -841,7 +841,8 @@ build(
       block: { type: "boolean", default: false },
       href: { type: "string", default: "" },
       target: { type: "string", default: "" },
-      rel: { type: "string", default: "" }
+      rel: { type: "string", default: "" },
+      type: { type: "string", default: "button" }
     },
     theme: {
       "tc-btn-primary-bg": "var(--tc-color-ink, #14171f)",
@@ -885,15 +886,47 @@ build(
         ${inner}
       </a>${BUTTON_STYLE}`;
       }
+      const rawType = String(props.type ?? "button");
+      const btnType = rawType === "submit" || rawType === "reset" ? rawType : "button";
       return `
       <button
         part="button"
         class="${cls}"
         ${isDisabled ? "disabled" : ""}
-        type="button"
+        type="${btnType}"
       >
         ${inner}
       </button>${BUTTON_STYLE}`;
+    },
+    events: {
+      "click .root": (_event, ctx) => {
+        const host = ctx.host;
+        if (host.disabled || host.loading)
+          return;
+        if (String(host.href ?? ""))
+          return;
+        const type = String(host.type ?? "button");
+        if (type !== "submit" && type !== "reset")
+          return;
+        const form = host.closest("form");
+        if (!form)
+          return;
+        const eventName = type === "submit" ? "tc-submit" : "tc-reset";
+        const ev = new CustomEvent(eventName, {
+          detail: { form },
+          bubbles: true,
+          composed: true,
+          cancelable: true
+        });
+        host.dispatchEvent(ev);
+        if (ev.defaultPrevented)
+          return;
+        if (type === "submit") {
+          form.requestSubmit();
+        } else {
+          form.reset();
+        }
+      }
     }
   })
 );

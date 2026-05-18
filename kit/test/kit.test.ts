@@ -45,6 +45,128 @@ test("tc-button: disabled prop reflects to attribute and disables the button", (
   document.body.removeChild(el);
 });
 
+test("tc-button: type=submit triggers form.requestSubmit() and emits tc-submit", () => {
+  const form = document.createElement("form");
+  // Prevent the synthesized submit from actually navigating in the test env.
+  form.addEventListener("submit", (e) => e.preventDefault());
+
+  const el = document.createElement(tags.button) as HTMLElement & {
+    type: string;
+  };
+  el.type = "submit";
+  form.appendChild(el);
+  document.body.appendChild(form);
+
+  let submitFired = 0;
+  let detailForm: HTMLFormElement | null = null;
+  el.addEventListener("tc-submit", (e) => {
+    submitFired++;
+    detailForm = (e as CustomEvent<{ form: HTMLFormElement }>).detail.form;
+  });
+
+  let nativeSubmitFired = 0;
+  form.addEventListener("submit", () => {
+    nativeSubmitFired++;
+  });
+
+  const inner = el.shadowRoot!.querySelector("button.root") as HTMLButtonElement;
+  assertEquals(inner.getAttribute("type"), "submit");
+  inner.click();
+
+  assertEquals(submitFired, 1, "tc-submit must fire exactly once");
+  assertEquals(detailForm, form, "detail.form must be the ancestor form");
+  assertEquals(
+    nativeSubmitFired,
+    1,
+    "form.requestSubmit() must produce a native submit event",
+  );
+
+  document.body.removeChild(form);
+});
+
+test("tc-button: preventDefault on tc-submit suppresses the form submission", () => {
+  const form = document.createElement("form");
+  form.addEventListener("submit", (e) => e.preventDefault());
+
+  const el = document.createElement(tags.button) as HTMLElement & {
+    type: string;
+  };
+  el.type = "submit";
+  form.appendChild(el);
+  document.body.appendChild(form);
+
+  el.addEventListener("tc-submit", (e) => e.preventDefault());
+
+  let nativeSubmitFired = 0;
+  form.addEventListener("submit", () => {
+    nativeSubmitFired++;
+  });
+
+  (el.shadowRoot!.querySelector("button.root") as HTMLButtonElement).click();
+  assertEquals(
+    nativeSubmitFired,
+    0,
+    "preventDefault on tc-submit must cancel the implicit requestSubmit()",
+  );
+
+  document.body.removeChild(form);
+});
+
+test("tc-button: type=reset triggers form.reset() and emits tc-reset", () => {
+  const form = document.createElement("form");
+  const input = document.createElement("input");
+  input.name = "x";
+  input.defaultValue = "default";
+  form.appendChild(input);
+
+  const el = document.createElement(tags.button) as HTMLElement & {
+    type: string;
+  };
+  el.type = "reset";
+  form.appendChild(el);
+  document.body.appendChild(form);
+
+  input.value = "typed";
+
+  let resetFired = 0;
+  el.addEventListener("tc-reset", () => {
+    resetFired++;
+  });
+
+  (el.shadowRoot!.querySelector("button.root") as HTMLButtonElement).click();
+
+  assertEquals(resetFired, 1, "tc-reset must fire exactly once");
+  assertEquals(input.value, "default", "form.reset() must restore defaults");
+
+  document.body.removeChild(form);
+});
+
+test("tc-button: disabled type=submit does not submit the form", () => {
+  const form = document.createElement("form");
+  form.addEventListener("submit", (e) => e.preventDefault());
+
+  const el = document.createElement(tags.button) as HTMLElement & {
+    type: string;
+    disabled: boolean;
+  };
+  el.type = "submit";
+  el.disabled = true;
+  form.appendChild(el);
+  document.body.appendChild(form);
+
+  let nativeSubmitFired = 0;
+  form.addEventListener("submit", () => {
+    nativeSubmitFired++;
+  });
+
+  // The internal <button> is also `disabled`, so clicks won't even
+  // dispatch — but click the host to mirror what users do.
+  (el.shadowRoot!.querySelector("button.root") as HTMLButtonElement).click();
+  assertEquals(nativeSubmitFired, 0);
+
+  document.body.removeChild(form);
+});
+
 test("tc-input renders label and value, and is form-associated", () => {
   if (typeof HTMLElement.prototype.attachInternals !== "function") return;
   const el = document.createElement(tags.input) as HTMLElement & {
