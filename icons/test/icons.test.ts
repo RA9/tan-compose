@@ -68,8 +68,45 @@ test("unknown icon falls back to a placeholder", () => {
 });
 
 test("iconNames includes the bundled set", () => {
-  assert(iconNames.length > 30, "expected ~40 icons");
+  assert(iconNames.length >= 88, "expected at least 88 icons after v0.2.0");
   assert(iconNames.includes("check"));
   assert(iconNames.includes("search"));
   assert(iconNames.includes("user"));
+});
+
+test("iconNames includes the v0.2.0 finance + commerce additions", () => {
+  // Spot-check one per new category to catch accidental regressions
+  // from copy-paste edits to icons.ts.
+  for (
+    const name of [
+      "banknote",
+      "credit-card",
+      "wallet",
+      "dollar-sign",
+      "receipt",
+      "trending-up",
+      "shopping-cart",
+      "bell",
+      "file-text",
+      "lock",
+      "map-pin",
+      "star",
+      "grid",
+      "user-plus",
+    ]
+  ) {
+    assert(iconNames.includes(name), `expected "${name}" in iconNames`);
+  }
+});
+
+test("renders the banknote icon (v0.2.0 sanity)", () => {
+  const el = document.createElement(tagName) as HTMLElement & { name: string };
+  el.name = "banknote";
+  document.body.appendChild(el);
+  const svg = el.shadowRoot!.querySelector("svg");
+  assert(svg, "expected svg in shadow root");
+  // banknote = a rect bill outline + a circle for the portrait.
+  assert(svg!.querySelector("rect"), "banknote has a rect bill outline");
+  assert(svg!.querySelector("circle"), "banknote has a portrait circle");
+  document.body.removeChild(el);
 });

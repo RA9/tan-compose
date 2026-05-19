@@ -6,6 +6,47 @@ versioned independently of `@ra9/tan-compose` and `@ra9/tan-compose-kit`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-05-19
+
+### Added — 44 new icons (88 total)
+
+Doubles the bundled set with a focus on money, commerce, and the
+other essentials apps reach for first. All icons are sourced from
+Lucide (lucide.dev, ISC) at the standard 24x24 / stroke-width-2 spec
+so they sit next to the existing set without visual drift.
+
+**Money & payments** (10): `banknote`, `calculator`, `coins`,
+`credit-card`, `dollar-sign`, `landmark`, `percent`, `piggy-bank`,
+`receipt`, `wallet`.
+
+**Trends & charts** (4): `bar-chart`, `pie-chart`, `trending-down`,
+`trending-up`.
+
+**Commerce** (6): `gift`, `package`, `shopping-bag`, `shopping-cart`,
+`tag`, `truck`.
+
+**Communication** (4): `bell`, `message-square`, `phone`, `send`.
+
+**Files & documents** (6): `clipboard`, `file-text`, `folder`, `image`,
+`paperclip`, `printer`.
+
+**Security** (4): `key`, `lock`, `shield`, `unlock`.
+
+**Maps & links** (3): `globe`, `link`, `map-pin`.
+
+**Social & feedback** (3): `bookmark`, `heart`, `star`.
+
+**Layout & lists** (2): `grid`, `list`.
+
+**People** (2): `user-check`, `user-plus`.
+
+Note on naming: Lucide upstream renamed `bar-chart` → `chart-bar`,
+`pie-chart` → `chart-pie`, and `unlock` → `lock-open` in recent
+releases. The kit keeps the legacy names because they read more
+naturally in template code (`<tc-icon name="bar-chart">` over
+`name="chart-bar"`). The underlying path data is the current Lucide
+source either way.
+
 ## [0.1.2] - 2026-05-13
 
 ### Fixed

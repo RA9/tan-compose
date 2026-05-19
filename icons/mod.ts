@@ -1,7 +1,7 @@
 /**
  * `<tc-icon>` — inline SVG icon component for the tan-compose ecosystem.
  *
- * Built on `@ra9/tan-compose`. Ships ~40 commonly-needed icons drawn from
+ * Built on `@ra9/tan-compose`. Ships 88 commonly-needed icons drawn from
  * the Lucide icon set (lucide.dev, ISC licensed) at a 24x24 viewBox with a
  * 2px stroke. The icon takes its color from `currentColor`, so it inherits
  * from the surrounding text:

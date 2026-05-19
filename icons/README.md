@@ -1,7 +1,7 @@
 # @ra9/tan-compose-icons
 
 `<tc-icon>` — a tiny inline-SVG icon component for the
-[tan-compose](https://jsr.io/@ra9/tan-compose) ecosystem. Ships 44 common icons
+[tan-compose](https://jsr.io/@ra9/tan-compose) ecosystem. Ships 88 common icons
 drawn from the [Lucide](https://lucide.dev) set, all 24×24 at 2px stroke, color
 via `currentColor`.
 
@@ -48,15 +48,22 @@ obvious in development.
 
 ## Icon names
 
-The built-in set covers the 80% case for app UI:
+The built-in set covers the 80% case for app UI — alerts, navigation,
+common actions, files, money/payments, commerce, charts, comms,
+security, social, and people:
 
 ```text
 alert-circle alert-triangle arrow-down arrow-left arrow-right arrow-up
-calendar check check-circle chevron-down chevron-left chevron-right
-chevron-up clock copy download edit external-link eye eye-off filter
-home info loader log-in log-out mail menu minus moon more-horizontal
-more-vertical plus refresh save search settings sun trash upload user
-users x x-circle
+banknote bar-chart bell bookmark calculator calendar check check-circle
+chevron-down chevron-left chevron-right chevron-up clipboard clock coins
+copy credit-card dollar-sign download edit external-link eye eye-off
+file-text filter folder gift globe grid heart home image info key
+landmark link list loader lock log-in log-out mail map-pin menu
+message-square minus moon more-horizontal more-vertical package paperclip
+percent phone pie-chart piggy-bank plus printer receipt refresh save
+search send settings shield shopping-bag shopping-cart star sun tag
+trash trending-down trending-up truck unlock upload user user-check
+user-plus users wallet x x-circle
 ```
 
 Get the full list at runtime:
