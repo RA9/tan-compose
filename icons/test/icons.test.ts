@@ -68,10 +68,40 @@ test("unknown icon falls back to a placeholder", () => {
 });
 
 test("iconNames includes the bundled set", () => {
-  assert(iconNames.length >= 88, "expected at least 88 icons after v0.2.0");
+  assert(iconNames.length >= 98, "expected at least 98 icons after v0.3.0");
   assert(iconNames.includes("check"));
   assert(iconNames.includes("search"));
   assert(iconNames.includes("user"));
+});
+
+test("iconNames includes the v0.3.0 original (non-Lucide) icons", () => {
+  for (
+    const name of [
+      "ai",
+      "confetti",
+      "forecast",
+      "pulse",
+      "receipt-scan",
+      "recurring",
+      "spark",
+      "subscription",
+      "token",
+      "verified",
+    ]
+  ) {
+    assert(iconNames.includes(name), `expected "${name}" in iconNames`);
+  }
+});
+
+test("renders the verified icon with a hex badge + check polyline", () => {
+  const el = document.createElement(tagName) as HTMLElement & { name: string };
+  el.name = "verified";
+  document.body.appendChild(el);
+  const svg = el.shadowRoot!.querySelector("svg")!;
+  // Hex badge body is a single closed <path>; check stroke is a polyline.
+  assert(svg.querySelector("path"), "verified has a hex badge path");
+  assert(svg.querySelector("polyline"), "verified has a check polyline");
+  document.body.removeChild(el);
 });
 
 test("iconNames includes the v0.2.0 finance + commerce additions", () => {

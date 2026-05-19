@@ -1,6 +1,6 @@
 {
   "name": "@ra9/tan-compose-icons",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "exports": {
     ".": "./mod.ts",
     "./icons": "./icons.ts"

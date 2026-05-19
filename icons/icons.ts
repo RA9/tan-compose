@@ -1,10 +1,14 @@
 /**
  * SVG icon path data for `@ra9/tan-compose-icons`.
  *
- * Sourced from the Lucide icon set (lucide.dev) — ISC licensed. Each entry
- * is the SVG inner content for a 24x24 viewBox at stroke-width 2.
+ * Most entries are sourced from the Lucide icon set (lucide.dev) — ISC
+ * licensed. A small "originals" section at the bottom is designed for this
+ * package and is not from Lucide; those icons match the same 24x24 / 2px
+ * stroke / rounded-cap visual language so they read as one set.
  *
- * Add icons by following the same shape; keep entries alphabetical.
+ * Each entry is the SVG inner content for a 24x24 viewBox at stroke-width
+ * 2. Add icons by following the same shape; keep entries alphabetical
+ * within their section.
  */
 
 export const ICONS: Record<string, string> = {
@@ -203,6 +207,31 @@ export const ICONS: Record<string, string> = {
     `<path d="m16 11 2 2 4-4"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>`,
   "user-plus":
     `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>`,
+
+  // originals — designed for this set, not from Lucide. Same 24x24 /
+  // stroke-2 visual spec; some entries use `fill="currentColor"` on
+  // accent shapes (dots, badge bodies) to add weight that pure-stroke
+  // icons can't reach.
+  "ai":
+    `<path d="M10 4 L11 8 L15 9 L11 10 L10 14 L9 10 L5 9 L9 8 Z"/><path d="M18 14 L18.6 16.4 L21 17 L18.6 17.6 L18 20 L17.4 17.6 L15 17 L17.4 16.4 Z"/><path d="M18 3 L18.4 4.6 L20 5 L18.4 5.4 L18 7 L17.6 5.4 L16 5 L17.6 4.6 Z"/>`,
+  "confetti":
+    `<circle cx="5" cy="5" r="1" fill="currentColor"/><circle cx="19" cy="6" r="1.5"/><circle cx="4" cy="14" r="1" fill="currentColor"/><circle cx="20" cy="16" r="1.2"/><path d="M9 20l1 2"/><path d="M15 20l-1 2"/><path d="M12 3l1 2"/><rect x="10" y="9" width="2.5" height="6" rx="1" transform="rotate(20 11.25 12)" fill="currentColor"/>`,
+  "forecast":
+    `<path d="M3 17l5-5 4 4 4-6"/><path d="M16 10l4-3" stroke-dasharray="3 3"/><circle cx="16" cy="10" r="1.5" fill="currentColor"/>`,
+  "pulse":
+    `<circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M16.5 7.5a7 7 0 0 1 0 9"/><path d="M7.5 7.5a7 7 0 0 0 0 9"/><path d="M19.5 4.5a11 11 0 0 1 0 15"/><path d="M4.5 4.5a11 11 0 0 0 0 15"/>`,
+  "receipt-scan":
+    `<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 9h8"/><path d="M8 13h8"/><path d="M8 17h5"/>`,
+  "recurring":
+    `<path d="M21 12a9 9 0 0 1-15 6.7"/><path d="M3 12a9 9 0 0 1 15-6.7"/><polyline points="21 4 21 9 16 9"/><polyline points="3 20 3 15 8 15"/><circle cx="12" cy="12" r="2" fill="currentColor"/>`,
+  "spark":
+    `<path d="M12 4 L13.6 10.4 L20 12 L13.6 13.6 L12 20 L10.4 13.6 L4 12 L10.4 10.4 Z"/><circle cx="19" cy="5" r="1" fill="currentColor"/>`,
+  "subscription":
+    `<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><path d="M9 16.5a3 3 0 0 1 5.5-1.6"/><polyline points="15 13 15 15 13 15"/>`,
+  "token":
+    `<path d="M12 2l8 5v10l-8 5-8-5V7z"/><path d="M12 8v8"/><path d="M14 10h-3a1.5 1.5 0 0 0 0 3h2a1.5 1.5 0 0 1 0 3H10"/>`,
+  "verified":
+    `<path d="M12 2 L20 7 V17 L12 22 L4 17 V7 Z"/><polyline points="8 12 11 15 16 9"/>`,
 };
 
 export type IconName = keyof typeof ICONS | (string & Record<never, never>);

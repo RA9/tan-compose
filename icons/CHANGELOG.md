@@ -6,6 +6,46 @@ versioned independently of `@ra9/tan-compose` and `@ra9/tan-compose-kit`.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-05-19
+
+### Added — 10 original icons (98 total)
+
+Designed for this package, not copied from Lucide. They keep the same
+24x24 / stroke-2 / rounded-cap visual language so they read as one
+continuous set, but use a few moves Lucide doesn't lean on (filled
+accent dots, hex outlines, dashed projection segments) to add weight
+to specific UX moments fintech and business apps reach for often.
+
+- **`ai`** — three asymmetric sparkles. The "AI did a thing" moment,
+  distinct from Lucide `sparkles` (which is just two stars of the
+  same shape).
+- **`spark`** — a single 4-point sparkle with a tiny solid accent
+  dot. The premium-button micro-affordance.
+- **`pulse`** — a filled center dot with two pairs of broadcast arcs.
+  Live status / real-time indicator that doesn't look like wifi.
+- **`verified`** — a hexagonal badge with a check inside. The
+  "approved / officially verified" stamp, visually distinct from
+  `check-circle` (which is the generic "succeeded" tick).
+- **`receipt-scan`** — receipt content lines inside corner crop
+  brackets. Reads as "capture/scan a receipt," not just "a receipt."
+- **`recurring`** — refresh loop with a filled center dot. A
+  recurring transaction (the dot makes it specifically *something*
+  recurring, vs. `refresh` which is generic reload).
+- **`subscription`** — calendar with a small renewal curl inside.
+  The state of being subscribed / next renewal date.
+- **`token`** — hexagonal coin outline with a `$` glyph inside.
+  Credits, balance units, stored value — distinct from round
+  `coins`.
+- **`forecast`** — solid trending line ending in a dot, then a
+  dashed projection segment. Reads as analytics / projection.
+- **`confetti`** — scattered filled dots, hollow circles, a small
+  streamer, and one rotated paper piece. The success / celebration
+  moment ("Payment recorded!").
+
+All shapes use stroke-2 + rounded line caps and joins inherited from
+the SVG root, so they pick up `currentColor` and `<tc-icon>`'s
+`stroke=` prop just like the Lucide-sourced icons.
+
 ## [0.2.0] - 2026-05-19
 
 ### Added — 44 new icons (88 total)
