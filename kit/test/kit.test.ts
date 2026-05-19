@@ -69,7 +69,9 @@ test("tc-button: type=submit triggers form.requestSubmit() and emits tc-submit",
     nativeSubmitFired++;
   });
 
-  const inner = el.shadowRoot!.querySelector("button.root") as HTMLButtonElement;
+  const inner = el.shadowRoot!.querySelector(
+    "button.root",
+  ) as HTMLButtonElement;
   assertEquals(inner.getAttribute("type"), "submit");
   inner.click();
 
