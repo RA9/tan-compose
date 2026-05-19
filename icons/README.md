@@ -122,7 +122,7 @@ Useful when you want the icons but are rendering them via a different mechanism
 
 ## Per-bundle size
 
-The full bundle (component + 44 icons) is about 11 KB minified (~4 KB gzipped).
+The full bundle (component + 88 icons) is about 18 KB minified (~7 KB gzipped).
 Each icon path is a few hundred bytes; the component shell is ~2 KB.
 
 ## License
