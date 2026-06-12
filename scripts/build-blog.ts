@@ -434,6 +434,21 @@ const SHARED_STYLE = `
       .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
       .wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 24px; }
 
+      .article-layout {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 220px;
+        gap: 48px;
+        align-items: start;
+      }
+      .article-toc {
+        position: sticky;
+        top: 80px;
+        padding-top: 8px;
+      }
+
       header.post-head { padding: 56px 0 12px; }
       .post-eyebrow {
         font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
@@ -567,6 +582,13 @@ const SHARED_STYLE = `
         display: block;
         margin: 0 0 22px;
       }
+      @media (max-width: 900px) {
+        .article-layout {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .article-toc { display: none; }
+      }
       @media (max-width: 720px) {
         header.post-head { padding: 36px 0 8px; }
         article { padding: 12px 0 36px; }
@@ -628,9 +650,13 @@ ${
       </header>
 
       <article>
-        <div class="wrap-narrow">
-          <tc-toc target="article" levels="h2,h3" sticky="false" label="In this post"></tc-toc>
+        <div class="article-layout">
+          <div class="article-content">
 ${post.html}
+          </div>
+          <aside class="article-toc">
+            <tc-toc target=".article-content" levels="h2,h3" sticky="false" label="In this post"></tc-toc>
+          </aside>
         </div>
       </article>
     </main>
