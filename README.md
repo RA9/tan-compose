@@ -8,10 +8,10 @@ DOM, lifecycle, and reactivity are wired up for you on top of the platform.
 
 > **Status:** stable at **1.1**. The API is frozen; further changes will be
 > additive. Pair with
-> [`@ra9/tan-compose-kit`](https://jsr.io/@ra9/tan-compose-kit) for 24
+> [`@ra9/tan-compose-kit`](https://jsr.io/@ra9/tan-compose-kit) for 38
 > ready-made components and 6 theme presets (light, dark, Bootstrap, Tailwind,
 > Material, shadcn) on top of this engine, and
-> [`@ra9/tan-compose-icons`](https://jsr.io/@ra9/tan-compose-icons) for 44
+> [`@ra9/tan-compose-icons`](https://jsr.io/@ra9/tan-compose-icons) for 98
 > inline-SVG icons that pair with the kit.
 
 ## Features
@@ -39,8 +39,15 @@ DOM, lifecycle, and reactivity are wired up for you on top of the platform.
   re-render
 - **State Management**: Built-in `setState` / `getState` (setState triggers
   re-render when the value changes)
-- **Lifecycle Hooks**: `beforeMount`, `afterMount`, and `unmount`
+- **Lifecycle Hooks**: `beforeMount`, `afterMount`, `afterRender`, and `unmount`
 - **Memory Leak Prevention**: Automatic cleanup of event listeners and resources
+- **Refs**: Declarative `refs: { name: ".selector" }` map — queried after every
+  render and exposed on `host.refs` and `ctx.refs`
+- **Form-Associated Custom Elements**: Opt-in via `formAssociated: true` —
+  enables `ElementInternals`, form submission, validity API, and autofill
+- **Adopted Stylesheets**: Theme and container CSS compiled to shared
+  `CSSStyleSheet` objects — 100 instances of the same tag share 1–2 sheets
+  instead of 100 inline `<style>` elements
 - **Recursive Component Building**: Nest and compose components in a declarative
   way
 - **Template Support**: Use HTML templates for component content
@@ -59,10 +66,29 @@ With npm/Node bundlers (via JSR):
 npx jsr add @ra9/tan-compose
 ```
 
-Or import directly from a URL with Deno:
+### From a CDN, no build step
+
+Load the pre-built bundle straight from jsDelivr — no bundler, no install:
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.1.0/dist/mod.js"></script>
+```
+
+Or import it in a module script:
+
+```html
+<script type="module">
+  import { build, describe } from "https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.1.0/dist/mod.js";
+</script>
+```
+
+Swap the tag (`@v1.1.0`) for whichever version you want to pin to.
+
+### From GitHub (raw source, Deno-compatible)
 
 ```typescript
-import { build, describe } from "https://deno.land/x/tan_compose/mod.ts";
+import { build, describe } from "https://raw.githubusercontent.com/RA9/tan-compose/v1.1.0/mod.ts";
 ```
 
 ## Usage
@@ -220,17 +246,24 @@ build("tan-form", formComponent);
 
 ### Lifecycle Hooks
 
-Use `beforeMount` and `afterMount` hooks:
+Use `beforeMount`, `afterMount`, and `afterRender` hooks. Use `function` syntax
+to access the host element via `this`:
 
 ```javascript
 const component = describe({
   tag: "div",
   template: "<p>Component with lifecycle hooks</p>",
-  beforeMount: () => {
-    console.log("Component is about to mount");
+  beforeMount() {
+    console.log("Component is about to mount", this.tagName);
   },
-  afterMount: () => {
-    console.log("Component has mounted");
+  afterMount() {
+    console.log("Component has mounted", this.shadowRoot);
+  },
+  afterRender() {
+    console.log("Render complete");
+  },
+  unmount() {
+    console.log("Component removed from DOM");
   },
 });
 
@@ -390,14 +423,15 @@ build(
 
 ### Reactive Attributes
 
-Declare which attributes should trigger re-renders via `observedAttributes`:
+Declare which attributes should trigger re-renders via `observedAttributes`.
+When an observed attribute changes, its value is stored in state and the
+component re-renders:
 
 ```javascript
 const dynamicText = describe({
-  tag: "div",
   observedAttributes: ["data-text"],
   attributes: { "data-text": "Initial text" },
-  template: "Check the DOM on attribute change",
+  template: ({ state }) => `<p>${state["data-text"] ?? "Initial text"}</p>`,
 });
 
 build("dynamic-text", dynamicText);
@@ -411,7 +445,7 @@ build("dynamic-text", dynamicText);
 <dynamic-text data-text="Initial"></dynamic-text>
 
 <script>
-  // Change attribute dynamically
+  // Change attribute dynamically — the component re-renders automatically
   const el = document.querySelector("dynamic-text");
   setTimeout(() => {
     el.setAttribute("data-text", "Updated text");
@@ -421,20 +455,22 @@ build("dynamic-text", dynamicText);
 
 ### State Management
 
-Use built-in state management:
+Use built-in `setState` / `getState` with a function template so the DOM updates
+automatically. Pair with `events` for delegated listeners that survive
+re-renders:
 
 ```javascript
 const statefulComponent = describe({
-  tag: "div",
-  template: "<button>Click to update state</button>",
-  afterMount: function () {
-    this.setState("count", 0);
-
-    this.querySelector("button").addEventListener("click", () => {
-      const count = this.getState("count") + 1;
-      this.setState("count", count);
+  template: ({ state }) => `
+    <p>Current count: ${state.count ?? 0}</p>
+    <button class="bump">Click to update state</button>
+  `,
+  events: {
+    "click .bump": (_e, ctx) => {
+      const count = (ctx.state.count ?? 0) + 1;
+      ctx.setState("count", count);
       console.log("Current count:", count);
-    });
+    },
   },
 });
 
@@ -463,13 +499,33 @@ Creates a component description object.
 - `styles?: Record<string, string>` - Inline styles
 - `className?: string` - CSS class names
 - `attributes?: Record<string, string>` - HTML attributes
-- `template?: string` - HTML template content
+- `template?: string | (ctx: ComponentCtx) => string` - HTML template content
+  (static string or reactive function)
 - `children?: DescribeOptions[]` - Array of child components
 - `action?: (event: Event) => void` - Click event handler
+- `events?: EventDelegateMap` - Map of `"<event> <selector>"` → handler for
+  delegated event handling
 - `emit?: EventEmitter[]` - Custom event emitters
+- `props?: Record<string, PropDef>` - Typed reactive properties (`string` /
+  `number` / `boolean` / `json`) with optional attribute reflection
+- `if?: (ctx: ComponentCtx) => boolean` - Conditional rendering predicate (child
+  only)
+- `for?: ListConfig` - Keyed list rendering config: `{ items, key, render }`
+  (child only)
+- `refs?: Record<string, string>` - Map of name → CSS selector; matched elements
+  exposed on `host.refs` and `ctx.refs` after every render
+- `formAssociated?: boolean` - Opt in to Form-Associated Custom Elements API
+- `formAssociatedCallback?: (form) => void` - Called when associated with a form
+- `formDisabledCallback?: (disabled) => void` - Called when disabled state
+  changes
+- `formResetCallback?: () => void` - Called when the owning form is reset
+- `formStateRestoreCallback?: (state, mode) => void` - Called on history
+  navigation or autofill
 - `observedAttributes?: string[]` - Attribute names that trigger re-renders
 - `beforeMount?: () => void` - Hook called before first render
 - `afterMount?: () => void` - Hook called after the element is connected
+- `afterRender?: () => void` - Hook called after every render (initial and
+  subsequent); use for imperative DOM work
 - `unmount?: () => void` - Hook called when the element is disconnected
 
 ### Component Methods
@@ -481,6 +537,13 @@ Custom components have these methods available:
   the value changed)
 - `getState<T>(key: string): T | undefined` - Get a state value
 - `render()` - Manually trigger a re-render
+
+### Instance Properties
+
+- `refs: Record<string, Element | null>` - Declarative element refs populated
+  after every render
+- `internals: ElementInternals` - Available when `formAssociated: true`; exposes
+  `setFormValue`, validity API, etc.
 
 ### Helper Functions
 
