@@ -22,7 +22,7 @@
     "exclude": ["dist/", "coverage/"]
   },
   "fmt": {
-    "exclude": ["**/*.html", "**/*.md", "dist/", "coverage/"]
+    "exclude": ["**/*.html", "**/*.md", "**/*.svg", "dist/", "coverage/"]
   },
   "test": {
     "exclude": ["dist/", "coverage/"]
