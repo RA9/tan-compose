@@ -344,14 +344,16 @@ function preprocessDirectives(md: string): string {
       // Trim innerHtml — a blank line inside the HTML block would terminate
       // it early, and the next `##` heading would get swallowed by a new
       // HTML block starting at the closing tag.
-      const innerHtml = (marked.parse(body.trim(), {
-        async: false,
-        breaks: false,
-        gfm: true,
-      }) as string).trim();
-      return `<tc-callout variant="${
-        escapeHtml(variant)
-      }"${title}>\n${innerHtml}\n</tc-callout>`;
+      const innerHtml = (
+        marked.parse(body.trim(), {
+          async: false,
+          breaks: false,
+          gfm: true,
+        }) as string
+      ).trim();
+      return `<tc-callout variant="${escapeHtml(
+        variant,
+      )}"${title}>\n${innerHtml}\n</tc-callout>`;
     },
   );
 }
@@ -606,9 +608,9 @@ function renderPost(post: Post): string {
     <style>${SHARED_STYLE}</style>
   </head>
   <body>
-    <site-nav active="blog" version="${
-    escapeHtml(version)
-  }" base="../"></site-nav>
+    <site-nav active="blog" version="${escapeHtml(
+      version,
+    )}" base="../"></site-nav>
 
     <main>
       <header class="post-head">
@@ -616,19 +618,18 @@ function renderPost(post: Post): string {
           <div class="post-eyebrow">${escapeHtml(post.tag)}</div>
           <h1>${escapeHtml(post.title)}</h1>
 ${
-    post.subtitle
-      ? `          <p class="article-subtitle">${
-        escapeHtml(post.subtitle)
-      }</p>\n`
-      : ""
-  }          <div class="article-meta">Posted ${
-    escapeHtml(isoDate(post.date))
-  }</div>
+  post.subtitle
+    ? `          <p class="article-subtitle">${escapeHtml(post.subtitle)}</p>\n`
+    : ""
+}          <div class="article-meta">Posted ${escapeHtml(
+    isoDate(post.date),
+  )}</div>
         </div>
       </header>
 
       <article>
         <div class="wrap-narrow">
+          <tc-toc target="article" levels="h2,h3" sticky="false" label="In this post"></tc-toc>
 ${post.html}
         </div>
       </article>
@@ -945,34 +946,37 @@ ${items}
 
 function renderSitemap(posts: Post[], components: ComponentPage[]): string {
   const today = new Date().toISOString().slice(0, 10);
-  const top = TOP_PAGES.map((p) =>
-    `  <url>
+  const top = TOP_PAGES.map(
+    (p) =>
+      `  <url>
     <loc>${SITE_URL}${p.path}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
-  </url>`
+  </url>`,
   ).join("\n");
 
   const posted = posts
-    .map((p) =>
-      `  <url>
+    .map(
+      (p) =>
+        `  <url>
     <loc>${SITE_URL}/blog/${p.slug}.html</loc>
     <lastmod>${escapeXml(isoDate(p.date))}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
-  </url>`
+  </url>`,
     )
     .join("\n");
 
   const componentUrls = components
-    .map((c) =>
-      `  <url>
+    .map(
+      (c) =>
+        `  <url>
     <loc>${SITE_URL}/components/${c.slug}.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>`
+  </url>`,
     )
     .join("\n");
 
@@ -1211,8 +1215,11 @@ function renderComponentTable(
         .map((c) => {
           const v = r[c.key];
           if (v == null || v === "") return `<td>—</td>`;
-          const isCode = c.key === "name" || c.key === "type" ||
-            c.key === "default" || c.key === "detail";
+          const isCode =
+            c.key === "name" ||
+            c.key === "type" ||
+            c.key === "default" ||
+            c.key === "detail";
           return isCode
             ? `<td><code>${escapeHtml(v)}</code></td>`
             : `<td>${escapeHtml(v)}</td>`;
@@ -1230,82 +1237,78 @@ function renderComponentTable(
 function renderComponentPage(c: ComponentPage): string {
   const url = `${SITE_URL}/components/${c.slug}.html`;
   const description = c.description ?? c.summary;
-  const importPath = c.importPath ??
-    `@ra9/tan-compose-kit/${c.slug.replace(/^tc-/, "")}`;
+  const importPath =
+    c.importPath ?? `@ra9/tan-compose-kit/${c.slug.replace(/^tc-/, "")}`;
 
-  const propsSection = c.props && c.props.length > 0
-    ? `
+  const propsSection =
+    c.props && c.props.length > 0
+      ? `
       <section class="api-section" id="props">
         <h2>Props</h2>
-        ${
-      renderComponentTable(c.props, [
-        { key: "name", label: "Name" },
-        { key: "type", label: "Type" },
-        { key: "default", label: "Default" },
-        { key: "description", label: "Description" },
-      ])
-    }
+        ${renderComponentTable(c.props, [
+          { key: "name", label: "Name" },
+          { key: "type", label: "Type" },
+          { key: "default", label: "Default" },
+          { key: "description", label: "Description" },
+        ])}
       </section>`
-    : "";
+      : "";
 
-  const eventsSection = c.events && c.events.length > 0
-    ? `
+  const eventsSection =
+    c.events && c.events.length > 0
+      ? `
       <section class="api-section" id="events">
         <h2>Events</h2>
-        ${
-      renderComponentTable(c.events, [
-        { key: "name", label: "Event" },
-        { key: "detail", label: "Detail" },
-        { key: "description", label: "When" },
-      ])
-    }
+        ${renderComponentTable(c.events, [
+          { key: "name", label: "Event" },
+          { key: "detail", label: "Detail" },
+          { key: "description", label: "When" },
+        ])}
       </section>`
-    : "";
+      : "";
 
-  const slotsSection = c.slots && c.slots.length > 0
-    ? `
+  const slotsSection =
+    c.slots && c.slots.length > 0
+      ? `
       <section class="api-section" id="slots">
         <h2>Slots</h2>
-        ${
-      renderComponentTable(c.slots, [
-        { key: "name", label: "Slot" },
-        { key: "description", label: "Description" },
-      ])
-    }
+        ${renderComponentTable(c.slots, [
+          { key: "name", label: "Slot" },
+          { key: "description", label: "Description" },
+        ])}
       </section>`
-    : "";
+      : "";
 
-  const cssVarsSection = c.cssVars && c.cssVars.length > 0
-    ? `
+  const cssVarsSection =
+    c.cssVars && c.cssVars.length > 0
+      ? `
       <section class="api-section" id="css-vars">
         <h2>CSS variables</h2>
-        ${
-      renderComponentTable(c.cssVars, [
-        { key: "name", label: "Variable" },
-        { key: "default", label: "Default" },
-        { key: "description", label: "Description" },
-      ])
-    }
+        ${renderComponentTable(c.cssVars, [
+          { key: "name", label: "Variable" },
+          { key: "default", label: "Default" },
+          { key: "description", label: "Description" },
+        ])}
       </section>`
-    : "";
+      : "";
 
-  const relatedSection = c.related && c.related.length > 0
-    ? `
+  const relatedSection =
+    c.related && c.related.length > 0
+      ? `
       <section class="api-section" id="related">
         <h2>See also</h2>
         <ul class="related">
-          ${
-      c.related
-        .map((slug) =>
-          `<li><a href="./${escapeHtml(slug)}.html"><code>&lt;tc-${
-            escapeHtml(slug)
-          }&gt;</code></a></li>`
-        )
-        .join("")
-    }
+          ${c.related
+            .map(
+              (slug) =>
+                `<li><a href="./${escapeHtml(slug)}.html"><code>&lt;tc-${escapeHtml(
+                  slug,
+                )}&gt;</code></a></li>`,
+            )
+            .join("")}
         </ul>
       </section>`
-    : "";
+      : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1538,9 +1541,10 @@ async function loadComponentPages(): Promise<ComponentPage[]> {
   return pages;
 }
 
-function splitFrontmatterComponent(
-  src: string,
-): { meta: ComponentFrontmatter; body: string } {
+function splitFrontmatterComponent(src: string): {
+  meta: ComponentFrontmatter;
+  body: string;
+} {
   const match = src.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!match) throw new Error("missing frontmatter");
   const meta = parseYaml(match[1]) as ComponentFrontmatter;
