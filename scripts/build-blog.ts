@@ -158,6 +158,18 @@ function isoDate(d: unknown): string {
 }
 
 /**
+ * Split a post's "·"-separated `tag` string into topic categories used for
+ * filtering. Tokens containing a digit (release versions like "v0.4.0" or
+ * "kit v1.6.0") are dropped — they're one-offs that make poor filters.
+ */
+function postCategories(tag: unknown): string[] {
+  return String(tag ?? "")
+    .split("·")
+    .map((t) => t.trim().toLowerCase())
+    .filter((t) => t.length > 0 && !/\d/.test(t));
+}
+
+/**
  * Tokenize TypeScript/JavaScript source. Walks the text and emits HTML
  * with .tc-kw (keywords), .tc-str (string literals), .tc-com (comments).
  * Everything else is plain text (HTML-escaped). Conservative — we don't
@@ -682,17 +694,42 @@ ${post.html}
 // ────────────────────────────────────────────────────────────────────
 
 function renderIndex(posts: Post[]): string {
+  // Build-time facets. Each post's `tag` is a "·"-separated list; we treat
+  // the digit-free tokens as topic categories (so "v0.4.0 · release" filters
+  // under "release", not the one-off version string).
+  const facetCounts = new Map<string, number>();
+  for (const p of posts) {
+    for (const cat of postCategories(p.tag)) {
+      facetCounts.set(cat, (facetCounts.get(cat) ?? 0) + 1);
+    }
+  }
+  const facets = [...facetCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+  const filterChips = [
+    `<button type="button" class="filter-chip is-active" data-tag="" aria-pressed="true">All <span class="chip-count">${posts.length}</span></button>`,
+    ...facets.map(([label, count]) =>
+      `<button type="button" class="filter-chip" data-tag="${
+        escapeHtml(label)
+      }" aria-pressed="false">${
+        escapeHtml(label)
+      } <span class="chip-count">${count}</span></button>`
+    ),
+  ].join("\n            ");
+
   const items = posts
     .map((p) => {
       const date = isoDate(p.date);
       const title = String(p.title).replace(/"/g, '\\"');
       const tag = String(p.tag).replace(/"/g, '\\"');
       const excerpt = String(p.excerpt).replace(/"/g, '\\"');
+      const tags = JSON.stringify(postCategories(p.tag));
       return `        {
           href: "./${p.slug}.html",
           title: "${title}",
           date: "${date}",
           tag: "${tag}",
+          tags: ${tags},
           excerpt:
             "${excerpt}",
         }`;
@@ -756,6 +793,49 @@ function renderIndex(posts: Post[]): string {
 
       .search-row { margin: 28px 0 8px; }
       .search-row tc-input { display: block; }
+
+      .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 4px 0 4px;
+      }
+      .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 13px;
+        font: inherit;
+        font-size: 0.86rem;
+        font-weight: 500;
+        color: var(--tc-color-ink-soft, #4a5061);
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-pill, 999px);
+        cursor: pointer;
+        text-transform: capitalize;
+        transition: color 0.15s ease, border-color 0.15s ease,
+          background 0.15s ease;
+      }
+      .filter-chip:hover {
+        border-color: var(--tc-color-accent, #a16939);
+        color: var(--tc-color-ink, #14171f);
+      }
+      .filter-chip:focus-visible {
+        outline: 2px solid var(--tc-color-accent, #a16939);
+        outline-offset: 2px;
+      }
+      .filter-chip.is-active {
+        color: var(--tc-color-accent-hover, #8a572d);
+        background: var(--tc-color-accent-soft, #efe2cf);
+        border-color: var(--tc-color-accent-soft, #efe2cf);
+      }
+      .chip-count {
+        font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+        font-size: 0.72rem;
+        color: var(--tc-color-ink-muted, #6b7280);
+      }
+      .filter-chip.is-active .chip-count { color: var(--tc-color-accent-hover, #8a572d); }
 
       section.posts { padding: 0 0 64px; }
       .post {
@@ -828,6 +908,9 @@ function renderIndex(posts: Post[]): string {
           <div class="search-row">
             <tc-input id="post-search" placeholder="Search posts…" aria-label="Search posts"></tc-input>
           </div>
+          <div class="filter-bar" id="post-filters" role="group" aria-label="Filter posts by topic">
+            ${filterChips}
+          </div>
         </div>
       </header>
 
@@ -848,18 +931,23 @@ ${items},
 
       const PAGE_SIZE = 5;
       let query = "";
+      let activeTag = "";
       let page = 1;
 
       const search = document.getElementById("post-search");
       const results = document.getElementById("post-results");
       const pager = document.getElementById("post-pager");
+      const filters = document.getElementById("post-filters");
 
       function filtered() {
         const q = query.trim().toLowerCase();
-        if (!q) return POSTS;
-        return POSTS.filter((p) =>
-          (p.title + " " + p.tag + " " + p.excerpt).toLowerCase().includes(q)
-        );
+        return POSTS.filter((p) => {
+          if (activeTag && !(p.tags || []).includes(activeTag)) return false;
+          if (!q) return true;
+          return (p.title + " " + p.tag + " " + p.excerpt)
+            .toLowerCase()
+            .includes(q);
+        });
       }
 
       function escapeHtml(s) {
@@ -877,8 +965,16 @@ ${items},
         const slice = all.slice(start, start + PAGE_SIZE);
 
         if (slice.length === 0) {
+          const q = query.trim();
+          const reason = q && activeTag
+            ? \`"\${escapeHtml(q)}" in \${escapeHtml(activeTag)}\`
+            : q
+            ? \`"\${escapeHtml(q)}"\`
+            : activeTag
+            ? \`the \${escapeHtml(activeTag)} topic\`
+            : "your filters";
           results.innerHTML =
-            \`<div class="empty">No posts match "\${escapeHtml(query)}".</div>\`;
+            \`<div class="empty">No posts match \${reason}.</div>\`;
         } else {
           results.innerHTML = slice
             .map((p) => \`
@@ -922,6 +1018,21 @@ ${items},
 
       search.addEventListener("tc-input", (e) => onSearch(e.detail?.value));
       search.addEventListener("input", (e) => onSearch(e.target?.value));
+
+      filters?.addEventListener("click", (e) => {
+        const chip = e.target.closest(".filter-chip");
+        if (!chip) return;
+        const tag = chip.dataset.tag || "";
+        // Clicking the active topic chip clears back to "All".
+        activeTag = tag === activeTag ? "" : tag;
+        for (const c of filters.querySelectorAll(".filter-chip")) {
+          const on = (c.dataset.tag || "") === activeTag;
+          c.classList.toggle("is-active", on);
+          c.setAttribute("aria-pressed", on ? "true" : "false");
+        }
+        page = 1;
+        render();
+      });
 
       render();
     </script>
