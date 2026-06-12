@@ -70,41 +70,20 @@ build(
         .root.bordered {
           border: 1px solid var(--tc-accordion-rule);
         }
+        /* Only the top-level slotted node (\`details\`) is reachable from the
+           shadow tree — \`::slotted()\` takes a compound selector, not a
+           combinator. Everything that targets \`summary\` (a descendant of the
+           slotted node) lives in the injected light-DOM sheet below; the
+           --tc-accordion-* vars inherit into the light DOM from :host. */
         ::slotted(details) {
           background: transparent;
         }
-        ::slotted(details + details) {
-          border-top: 1px solid var(--tc-accordion-rule);
-        }
-        ::slotted(details > summary) {
-          cursor: pointer;
-          list-style: none;
-          padding: 14px 18px;
-          font-weight: 600;
-          font-size: 0.96rem;
-          color: var(--tc-accordion-ink);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          transition: background 0.15s ease;
-        }
-        ::slotted(details > summary::-webkit-details-marker) {
-          display: none;
-        }
-        ::slotted(details > summary:hover) {
-          background: rgba(20, 23, 31, 0.03);
-        }
-        ::slotted(details > summary:focus-visible) {
-          outline: 2px solid var(--tc-accordion-accent);
-          outline-offset: -2px;
-        }
-        /* Caret pseudo via background-image isn't reachable for ::slotted
-           inner. Authors can override using their own summary content. */
       </style>
     `,
     afterMount() {
       const host = this as unknown as HTMLElement & HostExtras;
+
+      injectLightStyles();
 
       const onToggle = (e: Event) => {
         const t = e.target as HTMLDetailsElement;
@@ -180,6 +159,49 @@ build(
     },
   }),
 );
+
+const LIGHT_STYLE_ID = "tc-accordion-light-styles";
+
+/**
+ * Styles for the slotted `<summary>` (and other `<details>` descendants) must
+ * live in the light DOM: `::slotted()` can only target the top-level projected
+ * node, so a descendant combinator inside it makes the rule invalid. The
+ * --tc-accordion-* custom properties inherit into the light DOM from the host's
+ * `:host` block, so they resolve correctly here. Injected once per document.
+ */
+function injectLightStyles(): void {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(LIGHT_STYLE_ID)) return;
+  const style = document.createElement("style");
+  style.id = LIGHT_STYLE_ID;
+  style.textContent = `
+    ${TAG} details { background: transparent; }
+    ${TAG} details + details {
+      border-top: 1px solid var(--tc-accordion-rule, #ece5d3);
+    }
+    ${TAG} details > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 18px;
+      font-weight: 600;
+      font-size: 0.96rem;
+      color: var(--tc-accordion-ink, #14171f);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background 0.15s ease;
+    }
+    ${TAG} details > summary::-webkit-details-marker { display: none; }
+    ${TAG} details > summary::marker { content: ""; }
+    ${TAG} details > summary:hover { background: rgba(20, 23, 31, 0.03); }
+    ${TAG} details > summary:focus-visible {
+      outline: 2px solid var(--tc-accordion-accent, #a16939);
+      outline-offset: -2px;
+    }
+  `;
+  (document.head || document.documentElement).appendChild(style);
+}
 
 function getDetails(host: HTMLElement): HTMLDetailsElement[] {
   const out: HTMLDetailsElement[] = [];
