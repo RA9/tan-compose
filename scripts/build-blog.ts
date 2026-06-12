@@ -434,7 +434,9 @@ const SHARED_STYLE = `
       }
       code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
       .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
-      .wrap-narrow { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+      /* Post header aligns to the same 1100px column as the nav and the
+         article body below, so the title spans the full content width. */
+      .wrap-narrow { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
       .article-layout {
         max-width: 1100px;
@@ -730,7 +732,9 @@ function renderIndex(posts: Post[]): string {
         background: var(--tc-color-bg, #faf8f3);
         -webkit-font-smoothing: antialiased;
       }
-      .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+      /* Match the nav's 1100px content column so the blog index spans the
+         full site width instead of a narrower centered column. */
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
       header.page { padding: 64px 0 24px; }
       .eyebrow {
