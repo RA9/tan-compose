@@ -310,6 +310,25 @@
             >GitHub ↗</tc-button>
             <tc-button variant="primary" href="./docs.html" disabled>Disabled link</tc-button>
           </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            <code>block</code> stretches a button full-width — handy at the
+            end of a mobile form. The default slot accepts inline icons
+            alongside text.
+          </p>
+          <div class="stage col">
+            <tc-button block variant="primary">Continue</tc-button>
+            <tc-button block variant="secondary">Save draft</tc-button>
+          </div>
+          <div class="stage">
+            <tc-button variant="primary">↑ Upload</tc-button>
+            <tc-button variant="secondary">Download ↓</tc-button>
+            <tc-button variant="danger">✕ Remove</tc-button>
+            <tc-button variant="ghost" aria-label="Settings">⚙</tc-button>
+            <tc-button
+              variant="primary"
+              style="--tc-btn-primary-bg: #a16939; --tc-btn-primary-fg: #fff;"
+            >Accent override</tc-button>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/button"</span>;
 
 &lt;tc-button variant="primary"&gt;Save&lt;/tc-button&gt;
@@ -363,6 +382,21 @@
               Click submit to see what gets sent.
             </div>
           </form>
+          <p class="demo-lede" style="margin-top: 24px;">
+            The <code>type</code> prop forwards to the native input, so you
+            get the right mobile keyboard and validity rules per field.
+          </p>
+          <div class="stage col">
+            <tc-input type="password" label="Password" placeholder="••••••••" required></tc-input>
+            <tc-input type="number" label="Quantity" value="1"></tc-input>
+            <tc-input type="search" label="Search" placeholder="Search the docs…"></tc-input>
+            <tc-input type="tel" label="Phone" placeholder="+231 …"></tc-input>
+            <tc-input type="url" label="Website" placeholder="https://example.com"></tc-input>
+          </div>
+          <div class="stage col">
+            <tc-input label="Full name" value="Carlos Nah" helper="As it appears on your ID."></tc-input>
+            <tc-input label="Account ID" value="ACC-4821" disabled helper="Managed by your administrator."></tc-input>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/input"</span>;
 
 &lt;form&gt;
@@ -397,6 +431,35 @@
             >
               No selection.
             </div>
+          </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            Pass <code>options</code> as a JSON attribute to render entirely
+            from markup — no script required. Match <code>value</code> to a
+            value to preselect it, or mark an option
+            <code>"disabled": true</code>.
+          </p>
+          <div class="stage col">
+            <tc-select
+              label="Country"
+              placeholder="Select one…"
+              options='[{"value":"lr","label":"Liberia"},{"value":"gh","label":"Ghana"},{"value":"ng","label":"Nigeria"}]'
+            ></tc-select>
+            <tc-select
+              label="Plan"
+              value="pro"
+              helper="Change anytime from billing."
+              options='[{"value":"free","label":"Free"},{"value":"pro","label":"Pro"},{"value":"team","label":"Team"}]'
+            ></tc-select>
+            <tc-select
+              label="Region"
+              placeholder="Choose a region…"
+              options='[{"value":"na","label":"North America"},{"value":"eu","label":"Europe"},{"value":"ap","label":"Asia Pacific","disabled":true}]'
+            ></tc-select>
+            <tc-select
+              label="Country"
+              error="Required."
+              options='[{"value":"lr","label":"Liberia"}]'
+            ></tc-select>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/select"</span>;
 
@@ -445,6 +508,37 @@
               No selection yet.
             </div>
           </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            <code>options</code> is a JSON prop, so a combobox can render
+            from pure markup too. Each entry takes an optional
+            <code>icon</code>. Preselect via <code>value</code> (single) or a
+            comma-separated list (multiple).
+          </p>
+          <div class="stage col">
+            <tc-combobox
+              label="Country"
+              name="country2"
+              placeholder="Pick a country…"
+              value="JP"
+              options='[{"value":"US","label":"United States","icon":"🇺🇸"},{"value":"GB","label":"United Kingdom","icon":"🇬🇧"},{"value":"FR","label":"France","icon":"🇫🇷"},{"value":"JP","label":"Japan","icon":"🇯🇵"},{"value":"BR","label":"Brazil","icon":"🇧🇷"}]'
+            ></tc-combobox>
+            <tc-combobox
+              label="Interests"
+              name="interests2"
+              multiple
+              max="3"
+              value="design,frontend"
+              helper="Pick up to 3."
+              options='[{"value":"design","label":"Design"},{"value":"frontend","label":"Frontend"},{"value":"backend","label":"Backend"},{"value":"infra","label":"Infrastructure"},{"value":"ml","label":"Machine learning"},{"value":"mobile","label":"Mobile"}]'
+            ></tc-combobox>
+            <tc-combobox
+              label="Assignee"
+              name="assignee"
+              searchable="false"
+              placeholder="Select a teammate…"
+              options='[{"value":"cn","label":"Carlos Nah"},{"value":"aj","label":"Ada Johnson"},{"value":"mk","label":"Moses Kollie"}]'
+            ></tc-combobox>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/combobox"</span>;
 
 <span class="tc-com">// HTML</span>
@@ -490,6 +584,29 @@ combo.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
               </div>
             </tc-tabs>
           </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            Define tabs inline with the <code>tabs</code> JSON attribute and
+            slot panels by id — no script needed. Set <code>active</code> to
+            open a tab other than the first.
+          </p>
+          <div class="stage col">
+            <tc-tabs
+              active="props"
+              tabs='[{"id":"overview","label":"Overview"},{"id":"props","label":"Props"},{"id":"events","label":"Events"}]'
+            >
+              <div slot="overview" style="padding: 6px 0;">
+                <strong>Overview.</strong> A summary of what this thing does.
+              </div>
+              <div slot="props" style="padding: 6px 0;">
+                <strong>Props.</strong> Opened by default via
+                <code>active="props"</code>.
+              </div>
+              <div slot="events" style="padding: 6px 0;">
+                <strong>Events.</strong> <code>tc-tab-change</code> fires on
+                every switch.
+              </div>
+            </tc-tabs>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/tabs"</span>;
 
 &lt;tc-tabs active="overview"&gt;
@@ -529,6 +646,21 @@ combo.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
               <tc-button variant="primary" id="kit-modal-confirm">Publish</tc-button>
             </div>
           </tc-modal>
+          <p class="demo-lede" style="margin-top: 24px;">
+            Add the <code>open</code> attribute and the dialog shows on load —
+            useful for a server-rendered confirmation step. The footer slot
+            holds the action row; omit <code>title</code> for a plain prompt.
+          </p>
+          <div class="stage">
+            <tc-modal open title="Delete this post?" width="min(440px, 92vw)">
+              <p>This action is permanent. The post will be removed from your
+              blog and feed.</p>
+              <div slot="footer">
+                <tc-button variant="ghost">Cancel</tc-button>
+                <tc-button variant="danger">Delete</tc-button>
+              </div>
+            </tc-modal>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/modal"</span>;
 
 &lt;tc-modal id="m" title="Confirm"&gt;
@@ -562,6 +694,23 @@ combo.addEventListener(<span class="tc-str">"tc-change"</span>, (e) =&gt; {
             </div>
             <div id="kit-toast-host" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;"></div>
           </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            With <code>open</code> set, a toast renders inline immediately —
+            here with <code>duration="0"</code> so it stays put. Leave
+            <code>message</code> empty to use the default slot for links or
+            formatting, and add <code>dismissible="false"</code> to drop the
+            close button.
+          </p>
+          <div class="stage col">
+            <tc-toast open variant="info" duration="0" message="A new version is available."></tc-toast>
+            <tc-toast open variant="success" duration="0" message="Changes saved."></tc-toast>
+            <tc-toast open variant="warning" duration="0" message="Approaching your storage limit."></tc-toast>
+            <tc-toast open variant="error" duration="0" message="Couldn't reach the server."></tc-toast>
+            <tc-toast open variant="success" duration="0">
+              Saved. <a href="./examples.html" style="color: inherit;">View it →</a>
+            </tc-toast>
+            <tc-toast open variant="info" duration="0" dismissible="false" message="Syncing in the background…"></tc-toast>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/toast"</span>;
 
 <span class="tc-kw">const</span> t = document.createElement(<span class="tc-str">"tc-toast"</span>);
@@ -588,6 +737,23 @@ t.open = <span class="tc-kw">true</span>;</tc-code>
             <tc-stat label="Active users" value="3,209" delta="-1.4% vs last week" trend="down"></tc-stat>
             <tc-stat label="Avg session" value="4:21" suffix="min" delta="no change" trend="neutral"></tc-stat>
             <tc-stat label="Errors" value="0" delta="0 last 24h" trend="neutral"></tc-stat>
+          </div>
+          <p class="demo-lede" style="margin-top: 24px;">
+            Drop the <code>delta</code> prop for a bare metric, or override
+            the trend tokens for a custom palette. <code>trend</code> only
+            colors the delta — pick it for the visual you want.
+          </p>
+          <div class="stage" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); display: grid;">
+            <tc-stat label="MRR" prefix="$" value="120,000"></tc-stat>
+            <tc-stat label="Sign-ups" value="1,204" delta="+8.4%" trend="up"></tc-stat>
+            <tc-stat label="Churn" value="2.1" suffix="%" delta="−0.3%" trend="down"></tc-stat>
+            <tc-stat
+              label="Custom blue trend"
+              value="42"
+              delta="+3 this week"
+              trend="up"
+              style="--tc-stat-up: #2b6cb0;"
+            ></tc-stat>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/stat"</span>;
 
@@ -620,6 +786,23 @@ t.open = <span class="tc-kw">true</span>;</tc-code>
             >
               Click a row to see it here.
             </div>
+          </div>
+          <div class="stage col">
+            <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">declarative rows + columns via JSON attributes</p>
+            <tc-table
+              page-size="4"
+              rows='[{"id":1,"name":"Carlos","role":"Engineer","joined":"2021"},{"id":2,"name":"Naomi","role":"Designer","joined":"2022"},{"id":3,"name":"Joseph","role":"PM","joined":"2020"},{"id":4,"name":"Awa","role":"Engineer","joined":"2023"},{"id":5,"name":"Mensah","role":"Support","joined":"2024"}]'
+              columns='[{"key":"name","label":"Name"},{"key":"role","label":"Role"},{"key":"joined","label":"Joined"}]'
+            ></tc-table>
+          </div>
+          <div class="stage col">
+            <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">empty state · custom empty-text · filter off</p>
+            <tc-table
+              filterable="false"
+              empty-text="No teammates yet."
+              rows='[]'
+              columns='[{"key":"name","label":"Name"},{"key":"role","label":"Role"}]'
+            ></tc-table>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/table"</span>;
 
@@ -654,6 +837,35 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
               rows="4"
             ></tc-textarea>
           </div>
+          <div class="stage col">
+            <tc-textarea
+              label="Address"
+              name="address"
+              error="This field is required."
+              rows="3"
+              required
+            ></tc-textarea>
+            <tc-textarea
+              label="Disabled"
+              value="Read-only content."
+              disabled
+              rows="2"
+            ></tc-textarea>
+          </div>
+          <div class="stage col">
+            <tc-textarea
+              label="Fixed height"
+              placeholder="Locked — drag handle removed."
+              rows="2"
+              resize="none"
+            ></tc-textarea>
+            <tc-textarea
+              label="Free resize"
+              placeholder="Drag any corner."
+              rows="3"
+              resize="both"
+            ></tc-textarea>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/textarea"</span>;
 
 &lt;tc-textarea label="Notes" name="notes" rows="6"&gt;&lt;/tc-textarea&gt;</tc-code>
@@ -676,6 +888,24 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
               label="Plan"
               name="plan"
               layout="horizontal"
+            ></tc-radio-group>
+          </div>
+          <div class="stage col">
+            <tc-radio-group
+              label="Shipping speed"
+              name="speed"
+              value="standard"
+              helper="Faster options cost more."
+              options='[{"value":"standard","label":"Standard (5–7 days)"},{"value":"express","label":"Express (2 days)"},{"value":"overnight","label":"Overnight"}]'
+            ></tc-radio-group>
+          </div>
+          <div class="stage col">
+            <tc-radio-group
+              label="Notifications"
+              name="notify"
+              error="Pick one to continue."
+              required
+              options='[{"value":"all","label":"All activity"},{"value":"mentions","label":"Mentions only"},{"value":"none","label":"None (paused)","disabled":true}]'
             ></tc-radio-group>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/radio-group"</span>;
@@ -717,6 +947,25 @@ table.addEventListener(<span class="tc-str">"tc-row-click"</span>, (e) =&gt; con
               button-text="Select files"
             ></tc-file>
           </div>
+          <div class="stage col">
+            <tc-file
+              label="Receipt"
+              name="receipt"
+              accept=".pdf,.png,.jpg"
+              error="A receipt is required."
+              button-text="Upload receipt"
+              required
+            ></tc-file>
+          </div>
+          <div class="stage col">
+            <tc-file
+              label="Locked upload"
+              name="locked"
+              helper="Uploads are disabled on this plan."
+              button-text="Choose file"
+              disabled
+            ></tc-file>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/file"</span>;
 
 &lt;tc-file label="Avatar" name="avatar" accept="image/*"&gt;&lt;/tc-file&gt;</tc-code>
@@ -752,6 +1001,15 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
   <span class="tc-str">"name"</span>: <span class="tc-str">"tan-compose"</span>,
   <span class="tc-str">"version"</span>: <span class="tc-str">"1.1.0"</span>
 }</tc-code>
+          </div>
+          <div class="stage col">
+            <tc-code language="bash" copy>deno add jsr:@ra9/tan-compose-kit
+deno task blog</tc-code>
+          </div>
+          <div class="stage col">
+            <tc-code language="html" filename="index.html" copy>&lt;<span class="tc-tag">tc-callout</span> <span class="tc-kw">variant</span>=<span class="tc-str">"info"</span> <span class="tc-kw">title</span>=<span class="tc-str">"Tip"</span>&gt;
+  Components ship as standalone tags. <span class="tc-com">&lt;!-- tree-shakable --&gt;</span>
+&lt;/<span class="tc-tag">tc-callout</span>&gt;</tc-code>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/code"</span>;
 
@@ -790,6 +1048,25 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               Deleting a customer cannot be undone after 10 minutes.
             </tc-callout>
           </div>
+          <div class="stage col">
+            <tc-callout variant="info" compact>
+              Compact callouts drop the title and tighten padding for inline notes.
+            </tc-callout>
+            <tc-callout variant="warning" compact>
+              Deprecated — switch to <code>build()</code> before v2.
+            </tc-callout>
+            <tc-callout variant="danger" compact>
+              This action is irreversible.
+            </tc-callout>
+          </div>
+          <div class="stage col">
+            <tc-callout variant="success">
+              No title needed for a single confirming line.
+            </tc-callout>
+            <tc-callout variant="note">
+              Drop the <code>title</code> for short, standalone asides.
+            </tc-callout>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/callout"</span>;
 
 &lt;tc-callout variant="warning" title="Coming soon"&gt;
@@ -826,6 +1103,22 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               <p>The kit's primitives compose nicely — see the admin demo.</p>
               <h2>Reference</h2>
               <p>Full API at <a href="./docs.html">docs.html</a>.</p>
+            </article>
+          </div>
+          <div class="stage" style="display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start;">
+            <tc-toc target="#toc-demo-deep" levels="h2,h3,h4" label="In this guide" sticky="false"></tc-toc>
+            <article id="toc-demo-deep" style="font-size: 0.94rem;">
+              <h2>Overview</h2>
+              <p>A deeper TOC that also lists <code>h4</code> headings.</p>
+              <h3>Concepts</h3>
+              <p>Core ideas before the API.</p>
+              <h4>Tokens</h4>
+              <p>Design tokens drive theming.</p>
+              <h4>Slots</h4>
+              <p>Project content into components.</p>
+              <h2>Recipes</h2>
+              <h3>Forms</h3>
+              <p>Compose fields with a stack.</p>
             </article>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/toc"</span>;
@@ -879,6 +1172,43 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               </tc-grid>
             </div>
           </div>
+          <div class="stage col">
+            <div>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-stack gap="5" align="center"</p>
+              <tc-stack gap="5" align="center">
+                <tc-button>Centered</tc-button>
+                <tc-button variant="ghost">In the middle</tc-button>
+              </tc-stack>
+            </div>
+            <div>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-grid columns="4" gap="3"</p>
+              <tc-grid columns="4" gap="3">
+                <tc-stat label="Mon" value="8"></tc-stat>
+                <tc-stat label="Tue" value="12"></tc-stat>
+                <tc-stat label="Wed" value="9"></tc-stat>
+                <tc-stat label="Thu" value="15"></tc-stat>
+              </tc-grid>
+            </div>
+          </div>
+          <div class="stage col">
+            <div>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-cluster gap="2" justify="center"</p>
+              <tc-cluster gap="2" justify="center">
+                <tc-badge variant="info">design</tc-badge>
+                <tc-badge variant="success">build</tc-badge>
+                <tc-badge variant="warning">review</tc-badge>
+                <tc-badge variant="danger">ship</tc-badge>
+              </tc-cluster>
+            </div>
+            <div>
+              <p style="font-size: 0.82rem; color: var(--tc-color-ink-muted, #6b7280); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">tc-cluster gap="1.5rem" align="baseline" wrap="false"</p>
+              <tc-cluster gap="1.5rem" align="baseline" wrap="false">
+                <tc-button variant="ghost">One</tc-button>
+                <tc-button variant="ghost">Two</tc-button>
+                <tc-button variant="ghost">Three</tc-button>
+              </tc-cluster>
+            </div>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/stack"</span>;
 <span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/cluster"</span>;
 <span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/grid"</span>;
@@ -904,6 +1234,12 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             <tc-checkbox label="I agree to the terms" name="terms" required helper="Required to continue"></tc-checkbox>
             <tc-checkbox label="This option is disabled" disabled></tc-checkbox>
           </div>
+          <div class="stage col">
+            <tc-checkbox label="Checked by default" checked></tc-checkbox>
+            <tc-checkbox label="Disabled and checked" disabled checked></tc-checkbox>
+            <tc-checkbox label="Send me product updates" name="updates" value="yes" helper="One email a month, no spam."></tc-checkbox>
+            <tc-checkbox label="I accept the license agreement" name="license" required error="You must accept to continue."></tc-checkbox>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/checkbox"</span>;
 
 &lt;tc-checkbox label="Subscribe" name="opt-in"&gt;&lt;/tc-checkbox&gt;</tc-code>
@@ -924,6 +1260,12 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             <tc-switch label="Enable notifications" name="notify"></tc-switch>
             <tc-switch label="Dark mode" name="dark" checked></tc-switch>
             <tc-switch label="Disabled toggle" disabled></tc-switch>
+          </div>
+          <div class="stage col">
+            <tc-switch label="On by default" checked></tc-switch>
+            <tc-switch label="Disabled and on" disabled checked></tc-switch>
+            <tc-switch label="Two-factor authentication" name="2fa" helper="Requires an authenticator app installed on your phone."></tc-switch>
+            <tc-switch label="Publish immediately" name="publish" error="Resolve draft errors before publishing."></tc-switch>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/switch"</span>;
 
@@ -1004,6 +1346,18 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
             <tc-badge variant="success" pill>pill</tc-badge>
             <tc-badge variant="info" size="sm">small</tc-badge>
           </div>
+          <div class="stage" style="gap: 8px;">
+            <tc-badge variant="success">Live</tc-badge>
+            <tc-badge variant="warning">Beta</tc-badge>
+            <tc-badge variant="danger">Deprecated</tc-badge>
+          </div>
+          <div class="stage" style="gap: 8px;">
+            <tc-badge pill variant="success">Active</tc-badge>
+            <tc-badge pill variant="warning">Pending</tc-badge>
+            <tc-badge pill variant="danger" size="sm">3</tc-badge>
+            <tc-badge pill variant="info" size="sm">12</tc-badge>
+            <tc-badge pill variant="neutral" size="sm">v1.6</tc-badge>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/badge"</span>;
 
 &lt;tc-badge variant="success"&gt;active&lt;/tc-badge&gt;
@@ -1032,6 +1386,16 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               </div>
             </div>
             <tc-skeleton width="100%" height="80px"></tc-skeleton>
+          </div>
+          <div class="stage col">
+            <tc-skeleton width="40%" height="1.4em"></tc-skeleton>
+            <tc-skeleton width="100%" height="1em"></tc-skeleton>
+            <tc-skeleton width="92%" height="1em"></tc-skeleton>
+            <tc-skeleton width="78%" height="1em"></tc-skeleton>
+          </div>
+          <div class="stage" style="gap: 12px; align-items: center;">
+            <tc-skeleton width="120px" height="36px"></tc-skeleton>
+            <tc-skeleton width="100%" height="1em" pulse="false"></tc-skeleton>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/skeleton"</span>;
 
@@ -1068,6 +1432,14 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
               current: 1 (click a page to change)
             </div>
           </div>
+          <div class="stage col">
+            <tc-pagination current="5" total="20" siblings="2" boundaries="2"></tc-pagination>
+          </div>
+          <div class="stage col">
+            <tc-pagination size="sm" current="4" total="10"></tc-pagination>
+            <tc-pagination size="md" current="4" total="10"></tc-pagination>
+            <tc-pagination size="lg" current="4" total="10"></tc-pagination>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/pagination"</span>;
 
 <span class="tc-kw">const</span> pager = document.querySelector(<span class="tc-str">"tc-pagination"</span>);
@@ -1097,6 +1469,20 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
               <div style="display:grid;place-items:center;height:200px;background:linear-gradient(135deg,#a16939,#d9b78a);color:#fff;font-weight:600;font-size:1.4rem;">Slide one</div>
               <div style="display:grid;place-items:center;height:200px;background:linear-gradient(135deg,#3a5a40,#a3b18a);color:#fff;font-weight:600;font-size:1.4rem;">Slide two</div>
               <div style="display:grid;place-items:center;height:200px;background:linear-gradient(135deg,#1f3a66,#7eaad9);color:#fff;font-weight:600;font-size:1.4rem;">Slide three</div>
+            </tc-carousel>
+          </div>
+          <div class="stage col">
+            <tc-carousel transition="fade" autoplay="3000" height="180px" ariaLabel="Fade carousel" style="max-width: 560px;">
+              <div style="display:grid;place-items:center;height:180px;background:linear-gradient(135deg,#1f3a66,#7eaad9);color:#fff;font-weight:600;font-size:1.3rem;">Cross-fade one</div>
+              <div style="display:grid;place-items:center;height:180px;background:linear-gradient(135deg,#7a1a14,#d49a68);color:#fff;font-weight:600;font-size:1.3rem;">Cross-fade two</div>
+              <div style="display:grid;place-items:center;height:180px;background:linear-gradient(135deg,#155b40,#a3b18a);color:#fff;font-weight:600;font-size:1.3rem;">Cross-fade three</div>
+            </tc-carousel>
+          </div>
+          <div class="stage col">
+            <tc-carousel orientation="vertical" height="220px" ariaLabel="Vertical carousel" style="max-width: 360px;">
+              <div style="display:grid;place-items:center;height:220px;background:linear-gradient(135deg,#a16939,#d9b78a);color:#fff;font-weight:600;font-size:1.3rem;">Top</div>
+              <div style="display:grid;place-items:center;height:220px;background:linear-gradient(135deg,#3a5a40,#a3b18a);color:#fff;font-weight:600;font-size:1.3rem;">Middle</div>
+              <div style="display:grid;place-items:center;height:220px;background:linear-gradient(135deg,#1f3a66,#7eaad9);color:#fff;font-weight:600;font-size:1.3rem;">Bottom</div>
             </tc-carousel>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/carousel"</span>;
@@ -1136,6 +1522,34 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
               </details>
             </tc-accordion>
           </div>
+          <div class="stage col">
+            <tc-accordion mode="multi" style="max-width: 560px;">
+              <details open>
+                <summary>Shipping</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Orders ship within two business days. Tracking is emailed once your package leaves the warehouse.</div>
+              </details>
+              <details open>
+                <summary>Returns</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Return any unused item within 30 days for a full refund. In <code>mode="multi"</code>, opening this leaves the others open.</div>
+              </details>
+              <details>
+                <summary>Warranty</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Every product is covered by a one-year limited warranty against manufacturing defects.</div>
+              </details>
+            </tc-accordion>
+          </div>
+          <div class="stage col">
+            <tc-accordion bordered="false" style="max-width: 560px;">
+              <details>
+                <summary>Borderless variant</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">With <code>bordered="false"</code> the frame and dividers are dropped — useful when nesting inside a panel that already has its own border.</div>
+              </details>
+              <details>
+                <summary>Still single-open</summary>
+                <div style="padding: 4px 18px 16px; color: var(--tc-color-ink-soft);">Default <code>mode="single"</code> still applies: opening one item closes the rest.</div>
+              </details>
+            </tc-accordion>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/accordion"</span>;
 
 &lt;tc-accordion&gt;
@@ -1167,6 +1581,18 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
               <tc-button>With shortcut</tc-button>
               <span slot="content" style="display:inline-flex;align-items:center;gap:6px;">Open <kbd style="background:rgba(255,255,255,0.12);padding:1px 5px;border-radius:3px;font-family:var(--tc-font-mono,monospace);font-size:0.7rem;">⌘O</kbd></span>
             </tc-tooltip>
+          </div>
+          <div class="stage" style="gap: 12px;">
+            <tc-tooltip text="Top tooltip" placement="top"><tc-button variant="secondary">Top</tc-button></tc-tooltip>
+            <tc-tooltip text="Bottom tooltip" placement="bottom"><tc-button variant="secondary">Bottom</tc-button></tc-tooltip>
+            <tc-tooltip text="Left tooltip" placement="left"><tc-button variant="secondary">Left</tc-button></tc-tooltip>
+            <tc-tooltip text="Right tooltip" placement="right"><tc-button variant="secondary">Right</tc-button></tc-tooltip>
+          </div>
+          <div class="stage" style="gap: 12px;">
+            <tc-tooltip text="Opens instantly" delay="0"><tc-button>0ms</tc-button></tc-tooltip>
+            <tc-tooltip text="Default delay" delay="200"><tc-button>200ms</tc-button></tc-tooltip>
+            <tc-tooltip text="Waits a beat" delay="600"><tc-button>600ms</tc-button></tc-tooltip>
+            <tc-tooltip text="Delete this row. This can't be undone."><tc-button variant="danger">Delete</tc-button></tc-tooltip>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/tooltip"</span>;
 
@@ -1204,6 +1630,40 @@ pager.addEventListener(<span class="tc-str">"tc-page-change"</span>, (e) =&gt; {
                 <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" checked> Active</label>
                 <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox"> Pending</label>
                 <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox"> Archived</label>
+              </div>
+            </tc-popover>
+          </div>
+          <div class="stage" style="gap: 12px; flex-wrap: wrap;">
+            <tc-popover>
+              <tc-button slot="trigger">Filter</tc-button>
+              <div style="display:grid;gap:10px;min-width:240px;">
+                <strong style="font-size:0.78rem;letter-spacing:0.04em;text-transform:uppercase;color:var(--tc-color-ink-muted);">Status</strong>
+                <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" checked> Active</label>
+                <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox"> Pending</label>
+                <label style="display:flex;align-items:center;gap:8px;"><input type="checkbox"> Archived</label>
+                <hr style="border:none;border-top:1px solid var(--tc-color-rule);margin:2px 0;">
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                  <tc-button variant="ghost" size="sm">Reset</tc-button>
+                  <tc-button size="sm">Apply</tc-button>
+                </div>
+              </div>
+            </tc-popover>
+            <tc-popover placement="right">
+              <tc-button slot="trigger" variant="secondary">Help</tc-button>
+              <div style="display:grid;gap:6px;max-width:240px;">
+                <strong>Keyboard shortcuts</strong>
+                <span style="color:var(--tc-color-ink-soft);font-size:0.86rem;">Press <code>?</code> anywhere to reopen this panel.</span>
+              </div>
+            </tc-popover>
+          </div>
+          <div class="stage" style="gap: 12px;">
+            <tc-popover
+              style="--tc-popover-bg:#14171f;--tc-popover-fg:#f5f5f5;--tc-popover-rule:#2a2f3a;--tc-popover-radius:12px;--tc-popover-padding:16px;"
+            >
+              <tc-button slot="trigger">Dark popover</tc-button>
+              <div style="display:grid;gap:4px;">
+                <strong>Inverted surface</strong>
+                <span style="opacity:0.7;font-size:0.86rem;">Themed entirely through CSS tokens.</span>
               </div>
             </tc-popover>
           </div>
@@ -1289,6 +1749,23 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
               <tc-progress variant="circular" indeterminate size="lg"></tc-progress>
             </div>
           </div>
+          <div class="stage col">
+            <div style="display:grid;gap:14px;max-width:400px;">
+              <tc-progress value="92" size="lg" showLabel></tc-progress>
+              <tc-progress value="50" size="sm"></tc-progress>
+              <tc-progress value="4" max="10" showLabel label="4 of 10 steps"></tc-progress>
+              <tc-progress indeterminate size="lg" showLabel label="Deploying…"></tc-progress>
+            </div>
+            <div style="display:flex;gap:24px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+              <tc-progress variant="circular" value="25" size="sm"></tc-progress>
+              <tc-progress variant="circular" value="80" size="lg" showLabel></tc-progress>
+              <tc-progress variant="circular" indeterminate></tc-progress>
+              <tc-progress
+                variant="circular" value="64" size="lg" showLabel
+                style="--tc-progress-track:#1c1f26;--tc-progress-fill:#ffc857;--tc-progress-fg:#14171f;"
+              ></tc-progress>
+            </div>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/progress"</span>;
 
 &lt;tc-progress value="68" showLabel&gt;&lt;/tc-progress&gt;
@@ -1316,6 +1793,29 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
                 {"title":"Profile","description":"Name & avatar"},
                 {"title":"Workspace","description":"Invite team"},
                 {"title":"Done"}
+              ]'
+            ></tc-stepper>
+          </div>
+          <div class="stage col">
+            <tc-stepper
+              orientation="vertical"
+              active="2"
+              style="max-width:300px;"
+              steps='[
+                {"title":"Order placed","description":"Mar 4"},
+                {"title":"Picked","description":"Mar 5"},
+                {"title":"Out for delivery","description":"Today"},
+                {"title":"Delivered"}
+              ]'
+            ></tc-stepper>
+            <tc-stepper
+              active="0"
+              style="--tc-stepper-accent:#5b6cf0;--tc-stepper-done:#0e9f6e;--tc-stepper-marker-size:32px;--tc-stepper-rule:#d0d5f0;"
+              steps='[
+                {"title":"Choose plan"},
+                {"title":"Billing details"},
+                {"title":"Review"},
+                {"title":"Confirm"}
               ]'
             ></tc-stepper>
           </div>
@@ -1369,6 +1869,33 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
               <tc-avatar name="Olu"></tc-avatar>
             </tc-avatar-group>
           </div>
+          <div class="stage col">
+            <div style="display:flex;gap:12px;align-items:center;">
+              <tc-avatar src="https://i.pravatar.cc/120?img=12" name="Mia Carter"></tc-avatar>
+              <tc-avatar src="https://i.pravatar.cc/120?img=32" name="Jamal Reed" size="lg"></tc-avatar>
+              <tc-avatar src="https://i.pravatar.cc/120?img=47" name="Aiko Tanaka" size="xl" status="online"></tc-avatar>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <tc-avatar name="Mia Carter" shape="square" size="lg"></tc-avatar>
+              <tc-avatar name="Acme Co" shape="square" size="lg"></tc-avatar>
+              <tc-avatar name="VIP" ring size="lg" style="--tc-avatar-bg:#14171f;--tc-avatar-fg:#ffc857;--tc-avatar-ring:#ffc857;"></tc-avatar>
+            </div>
+            <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+              <tc-avatar-group max="3" size="lg">
+                <tc-avatar name="Mia"></tc-avatar>
+                <tc-avatar name="Jamal"></tc-avatar>
+                <tc-avatar name="Aiko"></tc-avatar>
+                <tc-avatar name="Sven"></tc-avatar>
+                <tc-avatar name="Lila"></tc-avatar>
+              </tc-avatar-group>
+              <tc-avatar-group max="5" spacing="tight" size="sm">
+                <tc-avatar name="Mia"></tc-avatar>
+                <tc-avatar name="Jamal"></tc-avatar>
+                <tc-avatar name="Aiko"></tc-avatar>
+                <tc-avatar name="Sven"></tc-avatar>
+              </tc-avatar-group>
+            </div>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/avatar"</span>;
 <span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/avatar-group"</span>;
 
@@ -1400,6 +1927,17 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
             </div>
             <output id="kit-rating-out" style="color: var(--tc-color-ink-muted); font-family: var(--tc-font-mono, monospace); font-size: 0.84rem;">pick a rating above</output>
           </div>
+          <div class="stage col">
+            <div style="display:grid;gap:14px;">
+              <tc-rating value="4" size="lg"></tc-rating>
+              <tc-rating value="2" size="sm"></tc-rating>
+              <tc-rating value="7" max="10" size="sm"></tc-rating>
+            </div>
+            <tc-rating
+              value="4.5" allowHalf size="lg"
+              style="--tc-rating-fill:#ff6b6b;--tc-rating-track:#4a2a32;"
+            ></tc-rating>
+          </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/rating"</span>;
 
 &lt;tc-rating value="3" allowHalf size="lg"&gt;&lt;/tc-rating&gt;
@@ -1423,6 +1961,17 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
               <tc-slider label="Volume" value="60" suffix="%" showValue></tc-slider>
               <tc-slider label="Font size" value="16" min="12" max="24" step="1" suffix="px" showValue showTicks></tc-slider>
               <tc-slider label="Temperature" value="0.7" min="0" max="2" step="0.1" showValue></tc-slider>
+            </div>
+          </div>
+          <div class="stage col">
+            <div style="display:grid;gap:18px;max-width:400px;">
+              <tc-slider value="40"></tc-slider>
+              <tc-slider label="Rating" value="3" min="1" max="5" step="1" showTicks showValue></tc-slider>
+              <tc-slider label="Disabled" value="50" disabled showValue></tc-slider>
+              <tc-slider
+                label="Brightness" value="70" suffix="%" showValue
+                style="--tc-slider-track:#2a2f3a;--tc-slider-fill:#ffc857;--tc-slider-thumb:#14171f;--tc-slider-thumb-ring:#ffc857;"
+              ></tc-slider>
             </div>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/slider"</span>;
@@ -1496,6 +2045,52 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
                 ></tc-chart>
                 <strong>+216%</strong>
               </div>
+            </div>
+          </div>
+          <div class="stage col">
+            <tc-chart
+              type="area"
+              stacked
+              height="240px"
+              ariaLabel="Regional revenue by quarter, stacked"
+              style="width:100%;"
+              data='{
+                "labels": ["Q1","Q2","Q3","Q4"],
+                "series": [
+                  {"name":"NA","values":[40,55,70,90]},
+                  {"name":"EU","values":[30,40,50,60]},
+                  {"name":"APAC","values":[20,25,40,55]}
+                ]
+              }'
+            ></tc-chart>
+            <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+              <tc-chart
+                type="donut"
+                innerRadius="0"
+                height="240px"
+                ariaLabel="Plan distribution"
+                style="width:280px;"
+                data='{
+                  "series": [
+                    {"name":"Free","value":1820},
+                    {"name":"Pro","value":380},
+                    {"name":"Enterprise","value":42}
+                  ]
+                }'
+              ></tc-chart>
+              <tc-chart
+                type="bar"
+                height="220px"
+                ariaLabel="This week versus last week"
+                style="width:100%;min-width:280px;flex:1;--tc-chart-color-1:#5b6cf0;--tc-chart-color-2:#f25c5c;--tc-chart-grid:rgba(91,108,240,0.12);--tc-chart-axis:#5b6cf0;"
+                data='{
+                  "labels": ["A","B","C","D","E"],
+                  "series": [
+                    {"name":"This week","values":[24,32,18,40,28]},
+                    {"name":"Last week","values":[18,22,16,30,24]}
+                  ]
+                }'
+              ></tc-chart>
             </div>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/chart"</span>;
