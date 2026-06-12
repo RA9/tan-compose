@@ -37,7 +37,28 @@
         -webkit-font-smoothing: antialiased;
       }
 
-      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+      /* Two-column content: prose + sticky table of contents, matching the
+         nav's 1100px column. TOC collapses away under 900px. */
+      .themes-layout {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 220px;
+        gap: 48px;
+        align-items: start;
+      }
+      .themes-content { min-width: 0; grid-column: 1; grid-row: 1; }
+      .themes-toc {
+        grid-column: 2; grid-row: 1;
+        position: sticky; top: 80px; padding-top: 4px;
+      }
+      @media (max-width: 900px) {
+        .themes-layout { grid-template-columns: 1fr; gap: 0; padding: 0 24px; }
+        .themes-toc { display: none; }
+      }
 
       header.page { padding: 64px 0 28px; }
       .eyebrow {
@@ -135,7 +156,11 @@
       </header>
 
       <section class="content">
-        <div class="wrap">
+        <div class="themes-layout">
+          <aside class="themes-toc">
+            <tc-toc target=".themes-content" levels="h2" label="On this page"></tc-toc>
+          </aside>
+          <div class="themes-content">
           <h2>Quick switch</h2>
           <p>
             Click a preset to re&#8209;skin the live demo below. The same
@@ -175,6 +200,35 @@
               <tc-stat label="Errors" value="0" delta="—" trend="neutral"></tc-stat>
             </div>
           </div>
+
+          <h2>Install &amp; import a theme</h2>
+          <p>
+            A theme is one CSS module that sets <code>--tc-*</code> custom
+            properties on <code>:root</code>. Install the kit, then import
+            exactly one preset — the kit reads those tokens through Shadow DOM,
+            so every component re&#8209;skins at once.
+          </p>
+
+          <tc-code language="ts"><span class="tc-com">// 1. the components</span>
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit"</span>;
+<span class="tc-com">// 2. one theme preset — its :root tokens drive every component</span>
+<span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/themes/dark"</span>;</tc-code>
+
+          <p>
+            The base <code>tokens</code> preset is the light default that every
+            other preset extends, so you only ever import one. Imports are
+            idempotent — loading a theme twice is a no&#8209;op.
+          </p>
+
+          <tc-callout variant="info" title="No build step? Load it from a CDN">
+            Pull the pre&#8209;built bundles straight from jsDelivr — the theme
+            first, then the kit. Swap the tag to pin a version.
+          </tc-callout>
+
+          <tc-code language="html"><span class="tc-tag">&lt;script</span> type=<span class="tc-str">"module"</span>
+  src=<span class="tc-str">"https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.11.0/kit/dist/themes/shadcn.min.js"</span><span class="tc-tag">&gt;&lt;/script&gt;</span>
+<span class="tc-tag">&lt;script</span> type=<span class="tc-str">"module"</span>
+  src=<span class="tc-str">"https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.11.0/kit/dist/kit.min.js"</span><span class="tc-tag">&gt;&lt;/script&gt;</span></tc-code>
 
           <h2>Three layers of override</h2>
           <p>
@@ -262,6 +316,58 @@
             </tbody>
           </table>
 
+          <h2>Switch themes at runtime</h2>
+          <p>
+            Because a preset is just <code>:root</code> tokens, switching is a
+            matter of swapping which token block is live. Inject the preset's
+            CSS into a <code>&lt;style&gt;</code> you can replace — exactly what
+            the demo at the top of this page does:
+          </p>
+
+          <tc-code language="ts"><span class="tc-kw">const</span> THEMES = {
+  light: <span class="tc-str">""</span>,                 <span class="tc-com">// base tokens — nothing to add</span>
+  dark: <span class="tc-str">`:root { --tc-color-bg:#0f1218; --tc-color-surface:#1a1d29;
+               --tc-color-ink:#f5f0e6; --tc-color-accent:#d49a68; }`</span>,
+};
+
+<span class="tc-kw">function</span> applyTheme(name) {
+  document.querySelector(<span class="tc-str">"style[data-theme]"</span>)?.remove();
+  <span class="tc-kw">const</span> css = THEMES[name];
+  <span class="tc-kw">if</span> (!css) <span class="tc-kw">return</span>;                 <span class="tc-com">// "light" → base only</span>
+  <span class="tc-kw">const</span> s = document.createElement(<span class="tc-str">"style"</span>);
+  s.dataset.theme = name;
+  s.textContent = css;
+  document.head.appendChild(s);
+}</tc-code>
+
+          <p>
+            Persist the choice in <code>localStorage</code> and re&#8209;apply
+            on load so it survives a refresh. Nothing re&#8209;renders — every
+            component picks up the new tokens through the cascade instantly.
+          </p>
+
+          <h2>Dark mode from system preference</h2>
+          <p>
+            To follow the OS setting with zero JavaScript, wrap the dark tokens
+            in a media query and load it after the base tokens:
+          </p>
+
+          <tc-code language="css">@media (prefers-color-scheme: dark) {
+  :root {
+    --tc-color-bg:      #0f1218;
+    --tc-color-surface: #1a1d29;
+    --tc-color-ink:     #f5f0e6;
+    --tc-color-rule:    #2a2f3d;
+    --tc-color-accent:  #d49a68;
+  }
+}</tc-code>
+
+          <p>
+            Combine the two: default to the system preference, but let an
+            explicit toggle win by writing tokens to a higher&#8209;specificity
+            selector like <code>:root[data-theme="dark"]</code>.
+          </p>
+
           <h2>Using alongside Bootstrap or Tailwind</h2>
 
           <tc-callout variant="info" title="Shadow DOM keeps the boundaries clean">
@@ -335,6 +441,7 @@
             <li><code>--tc-focus-ring</code> — single source of truth for focus outlines</li>
             <li><code>--tc-font-{sans,mono}</code></li>
           </ul>
+          </div>
         </div>
       </section>
     </main>

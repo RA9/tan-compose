@@ -111,34 +111,30 @@ build(
             padding: var(--tc-card-padding-y) var(--tc-card-padding-x);
           }
 
+          /* Slot occupancy drives head/foot/media visibility. It's
+             detected in afterMount via slotchange and reflected as
+             has-header-slot / has-footer / has-media classes on .card.
+             We can't do this in pure CSS: :has(::slotted(*)) is invalid
+             (::slotted is a pseudo-element, which :has() rejects) and was
+             silently dropping the footer + media styling entirely. */
+
           /* Head padding when title/subtitle props are set OR something
-             is slotted into name="header". Rules split to dodge the
-             "one invalid selector drops the whole comma-list" trap —
-             some browsers parse :has(::slotted(*)) inconsistently, and
-             a combined list would lose the simpler .has-header
-             selector along with it. */
-          .card.has-header .head {
+             is slotted into name="header". */
+          .card.has-header .head,
+          .card.has-header-slot .head {
             padding:
               var(--tc-card-padding-y)
               var(--tc-card-padding-x)
               var(--tc-card-gap);
           }
-          .card .head:has(::slotted(*)) {
-            padding:
-              var(--tc-card-padding-y)
-              var(--tc-card-padding-x)
-              var(--tc-card-gap);
-          }
-          .card.has-header .head + .body { padding-top: 0; }
-          .card .head:has(::slotted(*)) + .body { padding-top: 0; }
+          .card.has-header .head + .body,
+          .card.has-header-slot .head + .body { padding-top: 0; }
 
           /* Hide an empty head — neither props nor slotted content. */
-          .card:not(.has-header) .head:not(:has(::slotted(*))) {
-            display: none;
-          }
+          .card:not(.has-header):not(.has-header-slot) .head { display: none; }
 
           /* Foot only renders when there's slotted footer content. */
-          .card .foot:has(::slotted(*)) {
+          .card.has-footer .foot {
             padding:
               var(--tc-card-gap)
               var(--tc-card-padding-x)
@@ -147,14 +143,16 @@ build(
             display: flex;
             gap: var(--tc-space-2, 8px);
             justify-content: flex-end;
+            align-items: center;
           }
-          .card .foot:not(:has(::slotted(*))) { display: none; }
+          .card:not(.has-footer) .foot { display: none; }
 
-          /* Media is full-bleed (no horizontal padding) but we still
-             trim the body's top padding when media is shown so the
-             image sits flush against the border. */
-          .media:not(:has(::slotted(*))) { display: none; }
-          .media::slotted(*) {
+          /* Media is full-bleed (no horizontal padding). The slotted child
+             stretches to fill the card width and sits flush to the top
+             edge; the body's top padding is unchanged so content below
+             keeps breathing room. ::slotted lives on the slot element. */
+          .card:not(.has-media) .media { display: none; }
+          slot[name="media"]::slotted(*) {
             display: block;
             width: 100%;
             height: auto;
@@ -226,6 +224,43 @@ build(
           }
         </style>
       `;
+    },
+    afterMount() {
+      const host = this as unknown as HTMLElement & {
+        _cardCleanup?: () => void;
+      };
+      const root = host.shadowRoot;
+      if (!root) return;
+      const card = root.querySelector(".card");
+      if (!card) return;
+
+      const occupied = (name: string): boolean => {
+        const sel = `slot[name="${name}"]`;
+        const slot = root.querySelector<HTMLSlotElement>(sel);
+        if (!slot) return false;
+        // assignedNodes() (no flatten) ignores fallback content, so this is
+        // true only when the author actually slotted something.
+        return slot.assignedNodes().some((n) =>
+          n.nodeType === Node.ELEMENT_NODE ||
+          (n.nodeType === Node.TEXT_NODE && (n.textContent ?? "").trim() !== "")
+        );
+      };
+      const sync = () => {
+        card.classList.toggle("has-header-slot", occupied("header"));
+        card.classList.toggle("has-footer", occupied("footer"));
+        card.classList.toggle("has-media", occupied("media"));
+      };
+      sync();
+
+      const slots = Array.from(root.querySelectorAll("slot"));
+      for (const s of slots) s.addEventListener("slotchange", sync);
+      host._cardCleanup = () => {
+        for (const s of slots) s.removeEventListener("slotchange", sync);
+      };
+    },
+    unmount() {
+      const host = this as unknown as { _cardCleanup?: () => void };
+      host._cardCleanup?.();
     },
   }),
 );

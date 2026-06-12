@@ -174,6 +174,16 @@
         padding-top: 24px;
         border-top: none;
       }
+      /* Only one section shows at a time — the sidebar acts as a selector.
+         JS adds .single to the container and .is-active to the chosen
+         section. Without JS, .single is never set, so every section stays
+         visible (progressive enhancement). */
+      .components-content.single > section.demo { display: none; }
+      .components-content.single > section.demo.is-active {
+        display: block;
+        padding-top: 24px;
+        border-top: none;
+      }
 
       @media (max-width: 900px) {
         .page-layout {
@@ -944,6 +954,24 @@ build(<span class="tc-str">"my-btn"</span>, button);</tc-code>
                 <tc-button variant="ghost" size="sm">Cancel</tc-button>
                 <tc-button variant="primary" size="sm">Save</tc-button>
               </div>
+            </tc-card>
+          </div>
+          <div class="stage" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-items: start;">
+            <tc-card elevated>
+              <div slot="media" style="height: 104px; background: linear-gradient(135deg, #a16939, #d49a68);"></div>
+              <div slot="header"><strong>Media card</strong></div>
+              Full&#8209;bleed <code>media</code> slot on top; header and body
+              padded below it.
+            </tc-card>
+            <tc-card bordered="false" title="Borderless" subtitle="bordered=false">
+              Sits flat on the surface — for nesting inside a panel that
+              already has its own frame.
+            </tc-card>
+            <tc-card size="sm" title="Small" subtitle="size=sm">
+              Tighter padding and type for dense dashboards.
+            </tc-card>
+            <tc-card size="lg" title="Large" subtitle="size=lg">
+              Roomier padding for hero panels and marketing surfaces.
             </tc-card>
           </div>
 <tc-code language="ts"><span class="tc-kw">import</span> <span class="tc-str">"@ra9/tan-compose-kit/card"</span>;
@@ -1721,12 +1749,19 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
         ratingOut.style.color = "var(--tc-color-accent, #a16939)";
       });
 
-      // ---- sidebar active highlighting ----
-      // Match every section's id to the sidebar links that point to it
-      // (a few links share the same target — e.g. cluster + grid both
-      // point at #stack — so we highlight ALL matching links).
+      // ---- sidebar selection: show one section at a time ----
+      // The sidebar is a selector, not a scroll index — clicking a link
+      // reveals only that component's section and hides the rest. A few
+      // links share a target (cluster + grid both point at #stack), so we
+      // highlight ALL links that match the active section.
       const sidebar = document.querySelector(".components-sidebar");
-      if (sidebar) {
+      const content = document.querySelector(".components-content");
+      if (sidebar && content) {
+        const sections = Array.from(
+          content.querySelectorAll("section.demo[id]"),
+        );
+        const ids = new Set(sections.map((s) => s.id));
+
         const linksByTarget = new Map();
         sidebar.querySelectorAll("a[data-target]").forEach((a) => {
           const t = a.dataset.target;
@@ -1734,38 +1769,55 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
           linksByTarget.get(t).push(a);
         });
 
-        function setActive(id) {
+        // Opt into single-section mode (CSS fallback shows all without JS).
+        content.classList.add("single");
+
+        function activate(id, { scroll = false } = {}) {
+          if (!ids.has(id)) id = sections[0]?.id;
+          if (!id) return;
+
+          sections.forEach((s) => s.classList.toggle("is-active", s.id === id));
           sidebar.querySelectorAll("a.active")
             .forEach((a) => a.classList.remove("active"));
-          (linksByTarget.get(id) || []).forEach((a) => a.classList.add("active"));
+          (linksByTarget.get(id) || []).forEach((a) =>
+            a.classList.add("active")
+          );
+
+          // Custom elements that measure themselves (charts, tables) render
+          // to zero size while their section is display:none; nudge them to
+          // re-layout now that the section is visible.
+          globalThis.dispatchEvent(new Event("resize"));
+
+          if (scroll) {
+            const layout = document.querySelector(".page-layout");
+            if (layout) {
+              const y = layout.getBoundingClientRect().top +
+                globalThis.scrollY - 64;
+              globalThis.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+            }
+          }
         }
 
-        const sections = document.querySelectorAll("section.demo[id]");
-        const visible = new Set();
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (e.isIntersecting) visible.add(e.target);
-              else visible.delete(e.target);
+        sidebar.querySelectorAll("a[data-target]").forEach((a) => {
+          a.addEventListener("click", (e) => {
+            const id = a.dataset.target;
+            if (!ids.has(id)) return; // let it behave as a normal link
+            e.preventDefault();
+            if (location.hash !== "#" + id) {
+              history.pushState(null, "", "#" + id);
             }
-            // Pick the topmost visible section as "active".
-            let topmost = null;
-            let topY = Infinity;
-            visible.forEach((el) => {
-              const r = el.getBoundingClientRect();
-              if (r.top < topY) {
-                topY = r.top;
-                topmost = el;
-              }
-            });
-            if (topmost) setActive(topmost.id);
-          },
-          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
-        );
-        sections.forEach((s) => io.observe(s));
+            activate(id, { scroll: true });
+          });
+        });
 
-        // Initialize with first section so the sidebar isn't empty on load.
-        if (sections.length > 0) setActive(sections[0].id);
+        // Deep links + back/forward navigation.
+        globalThis.addEventListener("hashchange", () => {
+          activate(location.hash.replace(/^#/, ""), { scroll: true });
+        });
+
+        // Initial section: the hash if it names a real section, else first.
+        const initial = location.hash.replace(/^#/, "");
+        activate(ids.has(initial) ? initial : sections[0]?.id);
       }
     </script>
   </body>
