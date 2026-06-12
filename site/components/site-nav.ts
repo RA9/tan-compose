@@ -100,24 +100,26 @@ build(
             </a>
             <site-search base="${esc(base)}" class="nav-search"></site-search>
             <nav aria-label="Primary">
-              ${links
-                .map((l) => {
-                  const isActive = l.id === active;
-                  const cls = [
-                    l.hideOnSmall ? "nav-hide-sm" : "",
-                    isActive ? "active" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ");
-                  const ariaCurrent = isActive ? ' aria-current="page"' : "";
-                  const externalAttrs = l.external
-                    ? ' target="_blank" rel="noopener"'
-                    : "";
-                  return `<a href="${esc(l.href)}"${ariaCurrent}${externalAttrs}${
-                    cls ? ` class="${cls}"` : ""
-                  }>${esc(l.label)}</a>`;
-                })
-                .join("\n              ")}
+              ${
+        links
+          .map((l) => {
+            const isActive = l.id === active;
+            const cls = [
+              l.hideOnSmall ? "nav-hide-sm" : "",
+              isActive ? "active" : "",
+            ]
+              .filter(Boolean)
+              .join(" ");
+            const ariaCurrent = isActive ? ' aria-current="page"' : "";
+            const externalAttrs = l.external
+              ? ' target="_blank" rel="noopener"'
+              : "";
+            return `<a href="${esc(l.href)}"${ariaCurrent}${externalAttrs}${
+              cls ? ` class="${cls}"` : ""
+            }>${esc(l.label)}</a>`;
+          })
+          .join("\n              ")
+      }
             </nav>
           </div>
         </header>

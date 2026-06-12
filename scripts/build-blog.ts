@@ -351,9 +351,11 @@ function preprocessDirectives(md: string): string {
           gfm: true,
         }) as string
       ).trim();
-      return `<tc-callout variant="${escapeHtml(
-        variant,
-      )}"${title}>\n${innerHtml}\n</tc-callout>`;
+      return `<tc-callout variant="${
+        escapeHtml(
+          variant,
+        )
+      }"${title}>\n${innerHtml}\n</tc-callout>`;
     },
   );
 }
@@ -630,9 +632,11 @@ function renderPost(post: Post): string {
     <style>${SHARED_STYLE}</style>
   </head>
   <body>
-    <site-nav active="blog" version="${escapeHtml(
+    <site-nav active="blog" version="${
+    escapeHtml(
       version,
-    )}" base="../"></site-nav>
+    )
+  }" base="../"></site-nav>
 
     <main>
       <header class="post-head">
@@ -640,12 +644,16 @@ function renderPost(post: Post): string {
           <div class="post-eyebrow">${escapeHtml(post.tag)}</div>
           <h1>${escapeHtml(post.title)}</h1>
 ${
-  post.subtitle
-    ? `          <p class="article-subtitle">${escapeHtml(post.subtitle)}</p>\n`
-    : ""
-}          <div class="article-meta">Posted ${escapeHtml(
-    isoDate(post.date),
-  )}</div>
+    post.subtitle
+      ? `          <p class="article-subtitle">${
+        escapeHtml(post.subtitle)
+      }</p>\n`
+      : ""
+  }          <div class="article-meta">Posted ${
+    escapeHtml(
+      isoDate(post.date),
+    )
+  }</div>
         </div>
       </header>
 
@@ -1241,8 +1249,7 @@ function renderComponentTable(
         .map((c) => {
           const v = r[c.key];
           if (v == null || v === "") return `<td>—</td>`;
-          const isCode =
-            c.key === "name" ||
+          const isCode = c.key === "name" ||
             c.key === "type" ||
             c.key === "default" ||
             c.key === "detail";
@@ -1263,78 +1270,85 @@ function renderComponentTable(
 function renderComponentPage(c: ComponentPage): string {
   const url = `${SITE_URL}/components/${c.slug}.html`;
   const description = c.description ?? c.summary;
-  const importPath =
-    c.importPath ?? `@ra9/tan-compose-kit/${c.slug.replace(/^tc-/, "")}`;
+  const importPath = c.importPath ??
+    `@ra9/tan-compose-kit/${c.slug.replace(/^tc-/, "")}`;
 
-  const propsSection =
-    c.props && c.props.length > 0
-      ? `
+  const propsSection = c.props && c.props.length > 0
+    ? `
       <section class="api-section" id="props">
         <h2>Props</h2>
-        ${renderComponentTable(c.props, [
-          { key: "name", label: "Name" },
-          { key: "type", label: "Type" },
-          { key: "default", label: "Default" },
-          { key: "description", label: "Description" },
-        ])}
+        ${
+      renderComponentTable(c.props, [
+        { key: "name", label: "Name" },
+        { key: "type", label: "Type" },
+        { key: "default", label: "Default" },
+        { key: "description", label: "Description" },
+      ])
+    }
       </section>`
-      : "";
+    : "";
 
-  const eventsSection =
-    c.events && c.events.length > 0
-      ? `
+  const eventsSection = c.events && c.events.length > 0
+    ? `
       <section class="api-section" id="events">
         <h2>Events</h2>
-        ${renderComponentTable(c.events, [
-          { key: "name", label: "Event" },
-          { key: "detail", label: "Detail" },
-          { key: "description", label: "When" },
-        ])}
+        ${
+      renderComponentTable(c.events, [
+        { key: "name", label: "Event" },
+        { key: "detail", label: "Detail" },
+        { key: "description", label: "When" },
+      ])
+    }
       </section>`
-      : "";
+    : "";
 
-  const slotsSection =
-    c.slots && c.slots.length > 0
-      ? `
+  const slotsSection = c.slots && c.slots.length > 0
+    ? `
       <section class="api-section" id="slots">
         <h2>Slots</h2>
-        ${renderComponentTable(c.slots, [
-          { key: "name", label: "Slot" },
-          { key: "description", label: "Description" },
-        ])}
+        ${
+      renderComponentTable(c.slots, [
+        { key: "name", label: "Slot" },
+        { key: "description", label: "Description" },
+      ])
+    }
       </section>`
-      : "";
+    : "";
 
-  const cssVarsSection =
-    c.cssVars && c.cssVars.length > 0
-      ? `
+  const cssVarsSection = c.cssVars && c.cssVars.length > 0
+    ? `
       <section class="api-section" id="css-vars">
         <h2>CSS variables</h2>
-        ${renderComponentTable(c.cssVars, [
-          { key: "name", label: "Variable" },
-          { key: "default", label: "Default" },
-          { key: "description", label: "Description" },
-        ])}
+        ${
+      renderComponentTable(c.cssVars, [
+        { key: "name", label: "Variable" },
+        { key: "default", label: "Default" },
+        { key: "description", label: "Description" },
+      ])
+    }
       </section>`
-      : "";
+    : "";
 
-  const relatedSection =
-    c.related && c.related.length > 0
-      ? `
+  const relatedSection = c.related && c.related.length > 0
+    ? `
       <section class="api-section" id="related">
         <h2>See also</h2>
         <ul class="related">
-          ${c.related
-            .map(
-              (slug) =>
-                `<li><a href="./${escapeHtml(slug)}.html"><code>&lt;tc-${escapeHtml(
-                  slug,
-                )}&gt;</code></a></li>`,
-            )
-            .join("")}
+          ${
+      c.related
+        .map(
+          (slug) =>
+            `<li><a href="./${escapeHtml(slug)}.html"><code>&lt;tc-${
+              escapeHtml(
+                slug,
+              )
+            }&gt;</code></a></li>`,
+        )
+        .join("")
+    }
         </ul>
       </section>`
-      : "";
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
