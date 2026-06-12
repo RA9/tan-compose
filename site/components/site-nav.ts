@@ -94,28 +94,30 @@ build(
         <header class="topbar">
           <div class="inner">
             <a class="brand" href="${esc(base)}index.html">
-              <span class="brand-mark" aria-hidden="true"></span>
+              <svg class="brand-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="8" y="8" width="32" height="32" rx="6" fill="#14171f" opacity="0.55"/><rect x="16" y="16" width="32" height="32" rx="6" fill="#14171f" opacity="0.75"/><rect x="24" y="24" width="32" height="32" rx="6" fill="#a16939"/></svg>
               tan-compose
               <span class="version-pill">${esc(props.version)}</span>
             </a>
             <site-search base="${esc(base)}" class="nav-search"></site-search>
             <nav aria-label="Primary">
-              ${
-        links.map((l) => {
-          const isActive = l.id === active;
-          const cls = [
-            l.hideOnSmall ? "nav-hide-sm" : "",
-            isActive ? "active" : "",
-          ].filter(Boolean).join(" ");
-          const ariaCurrent = isActive ? ' aria-current="page"' : "";
-          const externalAttrs = l.external
-            ? ' target="_blank" rel="noopener"'
-            : "";
-          return `<a href="${esc(l.href)}"${ariaCurrent}${externalAttrs}${
-            cls ? ` class="${cls}"` : ""
-          }>${esc(l.label)}</a>`;
-        }).join("\n              ")
-      }
+              ${links
+                .map((l) => {
+                  const isActive = l.id === active;
+                  const cls = [
+                    l.hideOnSmall ? "nav-hide-sm" : "",
+                    isActive ? "active" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
+                  const ariaCurrent = isActive ? ' aria-current="page"' : "";
+                  const externalAttrs = l.external
+                    ? ' target="_blank" rel="noopener"'
+                    : "";
+                  return `<a href="${esc(l.href)}"${ariaCurrent}${externalAttrs}${
+                    cls ? ` class="${cls}"` : ""
+                  }>${esc(l.label)}</a>`;
+                })
+                .join("\n              ")}
             </nav>
           </div>
         </header>
@@ -153,8 +155,6 @@ build(
           .brand-mark {
             width: 22px;
             height: 22px;
-            border-radius: 6px;
-            background: var(--tc-color-accent, #a16939);
             display: inline-block;
           }
           .version-pill {

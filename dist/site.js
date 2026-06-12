@@ -3184,7 +3184,7 @@ tr.empty td {
         <header class="topbar">
           <div class="inner">
             <a class="brand" href="${xe(t)}index.html">
-              <span class="brand-mark" aria-hidden="true"></span>
+              <svg class="brand-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="8" y="8" width="32" height="32" rx="6" fill="#14171f" opacity="0.55"/><rect x="16" y="16" width="32" height="32" rx="6" fill="#14171f" opacity="0.75"/><rect x="24" y="24" width="32" height="32" rx="6" fill="#a16939"/></svg>
               tan-compose
               <span class="version-pill">${xe(e.version)}</span>
             </a>
@@ -3229,8 +3229,6 @@ tr.empty td {
           .brand-mark {
             width: 22px;
             height: 22px;
-            border-radius: 6px;
-            background: var(--tc-color-accent, #a16939);
             display: inline-block;
           }
           .version-pill {

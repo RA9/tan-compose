@@ -1,338 +1,599 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Interactive examples of components built with Tan Compose."
-    />
-    <title>Examples — Tan Compose</title>
-    <link rel="canonical" href="https://ra9.github.io/tan-compose/examples.html" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="Interactive examples of components built with Tan Compose."
+        />
+        <title>Examples — Tan Compose</title>
+        <link
+            rel="canonical"
+            href="https://ra9.github.io/tan-compose/examples.html"
+        />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Examples — Tan Compose" />
-    <meta property="og:description" content="Interactive examples of components built with Tan Compose." />
-    <meta property="og:url" content="https://ra9.github.io/tan-compose/examples.html" />
-    <meta property="og:site_name" content="Tan Compose" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Examples — Tan Compose" />
-    <meta name="twitter:description" content="Interactive examples of components built with Tan Compose." />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Examples — Tan Compose" />
+        <meta
+            property="og:description"
+            content="Interactive examples of components built with Tan Compose."
+        />
+        <meta
+            property="og:url"
+            content="https://ra9.github.io/tan-compose/examples.html"
+        />
+        <meta property="og:site_name" content="Tan Compose" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Examples — Tan Compose" />
+        <meta
+            name="twitter:description"
+            content="Interactive examples of components built with Tan Compose."
+        />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <script type="module" src="./dist/site.js"></script>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html { scroll-behavior: smooth; }
-      body {
-        font-family: var(--tc-font-sans, "Inter", system-ui, sans-serif);
-        line-height: 1.6;
-        color: var(--tc-color-ink, #14171f);
-        background: var(--tc-color-bg, #faf8f3);
-        -webkit-font-smoothing: antialiased;
-      }
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <script type="module" src="./dist/site.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                font-family: var(
+                    --tc-font-sans,
+                    "Inter",
+                    system-ui,
+                    sans-serif
+                );
+                line-height: 1.6;
+                color: var(--tc-color-ink, #14171f);
+                background: var(--tc-color-bg, #faf8f3);
+                -webkit-font-smoothing: antialiased;
+            }
 
-      .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
-      code { font-family: var(--tc-font-mono, "JetBrains Mono", monospace); font-size: 0.92em; }
+            .wrap {
+                max-width: 880px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+            code {
+                font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+                font-size: 0.92em;
+            }
 
-      .page-head { padding: 64px 0 36px; }
-      .page-eyebrow {
-        font-family: var(--tc-font-mono, monospace);
-        font-size: 0.78rem; font-weight: 600;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        color: var(--tc-color-accent, #a16939);
-        margin-bottom: 12px;
-      }
-      h1 {
-        font-size: clamp(2rem, 4vw, 2.6rem);
-        font-weight: 800; letter-spacing: -0.02em;
-        line-height: 1.1; margin-bottom: 14px;
-      }
-      .page-lede {
-        color: var(--tc-color-ink-soft, #4a5061);
-        font-size: 1.05rem; max-width: 620px;
-      }
+            .page-head {
+                padding: 64px 0 36px;
+            }
+            .page-eyebrow {
+                font-family: var(--tc-font-mono, monospace);
+                font-size: 0.78rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--tc-color-accent, #a16939);
+                margin-bottom: 12px;
+            }
+            h1 {
+                font-size: clamp(2rem, 4vw, 2.6rem);
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                line-height: 1.1;
+                margin-bottom: 14px;
+            }
+            .page-lede {
+                color: var(--tc-color-ink-soft, #4a5061);
+                font-size: 1.05rem;
+                max-width: 620px;
+            }
 
-      /* Inline TOC card. */
-      .toc {
-        margin: 8px 0 56px;
-        padding: 16px 18px;
-        border: 1px solid var(--tc-color-rule, #ece5d3);
-        border-radius: var(--tc-radius-md, 10px);
-        background: var(--tc-color-surface, #ffffff);
-      }
-      .toc-label {
-        font-family: var(--tc-font-mono, monospace);
-        font-size: 0.74rem; font-weight: 600;
-        text-transform: uppercase; letter-spacing: 0.08em;
-        color: var(--tc-color-ink-muted, #6b7280);
-        margin-bottom: 8px;
-      }
-      .toc ol {
-        margin: 0; padding-left: 22px;
-        color: var(--tc-color-ink-soft, #4a5061);
-      }
-      .toc ol li { padding: 2px 0; }
-      .toc a {
-        color: var(--tc-color-ink-soft, #4a5061);
-        text-decoration: none; font-size: 0.95rem;
-      }
-      .toc a:hover { color: var(--tc-color-accent, #a16939); }
+            /* Inline TOC card. */
+            .toc {
+                margin: 8px 0 56px;
+                padding: 16px 18px;
+                border: 1px solid var(--tc-color-rule, #ece5d3);
+                border-radius: var(--tc-radius-md, 10px);
+                background: var(--tc-color-surface, #ffffff);
+            }
+            .toc-label {
+                font-family: var(--tc-font-mono, monospace);
+                font-size: 0.74rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--tc-color-ink-muted, #6b7280);
+                margin-bottom: 8px;
+            }
+            .toc ol {
+                margin: 0;
+                padding-left: 22px;
+                color: var(--tc-color-ink-soft, #4a5061);
+            }
+            .toc ol li {
+                padding: 2px 0;
+            }
+            .toc a {
+                color: var(--tc-color-ink-soft, #4a5061);
+                text-decoration: none;
+                font-size: 0.95rem;
+            }
+            .toc a:hover {
+                color: var(--tc-color-accent, #a16939);
+            }
 
-      .example {
-        padding: 48px 0;
-        border-top: 1px solid var(--tc-color-rule, #ece5d3);
-      }
-      .example:first-of-type { border-top: none; }
-      .example-head { margin-bottom: 24px; }
-      .example-tag {
-        font-family: var(--tc-font-mono, monospace);
-        font-size: 0.78rem;
-        color: var(--tc-color-accent, #a16939);
-        margin-bottom: 8px;
-      }
-      h2 {
-        font-size: 1.5rem; font-weight: 700;
-        letter-spacing: -0.01em; margin-bottom: 8px;
-      }
-      .example-lede {
-        color: var(--tc-color-ink-soft, #4a5061);
-        font-size: 0.98rem;
-      }
-      .stage {
-        background: var(--tc-color-surface, #ffffff);
-        border: 1px solid var(--tc-color-rule, #ece5d3);
-        border-radius: var(--tc-radius-lg, 12px);
-        padding: 36px 28px;
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 140px;
-      }
-      @media (max-width: 720px) {
-        .page-head { padding: 40px 0 24px; }
-        .example { padding: 36px 0; }
-        .stage { padding: 24px 18px; }
-      }
-    </style>
-  </head>
-  <body>
-    <site-nav active="examples" version="v1.1.0"></site-nav>
+            .example {
+                padding: 48px 0;
+                border-top: 1px solid var(--tc-color-rule, #ece5d3);
+            }
+            .example:first-of-type {
+                border-top: none;
+            }
+            .example-head {
+                margin-bottom: 24px;
+            }
+            .example-tag {
+                font-family: var(--tc-font-mono, monospace);
+                font-size: 0.78rem;
+                color: var(--tc-color-accent, #a16939);
+                margin-bottom: 8px;
+            }
+            h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                letter-spacing: -0.01em;
+                margin-bottom: 8px;
+            }
+            .example-lede {
+                color: var(--tc-color-ink-soft, #4a5061);
+                font-size: 0.98rem;
+            }
+            .stage {
+                background: var(--tc-color-surface, #ffffff);
+                border: 1px solid var(--tc-color-rule, #ece5d3);
+                border-radius: var(--tc-radius-lg, 12px);
+                padding: 36px 28px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 140px;
+            }
+            @media (max-width: 720px) {
+                .page-head {
+                    padding: 40px 0 24px;
+                }
+                .example {
+                    padding: 36px 0;
+                }
+                .stage {
+                    padding: 24px 18px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <site-nav active="examples" version="v1.1.0"></site-nav>
 
-    <main>
-      <section class="page-head">
-        <div class="wrap">
-          <div class="page-eyebrow">Examples</div>
-          <h1>Components, end&#8209;to&#8209;end.</h1>
-          <p class="page-lede">
-            Each example below is a real custom element rendered on this page.
-            The code shown is the same code that's running. Inspect any of them
-            in DevTools to see the Shadow DOM tree.
-          </p>
+        <main>
+            <section class="page-head">
+                <div class="wrap">
+                    <div class="page-eyebrow">Examples</div>
+                    <h1>Components, end&#8209;to&#8209;end.</h1>
+                    <p class="page-lede">
+                        Each example below is a real custom element rendered on
+                        this page. The code shown is the same code that's
+                        running. Inspect any of them in DevTools to see the
+                        Shadow DOM tree.
+                    </p>
 
-          <div class="toc">
-            <div class="toc-label">On this page</div>
-            <ol>
-              <li><a href="#counter">Reactive counter</a></li>
-              <li><a href="#buttons">Themed button row</a></li>
-              <li><a href="#card">Composed card</a></li>
-              <li><a href="#toggle">Toggle with observed attributes</a></li>
-              <li><a href="#emitter">Custom event emitter</a></li>
-            </ol>
-          </div>
-        </div>
-      </section>
+                    <div class="toc">
+                        <div class="toc-label">On this page</div>
+                        <ol>
+                            <li><a href="#counter">Reactive counter</a></li>
+                            <li><a href="#buttons">Themed button row</a></li>
+                            <li><a href="#card">Composed card</a></li>
+                            <li>
+                                <a href="#toggle"
+                                    >Toggle with observed attributes</a
+                                >
+                            </li>
+                            <li><a href="#emitter">Custom event emitter</a></li>
+                            <li><a href="#datatable">Live datatable</a></li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
 
-      <!-- 1. Counter -->
-      <article id="counter" class="example">
-        <div class="wrap">
-          <div class="example-head">
-            <div class="example-tag">01 — &lt;ex-counter&gt;</div>
-            <h2>Reactive counter</h2>
-            <p class="example-lede">
-              State held in a closure inside <code>afterMount</code>. Listeners
-              query the shadow root, not the document.
-            </p>
-          </div>
-          <div class="stage">
-            <ex-counter></ex-counter>
-          </div>
-<tc-code language="ts"><span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
+            <!-- 1. Counter -->
+            <article id="counter" class="example">
+                <div class="wrap">
+                    <div class="example-head">
+                        <div class="example-tag">01 — &lt;ex-counter&gt;</div>
+                        <h2>Reactive counter</h2>
+                        <p class="example-lede">
+                            State held in a closure inside
+                            <code>afterMount</code>. Listeners query the shadow
+                            root, not the document.
+                        </p>
+                    </div>
+                    <div class="stage">
+                        <ex-counter></ex-counter>
+                    </div>
+                    <tc-code language="ts"
+                        ><span class="tc-kw">import</span> { describe, build }
+                        <span class="tc-kw">from</span>
+                        <span class="tc-str">"@ra9/tan-compose"</span>;
+                        build(<span class="tc-str">"ex-counter"</span>,
+                        describe({ styles: { display:
+                        <span class="tc-str">"inline-flex"</span>,
+                        flexDirection: <span class="tc-str">"column"</span>,
+                        alignItems: <span class="tc-str">"center"</span>, gap:
+                        <span class="tc-str">"14px"</span> }, template: `
+                        &lt;div class="display"&gt;0&lt;/div&gt; &lt;div
+                        class="ctrls"&gt; &lt;button
+                        class="dec"&gt;−&lt;/button&gt; &lt;button
+                        class="rst"&gt;reset&lt;/button&gt; &lt;button
+                        class="inc"&gt;+&lt;/button&gt; &lt;/div&gt; `,
+                        afterMount: function () {
+                        <span class="tc-kw">const</span> root =
+                        <span class="tc-kw">this</span>.shadowRoot;
+                        <span class="tc-kw">const</span> display =
+                        root.querySelector(<span class="tc-str">".display"</span
+                        >); <span class="tc-kw">let</span> count = 0;
+                        <span class="tc-kw">const</span> sync = () =&gt; {
+                        display.textContent = String(count); };
+                        root.querySelector(<span class="tc-str">".dec"</span
+                        >).addEventListener(<span class="tc-str">"click"</span>,
+                        () =&gt; { count--; sync(); }); root.querySelector(<span
+                            class="tc-str"
+                            >".inc"</span
+                        >).addEventListener(<span class="tc-str">"click"</span>,
+                        () =&gt; { count++; sync(); }); root.querySelector(<span
+                            class="tc-str"
+                            >".rst"</span
+                        >).addEventListener(<span class="tc-str">"click"</span>,
+                        () =&gt; { count = 0; sync(); }); }, }));</tc-code
+                    >
+                </div>
+            </article>
 
-build(<span class="tc-str">"ex-counter"</span>, describe({
-  styles: { display: <span class="tc-str">"inline-flex"</span>, flexDirection: <span class="tc-str">"column"</span>, alignItems: <span class="tc-str">"center"</span>, gap: <span class="tc-str">"14px"</span> },
-  template: `
-    &lt;div class="display"&gt;0&lt;/div&gt;
-    &lt;div class="ctrls"&gt;
-      &lt;button class="dec"&gt;−&lt;/button&gt;
-      &lt;button class="rst"&gt;reset&lt;/button&gt;
-      &lt;button class="inc"&gt;+&lt;/button&gt;
-    &lt;/div&gt;
-  `,
-  afterMount: function () {
-    <span class="tc-kw">const</span> root = <span class="tc-kw">this</span>.shadowRoot;
-    <span class="tc-kw">const</span> display = root.querySelector(<span class="tc-str">".display"</span>);
-    <span class="tc-kw">let</span> count = 0;
-    <span class="tc-kw">const</span> sync = () =&gt; { display.textContent = String(count); };
-    root.querySelector(<span class="tc-str">".dec"</span>).addEventListener(<span class="tc-str">"click"</span>, () =&gt; { count--; sync(); });
-    root.querySelector(<span class="tc-str">".inc"</span>).addEventListener(<span class="tc-str">"click"</span>, () =&gt; { count++; sync(); });
-    root.querySelector(<span class="tc-str">".rst"</span>).addEventListener(<span class="tc-str">"click"</span>, () =&gt; { count = 0; sync(); });
-  },
-}));</tc-code>
-        </div>
-      </article>
+            <!-- 2. Buttons -->
+            <article id="buttons" class="example">
+                <div class="wrap">
+                    <div class="example-head">
+                        <div class="example-tag">
+                            02 — &lt;ex-button-row&gt;
+                        </div>
+                        <h2>Themed button row</h2>
+                        <p class="example-lede">
+                            Children defined declaratively. Each click handler
+                            is registered and torn down for you.
+                        </p>
+                    </div>
+                    <div class="stage">
+                        <ex-button-row></ex-button-row>
+                    </div>
+                    <tc-code language="ts"
+                        >build(<span class="tc-str">"ex-button-row"</span>,
+                        describe({ styles: { display:
+                        <span class="tc-str">"flex"</span>, gap:
+                        <span class="tc-str">"10px"</span>, flexWrap:
+                        <span class="tc-str">"wrap"</span>, justifyContent:
+                        <span class="tc-str">"center"</span> }, children: [
+                        describe({ tag: <span class="tc-str">"button"</span>,
+                        template: <span class="tc-str">"Primary"</span>, action:
+                        () =&gt; alert(<span class="tc-str">"primary"</span>),
+                        styles: { padding:
+                        <span class="tc-str">"10px 18px"</span>, background:
+                        <span class="tc-str">"#14171f"</span>, color:
+                        <span class="tc-str">"#fff"</span>, border:
+                        <span class="tc-str">"none"</span>, borderRadius:
+                        <span class="tc-str">"8px"</span>, cursor:
+                        <span class="tc-str">"pointer"</span> } }), describe({
+                        tag: <span class="tc-str">"button"</span>, template:
+                        <span class="tc-str">"Accent"</span>, action: () =&gt;
+                        alert(<span class="tc-str">"accent"</span>), styles: {
+                        padding: <span class="tc-str">"10px 18px"</span>,
+                        background: <span class="tc-str">"#a16939"</span>,
+                        color: <span class="tc-str">"#fff"</span>, border:
+                        <span class="tc-str">"none"</span>, borderRadius:
+                        <span class="tc-str">"8px"</span>, cursor:
+                        <span class="tc-str">"pointer"</span> } }), describe({
+                        tag: <span class="tc-str">"button"</span>, template:
+                        <span class="tc-str">"Ghost"</span>, action: () =&gt;
+                        alert(<span class="tc-str">"ghost"</span>), styles: {
+                        padding: <span class="tc-str">"10px 18px"</span>,
+                        background: <span class="tc-str">"transparent"</span>,
+                        color: <span class="tc-str">"#14171f"</span>, border:
+                        <span class="tc-str">"1px solid #d9cfb8"</span>,
+                        borderRadius: <span class="tc-str">"8px"</span>, cursor:
+                        <span class="tc-str">"pointer"</span> } }), ],
+                        }));</tc-code
+                    >
+                </div>
+            </article>
 
-      <!-- 2. Buttons -->
-      <article id="buttons" class="example">
-        <div class="wrap">
-          <div class="example-head">
-            <div class="example-tag">02 — &lt;ex-button-row&gt;</div>
-            <h2>Themed button row</h2>
-            <p class="example-lede">
-              Children defined declaratively. Each click handler is registered
-              and torn down for you.
-            </p>
-          </div>
-          <div class="stage">
-            <ex-button-row></ex-button-row>
-          </div>
-<tc-code language="ts">build(<span class="tc-str">"ex-button-row"</span>, describe({
-  styles: { display: <span class="tc-str">"flex"</span>, gap: <span class="tc-str">"10px"</span>, flexWrap: <span class="tc-str">"wrap"</span>, justifyContent: <span class="tc-str">"center"</span> },
-  children: [
-    describe({ tag: <span class="tc-str">"button"</span>, template: <span class="tc-str">"Primary"</span>, action: () =&gt; alert(<span class="tc-str">"primary"</span>),
-      styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"#14171f"</span>, color: <span class="tc-str">"#fff"</span>, border: <span class="tc-str">"none"</span>, borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span> } }),
-    describe({ tag: <span class="tc-str">"button"</span>, template: <span class="tc-str">"Accent"</span>, action: () =&gt; alert(<span class="tc-str">"accent"</span>),
-      styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"#a16939"</span>, color: <span class="tc-str">"#fff"</span>, border: <span class="tc-str">"none"</span>, borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span> } }),
-    describe({ tag: <span class="tc-str">"button"</span>, template: <span class="tc-str">"Ghost"</span>, action: () =&gt; alert(<span class="tc-str">"ghost"</span>),
-      styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"transparent"</span>, color: <span class="tc-str">"#14171f"</span>, border: <span class="tc-str">"1px solid #d9cfb8"</span>, borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span> } }),
-  ],
-}));</tc-code>
-        </div>
-      </article>
+            <!-- 3. Card -->
+            <article id="card" class="example">
+                <div class="wrap">
+                    <div class="example-head">
+                        <div class="example-tag">03 — &lt;ex-card&gt;</div>
+                        <h2>Composed card with theme variables</h2>
+                        <p class="example-lede">
+                            <code>theme</code> exposes CSS custom properties on
+                            <code>:host</code>. Children reference them via
+                            <code>var(--name)</code>.
+                        </p>
+                    </div>
+                    <div class="stage">
+                        <ex-card></ex-card>
+                    </div>
+                    <tc-code language="ts"
+                        >build(<span class="tc-str">"ex-card"</span>, describe({
+                        theme: { surface: <span class="tc-str">"#ffffff"</span>,
+                        border: <span class="tc-str">"#ece5d3"</span>, ink:
+                        <span class="tc-str">"#14171f"</span>, accent:
+                        <span class="tc-str">"#a16939"</span> }, styles: {
+                        display: <span class="tc-str">"block"</span>,
+                        background:
+                        <span class="tc-str"
+                            >"var(--tc-color-surface, #ffffff)"</span
+                        >, border:
+                        <span class="tc-str">"1px solid var(--border)"</span>,
+                        borderRadius: <span class="tc-str">"12px"</span>,
+                        padding: <span class="tc-str">"22px"</span>, maxWidth:
+                        <span class="tc-str">"420px"</span> }, children: [
+                        describe({ tag: <span class="tc-str">"h3"</span>,
+                        template: <span class="tc-str">"Theme variables"</span>,
+                        styles: { color:
+                        <span class="tc-str"
+                            >"var(--tc-color-ink, #14171f)"</span
+                        >, margin: <span class="tc-str">"0 0 8px"</span> } }),
+                        describe({ tag: <span class="tc-str">"p"</span>,
+                        template:
+                        <span class="tc-str"
+                            >"Defined once on the host, used anywhere
+                            inside."</span
+                        >, styles: { color:
+                        <span class="tc-str">"#5a6072"</span>, margin:
+                        <span class="tc-str">"0 0 14px"</span>, lineHeight:
+                        <span class="tc-str">"1.55"</span> } }), describe({ tag:
+                        <span class="tc-str">"a"</span>, template:
+                        <span class="tc-str">"Read more →"</span>, attributes: {
+                        href: <span class="tc-str">"./docs.html"</span> },
+                        styles: { color:
+                        <span class="tc-str"
+                            >"var(--tc-color-accent, #a16939)"</span
+                        >, fontWeight: <span class="tc-str">"600"</span>,
+                        textDecoration: <span class="tc-str">"none"</span> } }),
+                        ], }));</tc-code
+                    >
+                </div>
+            </article>
 
-      <!-- 3. Card -->
-      <article id="card" class="example">
-        <div class="wrap">
-          <div class="example-head">
-            <div class="example-tag">03 — &lt;ex-card&gt;</div>
-            <h2>Composed card with theme variables</h2>
-            <p class="example-lede">
-              <code>theme</code> exposes CSS custom properties on
-              <code>:host</code>. Children reference them via
-              <code>var(--name)</code>.
-            </p>
-          </div>
-          <div class="stage">
-            <ex-card></ex-card>
-          </div>
-<tc-code language="ts">build(<span class="tc-str">"ex-card"</span>, describe({
-  theme: { surface: <span class="tc-str">"#ffffff"</span>, border: <span class="tc-str">"#ece5d3"</span>, ink: <span class="tc-str">"#14171f"</span>, accent: <span class="tc-str">"#a16939"</span> },
-  styles: { display: <span class="tc-str">"block"</span>, background: <span class="tc-str">"var(--tc-color-surface, #ffffff)"</span>, border: <span class="tc-str">"1px solid var(--border)"</span>,
-            borderRadius: <span class="tc-str">"12px"</span>, padding: <span class="tc-str">"22px"</span>, maxWidth: <span class="tc-str">"420px"</span> },
-  children: [
-    describe({ tag: <span class="tc-str">"h3"</span>, template: <span class="tc-str">"Theme variables"</span>, styles: { color: <span class="tc-str">"var(--tc-color-ink, #14171f)"</span>, margin: <span class="tc-str">"0 0 8px"</span> } }),
-    describe({ tag: <span class="tc-str">"p"</span>, template: <span class="tc-str">"Defined once on the host, used anywhere inside."</span>,
-               styles: { color: <span class="tc-str">"#5a6072"</span>, margin: <span class="tc-str">"0 0 14px"</span>, lineHeight: <span class="tc-str">"1.55"</span> } }),
-    describe({ tag: <span class="tc-str">"a"</span>, template: <span class="tc-str">"Read more →"</span>, attributes: { href: <span class="tc-str">"./docs.html"</span> },
-               styles: { color: <span class="tc-str">"var(--tc-color-accent, #a16939)"</span>, fontWeight: <span class="tc-str">"600"</span>, textDecoration: <span class="tc-str">"none"</span> } }),
-  ],
-}));</tc-code>
-        </div>
-      </article>
+            <!-- 4. Toggle (observedAttributes) -->
+            <article id="toggle" class="example">
+                <div class="wrap">
+                    <div class="example-head">
+                        <div class="example-tag">04 — &lt;ex-toggle&gt;</div>
+                        <h2>Toggle with observed attributes</h2>
+                        <p class="example-lede">
+                            Declare <code>observedAttributes</code> and the
+                            component re&#8209;renders whenever a listed
+                            attribute changes — even from outside the component.
+                        </p>
+                    </div>
+                    <div
+                        class="stage"
+                        style="flex-direction: column; gap: 16px"
+                    >
+                        <ex-toggle data-state="off"></ex-toggle>
+                        <button
+                            id="toggle-flip"
+                            type="button"
+                            style="
+                                font-family:
+                                    &quot;JetBrains Mono&quot;, ui-monospace,
+                                    monospace;
+                                font-size: 0.85rem;
+                                padding: 8px 14px;
+                                background: #faf8f3;
+                                color: #14171f;
+                                border: 1px solid #d9cfb8;
+                                border-radius: 8px;
+                                cursor: pointer;
+                            "
+                        >
+                            flip data-state from outside
+                        </button>
+                    </div>
+                    <tc-code language="ts"
+                        >build(<span class="tc-str">"ex-toggle"</span>,
+                        describe({ observedAttributes: [<span class="tc-str"
+                            >"data-state"</span
+                        >], styles: { display:
+                        <span class="tc-str">"inline-flex"</span>, alignItems:
+                        <span class="tc-str">"center"</span>, gap:
+                        <span class="tc-str">"10px"</span>, fontFamily:
+                        <span class="tc-str"
+                            >"'JetBrains Mono', monospace"</span
+                        >
+                        }, template: `&lt;span
+                        class="dot"&gt;&lt;/span&gt;&lt;span
+                        class="label"&gt;off&lt;/span&gt;`, afterMount:
+                        <span class="tc-kw">function</span> () { paint(<span
+                            class="tc-kw"
+                            >this</span
+                        >); }, }));
 
-      <!-- 4. Toggle (observedAttributes) -->
-      <article id="toggle" class="example">
-        <div class="wrap">
-          <div class="example-head">
-            <div class="example-tag">04 — &lt;ex-toggle&gt;</div>
-            <h2>Toggle with observed attributes</h2>
-            <p class="example-lede">
-              Declare <code>observedAttributes</code> and the component
-              re&#8209;renders whenever a listed attribute changes — even
-              from outside the component.
-            </p>
-          </div>
-          <div class="stage" style="flex-direction: column; gap: 16px;">
-            <ex-toggle data-state="off"></ex-toggle>
-            <button id="toggle-flip" type="button"
-              style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.85rem; padding: 8px 14px; background: #faf8f3; color: #14171f; border: 1px solid #d9cfb8; border-radius: 8px; cursor: pointer;">
-              flip data-state from outside
-            </button>
-          </div>
-<tc-code language="ts">build(<span class="tc-str">"ex-toggle"</span>, describe({
-  observedAttributes: [<span class="tc-str">"data-state"</span>],
-  styles: { display: <span class="tc-str">"inline-flex"</span>, alignItems: <span class="tc-str">"center"</span>, gap: <span class="tc-str">"10px"</span>,
-            fontFamily: <span class="tc-str">"'JetBrains Mono', monospace"</span> },
-  template: `&lt;span class="dot"&gt;&lt;/span&gt;&lt;span class="label"&gt;off&lt;/span&gt;`,
-  afterMount: <span class="tc-kw">function</span> () { paint(<span class="tc-kw">this</span>); },
-}));
+                        <span class="tc-com"
+                            >// Re-render fires on attribute change; we re-paint
+                            after each render.</span
+                        >
+                        <span class="tc-com"
+                            >// (See afterMount + observedAttributes in the
+                            docs.)</span
+                        ></tc-code
+                    >
+                </div>
+            </article>
 
-<span class="tc-com">// Re-render fires on attribute change; we re-paint after each render.</span>
-<span class="tc-com">// (See afterMount + observedAttributes in the docs.)</span></tc-code>
-        </div>
-      </article>
+            <!-- 5. Custom event emitter -->
+            <article id="emitter" class="example">
+                <div class="wrap">
+                    <div class="example-head">
+                        <div class="example-tag">05 — &lt;ex-pinger&gt;</div>
+                        <h2>Custom event emitter</h2>
+                        <p class="example-lede">
+                            <code>emitEvent()</code> dispatches a bubbling,
+                            composed <code>CustomEvent</code>. The page listens
+                            at the document level.
+                        </p>
+                    </div>
+                    <div
+                        class="stage"
+                        style="flex-direction: column; gap: 14px"
+                    >
+                        <ex-pinger></ex-pinger>
+                        <div
+                            id="ping-log"
+                            style="
+                                font-family:
+                                    &quot;JetBrains Mono&quot;, ui-monospace,
+                                    monospace;
+                                font-size: 0.82rem;
+                                color: #6b7280;
+                                min-height: 1.4em;
+                            "
+                        >
+                            waiting for ping…
+                        </div>
+                    </div>
+                    <tc-code language="ts"
+                        >build(<span class="tc-str">"ex-pinger"</span>,
+                        describe({ tag: <span class="tc-str">"button"</span>,
+                        template: <span class="tc-str">"send ping"</span>,
+                        styles: { padding:
+                        <span class="tc-str">"10px 18px"</span>, background:
+                        <span class="tc-str">"#a16939"</span>, color:
+                        <span class="tc-str">"#fff"</span>, border:
+                        <span class="tc-str">"none"</span>, borderRadius:
+                        <span class="tc-str">"8px"</span>, cursor:
+                        <span class="tc-str">"pointer"</span>, fontWeight:
+                        <span class="tc-str">"500"</span> }, action:
+                        <span class="tc-kw">function</span> () {
+                        <span class="tc-kw">this</span>.emitEvent(<span
+                            class="tc-str"
+                            >"ping"</span
+                        >, { at: Date.now() }); }, }));
+                        document.addEventListener(<span class="tc-str"
+                            >"ping"</span
+                        >, (e) =&gt; { document.getElementById(<span
+                            class="tc-str"
+                            >"ping-log"</span
+                        >).textContent =
+                        <span class="tc-str"
+                            >`pinged at ${new
+                            Date(e.detail.at).toLocaleTimeString()}`</span
+                        >; });</tc-code
+                    >
+                </div>
+            </article>
 
-      <!-- 5. Custom event emitter -->
-      <article id="emitter" class="example">
-        <div class="wrap">
-          <div class="example-head">
-            <div class="example-tag">05 — &lt;ex-pinger&gt;</div>
-            <h2>Custom event emitter</h2>
-            <p class="example-lede">
-              <code>emitEvent()</code> dispatches a bubbling, composed
-              <code>CustomEvent</code>. The page listens at the document level.
-            </p>
-          </div>
-          <div class="stage" style="flex-direction: column; gap: 14px;">
-            <ex-pinger></ex-pinger>
-            <div
-              id="ping-log"
-              style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.82rem; color: #6b7280; min-height: 1.4em;"
-            >
-              waiting for ping…
-            </div>
-          </div>
-<tc-code language="ts">build(<span class="tc-str">"ex-pinger"</span>, describe({
-  tag: <span class="tc-str">"button"</span>,
-  template: <span class="tc-str">"send ping"</span>,
-  styles: { padding: <span class="tc-str">"10px 18px"</span>, background: <span class="tc-str">"#a16939"</span>, color: <span class="tc-str">"#fff"</span>, border: <span class="tc-str">"none"</span>,
-            borderRadius: <span class="tc-str">"8px"</span>, cursor: <span class="tc-str">"pointer"</span>, fontWeight: <span class="tc-str">"500"</span> },
-  action: <span class="tc-kw">function</span> () {
-    <span class="tc-kw">this</span>.emitEvent(<span class="tc-str">"ping"</span>, { at: Date.now() });
-  },
-}));
+            <!-- 6. Datatable -->
+            <article id="datatable" class="example">
+                <div class="wrap">
+                    <div class="example-head">
+                        <div class="example-tag">06 — &lt;ex-datatable&gt;</div>
+                        <h2>Live datatable</h2>
+                        <p class="example-lede">
+                            Paginated, filterable, and sortable — built with
+                            <code>props</code>, function templates,
+                            <code>events</code> delegation, and keyed
+                            <code>for</code> list rendering. Type in the search
+                            box or click a column header.
+                        </p>
+                    </div>
+                    <div
+                        class="stage"
+                        style="flex-direction: column; align-items: stretch"
+                    >
+                        <ex-datatable></ex-datatable>
+                    </div>
+                    <tc-code language="ts" copy
+                        >build(<span class="tc-str">"ex-datatable"</span>,
+                        describe({ props: { rows: { type:
+                        <span class="tc-str">"json"</span>, default: [] },
+                        columns: { type: <span class="tc-str">"json"</span>,
+                        default: [] }, pageSize: { type:
+                        <span class="tc-str">"number"</span>, default: 5 }, },
+                        template: ({ state, props }) =&gt; {
+                        <span class="tc-kw">const</span> q = (state.q ??
+                        <span class="tc-str">""</span>).toLowerCase();
+                        <span class="tc-kw">const</span> filtered = (props.rows
+                        ?? []).filter((r) =&gt; Object.values(r).some((v) =&gt;
+                        String(v).toLowerCase().includes(q)));
+                        <span class="tc-kw">const</span> page = state.page ??
+                        <span class="tc-num">0</span>;
+                        <span class="tc-kw">const</span> pages =
+                        Math.ceil(filtered.length / props.pageSize) ||
+                        <span class="tc-num">1</span>;
+                        <span class="tc-kw">const</span> slice =
+                        filtered.slice(page * props.pageSize, (page+<span
+                            class="tc-num"
+                            >1</span
+                        >) * props.pageSize);
+                        <span class="tc-kw">return</span> ` &lt;input
+                        class="filter" placeholder="Search..." value="${state.q
+                        ?? <span class="tc-str">""</span>}" /&gt;
+                        &lt;table&gt;...&lt;/table&gt; &lt;div
+                        class="pager"&gt;Page ${page+<span class="tc-num"
+                            >1</span
+                        >} of ${pages} ...&lt;/div&gt;`; }, events: {
+                        <span class="tc-str">"input .filter"</span>: (e, ctx)
+                        =&gt; { ctx.setState(<span class="tc-str">"q"</span>,
+                        e.target.value); ctx.setState(<span class="tc-str"
+                            >"page"</span
+                        >, <span class="tc-num">0</span>); },
+                        <span class="tc-str">"click .prev"</span>: (_e, ctx)
+                        =&gt; ctx.setState(<span class="tc-str">"page"</span>,
+                        Math.max(<span class="tc-num">0</span>, (ctx.state.page
+                        ?? <span class="tc-num">0</span>) -
+                        <span class="tc-num">1</span>)),
+                        <span class="tc-str">"click .next"</span>: (_e, ctx)
+                        =&gt; ctx.setState(<span class="tc-str">"page"</span>,
+                        (ctx.state.page ?? <span class="tc-num">0</span>) +
+                        <span class="tc-num">1</span>), }, }));</tc-code
+                    >
+                </div>
+            </article>
+        </main>
 
-document.addEventListener(<span class="tc-str">"ping"</span>, (e) =&gt; {
-  document.getElementById(<span class="tc-str">"ping-log"</span>).textContent =
-    <span class="tc-str">`pinged at ${new Date(e.detail.at).toLocaleTimeString()}`</span>;
-});</tc-code>
-        </div>
-      </article>
-    </main>
+        <site-footer></site-footer>
 
-    <site-footer></site-footer>
+        <script type="module">
+            import { build, describe } from "./dist/mod.js";
 
-    <script type="module">
-      import { build, describe } from "./dist/mod.js";
-
-      // ---- 1. Counter ----
-      build(
-        "ex-counter",
-        describe({
-          styles: {
-            display: "inline-flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "14px",
-            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-          },
-          template: `
+            // ---- 1. Counter ----
+            build(
+                "ex-counter",
+                describe({
+                    styles: {
+                        display: "inline-flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "14px",
+                        fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                    },
+                    template: `
             <div class="display" style="font-size: 2.4rem; font-weight: 700; color: #14171f; min-width: 4ch; text-align: center;">0</div>
             <div style="display: flex; gap: 8px;">
               <button class="dec" type="button" style="width: 36px; height: 36px; font-size: 1.1rem; background: #14171f; color: #fff; border: none; border-radius: 8px; cursor: pointer;">−</button>
@@ -340,241 +601,367 @@ document.addEventListener(<span class="tc-str">"ping"</span>, (e) =&gt; {
               <button class="inc" type="button" style="width: 36px; height: 36px; font-size: 1.1rem; background: #a16939; color: #fff; border: none; border-radius: 8px; cursor: pointer;">+</button>
             </div>
           `,
-          afterMount: function () {
-            const root = this.shadowRoot;
-            const display = root.querySelector(".display");
-            let count = 0;
-            const sync = () => {
-              display.textContent = String(count);
-            };
-            root.querySelector(".dec").addEventListener("click", () => {
-              count -= 1;
-              sync();
-            });
-            root.querySelector(".inc").addEventListener("click", () => {
-              count += 1;
-              sync();
-            });
-            root.querySelector(".rst").addEventListener("click", () => {
-              count = 0;
-              sync();
-            });
-          },
-        }),
-      );
+                    afterMount: function () {
+                        const root = this.shadowRoot;
+                        const display = root.querySelector(".display");
+                        let count = 0;
+                        const sync = () => {
+                            display.textContent = String(count);
+                        };
+                        root.querySelector(".dec").addEventListener(
+                            "click",
+                            () => {
+                                count -= 1;
+                                sync();
+                            },
+                        );
+                        root.querySelector(".inc").addEventListener(
+                            "click",
+                            () => {
+                                count += 1;
+                                sync();
+                            },
+                        );
+                        root.querySelector(".rst").addEventListener(
+                            "click",
+                            () => {
+                                count = 0;
+                                sync();
+                            },
+                        );
+                    },
+                }),
+            );
 
-      // ---- 2. Button row ----
-      build(
-        "ex-button-row",
-        describe({
-          styles: {
-            display: "flex",
-            gap: "10px",
-            flexWrap: "wrap",
-            justifyContent: "center",
-          },
-          children: [
-            describe({
-              tag: "button",
-              template: "Primary",
-              styles: {
-                padding: "10px 18px",
-                background: "#14171f",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-                fontWeight: "500",
-              },
-              action: () => alert("Primary clicked"),
-            }),
-            describe({
-              tag: "button",
-              template: "Accent",
-              styles: {
-                padding: "10px 18px",
-                background: "#a16939",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-                fontWeight: "500",
-              },
-              action: () => alert("Accent clicked"),
-            }),
-            describe({
-              tag: "button",
-              template: "Ghost",
-              styles: {
-                padding: "10px 18px",
-                background: "transparent",
-                color: "#14171f",
-                border: "1px solid #d9cfb8",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-                fontWeight: "500",
-              },
-              action: () => alert("Ghost clicked"),
-            }),
-          ],
-        }),
-      );
+            // ---- 2. Button row ----
+            build(
+                "ex-button-row",
+                describe({
+                    styles: {
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                        justifyContent: "center",
+                    },
+                    children: [
+                        describe({
+                            tag: "button",
+                            template: "Primary",
+                            styles: {
+                                padding: "10px 18px",
+                                background: "#14171f",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.9rem",
+                                fontWeight: "500",
+                            },
+                            action: () => alert("Primary clicked"),
+                        }),
+                        describe({
+                            tag: "button",
+                            template: "Accent",
+                            styles: {
+                                padding: "10px 18px",
+                                background: "#a16939",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.9rem",
+                                fontWeight: "500",
+                            },
+                            action: () => alert("Accent clicked"),
+                        }),
+                        describe({
+                            tag: "button",
+                            template: "Ghost",
+                            styles: {
+                                padding: "10px 18px",
+                                background: "transparent",
+                                color: "#14171f",
+                                border: "1px solid #d9cfb8",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                fontSize: "0.9rem",
+                                fontWeight: "500",
+                            },
+                            action: () => alert("Ghost clicked"),
+                        }),
+                    ],
+                }),
+            );
 
-      // ---- 3. Card ----
-      build(
-        "ex-card",
-        describe({
-          theme: {
-            surface: "#ffffff",
-            border: "#ece5d3",
-            ink: "#14171f",
-            soft: "#5a6072",
-            accent: "#a16939",
-          },
-          styles: {
-            display: "block",
-            background: "var(--tc-color-surface, #ffffff)",
-            border: "1px solid var(--border)",
-            borderRadius: "12px",
-            padding: "22px",
-            maxWidth: "420px",
-          },
-          children: [
-            describe({
-              tag: "h3",
-              template: "Theme variables",
-              styles: {
-                color: "var(--tc-color-ink, #14171f)",
-                margin: "0 0 8px",
-                fontSize: "1.1rem",
-                fontWeight: "700",
-              },
-            }),
-            describe({
-              tag: "p",
-              template:
-                "Defined once on the host, used anywhere inside. The card border, ink, and accent below all read from CSS variables exposed at the :host level.",
-              styles: {
-                color: "var(--soft)",
-                margin: "0 0 14px",
-                lineHeight: "1.55",
-                fontSize: "0.95rem",
-              },
-            }),
-            describe({
-              tag: "a",
-              template: "Read the docs →",
-              attributes: { href: "./docs.html" },
-              styles: {
-                color: "var(--tc-color-accent, #a16939)",
-                fontWeight: "600",
-                textDecoration: "none",
-                fontFamily:
-                  "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: "0.88rem",
-              },
-            }),
-          ],
-        }),
-      );
+            // ---- 3. Card ----
+            build(
+                "ex-card",
+                describe({
+                    theme: {
+                        surface: "#ffffff",
+                        border: "#ece5d3",
+                        ink: "#14171f",
+                        soft: "#5a6072",
+                        accent: "#a16939",
+                    },
+                    styles: {
+                        display: "block",
+                        background: "var(--tc-color-surface, #ffffff)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "12px",
+                        padding: "22px",
+                        maxWidth: "420px",
+                    },
+                    children: [
+                        describe({
+                            tag: "h3",
+                            template: "Theme variables",
+                            styles: {
+                                color: "var(--tc-color-ink, #14171f)",
+                                margin: "0 0 8px",
+                                fontSize: "1.1rem",
+                                fontWeight: "700",
+                            },
+                        }),
+                        describe({
+                            tag: "p",
+                            template:
+                                "Defined once on the host, used anywhere inside. The card border, ink, and accent below all read from CSS variables exposed at the :host level.",
+                            styles: {
+                                color: "var(--soft)",
+                                margin: "0 0 14px",
+                                lineHeight: "1.55",
+                                fontSize: "0.95rem",
+                            },
+                        }),
+                        describe({
+                            tag: "a",
+                            template: "Read the docs →",
+                            attributes: { href: "./docs.html" },
+                            styles: {
+                                color: "var(--tc-color-accent, #a16939)",
+                                fontWeight: "600",
+                                textDecoration: "none",
+                                fontFamily:
+                                    "'JetBrains Mono', ui-monospace, monospace",
+                                fontSize: "0.88rem",
+                            },
+                        }),
+                    ],
+                }),
+            );
 
-      // ---- 4. Toggle (observedAttributes) ----
-      const paintToggle = (host) => {
-        const root = host.shadowRoot;
-        if (!root) return;
-        const dot = root.querySelector(".dot");
-        const label = root.querySelector(".label");
-        if (!dot || !label) return;
-        const on = host.getAttribute("data-state") === "on";
-        dot.style.cssText = `
+            // ---- 4. Toggle (observedAttributes) ----
+            const paintToggle = (host) => {
+                const root = host.shadowRoot;
+                if (!root) return;
+                const dot = root.querySelector(".dot");
+                const label = root.querySelector(".label");
+                if (!dot || !label) return;
+                const on = host.getAttribute("data-state") === "on";
+                dot.style.cssText = `
           width: 14px; height: 14px; border-radius: 50%;
           background: ${on ? "#a16939" : "#d9cfb8"};
           transition: background 0.2s ease;
           display: inline-block;
         `;
-        label.textContent = on ? "on" : "off";
-        label.style.cssText = `
+                label.textContent = on ? "on" : "off";
+                label.style.cssText = `
           color: ${on ? "#a16939" : "#6b7280"};
           font-size: 0.95rem;
         `;
-      };
+            };
 
-      build(
-        "ex-toggle",
-        describe({
-          observedAttributes: ["data-state"],
-          styles: {
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "10px",
-            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-            cursor: "pointer",
-            userSelect: "none",
-            padding: "8px 14px",
-            background: "#faf8f3",
-            border: "1px solid #d9cfb8",
-            borderRadius: "999px",
-          },
-          template: `<span class="dot"></span><span class="label">off</span>`,
-          afterMount: function () {
-            paintToggle(this);
-            this.addEventListener("click", () => {
-              const next =
-                this.getAttribute("data-state") === "on" ? "off" : "on";
-              this.setAttribute("data-state", next);
+            build(
+                "ex-toggle",
+                describe({
+                    observedAttributes: ["data-state"],
+                    styles: {
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                        cursor: "pointer",
+                        userSelect: "none",
+                        padding: "8px 14px",
+                        background: "#faf8f3",
+                        border: "1px solid #d9cfb8",
+                        borderRadius: "999px",
+                    },
+                    template: `<span class="dot"></span><span class="label">off</span>`,
+                    afterMount: function () {
+                        paintToggle(this);
+                        this.addEventListener("click", () => {
+                            const next =
+                                this.getAttribute("data-state") === "on"
+                                    ? "off"
+                                    : "on";
+                            this.setAttribute("data-state", next);
+                        });
+                    },
+                }),
+            );
+
+            // Re-paint on every attribute-driven re-render.
+            // (observedAttributes triggers render; the template is re-inserted, so we re-style the new nodes.)
+            const toggleEl = document.querySelector("ex-toggle");
+            const observer = new MutationObserver(() => paintToggle(toggleEl));
+            if (toggleEl) {
+                observer.observe(toggleEl, {
+                    attributes: true,
+                    attributeFilter: ["data-state"],
+                });
+            }
+
+            const flipBtn = document.getElementById("toggle-flip");
+            if (flipBtn && toggleEl) {
+                flipBtn.addEventListener("click", () => {
+                    const next =
+                        toggleEl.getAttribute("data-state") === "on"
+                            ? "off"
+                            : "on";
+                    toggleEl.setAttribute("data-state", next);
+                });
+            }
+
+            // ---- 5. Pinger ----
+            build(
+                "ex-pinger",
+                describe({
+                    tag: "button",
+                    template: "send ping",
+                    styles: {
+                        padding: "10px 18px",
+                        background: "#a16939",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontWeight: "500",
+                        fontSize: "0.9rem",
+                    },
+                    action: function () {
+                        this.emitEvent("ping", { at: Date.now() });
+                    },
+                }),
+            );
+
+            document.addEventListener("ping", (e) => {
+                const log = document.getElementById("ping-log");
+                if (log) {
+                    log.textContent = `pinged at ${new Date(e.detail.at).toLocaleTimeString()}`;
+                    log.style.color = "#a16939";
+                }
             });
-          },
-        }),
-      );
 
-      // Re-paint on every attribute-driven re-render.
-      // (observedAttributes triggers render; the template is re-inserted, so we re-style the new nodes.)
-      const toggleEl = document.querySelector("ex-toggle");
-      const observer = new MutationObserver(() => paintToggle(toggleEl));
-      if (toggleEl) {
-        observer.observe(toggleEl, { attributes: true, attributeFilter: ["data-state"] });
-      }
+            // ---- 6. Datatable ----
+            const SAMPLE_ROWS = [
+                { id: 1, name: "Alice", role: "Engineer", city: "Portland" },
+                { id: 2, name: "Bob", role: "Designer", city: "Austin" },
+                { id: 3, name: "Carlos", role: "Engineer", city: "Miami" },
+                { id: 4, name: "Dana", role: "PM", city: "Seattle" },
+                { id: 5, name: "Eve", role: "Designer", city: "Denver" },
+                { id: 6, name: "Frank", role: "Engineer", city: "Chicago" },
+                { id: 7, name: "Grace", role: "PM", city: "Portland" },
+                { id: 8, name: "Hank", role: "Engineer", city: "Austin" },
+                { id: 9, name: "Iris", role: "Designer", city: "Seattle" },
+                { id: 10, name: "Jake", role: "Engineer", city: "Denver" },
+                { id: 11, name: "Kara", role: "PM", city: "Miami" },
+                { id: 12, name: "Leo", role: "Designer", city: "Chicago" },
+            ];
+            const SAMPLE_COLS = [
+                { key: "name", label: "Name" },
+                { key: "role", label: "Role" },
+                { key: "city", label: "City" },
+            ];
 
-      const flipBtn = document.getElementById("toggle-flip");
-      if (flipBtn && toggleEl) {
-        flipBtn.addEventListener("click", () => {
-          const next = toggleEl.getAttribute("data-state") === "on" ? "off" : "on";
-          toggleEl.setAttribute("data-state", next);
-        });
-      }
-
-      // ---- 5. Pinger ----
-      build(
-        "ex-pinger",
-        describe({
-          tag: "button",
-          template: "send ping",
-          styles: {
-            padding: "10px 18px",
-            background: "#a16939",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "500",
-            fontSize: "0.9rem",
-          },
-          action: function () {
-            this.emitEvent("ping", { at: Date.now() });
-          },
-        }),
-      );
-
-      document.addEventListener("ping", (e) => {
-        const log = document.getElementById("ping-log");
-        if (log) {
-          log.textContent = `pinged at ${new Date(e.detail.at).toLocaleTimeString()}`;
-          log.style.color = "#a16939";
-        }
-      });
-    </script>
-  </body>
+            build(
+                "ex-datatable",
+                describe({
+                    props: {
+                        rows: { type: "json", default: SAMPLE_ROWS },
+                        columns: { type: "json", default: SAMPLE_COLS },
+                        pageSize: { type: "number", default: 5 },
+                    },
+                    template: ({ state, props }) => {
+                        const q = (state.q ?? "").toLowerCase();
+                        const filtered = (props.rows ?? []).filter((r) =>
+                            Object.values(r).some((v) =>
+                                String(v).toLowerCase().includes(q),
+                            ),
+                        );
+                        const page = state.page ?? 0;
+                        const pages =
+                            Math.ceil(filtered.length / props.pageSize) || 1;
+                        const safePage = Math.min(page, pages - 1);
+                        const slice = filtered.slice(
+                            safePage * props.pageSize,
+                            (safePage + 1) * props.pageSize,
+                        );
+                        const ths = (props.columns ?? [])
+                            .map(
+                                (c) =>
+                                    `<th style="text-align:left;padding:8px 12px;border-bottom:1px solid #ece5d3;font-size:0.82rem;color:#6b7280;cursor:pointer;user-select:none;">${c.label}</th>`,
+                            )
+                            .join("");
+                        const trs = slice
+                            .map(
+                                (r) =>
+                                    `<tr>${(props.columns ?? [])
+                                        .map(
+                                            (c) =>
+                                                `<td style="padding:8px 12px;border-bottom:1px solid #f3ede2;font-size:0.9rem;">${r[c.key] ?? ""}</td>`,
+                                        )
+                                        .join("")}</tr>`,
+                            )
+                            .join("");
+                        return `
+                    <input class="filter" type="text" placeholder="Search..." value="${state.q ?? ""}"
+                      style="width:100%;padding:10px 14px;border:1px solid #d9cfb8;border-radius:8px;font-size:0.9rem;margin-bottom:12px;font-family:inherit;background:#faf8f3;" />
+                    <table style="width:100%;border-collapse:collapse;">
+                      <thead><tr>${ths}</tr></thead>
+                      <tbody>${trs}</tbody>
+                    </table>
+                    <div class="pager" style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:0.82rem;color:#6b7280;font-family:'JetBrains Mono',monospace;">
+                      <span>${filtered.length} result${filtered.length !== 1 ? "s" : ""}</span>
+                      <span style="display:flex;gap:8px;align-items:center;">
+                        <button class="prev" type="button" style="padding:4px 10px;border:1px solid #d9cfb8;border-radius:6px;background:#fff;cursor:pointer;font-size:0.8rem;" ${safePage === 0 ? "disabled" : ""}>&laquo; Prev</button>
+                        <span>Page ${safePage + 1} / ${pages}</span>
+                        <button class="next" type="button" style="padding:4px 10px;border:1px solid #d9cfb8;border-radius:6px;background:#fff;cursor:pointer;font-size:0.8rem;" ${safePage >= pages - 1 ? "disabled" : ""}>Next &raquo;</button>
+                      </span>
+                    </div>
+                  `;
+                    },
+                    events: {
+                        "input .filter": (e, ctx) => {
+                            ctx.setState("q", e.target.value);
+                            ctx.setState("page", 0);
+                        },
+                        "click .prev": (_e, ctx) => {
+                            ctx.setState(
+                                "page",
+                                Math.max(0, (ctx.state.page ?? 0) - 1),
+                            );
+                        },
+                        "click .next": (_e, ctx) => {
+                            const props = ctx.props;
+                            const q = (ctx.state.q ?? "").toLowerCase();
+                            const filtered = (props.rows ?? []).filter((r) =>
+                                Object.values(r).some((v) =>
+                                    String(v).toLowerCase().includes(q),
+                                ),
+                            );
+                            const pages =
+                                Math.ceil(filtered.length / props.pageSize) ||
+                                1;
+                            ctx.setState(
+                                "page",
+                                Math.min((ctx.state.page ?? 0) + 1, pages - 1),
+                            );
+                        },
+                    },
+                }),
+            );
+        </script>
+    </body>
 </html>

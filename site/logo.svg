@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Back layer - dark -->
+  <rect x="8" y="8" width="32" height="32" rx="6" fill="#14171f" opacity="0.55"/>
+  <!-- Middle layer - dark -->
+  <rect x="16" y="16" width="32" height="32" rx="6" fill="#14171f" opacity="0.75"/>
+  <!-- Front layer - accent -->
+  <rect x="24" y="24" width="32" height="32" rx="6" fill="#a16939"/>
+</svg>
