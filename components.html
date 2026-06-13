@@ -72,6 +72,20 @@
       }
       .install-line .prompt { color: var(--tc-color-ink-muted, #6b7280); }
 
+      .installer { max-width: 620px; margin: 24px 0 0; }
+      .installer tc-code { display: block; margin-top: 12px; }
+      .installer .install-note {
+        font-size: 0.88rem;
+        color: var(--tc-color-ink-muted, #6b7280);
+        margin-top: 10px;
+      }
+      .installer .install-note code {
+        background: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+
       section.demo {
         padding: 48px 0;
         border-top: 1px solid var(--tc-color-rule, #ece5d3);
@@ -216,9 +230,27 @@
             React, Vue, Astro, anywhere a custom element is allowed. Theme
             via CSS custom properties on the host.
           </p>
-          <div class="install-line">
-            <span class="prompt">$</span>
-            <span class="cmd">deno add jsr:@ra9/tan-compose-kit</span>
+          <div class="installer">
+            <tc-tabs tabs='[{"id":"deno","label":"Deno"},{"id":"npm","label":"npm / Node"},{"id":"cdn","label":"CDN — no build"}]'>
+              <div slot="deno">
+                <tc-code language="bash" copy>deno add jsr:@ra9/tan-compose-kit</tc-code>
+              </div>
+              <div slot="npm">
+                <tc-code language="bash" copy>npx jsr add @ra9/tan-compose-kit</tc-code>
+              </div>
+              <div slot="cdn">
+                <tc-code language="html" copy>&lt;script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.11.0/kit/dist/themes/tokens.min.js"&gt;&lt;/script&gt;
+&lt;script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-v1.11.0/kit/dist/kit.min.js"&gt;&lt;/script&gt;</tc-code>
+              </div>
+            </tc-tabs>
+            <p class="install-note">
+              Then <code>import "@ra9/tan-compose-kit"</code> for everything, or a
+              single component like <code>import "@ra9/tan-compose-kit/button"</code>.
+              The CDN tags register every <code>&lt;tc-*&gt;</code> element on load —
+              no import needed.
+            </p>
           </div>
         </div>
       </header>
