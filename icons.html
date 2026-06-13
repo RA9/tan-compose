@@ -173,6 +173,75 @@
         content: " ✓";
         color: var(--tc-color-accent, #a16939);
       }
+      .icon-tile.selected {
+        border-color: var(--tc-color-accent, #a16939);
+        box-shadow: 0 0 0 1px var(--tc-color-accent, #a16939) inset;
+      }
+
+      /* Copy panel — sticky hub with name / tag / SVG copy buttons. */
+      .icon-detail {
+        position: sticky;
+        top: 64px;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--tc-color-surface, #ffffff);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-lg, 12px);
+        padding: 14px 16px;
+        margin: 16px 0;
+        box-shadow: 0 8px 24px -14px rgba(20, 23, 31, 0.25);
+      }
+      .detail-preview {
+        display: grid;
+        place-items: center;
+        width: 64px;
+        height: 64px;
+        flex: 0 0 auto;
+        background: var(--tc-color-bg, #faf8f3);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 10px);
+        color: var(--tc-color-ink, #14171f);
+      }
+      .detail-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+      .detail-name {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.98rem;
+        font-weight: 600;
+        color: var(--tc-color-ink, #14171f);
+      }
+      .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .copy-btn {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 6px 12px;
+        background: var(--tc-color-bg, #faf8f3);
+        border: 1px solid var(--tc-color-rule, #ece5d3);
+        border-radius: var(--tc-radius-md, 8px);
+        color: var(--tc-color-ink-soft, #4a5061);
+        cursor: pointer;
+        transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+      }
+      .copy-btn:hover { border-color: var(--tc-color-accent, #a16939); color: var(--tc-color-ink, #14171f); }
+      .copy-btn:focus-visible { outline: 2px solid var(--tc-color-accent, #a16939); outline-offset: 2px; }
+      .copy-btn.copied {
+        background: var(--tc-color-accent-soft, #efe2cf);
+        border-color: var(--tc-color-accent-soft, #efe2cf);
+        color: var(--tc-color-accent-hover, #8a572d);
+      }
+      .detail-status {
+        font-family: var(--tc-font-mono, monospace);
+        font-size: 0.78rem;
+        color: var(--tc-color-ink-muted, #6b7280);
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+      @media (max-width: 600px) {
+        .icon-detail { position: static; flex-wrap: wrap; }
+        .detail-status { width: 100%; }
+      }
 
       .empty {
         padding: 28px;
@@ -278,6 +347,48 @@
         </div>
       </header>
 
+      <section class="demo" id="browse" style="border-top: none; padding-top: 24px;">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">browse</div>
+            <h2>Browse &amp; copy 98 icons</h2>
+            <p class="demo-lede">
+              Search, then pick an icon. Copy it three ways — the bare
+              <code>name</code>, a ready-to-paste <code>&lt;tc-icon&gt;</code>
+              tag, or the raw inline SVG.
+            </p>
+          </div>
+
+          <div class="icon-detail" id="icon-detail">
+            <div class="detail-preview">
+              <tc-icon id="detail-icon" name="check" size="40"></tc-icon>
+            </div>
+            <div class="detail-main">
+              <div class="detail-name" id="detail-name">check</div>
+              <div class="detail-actions">
+                <button type="button" class="copy-btn" data-format="name">Copy name</button>
+                <button type="button" class="copy-btn" data-format="tag">Copy &lt;tc-icon&gt;</button>
+                <button type="button" class="copy-btn" data-format="svg">Copy SVG</button>
+              </div>
+            </div>
+            <div class="detail-status" id="detail-status" role="status" aria-live="polite">
+              Pick an icon below
+            </div>
+          </div>
+
+          <div class="browse-toolbar">
+            <tc-input
+              id="icon-search"
+              placeholder="Search icons…"
+              aria-label="Search icons"
+            ></tc-input>
+            <span class="browse-count" id="icon-count">98 icons</span>
+          </div>
+
+          <div id="icon-results"></div>
+        </div>
+      </section>
+
       <section class="demo" id="basics">
         <div class="wrap">
           <div class="demo-head">
@@ -327,7 +438,7 @@
                 <td><code>name</code></td>
                 <td>—</td>
                 <td>
-                  One of 44 icon names. Unknown names render a small placeholder
+                  One of 98 icon names. Unknown names render a small placeholder
                   square with a <code>?</code> mark so missing icons are visible.
                 </td>
               </tr>
@@ -507,29 +618,6 @@
         </div>
       </section>
 
-      <section class="demo" id="browse">
-        <div class="wrap">
-          <div class="demo-head">
-            <div class="demo-tag">browse</div>
-            <h2>Browse all 98 icons</h2>
-            <p class="demo-lede">
-              Click any tile to copy its name to your clipboard.
-            </p>
-          </div>
-
-          <div class="browse-toolbar">
-            <tc-input
-              id="icon-search"
-              placeholder="Search icons…"
-              aria-label="Search icons"
-            ></tc-input>
-            <span class="browse-count" id="icon-count">98 icons</span>
-          </div>
-
-          <div id="icon-results"></div>
-        </div>
-      </section>
-
       <section class="demo" id="license">
         <div class="wrap">
           <tc-callout variant="info" title="Built on Lucide (ISC)">
@@ -655,8 +743,12 @@
       const search = document.getElementById("icon-search");
       const results = document.getElementById("icon-results");
       const count = document.getElementById("icon-count");
+      const detailIcon = document.getElementById("detail-icon");
+      const detailName = document.getElementById("detail-name");
+      const detailStatus = document.getElementById("detail-status");
 
       let query = "";
+      let selected = "check";
 
       function render() {
         const q = query.trim().toLowerCase();
@@ -668,7 +760,7 @@
           const tiles = matches
             .map(
               (n) => `
-                <button class="icon-tile" data-name="${n}" aria-label="Copy ${n}">
+                <button class="icon-tile${n === selected ? " selected" : ""}" data-name="${n}" aria-label="Select ${n}" aria-pressed="${n === selected}">
                   <tc-icon name="${n}" size="24"></tc-icon>
                   <span class="icon-name">${n}</span>
                 </button>
@@ -710,27 +802,80 @@
         render();
       }
 
+      function select(name) {
+        selected = name;
+        detailIcon.setAttribute("name", name);
+        detailName.textContent = name;
+        // reflect the selection ring without a full re-render
+        results.querySelectorAll(".icon-tile").forEach((t) => {
+          const on = t.dataset.name === name;
+          t.classList.toggle("selected", on);
+          t.setAttribute("aria-pressed", String(on));
+        });
+      }
+
+      // Build the copy payload for a given format. SVG is read live from the
+      // selected icon's shadow root (open), normalised to a 24×24 box.
+      function payload(format, name) {
+        if (format === "name") return name;
+        if (format === "tag") return `<tc-icon name="${name}"></tc-icon>`;
+        // svg
+        const svg = detailIcon.shadowRoot &&
+          detailIcon.shadowRoot.querySelector("svg");
+        if (!svg) return `<tc-icon name="${name}"></tc-icon>`;
+        const clone = svg.cloneNode(true);
+        clone.setAttribute("width", "24");
+        clone.setAttribute("height", "24");
+        return clone.outerHTML;
+      }
+
+      const LABELS = { name: "name", tag: "<tc-icon> tag", svg: "SVG" };
+
+      async function copy(text, label, btn) {
+        try {
+          await navigator.clipboard.writeText(text);
+          detailStatus.textContent = `Copied ${label}`;
+        } catch {
+          detailStatus.textContent = "Copy blocked by the browser";
+        }
+        if (btn) {
+          const prev = btn.textContent;
+          btn.classList.add("copied");
+          btn.textContent = "Copied ✓";
+          setTimeout(() => {
+            btn.classList.remove("copied");
+            btn.textContent = prev;
+          }, 1100);
+        }
+      }
+
       // tc-input dispatches a custom "tc-input" event; the native "input"
       // event also bubbles up — listen for both so we don't miss either.
       search.addEventListener("tc-input", (e) => onSearch(e.detail?.value));
       search.addEventListener("input", (e) => onSearch(e.target?.value));
 
-      // Click-to-copy on tiles. Delegated so we don't rewire on every render.
-      results.addEventListener("click", async (e) => {
+      // Clicking a tile selects it AND copies the ready-to-paste tag (the
+      // common case). The panel buttons cover name / SVG. Delegated.
+      results.addEventListener("click", (e) => {
         const tile = e.target.closest(".icon-tile");
-        if (!tile) return;
+        if (!tile || !tile.dataset.name) return;
         const name = tile.dataset.name;
-        if (!name) return;
-        try {
-          await navigator.clipboard.writeText(name);
-        } catch {
-          // Clipboard API blocked — still flash the visual cue.
-        }
+        select(name);
+        copy(payload("tag", name), LABELS.tag);
         tile.classList.add("copied");
         setTimeout(() => tile.classList.remove("copied"), 900);
       });
 
+      // Panel copy buttons — name / tag / svg.
+      document.getElementById("icon-detail").addEventListener("click", (e) => {
+        const btn = e.target.closest(".copy-btn");
+        if (!btn) return;
+        const format = btn.dataset.format;
+        copy(payload(format, selected), LABELS[format], btn);
+      });
+
       render();
+      select("check");
     </script>
   </body>
 </html>
