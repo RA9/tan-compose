@@ -5,11 +5,43 @@ import type {
   ListConfig,
   PropDef,
 } from "./types.ts";
+import { isSafeHtml } from "./html.ts";
 
 const componentRegistry = new Map<string, CustomElementConstructor>();
 
 const TAG_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const EVENT_KEY_PATTERN = /^(\S+)(?:\s+(.+))?$/;
+
+/** Events that don't bubble — delegated in the capture phase so they still fire. */
+const NON_BUBBLING_EVENTS = new Set([
+  "focus",
+  "blur",
+  "mouseenter",
+  "mouseleave",
+  "pointerenter",
+  "pointerleave",
+  "load",
+  "error",
+  "scroll",
+]);
+
+/** Re-render budget per synchronous turn — guards against afterRender→setState loops. */
+const RENDER_LOOP_LIMIT = 50;
+
+/** camelCase → kebab-case for attribute names (`pageSize` → `page-size`). */
+function kebabCase(s: string): string {
+  return s.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+}
+
+/** Resolve a string-or-SafeHtml template value to a raw HTML string. */
+function templateToHtml(value: string | { value: string }): string {
+  return isSafeHtml(value) ? value.value : (value as string);
+}
+
+/** Escape a value for safe embedding inside a `[attr="…"]` selector. */
+function cssAttrEscape(s: string): string {
+  return s.replace(/(["\\])/g, "\\$1");
+}
 
 type KeyedItem = {
   element: HTMLElement;
@@ -22,6 +54,8 @@ type ListSlot = {
 };
 
 interface FocusSnapshot {
+  id: string | null;
+  name: string | null;
   path: { tag: string; idx: number }[];
   selectionStart: number | null;
   selectionEnd: number | null;
@@ -50,7 +84,13 @@ interface HostElement extends HTMLElement {
  *   prop set / setState / observed attribute change → render
  *   disconnectedCallback → unmount → cleanup
  */
-export function build(tagName: string, description: DescribeOptions): string {
+export function build<
+  P = Record<string, unknown>,
+  S = Record<string, unknown>,
+>(tagName: string, descriptionInput: DescribeOptions<P, S>): string {
+  // Internally we work with the default (untyped) shape — the generics exist
+  // purely to type the author-facing template/event/hook contexts.
+  const description = descriptionInput as unknown as DescribeOptions;
   if (typeof tagName !== "string" || !TAG_NAME_PATTERN.test(tagName)) {
     throw new TypeError(
       `build(): "${tagName}" is not a valid custom element name (must be lowercase and contain a hyphen).`,
@@ -73,13 +113,25 @@ export function build(tagName: string, description: DescribeOptions): string {
     return tagName;
   }
 
-  const observed = Array.from(
-    new Set([
-      ...(description.observedAttributes ?? []),
-      ...Object.keys(description.props ?? {}),
-    ]),
-  );
   const propDefs: Record<string, PropDef> = description.props ?? {};
+
+  // Map every observable attribute name (lowercased, as the browser reports
+  // it) back to its prop. A camelCase prop like `pageSize` is reachable via
+  // both `page-size` (kebab) and `pagesize` (lowercased) — so dynamic
+  // `setAttribute` reacts, not just the initial read.
+  const attrToProp = new Map<string, string>();
+  const reflectAttrName = new Map<string, string>();
+  const observedSet = new Set<string>(description.observedAttributes ?? []);
+  for (const name of Object.keys(propDefs)) {
+    const kebab = kebabCase(name);
+    attrToProp.set(kebab, name);
+    attrToProp.set(name.toLowerCase(), name);
+    observedSet.add(kebab);
+    observedSet.add(name.toLowerCase());
+    reflectAttrName.set(name, kebab);
+  }
+  const observed = Array.from(observedSet);
+
   const refsConfig: Record<string, string> = description.refs ?? {};
   const sharedSheets = buildSharedSheets(description);
 
@@ -98,11 +150,16 @@ export function build(tagName: string, description: DescribeOptions): string {
     private state = new Map<string, unknown>();
     private propValues = new Map<string, unknown>();
     private listSlots = new WeakMap<DescribeOptions, ListSlot>();
+    // Every slot ever created, so disconnect can flush cleanups for nested /
+    // dynamically-rendered lists that aren't in the static description tree.
+    private allSlots = new Set<ListSlot>();
     private currentRefs: Record<string, Element | null> = {};
     private container: HTMLElement;
     private ctx!: ComponentCtx;
     private rendering = false;
     private renderQueued = false;
+    private renderTick = 0;
+    private renderTickScheduled = false;
     public internals?: ElementInternals;
 
     constructor() {
@@ -142,7 +199,12 @@ export function build(tagName: string, description: DescribeOptions): string {
 
     private initProps(): void {
       for (const [name, def] of Object.entries(propDefs)) {
-        const attrValue = this.getAttribute(name);
+        // Prefer the kebab attribute (`page-size`); `getAttribute` is
+        // case-insensitive so passing the prop name also covers the
+        // all-lowercase form (`pagesize`).
+        const attrValue =
+          this.getAttribute(reflectAttrName.get(name) ?? name) ??
+            this.getAttribute(name);
         const initial = attrValue !== null
           ? coerceProp(attrValue, def.type)
           : def.default;
@@ -158,7 +220,14 @@ export function build(tagName: string, description: DescribeOptions): string {
             const prev = this.propValues.get(name);
             if (Object.is(prev, coerced)) return;
             this.propValues.set(name, coerced);
-            if (def.reflect) reflectAttribute(this, name, coerced, def.type);
+            if (def.reflect) {
+              reflectAttribute(
+                this,
+                reflectAttrName.get(name) ?? name,
+                coerced,
+                def.type,
+              );
+            }
             this.maybeSyncFormValue(name, coerced);
             if (this.isMounted) this.scheduleRender();
           },
@@ -227,15 +296,14 @@ export function build(tagName: string, description: DescribeOptions): string {
     }
 
     private flushListSlots(): void {
-      // listSlots is a WeakMap, but its entries can hold cleanups we want to
-      // flush deterministically on disconnect. Walk the description tree and
-      // run cleanups for any slot we find.
-      walkListNodes(description, (desc) => {
-        const slot = this.listSlots.get(desc);
-        if (!slot) return;
+      // Flush every slot we ever created — including nested lists produced by
+      // a parent list's render(), which aren't reachable from the static
+      // description tree. Walking `allSlots` catches them all.
+      for (const slot of this.allSlots) {
         for (const item of slot.cache.values()) runCleanups(item.cleanups);
         slot.cache.clear();
-      });
+      }
+      this.allSlots.clear();
     }
 
     attributeChangedCallback(
@@ -244,14 +312,17 @@ export function build(tagName: string, description: DescribeOptions): string {
       newValue: string | null,
     ): void {
       if (oldValue === newValue) return;
-      if (Object.prototype.hasOwnProperty.call(propDefs, name)) {
-        const def = propDefs[name];
+      // `name` arrives lowercased from the browser; map it back to its prop.
+      const propName = attrToProp.get(name);
+      if (propName) {
+        const def = propDefs[propName];
         const coerced = newValue !== null
           ? coerceProp(newValue, def.type)
           : def.default;
-        const prev = this.propValues.get(name);
+        const prev = this.propValues.get(propName);
         if (!Object.is(prev, coerced)) {
-          this.propValues.set(name, coerced);
+          this.propValues.set(propName, coerced);
+          this.maybeSyncFormValue(propName, coerced);
           if (this.isMounted) this.scheduleRender();
         }
         return;
@@ -298,11 +369,34 @@ export function build(tagName: string, description: DescribeOptions): string {
       if (!slot) {
         slot = { cache: new Map() };
         this.listSlots.set(desc, slot);
+        this.allSlots.add(slot);
       }
       return slot;
     }
 
     private renderInternal(): void {
+      // Loop guard: if renders cascade past the budget within a single
+      // synchronous turn (e.g. afterRender repeatedly calling setState),
+      // abort rather than hang the page. The counter resets each microtask,
+      // so legitimate renders across separate turns are never penalised.
+      if (++this.renderTick > RENDER_LOOP_LIMIT) {
+        console.error(
+          `[tan-compose] <${tagName}> exceeded ${RENDER_LOOP_LIMIT} renders in one turn — aborting to break a render loop (check afterRender / setState).`,
+        );
+        this.renderTick = 0;
+        this.renderQueued = false;
+        return;
+      }
+      if (!this.renderTickScheduled) {
+        this.renderTickScheduled = true;
+        const reset = () => {
+          this.renderTick = 0;
+          this.renderTickScheduled = false;
+        };
+        if (typeof queueMicrotask === "function") queueMicrotask(reset);
+        else Promise.resolve().then(reset);
+      }
+
       this.rendering = true;
       // Snapshot the focused element before we tear the shadow content
       // down. After the new content is in place we walk the same path
@@ -319,12 +413,13 @@ export function build(tagName: string, description: DescribeOptions): string {
           ctx: this.ctx,
         };
 
-        // Top-level template (string or function) — applied to .container.
+        // Top-level template (string or SafeHtml or function) → .container.
         if (description.template !== undefined) {
-          const html = typeof description.template === "function"
+          const raw = typeof description.template === "function"
             ? description.template(this.ctx)
             : description.template;
-          if (html) this.container.innerHTML = html;
+          const htmlStr = templateToHtml(raw);
+          if (htmlStr) this.container.innerHTML = htmlStr;
         }
 
         if (description.children) {
@@ -400,26 +495,49 @@ export function build(tagName: string, description: DescribeOptions): string {
           // some input types (e.g. email, number) disallow selection.
         }
       }
-      return { path, selectionStart, selectionEnd };
+      return {
+        id: active.id || null,
+        name: active.getAttribute("name"),
+        path,
+        selectionStart,
+        selectionEnd,
+      };
     }
 
     private restoreFocusInShadow(snap: FocusSnapshot): void {
       const root = this.shadowRoot;
       if (!root) return;
-      let cursor: ParentNode = root;
-      for (const step of snap.path) {
-        const children = Array.from((cursor as Element).children ?? []);
-        // For the shadow root itself, fall back to all children via
-        // root.children which ShadowRoot exposes.
-        const all = children.length > 0
-          ? children
-          : Array.from((cursor as unknown as ShadowRoot).children ?? []);
-        const candidates = all.filter((c) => c.tagName === step.tag);
-        const target = candidates[step.idx];
-        if (!target) return;
-        cursor = target;
+
+      // Prefer stable identity (id, then name) — survives structural changes
+      // that would throw off a positional walk. Fall back to the path.
+      let el: HTMLElement | null = null;
+      if (snap.id) {
+        el = (root.getElementById?.(snap.id) ??
+          root.querySelector(`[id="${cssAttrEscape(snap.id)}"]`)) as
+            | HTMLElement
+            | null;
       }
-      const el = cursor as unknown as HTMLElement;
+      if (!el && snap.name) {
+        el = root.querySelector(
+          `[name="${cssAttrEscape(snap.name)}"]`,
+        ) as HTMLElement | null;
+      }
+      if (!el) {
+        let cursor: ParentNode = root;
+        for (const step of snap.path) {
+          const children = Array.from((cursor as Element).children ?? []);
+          // For the shadow root itself, fall back to all children via
+          // root.children which ShadowRoot exposes.
+          const all = children.length > 0
+            ? children
+            : Array.from((cursor as unknown as ShadowRoot).children ?? []);
+          const candidates = all.filter((c) => c.tagName === step.tag);
+          const target = candidates[step.idx];
+          if (!target) return;
+          cursor = target;
+        }
+        el = cursor as unknown as HTMLElement;
+      }
       if (!el || typeof el.focus !== "function") return;
       // Don't steal focus if it's already on the right element (rare,
       // but possible if something refocused between replaceChildren and
@@ -537,9 +655,12 @@ export function build(tagName: string, description: DescribeOptions): string {
             }
           }
         };
-        this.shadowRoot!.addEventListener(type, listener);
+        // Non-bubbling events (focus/blur/mouseenter/…) only reach a
+        // delegated listener in the capture phase.
+        const capture = NON_BUBBLING_EVENTS.has(type);
+        this.shadowRoot!.addEventListener(type, listener, capture);
         this.mountCleanups.push(() =>
-          this.shadowRoot?.removeEventListener(type, listener)
+          this.shadowRoot?.removeEventListener(type, listener, capture)
         );
       }
     }
@@ -585,10 +706,11 @@ function buildElement(
   }
 
   if (description.template !== undefined) {
-    const html = typeof description.template === "function"
+    const raw = typeof description.template === "function"
       ? description.template(scope.ctx)
       : description.template;
-    if (html) element.innerHTML = html;
+    const htmlStr = templateToHtml(raw);
+    if (htmlStr) element.innerHTML = htmlStr;
   }
 
   if (description.children) {
@@ -663,17 +785,6 @@ function appendKeyedList(
   slot.cache = newCache;
 }
 
-/** Walk a description tree and call `visit` with every node that has a `for:`. */
-function walkListNodes(
-  desc: DescribeOptions,
-  visit: (d: DescribeOptions) => void,
-): void {
-  if (desc.for) visit(desc);
-  if (desc.children) {
-    for (const child of desc.children) walkListNodes(child, visit);
-  }
-}
-
 function createCtx(
   host: HostElement,
   propValues: Map<string, unknown>,
@@ -711,19 +822,22 @@ function createCtx(
  */
 type SharedSheets =
   | { kind: "adopted"; sheets: CSSStyleSheet[] }
-  | { kind: "fallback"; theme?: string; styles?: string };
+  | { kind: "fallback"; cssList: string[] };
 
 function buildSharedSheets(description: DescribeOptions): SharedSheets {
-  const themeCss = description.theme
-    ? buildThemeCss(description.theme)
-    : undefined;
-  const stylesCss = description.styles
-    ? buildContainerCss(description.styles)
-    : undefined;
-
-  if (!themeCss && !stylesCss) {
-    return { kind: "adopted", sheets: [] };
+  // Ordered so theme vars come first, then the component stylesheet(s),
+  // then the `.container` rules from `styles` (which may fine-tune layout).
+  const cssList: string[] = [];
+  if (description.theme) cssList.push(buildThemeCss(description.theme));
+  if (description.stylesheet) {
+    const sheets = Array.isArray(description.stylesheet)
+      ? description.stylesheet
+      : [description.stylesheet];
+    for (const css of sheets) if (css) cssList.push(css);
   }
+  if (description.styles) cssList.push(buildContainerCss(description.styles));
+
+  if (cssList.length === 0) return { kind: "adopted", sheets: [] };
 
   const supportsConstructable = typeof CSSStyleSheet !== "undefined" &&
     typeof (CSSStyleSheet.prototype as unknown as {
@@ -732,20 +846,15 @@ function buildSharedSheets(description: DescribeOptions): SharedSheets {
 
   if (supportsConstructable) {
     const sheets: CSSStyleSheet[] = [];
-    if (themeCss) {
+    for (const css of cssList) {
       const sheet = new CSSStyleSheet();
-      sheet.replaceSync(themeCss);
-      sheets.push(sheet);
-    }
-    if (stylesCss) {
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(stylesCss);
+      sheet.replaceSync(css);
       sheets.push(sheet);
     }
     return { kind: "adopted", sheets };
   }
 
-  return { kind: "fallback", theme: themeCss, styles: stylesCss };
+  return { kind: "fallback", cssList };
 }
 
 function applySharedSheets(shadow: ShadowRoot, shared: SharedSheets): void {
@@ -761,14 +870,9 @@ function applySharedSheets(shadow: ShadowRoot, shared: SharedSheets): void {
     }
     return;
   }
-  if (shared.theme) {
+  for (const css of shared.cssList) {
     const el = document.createElement("style");
-    el.textContent = shared.theme;
-    shadow.appendChild(el);
-  }
-  if (shared.styles) {
-    const el = document.createElement("style");
-    el.textContent = shared.styles;
+    el.textContent = css;
     shadow.appendChild(el);
   }
 }

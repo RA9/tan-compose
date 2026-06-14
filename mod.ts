@@ -4,6 +4,17 @@ export {
   getRegisteredComponents,
   isComponentRegistered,
 } from "./build.ts";
+export {
+  classMap,
+  escapeHtml,
+  html,
+  isSafeHtml,
+  map,
+  SafeHtml,
+  styleMap,
+  unsafe,
+  when,
+} from "./html.ts";
 export type {
   ComponentCtx,
   DescribeOptions,

@@ -10,7 +10,7 @@
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
     "test:cov": "deno test --allow-read --allow-env --allow-net --allow-write --coverage=coverage && deno coverage coverage",
-    "check": "deno check mod.ts build.ts describe.ts types.ts",
+    "check": "deno check mod.ts build.ts describe.ts types.ts html.ts",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",

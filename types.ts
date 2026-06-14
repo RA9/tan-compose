@@ -1,5 +1,7 @@
 // Type definitions for Tan Compose component descriptions.
 
+import type { SafeHtml } from "./html.ts";
+
 export type Theme = Record<string, string>;
 export type Styles = Record<string, string>;
 
@@ -20,26 +22,40 @@ export interface PropDef<T = unknown> {
   reflect?: boolean;
 }
 
-/** The render context passed to template functions, event handlers, and list/condition predicates. */
-export interface ComponentCtx {
+/**
+ * The render context passed to template functions, event handlers, and
+ * list/condition predicates. Optionally typed: `describe<MyProps, MyState>(…)`
+ * narrows `props` and `state`. Defaults keep untyped usage working unchanged.
+ */
+export interface ComponentCtx<
+  P = Record<string, unknown>,
+  S = Record<string, unknown>,
+> {
   /** Current property values. Reading is fine; mutating won't trigger a render — use the setter on `host` instead. */
-  props: Readonly<Record<string, unknown>>;
+  props: Readonly<P>;
   /** Internal state map. */
-  state: Readonly<Record<string, unknown>>;
+  state: Readonly<S>;
   /** The host element. Use `host.<propName> = ...` or `host.setState(k, v)` to trigger updates. */
   host: HTMLElement;
   /** Refs populated from the `refs` map after every render. Selectors that match nothing return `null`. */
   refs: Readonly<Record<string, Element | null>>;
   /** Sets an internal state value and re-renders if the value changed. */
-  setState: (key: string, value: unknown) => void;
+  setState: (key: keyof S & string, value: unknown) => void;
   /** Reads an internal state value. */
-  getState: <T = unknown>(key: string) => T | undefined;
+  getState: <T = unknown>(key: keyof S & string) => T | undefined;
   /** Dispatches a bubbling, composed CustomEvent from the host. */
   emit: (eventName: string, detail?: unknown) => void;
 }
 
-/** Function form of `template`. Re-invoked on every render. Must return safe HTML. */
-export type TemplateFn = (ctx: ComponentCtx) => string;
+/**
+ * Function form of `template`. Re-invoked on every render. Return a plain
+ * string (you escape interpolations yourself) or a `SafeHtml` from the `html`
+ * tagged template (escaping handled for you).
+ */
+export type TemplateFn<
+  P = Record<string, unknown>,
+  S = Record<string, unknown>,
+> = (ctx: ComponentCtx<P, S>) => string | SafeHtml;
 
 /** Configuration for keyed list rendering on a child describe. */
 export interface ListConfig<T = unknown> {
@@ -55,19 +71,35 @@ export interface ListConfig<T = unknown> {
  * Map of delegated event handlers.
  * Keys are `"<event-type> <css-selector>"` strings — e.g. `"click .row-delete"`.
  * The selector matches against the event target relative to the shadow container.
+ * Non-bubbling events (`focus`, `blur`, `mouseenter`, `mouseleave`, …) are
+ * automatically attached in the capture phase so delegation still works.
  */
-export type EventDelegateMap = Record<
+export type EventDelegateMap<
+  P = Record<string, unknown>,
+  S = Record<string, unknown>,
+> = Record<
   string,
-  (event: Event, ctx: ComponentCtx) => void
+  (event: Event, ctx: ComponentCtx<P, S>) => void
 >;
 
-export interface DescribeOptions {
+export interface DescribeOptions<
+  P = Record<string, unknown>,
+  S = Record<string, unknown>,
+> {
   /** HTML tag for child elements. Ignored for the host element (use `build(tagName, …)`). Default: 'div'. */
   tag?: string;
   /** CSS variables exposed on the host (`:host` for the registered component, inline for children). */
   theme?: Theme;
   /** Inline styles. Applied to a `.container` rule on the host, inline on children. */
   styles?: Styles;
+  /**
+   * A full component stylesheet (or several), installed once as a shared
+   * adopted stylesheet on the shadow root — parsed a single time and reused
+   * across every instance. Prefer this over putting a `<style>` block in
+   * `template`, which is re-parsed on every render. Falls back to a `<style>`
+   * element when constructable stylesheets aren't available.
+   */
+  stylesheet?: string | string[];
   /** className applied to the rendered element. */
   className?: string;
   /** HTML attributes set on construction (children) or initial host attrs. */
@@ -75,9 +107,10 @@ export interface DescribeOptions {
   /**
    * Inner HTML rendered into the element. May be a string (static) or a function that receives the
    * render context and returns an HTML string (re-evaluated on every render).
-   * WARNING: not sanitized — never interpolate untrusted user input.
+   * A plain string is NOT sanitized — escape untrusted input yourself, or use
+   * the `html` tagged template (returns `SafeHtml`), which escapes for you.
    */
-  template?: string | TemplateFn;
+  template?: string | SafeHtml | TemplateFn<P, S>;
   /** Static nested children. Cannot be combined with `for`. */
   children?: DescribeOptions[];
   /** Click handler attached on connect. */
@@ -86,7 +119,7 @@ export interface DescribeOptions {
    * Map of delegated event handlers attached at the shadow-container level.
    * Keys are `"<event-type> <css-selector>"`. Selector-less keys (e.g. `"click"`) match the host.
    */
-  events?: EventDelegateMap;
+  events?: EventDelegateMap<P, S>;
   /** Custom-event listeners attached on connect, removed on disconnect. */
   emit?: EventEmitter[];
   /** Hook fired before the element is rendered for the first time. */
@@ -148,7 +181,7 @@ export interface DescribeOptions {
    * Conditional rendering on a child describe. When the predicate returns false the
    * subtree is omitted from output. (Only valid on children, not on the host.)
    */
-  if?: (ctx: ComponentCtx) => boolean;
+  if?: (ctx: ComponentCtx<P, S>) => boolean;
   /**
    * Keyed list rendering on a child describe. Replaces `children` for that node.
    * Reuses DOM nodes across renders by `key` and reorders in place.

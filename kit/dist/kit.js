@@ -56,6 +56,14 @@ function describe(options) {
       }
     }
   }
+  if (options.stylesheet !== void 0) {
+    const ok = typeof options.stylesheet === "string" || Array.isArray(options.stylesheet) && options.stylesheet.every((s) => typeof s === "string");
+    if (!ok) {
+      throw new TypeError(
+        "describe(): `stylesheet` must be a string or array of strings"
+      );
+    }
+  }
   if (options.formAssociated !== void 0 && typeof options.formAssociated !== "boolean") {
     throw new TypeError("describe(): `formAssociated` must be a boolean");
   }
@@ -104,11 +112,50 @@ function describe(options) {
   return { ...options };
 }
 
+// ../html.ts
+var SAFE = Symbol.for("tan-compose.SafeHtml");
+var SafeHtml = class {
+  value;
+  // Branded so isSafeHtml works across module/realm boundaries via Symbol.for.
+  [SAFE] = true;
+  constructor(value) {
+    this.value = value;
+  }
+  toString() {
+    return this.value;
+  }
+};
+function isSafeHtml(v) {
+  return typeof v === "object" && v !== null && v[SAFE] === true;
+}
+
 // ../build.ts
 var componentRegistry = /* @__PURE__ */ new Map();
 var TAG_NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 var EVENT_KEY_PATTERN = /^(\S+)(?:\s+(.+))?$/;
-function build(tagName39, description) {
+var NON_BUBBLING_EVENTS = /* @__PURE__ */ new Set([
+  "focus",
+  "blur",
+  "mouseenter",
+  "mouseleave",
+  "pointerenter",
+  "pointerleave",
+  "load",
+  "error",
+  "scroll"
+]);
+var RENDER_LOOP_LIMIT = 50;
+function kebabCase(s) {
+  return s.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+}
+function templateToHtml(value) {
+  return isSafeHtml(value) ? value.value : value;
+}
+function cssAttrEscape(s) {
+  return s.replace(/(["\\])/g, "\\$1");
+}
+function build(tagName39, descriptionInput) {
+  const description = descriptionInput;
   if (typeof tagName39 !== "string" || !TAG_NAME_PATTERN.test(tagName39)) {
     throw new TypeError(
       `build(): "${tagName39}" is not a valid custom element name (must be lowercase and contain a hyphen).`
@@ -126,13 +173,19 @@ function build(tagName39, description) {
     );
     return tagName39;
   }
-  const observed = Array.from(
-    /* @__PURE__ */ new Set([
-      ...description.observedAttributes ?? [],
-      ...Object.keys(description.props ?? {})
-    ])
-  );
   const propDefs = description.props ?? {};
+  const attrToProp = /* @__PURE__ */ new Map();
+  const reflectAttrName = /* @__PURE__ */ new Map();
+  const observedSet = new Set(description.observedAttributes ?? []);
+  for (const name of Object.keys(propDefs)) {
+    const kebab = kebabCase(name);
+    attrToProp.set(kebab, name);
+    attrToProp.set(name.toLowerCase(), name);
+    observedSet.add(kebab);
+    observedSet.add(name.toLowerCase());
+    reflectAttrName.set(name, kebab);
+  }
+  const observed = Array.from(observedSet);
   const refsConfig = description.refs ?? {};
   const sharedSheets = buildSharedSheets(description);
   class CustomComponent extends HTMLElement {
@@ -148,11 +201,16 @@ function build(tagName39, description) {
     state = /* @__PURE__ */ new Map();
     propValues = /* @__PURE__ */ new Map();
     listSlots = /* @__PURE__ */ new WeakMap();
+    // Every slot ever created, so disconnect can flush cleanups for nested /
+    // dynamically-rendered lists that aren't in the static description tree.
+    allSlots = /* @__PURE__ */ new Set();
     currentRefs = {};
     container;
     ctx;
     rendering = false;
     renderQueued = false;
+    renderTick = 0;
+    renderTickScheduled = false;
     internals;
     constructor() {
       super();
@@ -180,7 +238,7 @@ function build(tagName39, description) {
     }
     initProps() {
       for (const [name, def] of Object.entries(propDefs)) {
-        const attrValue = this.getAttribute(name);
+        const attrValue = this.getAttribute(reflectAttrName.get(name) ?? name) ?? this.getAttribute(name);
         const initial = attrValue !== null ? coerceProp(attrValue, def.type) : def.default;
         this.propValues.set(name, initial);
         this.maybeSyncFormValue(name, initial);
@@ -194,8 +252,14 @@ function build(tagName39, description) {
             if (Object.is(prev, coerced))
               return;
             this.propValues.set(name, coerced);
-            if (def.reflect)
-              reflectAttribute(this, name, coerced, def.type);
+            if (def.reflect) {
+              reflectAttribute(
+                this,
+                reflectAttrName.get(name) ?? name,
+                coerced,
+                def.type
+              );
+            }
             this.maybeSyncFormValue(name, coerced);
             if (this.isMounted)
               this.scheduleRender();
@@ -257,24 +321,24 @@ function build(tagName39, description) {
       this.isMounted = false;
     }
     flushListSlots() {
-      walkListNodes(description, (desc) => {
-        const slot = this.listSlots.get(desc);
-        if (!slot)
-          return;
+      for (const slot of this.allSlots) {
         for (const item of slot.cache.values())
           runCleanups(item.cleanups);
         slot.cache.clear();
-      });
+      }
+      this.allSlots.clear();
     }
     attributeChangedCallback(name, oldValue, newValue) {
       if (oldValue === newValue)
         return;
-      if (Object.prototype.hasOwnProperty.call(propDefs, name)) {
-        const def = propDefs[name];
+      const propName = attrToProp.get(name);
+      if (propName) {
+        const def = propDefs[propName];
         const coerced = newValue !== null ? coerceProp(newValue, def.type) : def.default;
-        const prev = this.propValues.get(name);
+        const prev = this.propValues.get(propName);
         if (!Object.is(prev, coerced)) {
-          this.propValues.set(name, coerced);
+          this.propValues.set(propName, coerced);
+          this.maybeSyncFormValue(propName, coerced);
           if (this.isMounted)
             this.scheduleRender();
         }
@@ -319,10 +383,30 @@ function build(tagName39, description) {
       if (!slot) {
         slot = { cache: /* @__PURE__ */ new Map() };
         this.listSlots.set(desc, slot);
+        this.allSlots.add(slot);
       }
       return slot;
     }
     renderInternal() {
+      if (++this.renderTick > RENDER_LOOP_LIMIT) {
+        console.error(
+          `[tan-compose] <${tagName39}> exceeded ${RENDER_LOOP_LIMIT} renders in one turn \u2014 aborting to break a render loop (check afterRender / setState).`
+        );
+        this.renderTick = 0;
+        this.renderQueued = false;
+        return;
+      }
+      if (!this.renderTickScheduled) {
+        this.renderTickScheduled = true;
+        const reset = () => {
+          this.renderTick = 0;
+          this.renderTickScheduled = false;
+        };
+        if (typeof queueMicrotask === "function")
+          queueMicrotask(reset);
+        else
+          Promise.resolve().then(reset);
+      }
       this.rendering = true;
       const focusSnapshot = this.captureFocusInShadow();
       try {
@@ -334,9 +418,10 @@ function build(tagName39, description) {
           ctx: this.ctx
         };
         if (description.template !== void 0) {
-          const html = typeof description.template === "function" ? description.template(this.ctx) : description.template;
-          if (html)
-            this.container.innerHTML = html;
+          const raw = typeof description.template === "function" ? description.template(this.ctx) : description.template;
+          const htmlStr = templateToHtml(raw);
+          if (htmlStr)
+            this.container.innerHTML = htmlStr;
         }
         if (description.children) {
           for (const childDesc of description.children) {
@@ -400,23 +485,40 @@ function build(tagName39, description) {
         } catch {
         }
       }
-      return { path, selectionStart, selectionEnd };
+      return {
+        id: active.id || null,
+        name: active.getAttribute("name"),
+        path,
+        selectionStart,
+        selectionEnd
+      };
     }
     restoreFocusInShadow(snap) {
       const root = this.shadowRoot;
       if (!root)
         return;
-      let cursor = root;
-      for (const step of snap.path) {
-        const children = Array.from(cursor.children ?? []);
-        const all = children.length > 0 ? children : Array.from(cursor.children ?? []);
-        const candidates = all.filter((c) => c.tagName === step.tag);
-        const target = candidates[step.idx];
-        if (!target)
-          return;
-        cursor = target;
+      let el = null;
+      if (snap.id) {
+        el = root.getElementById?.(snap.id) ?? root.querySelector(`[id="${cssAttrEscape(snap.id)}"]`);
       }
-      const el = cursor;
+      if (!el && snap.name) {
+        el = root.querySelector(
+          `[name="${cssAttrEscape(snap.name)}"]`
+        );
+      }
+      if (!el) {
+        let cursor = root;
+        for (const step of snap.path) {
+          const children = Array.from(cursor.children ?? []);
+          const all = children.length > 0 ? children : Array.from(cursor.children ?? []);
+          const candidates = all.filter((c) => c.tagName === step.tag);
+          const target = candidates[step.idx];
+          if (!target)
+            return;
+          cursor = target;
+        }
+        el = cursor;
+      }
       if (!el || typeof el.focus !== "function")
         return;
       if (root.activeElement === el)
@@ -509,9 +611,10 @@ function build(tagName39, description) {
             }
           }
         };
-        this.shadowRoot.addEventListener(type, listener);
+        const capture = NON_BUBBLING_EVENTS.has(type);
+        this.shadowRoot.addEventListener(type, listener, capture);
         this.mountCleanups.push(
-          () => this.shadowRoot?.removeEventListener(type, listener)
+          () => this.shadowRoot?.removeEventListener(type, listener, capture)
         );
       }
     }
@@ -537,9 +640,10 @@ function buildElement(description, scope, getSlot) {
     applyAttributes(element, description.attributes);
   }
   if (description.template !== void 0) {
-    const html = typeof description.template === "function" ? description.template(scope.ctx) : description.template;
-    if (html)
-      element.innerHTML = html;
+    const raw = typeof description.template === "function" ? description.template(scope.ctx) : description.template;
+    const htmlStr = templateToHtml(raw);
+    if (htmlStr)
+      element.innerHTML = htmlStr;
   }
   if (description.children) {
     for (const childDesc of description.children) {
@@ -599,14 +703,6 @@ function appendKeyedList(parent, description, scope, getSlot) {
   }
   slot.cache = newCache;
 }
-function walkListNodes(desc, visit) {
-  if (desc.for)
-    visit(desc);
-  if (desc.children) {
-    for (const child of desc.children)
-      walkListNodes(child, visit);
-  }
-}
 function createCtx(host, propValues, state, refsRef) {
   return {
     host,
@@ -631,27 +727,30 @@ function createCtx(host, propValues, state, refsRef) {
   };
 }
 function buildSharedSheets(description) {
-  const themeCss = description.theme ? buildThemeCss(description.theme) : void 0;
-  const stylesCss = description.styles ? buildContainerCss(description.styles) : void 0;
-  if (!themeCss && !stylesCss) {
-    return { kind: "adopted", sheets: [] };
+  const cssList = [];
+  if (description.theme)
+    cssList.push(buildThemeCss(description.theme));
+  if (description.stylesheet) {
+    const sheets = Array.isArray(description.stylesheet) ? description.stylesheet : [description.stylesheet];
+    for (const css of sheets)
+      if (css)
+        cssList.push(css);
   }
+  if (description.styles)
+    cssList.push(buildContainerCss(description.styles));
+  if (cssList.length === 0)
+    return { kind: "adopted", sheets: [] };
   const supportsConstructable = typeof CSSStyleSheet !== "undefined" && typeof CSSStyleSheet.prototype.replaceSync === "function";
   if (supportsConstructable) {
     const sheets = [];
-    if (themeCss) {
+    for (const css of cssList) {
       const sheet = new CSSStyleSheet();
-      sheet.replaceSync(themeCss);
-      sheets.push(sheet);
-    }
-    if (stylesCss) {
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(stylesCss);
+      sheet.replaceSync(css);
       sheets.push(sheet);
     }
     return { kind: "adopted", sheets };
   }
-  return { kind: "fallback", theme: themeCss, styles: stylesCss };
+  return { kind: "fallback", cssList };
 }
 function applySharedSheets(shadow, shared) {
   if (shared.kind === "adopted") {
@@ -663,14 +762,9 @@ function applySharedSheets(shadow, shared) {
     }
     return;
   }
-  if (shared.theme) {
+  for (const css of shared.cssList) {
     const el = document.createElement("style");
-    el.textContent = shared.theme;
-    shadow.appendChild(el);
-  }
-  if (shared.styles) {
-    const el = document.createElement("style");
-    el.textContent = shared.styles;
+    el.textContent = css;
     shadow.appendChild(el);
   }
 }
@@ -2692,34 +2786,30 @@ build(
             padding: var(--tc-card-padding-y) var(--tc-card-padding-x);
           }
 
+          /* Slot occupancy drives head/foot/media visibility. It's
+             detected in afterMount via slotchange and reflected as
+             has-header-slot / has-footer / has-media classes on .card.
+             We can't do this in pure CSS: :has(::slotted(*)) is invalid
+             (::slotted is a pseudo-element, which :has() rejects) and was
+             silently dropping the footer + media styling entirely. */
+
           /* Head padding when title/subtitle props are set OR something
-             is slotted into name="header". Rules split to dodge the
-             "one invalid selector drops the whole comma-list" trap \u2014
-             some browsers parse :has(::slotted(*)) inconsistently, and
-             a combined list would lose the simpler .has-header
-             selector along with it. */
-          .card.has-header .head {
+             is slotted into name="header". */
+          .card.has-header .head,
+          .card.has-header-slot .head {
             padding:
               var(--tc-card-padding-y)
               var(--tc-card-padding-x)
               var(--tc-card-gap);
           }
-          .card .head:has(::slotted(*)) {
-            padding:
-              var(--tc-card-padding-y)
-              var(--tc-card-padding-x)
-              var(--tc-card-gap);
-          }
-          .card.has-header .head + .body { padding-top: 0; }
-          .card .head:has(::slotted(*)) + .body { padding-top: 0; }
+          .card.has-header .head + .body,
+          .card.has-header-slot .head + .body { padding-top: 0; }
 
           /* Hide an empty head \u2014 neither props nor slotted content. */
-          .card:not(.has-header) .head:not(:has(::slotted(*))) {
-            display: none;
-          }
+          .card:not(.has-header):not(.has-header-slot) .head { display: none; }
 
           /* Foot only renders when there's slotted footer content. */
-          .card .foot:has(::slotted(*)) {
+          .card.has-footer .foot {
             padding:
               var(--tc-card-gap)
               var(--tc-card-padding-x)
@@ -2728,14 +2818,16 @@ build(
             display: flex;
             gap: var(--tc-space-2, 8px);
             justify-content: flex-end;
+            align-items: center;
           }
-          .card .foot:not(:has(::slotted(*))) { display: none; }
+          .card:not(.has-footer) .foot { display: none; }
 
-          /* Media is full-bleed (no horizontal padding) but we still
-             trim the body's top padding when media is shown so the
-             image sits flush against the border. */
-          .media:not(:has(::slotted(*))) { display: none; }
-          .media::slotted(*) {
+          /* Media is full-bleed (no horizontal padding). The slotted child
+             stretches to fill the card width and sits flush to the top
+             edge; the body's top padding is unchanged so content below
+             keeps breathing room. ::slotted lives on the slot element. */
+          .card:not(.has-media) .media { display: none; }
+          slot[name="media"]::slotted(*) {
             display: block;
             width: 100%;
             height: auto;
@@ -2807,6 +2899,41 @@ build(
           }
         </style>
       `;
+    },
+    afterMount() {
+      const host = this;
+      const root = host.shadowRoot;
+      if (!root)
+        return;
+      const card = root.querySelector(".card");
+      if (!card)
+        return;
+      const occupied = (name) => {
+        const sel = `slot[name="${name}"]`;
+        const slot = root.querySelector(sel);
+        if (!slot)
+          return false;
+        return slot.assignedNodes().some(
+          (n) => n.nodeType === Node.ELEMENT_NODE || n.nodeType === Node.TEXT_NODE && (n.textContent ?? "").trim() !== ""
+        );
+      };
+      const sync = () => {
+        card.classList.toggle("has-header-slot", occupied("header"));
+        card.classList.toggle("has-footer", occupied("footer"));
+        card.classList.toggle("has-media", occupied("media"));
+      };
+      sync();
+      const slots = Array.from(root.querySelectorAll("slot"));
+      for (const s of slots)
+        s.addEventListener("slotchange", sync);
+      host._cardCleanup = () => {
+        for (const s of slots)
+          s.removeEventListener("slotchange", sync);
+      };
+    },
+    unmount() {
+      const host = this;
+      host._cardCleanup?.();
     }
   })
 );
@@ -2965,7 +3092,7 @@ function gapValue(g) {
   return s;
 }
 function defaultSpace(n) {
-  const map = {
+  const map2 = {
     "1": "4px",
     "2": "8px",
     "3": "12px",
@@ -2975,7 +3102,7 @@ function defaultSpace(n) {
     "7": "48px",
     "8": "64px"
   };
-  return map[n] ?? "16px";
+  return map2[n] ?? "16px";
 }
 function esc17(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -3038,7 +3165,7 @@ function gapValue2(g) {
   return s;
 }
 function defaultSpace2(n) {
-  const map = {
+  const map2 = {
     "1": "4px",
     "2": "8px",
     "3": "12px",
@@ -3048,7 +3175,7 @@ function defaultSpace2(n) {
     "7": "48px",
     "8": "64px"
   };
-  return map[n] ?? "12px";
+  return map2[n] ?? "12px";
 }
 function esc18(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -3096,7 +3223,7 @@ function gapValue3(g) {
   return s;
 }
 function defaultSpace3(n) {
-  const map = {
+  const map2 = {
     "1": "4px",
     "2": "8px",
     "3": "12px",
@@ -3106,7 +3233,7 @@ function defaultSpace3(n) {
     "7": "48px",
     "8": "64px"
   };
-  return map[n] ?? "16px";
+  return map2[n] ?? "16px";
 }
 function esc19(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -4592,13 +4719,13 @@ function syncSlides(host) {
   const indicators = root.querySelector(".indicators");
   if (indicators) {
     const current = host.value;
-    let html = "";
+    let html2 = "";
     for (let i = 0; i < total; i++) {
-      html += `<button type="button" class="dot" role="tab" data-index="${i}"
+      html2 += `<button type="button" class="dot" role="tab" data-index="${i}"
         aria-current="${i === current ? "true" : "false"}"
         aria-label="Go to slide ${i + 1}"></button>`;
     }
-    indicators.innerHTML = html;
+    indicators.innerHTML = html2;
   }
   const slides = Array.from(host.children).filter(
     (el) => el instanceof HTMLElement && !el.hasAttribute("slot")
@@ -4702,41 +4829,19 @@ build(
         .root.bordered {
           border: 1px solid var(--tc-accordion-rule);
         }
+        /* Only the top-level slotted node (\`details\`) is reachable from the
+           shadow tree \u2014 \`::slotted()\` takes a compound selector, not a
+           combinator. Everything that targets \`summary\` (a descendant of the
+           slotted node) lives in the injected light-DOM sheet below; the
+           --tc-accordion-* vars inherit into the light DOM from :host. */
         ::slotted(details) {
           background: transparent;
         }
-        ::slotted(details + details) {
-          border-top: 1px solid var(--tc-accordion-rule);
-        }
-        ::slotted(details > summary) {
-          cursor: pointer;
-          list-style: none;
-          padding: 14px 18px;
-          font-weight: 600;
-          font-size: 0.96rem;
-          color: var(--tc-accordion-ink);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          transition: background 0.15s ease;
-        }
-        ::slotted(details > summary::-webkit-details-marker) {
-          display: none;
-        }
-        ::slotted(details > summary:hover) {
-          background: rgba(20, 23, 31, 0.03);
-        }
-        ::slotted(details > summary:focus-visible) {
-          outline: 2px solid var(--tc-accordion-accent);
-          outline-offset: -2px;
-        }
-        /* Caret pseudo via background-image isn't reachable for ::slotted
-           inner. Authors can override using their own summary content. */
       </style>
     `,
     afterMount() {
       const host = this;
+      injectLightStyles();
       const onToggle = (e) => {
         const t = e.target;
         if (!t || t.tagName !== "DETAILS")
@@ -4812,6 +4917,42 @@ build(
     }
   })
 );
+var LIGHT_STYLE_ID = "tc-accordion-light-styles";
+function injectLightStyles() {
+  if (typeof document === "undefined")
+    return;
+  if (document.getElementById(LIGHT_STYLE_ID))
+    return;
+  const style = document.createElement("style");
+  style.id = LIGHT_STYLE_ID;
+  style.textContent = `
+    ${TAG26} details { background: transparent; }
+    ${TAG26} details + details {
+      border-top: 1px solid var(--tc-accordion-rule, #ece5d3);
+    }
+    ${TAG26} details > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 18px;
+      font-weight: 600;
+      font-size: 0.96rem;
+      color: var(--tc-accordion-ink, #14171f);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background 0.15s ease;
+    }
+    ${TAG26} details > summary::-webkit-details-marker { display: none; }
+    ${TAG26} details > summary::marker { content: ""; }
+    ${TAG26} details > summary:hover { background: rgba(20, 23, 31, 0.03); }
+    ${TAG26} details > summary:focus-visible {
+      outline: 2px solid var(--tc-accordion-accent, #a16939);
+      outline-offset: -2px;
+    }
+  `;
+  (document.head || document.documentElement).appendChild(style);
+}
 function getDetails(host) {
   const out = [];
   for (const c of Array.from(host.children)) {
@@ -7801,12 +7942,12 @@ function installEditor(rawHost) {
     emitInput(host, surface);
   };
   const onBlur = () => {
-    const html = surface.innerHTML;
-    if (host._lastEmitted !== html) {
-      host._lastEmitted = html;
+    const html2 = surface.innerHTML;
+    if (host._lastEmitted !== html2) {
+      host._lastEmitted = html2;
       host.dispatchEvent(
         new CustomEvent("tc-change", {
-          detail: { html },
+          detail: { html: html2 },
           bubbles: true,
           composed: true
         })
@@ -7867,11 +8008,11 @@ function installEditor(rawHost) {
   };
 }
 function emitInput(host, surface) {
-  const html = surface.innerHTML;
-  host.value = html;
+  const html2 = surface.innerHTML;
+  host.value = html2;
   host.dispatchEvent(
     new CustomEvent("tc-input", {
-      detail: { html },
+      detail: { html: html2 },
       bubbles: true,
       composed: true
     })
@@ -8550,7 +8691,7 @@ build(
         mathRenderer: hostExt.mathRenderer,
         highlight: hostExt.highlight
       }));
-      const html = renderer(value);
+      const html2 = renderer(value);
       const panesCls = mode === "source" ? "panes source-only" : mode === "preview" ? "panes preview-only" : "panes";
       const styleVar = `--tc-md-min-height: ${escHtml(props.minHeight ?? "240px")};`;
       return `
@@ -8571,7 +8712,7 @@ build(
                 spellcheck="true"
               >${escHtml(value)}</textarea>
             </div>
-            <div class="preview">${html}</div>
+            <div class="preview">${html2}</div>
           </div>
         </div>
         ${MD_STYLE}
@@ -8612,11 +8753,11 @@ function installMarkdown(rawHost) {
   const sync = () => {
     const md = ta.value;
     host.value = md;
-    const html = renderFn(md);
-    preview.innerHTML = html;
+    const html2 = renderFn(md);
+    preview.innerHTML = html2;
     host.dispatchEvent(
       new CustomEvent("tc-input", {
-        detail: { markdown: md, html },
+        detail: { markdown: md, html: html2 },
         bubbles: true,
         composed: true
       })

@@ -3,15 +3,27 @@ import { test } from "./setup.ts";
 import { assert, assertEquals, assertThrows } from "@std/assert";
 import {
   build,
+  classMap,
   describe,
+  escapeHtml,
   getRegisteredComponents,
+  html,
   isComponentRegistered,
+  isSafeHtml,
+  map,
+  styleMap,
+  unsafe,
+  when,
 } from "../mod.ts";
 
 // Each test gets a unique tag because customElements.define is global.
 let counter = 0;
 const uniqueTag = (prefix = "tc") =>
   `${prefix}-${++counter}-${Date.now().toString(36)}`;
+
+// Collapse all whitespace — template literals carry insignificant indentation
+// that the formatter introduces, so tag-only output is compared whitespace-free.
+const nows = (s: string) => s.replace(/\s+/g, "");
 
 test("describe() returns a copy of options", () => {
   const input = { tag: "button", className: "x" };
@@ -810,4 +822,254 @@ test("formAssociated: formResetCallback fires when the owning form resets", () =
   form.reset();
   assert(resets >= 0); // sanity — will be 1 in real browsers, 0 in happy-dom
   document.body.removeChild(form);
+});
+
+// ---------------------------------------------------------------------------
+// html tagged template + helpers (auto-escaping)
+// ---------------------------------------------------------------------------
+
+test("html: escapes interpolated values by default", () => {
+  const out = html`
+    <div>${"<script>alert(1)</script>"}</div>
+  `;
+  assert(isSafeHtml(out));
+  assertEquals(
+    nows(out.value),
+    "<div>&lt;script&gt;alert(1)&lt;/script&gt;</div>",
+  );
+});
+
+test("html: nested html and unsafe() pass through un-re-escaped", () => {
+  const inner = html`
+    <b>${"<x>"}</b>
+  `;
+  const out = html`
+    <p>${inner}${unsafe("<hr>")}</p>
+  `;
+  assertEquals(nows(out.value), "<p><b>&lt;x&gt;</b><hr></p>");
+});
+
+test("html: null / undefined / false render nothing", () => {
+  assertEquals(
+    nows(
+      html`
+        a${null}b${undefined}c${false}d
+      `.value,
+    ),
+    "abcd",
+  );
+});
+
+test("escapeHtml escapes the five HTML-significant characters", () => {
+  assertEquals(
+    escapeHtml(`<a href="x" id='y'>&</a>`),
+    "&lt;a href=&quot;x&quot; id=&#39;y&#39;&gt;&amp;&lt;/a&gt;",
+  );
+});
+
+test("when: renders the matching branch as SafeHtml", () => {
+  assertEquals(
+    nows(
+      when(true, () =>
+        html`
+          <i>y</i>
+        `).value,
+    ),
+    "<i>y</i>",
+  );
+  assertEquals(
+    nows(
+      when(false, () =>
+        html`
+          <i>y</i>
+        `, () =>
+        html`
+          <i>n</i>
+        `).value,
+    ),
+    "<i>n</i>",
+  );
+  assertEquals(
+    nows(
+      when(false, () =>
+        html`
+          <i>y</i>
+        `).value,
+    ),
+    "",
+  );
+});
+
+test("map: concatenates fragments and escapes item data", () => {
+  assertEquals(
+    nows(
+      map([1, 2, 3], (n) =>
+        html`
+          <li>${n}</li>
+        `).value,
+    ),
+    "<li>1</li><li>2</li><li>3</li>",
+  );
+  assertEquals(
+    nows(
+      map(["<x>"], (s) =>
+        html`
+          <li>${s}</li>
+        `).value,
+    ),
+    "<li>&lt;x&gt;</li>",
+  );
+});
+
+test("classMap: keeps truthy keys; styleMap: kebab-cases and drops empties", () => {
+  assertEquals(classMap({ a: true, b: false, c: 1, d: "" }), "a c");
+  assertEquals(
+    styleMap({ color: "red", fontSize: "12px", margin: null, "--gap": "4px" }),
+    "color: red; font-size: 12px; --gap: 4px",
+  );
+});
+
+test("template: SafeHtml from html renders into the shadow, escaped", () => {
+  const tag = uniqueTag();
+  build(
+    tag,
+    describe({
+      props: { msg: { type: "string", default: "" } },
+      template: ({ props }) =>
+        html`
+          <p>${props.msg}</p>
+        `,
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement;
+  el.setAttribute("msg", "<b>boom</b>");
+  document.body.appendChild(el);
+  const p = el.shadowRoot!.querySelector("p")!;
+  assertEquals(nows(p.textContent ?? ""), "<b>boom</b>"); // shown as literal text
+  assert(p.querySelector("b") === null); // not parsed as markup
+  document.body.removeChild(el);
+});
+
+// ---------------------------------------------------------------------------
+// stylesheet field → adopted sheet (or <style> fallback)
+// ---------------------------------------------------------------------------
+
+test("stylesheet: full CSS applied via adopted sheet or <style> fallback", () => {
+  const tag = uniqueTag();
+  build(
+    tag,
+    describe({
+      stylesheet: ".box { color: rgb(1, 2, 3); }",
+      template: `<div class="box">hi</div>`,
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement;
+  document.body.appendChild(el);
+  const root = el.shadowRoot!;
+  const adopted = (root as unknown as { adoptedStyleSheets?: CSSStyleSheet[] })
+    .adoptedStyleSheets ?? [];
+  const allCss = [
+    ...Array.from(adopted).map((s) =>
+      Array.from(s.cssRules ?? []).map((r) => r.cssText).join("\n")
+    ),
+    ...Array.from(root.querySelectorAll("style")).map((s) =>
+      s.textContent ?? ""
+    ),
+  ].join("\n");
+  assert(allCss.includes("rgb(1, 2, 3)") || allCss.includes(".box"));
+  document.body.removeChild(el);
+});
+
+test("stylesheet: accepts an array of stylesheets", () => {
+  const tag = uniqueTag();
+  build(
+    tag,
+    describe({ stylesheet: [".a {}", ".b {}"], template: "<i>x</i>" }),
+  );
+  const el = document.createElement(tag) as HTMLElement;
+  document.body.appendChild(el); // must not throw
+  document.body.removeChild(el);
+});
+
+test("describe(): rejects a non-string stylesheet", () => {
+  assertThrows(
+    () => describe({ stylesheet: 42 as unknown as string }),
+    TypeError,
+  );
+});
+
+// ---------------------------------------------------------------------------
+// camelCase prop ⇄ kebab-case attribute reactivity
+// ---------------------------------------------------------------------------
+
+test("props: a camelCase prop reacts to its kebab-case attribute", () => {
+  const tag = uniqueTag();
+  build(
+    tag,
+    describe({
+      props: { pageSize: { type: "number", default: 10 } },
+      template: ({ props }) => `<span>${props.pageSize}</span>`,
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement & { pageSize: number };
+  el.setAttribute("page-size", "5");
+  document.body.appendChild(el);
+  assertEquals(el.pageSize, 5); // initial read from kebab attribute
+  assertEquals(el.shadowRoot!.querySelector("span")!.textContent, "5");
+  // dynamic change to the kebab attribute re-renders
+  el.setAttribute("page-size", "25");
+  assertEquals(el.pageSize, 25);
+  assertEquals(el.shadowRoot!.querySelector("span")!.textContent, "25");
+  document.body.removeChild(el);
+});
+
+// ---------------------------------------------------------------------------
+// loop guard
+// ---------------------------------------------------------------------------
+
+test("render loop guard: afterRender that always setState does not hang", () => {
+  const tag = uniqueTag();
+  let renders = 0;
+  build(
+    tag,
+    describe({
+      template: ({ state }) => `<i>${state.n ?? 0}</i>`,
+      afterRender() {
+        renders++;
+        // Always bump state → would recurse forever without the guard.
+        (this as unknown as { setState: (k: string, v: unknown) => void })
+          .setState("n", renders);
+      },
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement;
+  document.body.appendChild(el); // returns (doesn't hang) thanks to the guard
+  assert(renders > 0 && renders < 200, `renders bounded, got ${renders}`);
+  document.body.removeChild(el);
+});
+
+// ---------------------------------------------------------------------------
+// non-bubbling event delegation (capture)
+// ---------------------------------------------------------------------------
+
+test("events: non-bubbling focus is delegated via capture", () => {
+  const tag = uniqueTag();
+  let fired = 0;
+  build(
+    tag,
+    describe({
+      template: `<input class="field" />`,
+      events: {
+        "focus .field": () => {
+          fired++;
+        },
+      },
+    }),
+  );
+  const el = document.createElement(tag) as HTMLElement;
+  document.body.appendChild(el);
+  const input = el.shadowRoot!.querySelector(".field")! as HTMLElement;
+  input.dispatchEvent(new Event("focus", { bubbles: false }));
+  assert(fired >= 1, "focus handler should fire via capture-phase delegation");
+  document.body.removeChild(el);
 });

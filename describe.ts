@@ -24,9 +24,15 @@ const VALID_PROP_TYPES = new Set(["string", "number", "boolean", "json"]);
  *  - non-function lifecycle hooks
  *  - non-record `theme` / `styles` / `attributes` / `events` / `props`
  *  - prop defs with invalid `type`
- *  - both `children` and `for` set on the same node
+ *  - `stylesheet` that isn't a string or array of strings
+ *
+ * Note: `children` and `for` MAY be combined on one node — children render
+ * first, then keyed list items are appended to the same element.
  */
-export function describe(options: DescribeOptions): DescribeOptions {
+export function describe<
+  P = Record<string, unknown>,
+  S = Record<string, unknown>,
+>(options: DescribeOptions<P, S>): DescribeOptions<P, S> {
   if (options === null || typeof options !== "object") {
     throw new TypeError("describe(): options must be an object");
   }
@@ -88,6 +94,17 @@ export function describe(options: DescribeOptions): DescribeOptions {
           `describe(): refs.${name} must be a CSS selector string`,
         );
       }
+    }
+  }
+
+  if (options.stylesheet !== undefined) {
+    const ok = typeof options.stylesheet === "string" ||
+      (Array.isArray(options.stylesheet) &&
+        options.stylesheet.every((s) => typeof s === "string"));
+    if (!ok) {
+      throw new TypeError(
+        "describe(): `stylesheet` must be a string or array of strings",
+      );
     }
   }
 
