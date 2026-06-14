@@ -6,7 +6,13 @@ template, lifecycle hooks, and reactive state; one `build()` call registers it
 as a real custom element. No JSX, no compiler, no framework runtime — Shadow
 DOM, lifecycle, and reactivity are wired up for you on top of the platform.
 
-> **Status:** stable at **1.1**. The API is frozen; further changes will be
+> **v1.3 is out** — an auto-escaping `html` tagged template and a `stylesheet`
+> adopted-sheet field, plus a behavior-preserving rewrite of all 38 kit
+> components onto them. See the
+> [release notes](https://ra9.github.io/tan-compose/blog/v1-3-html-and-adopted-styles.html)
+> or the [changelog](./CHANGELOG.md).
+
+> **Status:** stable at **1.3**. The API is frozen; further changes will be
 > additive. Pair with
 > [`@ra9/tan-compose-kit`](https://jsr.io/@ra9/tan-compose-kit) for 38
 > ready-made components and 6 theme presets (light, dark, Bootstrap, Tailwind,
