@@ -2151,12 +2151,47 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
 
     <site-footer></site-footer>
 
+    <!-- Lazy sections: this CLASSIC script runs during parse, BEFORE the
+         deferred dist/site.js module defines the custom elements. It moves
+         every inactive section's content into an inert <template>, so only
+         the active section's components upgrade on load. Without it, all
+         ~340 components upgrade at once and block the main thread for
+         several seconds on mid-tier devices. The switcher below restores a
+         section's content (and wires its demo) the first time it's shown. -->
+    <script>
+      (function () {
+        var content = document.querySelector(".components-content");
+        if (!content) return;
+        var sections = content.querySelectorAll("section.demo[id]");
+        var ids = {}, i;
+        for (i = 0; i < sections.length; i++) ids[sections[i].id] = 1;
+        var hash = location.hash.replace(/^#/, "");
+        var active = ids[hash] ? hash : (sections[0] && sections[0].id);
+        content.classList.add("single");
+        for (i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          if (s.id === active) { s.classList.add("is-active"); continue; }
+          var tpl = document.createElement("template");
+          while (s.firstChild) tpl.content.appendChild(s.firstChild);
+          s.appendChild(tpl);
+          s.setAttribute("data-lazy", "");
+        }
+      })();
+    </script>
+
     <script type="module">
+      // Each demo block is null-safe (its section may be lazily detached and
+      // not yet restored) and idempotent (guarded by an `__w` flag), so this
+      // can be re-run after any section is shown without double-wiring.
+      function wireDemos() {
+      const $ = (id) => document.getElementById(id);
+
       // ---- form demo ----
-      const form = document.getElementById("kit-form");
-      const result = document.getElementById("kit-result");
-      const submit = document.getElementById("kit-submit");
-      const reset = document.getElementById("kit-reset");
+      { const form = $("kit-form");
+      if (form && !form.__w) { form.__w = 1;
+      const result = $("kit-result");
+      const submit = $("kit-submit");
+      const reset = $("kit-reset");
 
       submit.addEventListener("click", (e) => {
         e.preventDefault();
@@ -2171,10 +2206,12 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
         result.textContent = "form reset.";
         result.style.color = "";
       });
+      } }
 
       // ---- table demo ----
-      const table = document.getElementById("kit-table");
-      const out = document.getElementById("kit-table-out");
+      { const table = $("kit-table");
+      if (table && !table.__w) { table.__w = 1;
+      const out = $("kit-table-out");
 
       table.columns = [
         { key: "name", label: "Name", sortable: true },
@@ -2201,10 +2238,12 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
         out.textContent = `clicked: ${row.name} (${row.role}, ${row.city})`;
         out.style.color = "#a16939";
       });
+      } }
 
       // ---- select demo ----
-      const sel = document.getElementById("kit-select");
-      const selOut = document.getElementById("kit-select-out");
+      { const sel = $("kit-select");
+      if (sel && !sel.__w) { sel.__w = 1;
+      const selOut = $("kit-select-out");
       sel.options = [
         { value: "engineer", label: "Engineer" },
         { value: "designer", label: "Designer" },
@@ -2215,39 +2254,47 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
         selOut.textContent = "selected: " + e.detail.value;
         selOut.style.color = "#a16939";
       });
+      } }
 
       // ---- tabs demo ----
-      const tabs = document.getElementById("kit-tabs");
+      { const tabs = $("kit-tabs");
+      if (tabs && !tabs.__w) { tabs.__w = 1;
       tabs.tabs = [
         { id: "overview", label: "Overview" },
         { id: "metrics", label: "Metrics" },
         { id: "settings", label: "Settings" },
       ];
       tabs.active = "overview";
+      } }
 
       // ---- modal demo ----
-      const modal = document.getElementById("kit-modal");
-      document.getElementById("kit-modal-open").addEventListener("click", () => {
+      { const modal = $("kit-modal");
+      if (modal && !modal.__w) { modal.__w = 1;
+      $("kit-modal-open").addEventListener("click", () => {
         modal.open = true;
       });
-      document.getElementById("kit-modal-cancel").addEventListener("click", () => {
+      $("kit-modal-cancel").addEventListener("click", () => {
         modal.open = false;
       });
-      document.getElementById("kit-modal-confirm").addEventListener("click", () => {
+      $("kit-modal-confirm").addEventListener("click", () => {
         modal.open = false;
       });
+      } }
 
       // ---- radio-group demo ----
-      const radio = document.getElementById("kit-radio");
+      { const radio = $("kit-radio");
+      if (radio && !radio.__w) { radio.__w = 1;
       radio.options = [
         { value: "free", label: "Free" },
         { value: "pro", label: "Pro" },
         { value: "team", label: "Team" },
       ];
       radio.value = "pro";
+      } }
 
       // ---- toast demo ----
-      const toastHost = document.getElementById("kit-toast-host");
+      { const toastHost = $("kit-toast-host");
+      if (toastHost && !toastHost.__w) { toastHost.__w = 1;
       document.querySelectorAll("[data-toast]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const variant = btn.dataset.toast;
@@ -2271,17 +2318,22 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
           });
         });
       });
+      } }
 
       // ---- pagination demo ----
-      const pager = document.getElementById("kit-pager");
-      const pagerOut = document.getElementById("kit-pager-out");
+      { const pager = $("kit-pager");
+      if (pager && !pager.__w) { pager.__w = 1;
+      const pagerOut = $("kit-pager-out");
       pager.addEventListener("tc-page-change", (e) => {
         pager.current = e.detail.page;
         pagerOut.textContent = "current: " + e.detail.page;
         pagerOut.style.color = "var(--tc-color-accent, #a16939)";
       });
+      } }
 
       // ---- combobox demo ----
+      { const comboMulti0 = $("kit-combo-multi");
+      if (comboMulti0 && !comboMulti0.__w) { comboMulti0.__w = 1;
       const COUNTRIES = [
         { value: "US", label: "United States", icon: "🇺🇸" },
         { value: "CA", label: "Canada", icon: "🇨🇦" },
@@ -2348,34 +2400,40 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
       }
       comboMulti.addEventListener("tc-change", refreshComboOut);
       comboSingle.addEventListener("tc-change", refreshComboOut);
+      } }
 
       // ---- drawer demo ----
-      const dR = document.getElementById("kit-drawer-r");
-      const dL = document.getElementById("kit-drawer-l");
-      const dB = document.getElementById("kit-drawer-b");
-      document.getElementById("kit-drawer-right").addEventListener("click", () => {
+      { const dR = $("kit-drawer-r");
+      if (dR && !dR.__w) { dR.__w = 1;
+      const dL = $("kit-drawer-l");
+      const dB = $("kit-drawer-b");
+      $("kit-drawer-right").addEventListener("click", () => {
         dR.open = true;
       });
-      document.getElementById("kit-drawer-left").addEventListener("click", () => {
+      $("kit-drawer-left").addEventListener("click", () => {
         dL.open = true;
       });
-      document.getElementById("kit-drawer-bottom").addEventListener("click", () => {
+      $("kit-drawer-bottom").addEventListener("click", () => {
         dB.open = true;
       });
-      document.getElementById("kit-drawer-r-cancel").addEventListener("click", () => {
+      $("kit-drawer-r-cancel").addEventListener("click", () => {
         dR.open = false;
       });
-      document.getElementById("kit-drawer-r-apply").addEventListener("click", () => {
+      $("kit-drawer-r-apply").addEventListener("click", () => {
         dR.open = false;
       });
+      } }
 
       // ---- rating demo ----
-      const rating = document.getElementById("kit-rating");
-      const ratingOut = document.getElementById("kit-rating-out");
+      { const rating = $("kit-rating");
+      if (rating && !rating.__w) { rating.__w = 1;
+      const ratingOut = $("kit-rating-out");
       rating.addEventListener("tc-change", (e) => {
         ratingOut.textContent = "rating: " + e.detail.value;
         ratingOut.style.color = "var(--tc-color-accent, #a16939)";
       });
+      } }
+      } // end wireDemos()
 
       // ---- sidebar selection: show one section at a time ----
       // The sidebar is a selector, not a scroll index — clicking a link
@@ -2404,12 +2462,26 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
           if (!ids.has(id)) id = sections[0]?.id;
           if (!id) return;
 
+          // Restore a lazily-detached section's content the first time it's
+          // shown (its components upgrade on insertion), then wire its demo.
+          const target = sections.find((s) => s.id === id);
+          if (target && target.hasAttribute("data-lazy")) {
+            const tpl = target.querySelector(":scope > template");
+            if (tpl) {
+              target.appendChild(tpl.content);
+              target.removeChild(tpl);
+            }
+            target.removeAttribute("data-lazy");
+          }
+
           sections.forEach((s) => s.classList.toggle("is-active", s.id === id));
           sidebar.querySelectorAll("a.active")
             .forEach((a) => a.classList.remove("active"));
           (linksByTarget.get(id) || []).forEach((a) =>
             a.classList.add("active")
           );
+
+          wireDemos();
 
           // Custom elements that measure themselves (charts, tables) render
           // to zero size while their section is display:none; nudge them to
