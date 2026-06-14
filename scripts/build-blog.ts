@@ -459,6 +459,10 @@ const SHARED_STYLE = `
         gap: 48px;
         align-items: start;
       }
+      /* min-width:0 lets the content track shrink below the intrinsic width
+         of a long code line instead of blowing out the grid (and the page)
+         on narrow screens. Long tokens scroll inside their code block. */
+      .article-content { min-width: 0; }
       .article-toc {
         position: sticky;
         top: 80px;
@@ -597,10 +601,19 @@ const SHARED_STYLE = `
       article tc-code {
         display: block;
         margin: 0 0 22px;
+        max-width: 100%;
+        overflow-x: auto;
       }
+      /* Keep wide media from pushing past the column — tables and embedded
+         component demos (which can hold a wide datatable) scroll inside
+         their own box on narrow screens instead of widening the page. */
+      article table { max-width: 100%; }
+      article .stage { max-width: 100%; overflow-x: auto; }
       @media (max-width: 900px) {
         .article-layout {
-          grid-template-columns: 1fr;
+          /* minmax(0, 1fr) — NOT 1fr — so the single column can shrink
+             below its content's intrinsic width on phones. */
+          grid-template-columns: minmax(0, 1fr);
           gap: 0;
         }
         .article-toc { display: none; }
