@@ -23,7 +23,7 @@
  *   --tc-table-radius, --tc-table-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-table";
 
@@ -195,25 +195,26 @@ build(
                 template: ({ props, state }) => {
                   const cols = (props.columns as Column[] | undefined) ?? [];
                   const ts = state as TableState;
-                  return `<tr>${
-                    cols.map((c) => {
-                      const isSorted = ts.sortKey === c.key;
-                      const sortable = c.sortable !== false;
-                      const indicator = isSorted
-                        ? ts.sortDir === "asc" ? "▲" : "▼"
-                        : "";
-                      const ariaSort = isSorted
-                        ? ts.sortDir === "asc" ? "ascending" : "descending"
-                        : "none";
-                      return `<th
+                  const cells = cols.map((c) => {
+                    const isSorted = ts.sortKey === c.key;
+                    const sortable = c.sortable !== false;
+                    const indicator = isSorted
+                      ? ts.sortDir === "asc" ? "▲" : "▼"
+                      : "";
+                    const ariaSort = isSorted
+                      ? ts.sortDir === "asc" ? "ascending" : "descending"
+                      : "none";
+                    return `<th
                         data-col="${esc(c.key)}"
                         class="${sortable ? "sortable" : ""}"
                         aria-sort="${ariaSort}"
                       >${
-                        esc(c.label)
-                      }<span class="sort">${indicator}</span></th>`;
-                    }).join("")
-                  }</tr>`;
+                      esc(c.label)
+                    }<span class="sort">${indicator}</span></th>`;
+                  }).join("");
+                  return html`
+                    <tr>${unsafe(cells)}</tr>
+                  `;
                 },
               }),
               describe({
@@ -228,9 +229,10 @@ build(
                     template: ({ props }) => {
                       const cols = (props.columns as Column[] | undefined) ??
                         [];
-                      return `<td colspan="${cols.length || 1}">${
-                        esc(props.emptyText)
-                      }</td>`;
+                      const span = cols.length || 1;
+                      return html`
+                        <td colspan="${span}">${props.emptyText}</td>
+                      `;
                     },
                   }),
                 ],
@@ -252,13 +254,14 @@ build(
                     return describe({
                       tag: "tr",
                       attributes: { "data-row-id": String(r["id"] ?? i) },
-                      template: cols.map((c) =>
-                        `<td>${
-                          typeof c.render === "function"
-                            ? c.render(r)
-                            : esc(r[c.key] ?? "")
-                        }</td>`
-                      ).join(""),
+                      template: cols.map((c) => {
+                        const cell = typeof c.render === "function"
+                          ? unsafe(c.render(r))
+                          : (r[c.key] ?? "");
+                        return html`
+                          <td>${cell}</td>
+                        `.value;
+                      }).join(""),
                     });
                   },
                 },
@@ -279,16 +282,16 @@ build(
           const totalPages = Math.max(1, Math.ceil(visible.length / size));
           const page = Math.min(ts.page ?? 0, totalPages - 1);
           const total = ((props.rows as Row[] | undefined) ?? []).length;
-          return `
+          return html`
             <span class="count">${visible.length} of ${total} rows</span>
             <span class="spacer"></span>
-            <button class="prev" type="button" ${
-            page <= 0 ? "disabled" : ""
-          }>‹ prev</button>
+            <button class="prev" type="button" ${unsafe(
+              page <= 0 ? "disabled" : "",
+            )}>‹ prev</button>
             <span class="page">page ${page + 1} of ${totalPages}</span>
-            <button class="next" type="button" ${
-            page >= totalPages - 1 ? "disabled" : ""
-          }>next ›</button>
+            <button class="next" type="button" ${unsafe(
+              page >= totalPages - 1 ? "disabled" : "",
+            )}>next ›</button>
           `;
         },
       }),

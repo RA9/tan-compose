@@ -21,7 +21,7 @@
  *   --tc-modal-radius, --tc-modal-backdrop, --tc-modal-shadow, --tc-modal-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-modal";
 
@@ -60,28 +60,29 @@ build(
     styles: {
       display: "contents",
     },
-    template: ({ props }) => `
-      <dialog class="dlg" aria-labelledby="${props.title ? "title" : ""}">
-        ${
-      props.title || props.dismissible
-        ? `<header class="head">
+    template: ({ props }) =>
+      html`
+        <dialog class="dlg" aria-labelledby="${props.title ? "title" : ""}">
+          ${unsafe(
+            props.title || props.dismissible
+              ? `<header class="head">
               ${
-          props.title
-            ? `<h2 id="title" class="title">${esc(props.title)}</h2>`
-            : "<span></span>"
-        }
+                props.title
+                  ? `<h2 id="title" class="title">${esc(props.title)}</h2>`
+                  : "<span></span>"
+              }
               ${
-          props.dismissible
-            ? `<button class="x" type="button" aria-label="Close">×</button>`
-            : ""
-        }
+                props.dismissible
+                  ? `<button class="x" type="button" aria-label="Close">×</button>`
+                  : ""
+              }
             </header>`
-        : ""
-    }
-        <div class="body"><slot></slot></div>
-        <footer class="foot"><slot name="footer"></slot></footer>
-      </dialog>
-      <style>
+              : "",
+          )}
+          <div class="body"><slot></slot></div>
+          <footer class="foot"><slot name="footer"></slot></footer>
+        </dialog>
+        <style>
         .dlg {
           width: ${esc(props.width)};
           max-width: 92vw;
@@ -127,8 +128,8 @@ build(
           border-top: 1px solid var(--tc-modal-rule);
           display: flex; gap: 8px; justify-content: flex-end;
         }
-      </style>
-    `,
+        </style>
+      `,
     refs: {
       dialog: ".dlg",
     },

@@ -16,7 +16,7 @@
  *   --tc-rating-fill, --tc-rating-track, --tc-rating-size
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-rating";
 
@@ -29,15 +29,6 @@ interface HostExtras {
   allowHalf: boolean;
   size: string;
   _ratingHover: number;
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
 
 const STAR_PATH =
@@ -69,7 +60,7 @@ build(
       const size = String(props.size ?? "md");
       const readonly = !!props.readonly;
       const allowHalf = !!props.allowHalf;
-      const ariaLabel = esc(props.ariaLabel ?? "Rating");
+      const ariaLabel = String(props.ariaLabel ?? "Rating");
 
       const pxSize = size === "sm" ? 18 : size === "lg" ? 32 : 24;
 
@@ -109,9 +100,9 @@ build(
         `);
       }
 
-      return `
+      return html`
         <div
-          class="root size-${esc(size)} ${readonly ? "readonly" : ""}"
+          class="root size-${size} ${readonly ? "readonly" : ""}"
           role="${readonly ? "img" : "slider"}"
           tabindex="${readonly ? "-1" : "0"}"
           aria-label="${ariaLabel}"
@@ -120,38 +111,38 @@ build(
           aria-valuemax="${max}"
           aria-valuetext="${value} of ${max}"
         >
-          ${stars.join("")}
+          ${unsafe(stars.join(""))}
         </div>
         <style>
-          :host { display: inline-block; }
-          .root {
-            display: inline-flex;
-            gap: 2px;
-            align-items: center;
-            cursor: ${readonly ? "default" : "pointer"};
-            outline: none;
-          }
-          .root:focus-visible {
-            outline: 2px solid var(--tc-color-accent, #a16939);
-            outline-offset: 4px;
-            border-radius: 4px;
-          }
-          .star {
-            position: relative;
-            display: inline-block;
-            line-height: 0;
-          }
-          .star svg { display: block; }
-          .star:hover .fill { filter: brightness(1.05); }
-          .root.readonly .star { cursor: default; }
-          .hit-left, .hit-right {
-            position: absolute;
-            top: 0;
-            width: 50%;
-            height: 100%;
-          }
-          .hit-left { left: 0; }
-          .hit-right { left: 50%; }
+        :host { display: inline-block; }
+        .root {
+          display: inline-flex;
+          gap: 2px;
+          align-items: center;
+          cursor: ${readonly ? "default" : "pointer"};
+          outline: none;
+        }
+        .root:focus-visible {
+          outline: 2px solid var(--tc-color-accent, #a16939);
+          outline-offset: 4px;
+          border-radius: 4px;
+        }
+        .star {
+          position: relative;
+          display: inline-block;
+          line-height: 0;
+        }
+        .star svg { display: block; }
+        .star:hover .fill { filter: brightness(1.05); }
+        .root.readonly .star { cursor: default; }
+        .hit-left, .hit-right {
+          position: absolute;
+          top: 0;
+          width: 50%;
+          height: 100%;
+        }
+        .hit-left { left: 0; }
+        .hit-right { left: 50%; }
         </style>
       `;
     },

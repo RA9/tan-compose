@@ -33,172 +33,16 @@
  *   --tc-carousel-duration
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-carousel";
 
 export const tagName = TAG;
 
-interface HostExtras {
-  value: number;
-  autoplay: number;
-  loop: boolean;
-  orientation: string;
-  transition: string;
-  indicators: boolean;
-  controls: boolean;
-  swipe: boolean;
-  pauseOnHover: boolean;
-  height: string;
-  _carouselTimer?: number;
-  _carouselSlotObs?: () => void;
-  _carouselDrag?: () => void;
-  _carouselHover?: () => void;
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function countSlides(host: HTMLElement): number {
-  let n = 0;
-  for (const child of Array.from(host.children)) {
-    if (child instanceof Element && !child.hasAttribute("slot")) n++;
-  }
-  return n;
-}
-
-function clampIndex(value: number, total: number, loop: boolean): number {
-  if (total <= 0) return 0;
-  if (loop) return ((value % total) + total) % total;
-  return Math.max(0, Math.min(total - 1, value));
-}
-
-function go(host: HTMLElement & HostExtras, next: number): void {
-  const total = countSlides(host);
-  if (total === 0) return;
-  const previous = host.value;
-  const idx = clampIndex(next, total, host.loop);
-  if (idx === previous) return;
-  host.value = idx;
-  host.dispatchEvent(
-    new CustomEvent("tc-change", {
-      detail: { index: idx, previous },
-      bubbles: true,
-      composed: true,
-    }),
-  );
-}
-
-function startAutoplay(host: HTMLElement & HostExtras): void {
-  stopAutoplay(host);
-  if (host.autoplay <= 0) return;
-  if (countSlides(host) <= 1) return;
-  host._carouselTimer = globalThis.setInterval(() => {
-    go(host, host.value + 1);
-  }, host.autoplay) as unknown as number;
-}
-
-function stopAutoplay(host: HostExtras): void {
-  if (host._carouselTimer !== undefined) {
-    globalThis.clearInterval(host._carouselTimer);
-    host._carouselTimer = undefined;
-  }
-}
-
-build(
-  TAG,
-  describe({
-    props: {
-      value: { type: "number", default: 0, reflect: true },
-      autoplay: { type: "number", default: 0 },
-      loop: { type: "boolean", default: true },
-      orientation: { type: "string", default: "horizontal" },
-      transition: { type: "string", default: "slide" },
-      indicators: { type: "boolean", default: true },
-      controls: { type: "boolean", default: true },
-      swipe: { type: "boolean", default: true },
-      pauseOnHover: { type: "boolean", default: true },
-      ariaLabel: { type: "string", default: "Carousel" },
-      height: { type: "string", default: "" },
-    },
-    theme: {
-      "tc-carousel-radius": "var(--tc-radius-lg, 12px)",
-      "tc-carousel-bg": "var(--tc-color-bg, #faf8f3)",
-      "tc-carousel-control-bg": "rgba(255, 255, 255, 0.85)",
-      "tc-carousel-control-bg-hover": "rgba(255, 255, 255, 1)",
-      "tc-carousel-control-fg": "var(--tc-color-ink, #14171f)",
-      "tc-carousel-control-size": "36px",
-      "tc-carousel-indicator": "rgba(20, 23, 31, 0.25)",
-      "tc-carousel-indicator-active": "var(--tc-color-accent, #a16939)",
-      "tc-carousel-duration": "320ms",
-    },
-    styles: {
-      display: "block",
-      position: "relative",
-    },
-    template: ({ props }) => {
-      const value = Number(props.value ?? 0);
-      const vertical = String(props.orientation) === "vertical";
-      const fade = String(props.transition) === "fade";
-      const height = String(props.height ?? "");
-      const showControls = !!props.controls;
-      const showIndicators = !!props.indicators;
-      const ariaLabel = esc(props.ariaLabel ?? "Carousel");
-
-      // The track uses translate when transition is "slide". For fade we
-      // overlay slides absolutely and toggle .is-active for opacity.
-      // CSS variables make per-render computation cheap.
-      return `
-        <div
-          class="root ${vertical ? "v" : "h"} ${fade ? "fade" : "slide"}"
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="${ariaLabel}"
-          style="${
-        height ? `--tc-carousel-height: ${esc(height)};` : ""
-      }--tc-carousel-index: ${value};"
-        >
-          <div class="viewport" part="viewport">
-            <slot class="track" part="track"></slot>
-          </div>
-          ${
-        showControls
-          ? `
-            <button type="button" class="ctrl prev" aria-label="Previous slide" part="control">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                ${
-            vertical
-              ? `<polyline points="18 15 12 9 6 15"/>`
-              : `<polyline points="15 18 9 12 15 6"/>`
-          }
-              </svg>
-            </button>
-            <button type="button" class="ctrl next" aria-label="Next slide" part="control">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                ${
-            vertical
-              ? `<polyline points="6 9 12 15 18 9"/>`
-              : `<polyline points="9 18 15 12 9 6"/>`
-          }
-              </svg>
-            </button>
-          `
-          : ""
-      }
-          ${
-        showIndicators
-          ? `<div class="indicators" role="tablist" part="indicators"></div>`
-          : ""
-      }
-          <div class="sr-status" aria-live="polite" aria-atomic="true"></div>
-        </div>
-        <style>
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-carousel> and runs the first render.
+const STYLE = `
           /* :host width: 100% so the carousel fills its container even
              inside flex parents. Combined with a user-set max-width on
              the host, it becomes min(container, max-width) — the
@@ -366,7 +210,167 @@ build(
               transition: none;
             }
           }
-        </style>
+`;
+
+interface HostExtras {
+  value: number;
+  autoplay: number;
+  loop: boolean;
+  orientation: string;
+  transition: string;
+  indicators: boolean;
+  controls: boolean;
+  swipe: boolean;
+  pauseOnHover: boolean;
+  height: string;
+  _carouselTimer?: number;
+  _carouselSlotObs?: () => void;
+  _carouselDrag?: () => void;
+  _carouselHover?: () => void;
+}
+
+function esc(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function countSlides(host: HTMLElement): number {
+  let n = 0;
+  for (const child of Array.from(host.children)) {
+    if (child instanceof Element && !child.hasAttribute("slot")) n++;
+  }
+  return n;
+}
+
+function clampIndex(value: number, total: number, loop: boolean): number {
+  if (total <= 0) return 0;
+  if (loop) return ((value % total) + total) % total;
+  return Math.max(0, Math.min(total - 1, value));
+}
+
+function go(host: HTMLElement & HostExtras, next: number): void {
+  const total = countSlides(host);
+  if (total === 0) return;
+  const previous = host.value;
+  const idx = clampIndex(next, total, host.loop);
+  if (idx === previous) return;
+  host.value = idx;
+  host.dispatchEvent(
+    new CustomEvent("tc-change", {
+      detail: { index: idx, previous },
+      bubbles: true,
+      composed: true,
+    }),
+  );
+}
+
+function startAutoplay(host: HTMLElement & HostExtras): void {
+  stopAutoplay(host);
+  if (host.autoplay <= 0) return;
+  if (countSlides(host) <= 1) return;
+  host._carouselTimer = globalThis.setInterval(() => {
+    go(host, host.value + 1);
+  }, host.autoplay) as unknown as number;
+}
+
+function stopAutoplay(host: HostExtras): void {
+  if (host._carouselTimer !== undefined) {
+    globalThis.clearInterval(host._carouselTimer);
+    host._carouselTimer = undefined;
+  }
+}
+
+build(
+  TAG,
+  describe({
+    props: {
+      value: { type: "number", default: 0, reflect: true },
+      autoplay: { type: "number", default: 0 },
+      loop: { type: "boolean", default: true },
+      orientation: { type: "string", default: "horizontal" },
+      transition: { type: "string", default: "slide" },
+      indicators: { type: "boolean", default: true },
+      controls: { type: "boolean", default: true },
+      swipe: { type: "boolean", default: true },
+      pauseOnHover: { type: "boolean", default: true },
+      ariaLabel: { type: "string", default: "Carousel" },
+      height: { type: "string", default: "" },
+    },
+    theme: {
+      "tc-carousel-radius": "var(--tc-radius-lg, 12px)",
+      "tc-carousel-bg": "var(--tc-color-bg, #faf8f3)",
+      "tc-carousel-control-bg": "rgba(255, 255, 255, 0.85)",
+      "tc-carousel-control-bg-hover": "rgba(255, 255, 255, 1)",
+      "tc-carousel-control-fg": "var(--tc-color-ink, #14171f)",
+      "tc-carousel-control-size": "36px",
+      "tc-carousel-indicator": "rgba(20, 23, 31, 0.25)",
+      "tc-carousel-indicator-active": "var(--tc-color-accent, #a16939)",
+      "tc-carousel-duration": "320ms",
+    },
+    styles: {
+      display: "block",
+      position: "relative",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const value = Number(props.value ?? 0);
+      const vertical = String(props.orientation) === "vertical";
+      const fade = String(props.transition) === "fade";
+      const height = String(props.height ?? "");
+      const showControls = !!props.controls;
+      const showIndicators = !!props.indicators;
+      const ariaLabel = esc(props.ariaLabel ?? "Carousel");
+
+      // The track uses translate when transition is "slide". For fade we
+      // overlay slides absolutely and toggle .is-active for opacity.
+      // CSS variables make per-render computation cheap.
+      return html`
+        <div
+          class="root ${vertical ? "v" : "h"} ${fade ? "fade" : "slide"}"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="${unsafe(ariaLabel)}"
+          style="${unsafe(
+            height ? `--tc-carousel-height: ${esc(height)};` : "",
+          )}--tc-carousel-index: ${value};"
+        >
+          <div class="viewport" part="viewport">
+            <slot class="track" part="track"></slot>
+          </div>
+          ${unsafe(
+            showControls
+              ? `
+            <button type="button" class="ctrl prev" aria-label="Previous slide" part="control">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                ${
+                vertical
+                  ? `<polyline points="18 15 12 9 6 15"/>`
+                  : `<polyline points="15 18 9 12 15 6"/>`
+              }
+              </svg>
+            </button>
+            <button type="button" class="ctrl next" aria-label="Next slide" part="control">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                ${
+                vertical
+                  ? `<polyline points="6 9 12 15 18 9"/>`
+                  : `<polyline points="9 18 15 12 9 6"/>`
+              }
+              </svg>
+            </button>
+          `
+              : "",
+          )} ${unsafe(
+            showIndicators
+              ? `<div class="indicators" role="tablist" part="indicators"></div>`
+              : "",
+          )}
+          <div class="sr-status" aria-live="polite" aria-atomic="true"></div>
+        </div>
       `;
     },
     events: {
@@ -485,13 +489,13 @@ function syncSlides(host: HTMLElement & HostExtras): void {
   const indicators = root.querySelector(".indicators") as HTMLElement | null;
   if (indicators) {
     const current = host.value;
-    let html = "";
+    let dots = "";
     for (let i = 0; i < total; i++) {
-      html += `<button type="button" class="dot" role="tab" data-index="${i}"
+      dots += `<button type="button" class="dot" role="tab" data-index="${i}"
         aria-current="${i === current ? "true" : "false"}"
         aria-label="Go to slide ${i + 1}"></button>`;
     }
-    indicators.innerHTML = html;
+    indicators.innerHTML = dots;
   }
 
   // Slide ARIA + active class for fade.

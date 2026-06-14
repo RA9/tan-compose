@@ -251,7 +251,7 @@
       },
       "kit": {
         "dependencies": [
-          "jsr:@ra9/tan-compose@^1.1.0",
+          "jsr:@ra9/tan-compose@^1.2.0",
           "jsr:@std/assert@1",
           "npm:happy-dom@15"
         ]

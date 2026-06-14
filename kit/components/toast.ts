@@ -20,7 +20,7 @@
  *   --tc-toast-fg, --tc-toast-radius, --tc-toast-shadow, --tc-toast-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-toast";
 
@@ -28,55 +28,10 @@ export const tagName = TAG;
 
 const TIMERS = new WeakMap<HTMLElement, number>();
 
-build(
-  TAG,
-  describe({
-    props: {
-      open: { type: "boolean", default: false, reflect: true },
-      variant: { type: "string", default: "info" },
-      message: { type: "string", default: "" },
-      duration: { type: "number", default: 4000 },
-      dismissible: { type: "boolean", default: true },
-    },
-    theme: {
-      "tc-toast-info": "var(--tc-color-info, #3a5b8c)",
-      "tc-toast-success": "var(--tc-color-success, #207a5b)",
-      "tc-toast-warning": "var(--tc-color-warning, #a87326)",
-      "tc-toast-error": "var(--tc-color-danger, #b3261e)",
-      "tc-toast-fg": "var(--tc-color-surface, #ffffff)",
-      "tc-toast-radius": "var(--tc-radius-lg, 10px)",
-      "tc-toast-shadow":
-        "var(--tc-shadow-lg, 0 12px 30px rgba(20, 23, 31, 0.18))",
-      "tc-toast-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-    },
-    styles: {
-      display: "block",
-    },
-    template: ({ props }) => {
-      const variant = String(props.variant ?? "info");
-      const icon = variant === "success"
-        ? "✓"
-        : variant === "warning"
-        ? "!"
-        : variant === "error"
-        ? "✕"
-        : "i";
-      return `
-        <div class="toast v-${esc(variant)} ${
-        props.open ? "open" : "closed"
-      }" role="status" aria-live="polite">
-          <span class="icon" aria-hidden="true">${icon}</span>
-          <span class="msg">${
-        props.message ? esc(props.message) : "<slot></slot>"
-      }</span>
-          ${
-        props.dismissible
-          ? `<button type="button" class="x" aria-label="Close">×</button>`
-          : ""
-      }
-        </div>
-        <style>
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-toast> and runs the first render.
+const STYLE = `
           :host { display: block; }
           .toast {
             display: inline-flex; align-items: center; gap: 12px;
@@ -117,7 +72,57 @@ build(
             display: inline-flex; align-items: center; justify-content: center;
           }
           .x:hover { background: rgba(255, 255, 255, 0.18); opacity: 1; }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    props: {
+      open: { type: "boolean", default: false, reflect: true },
+      variant: { type: "string", default: "info" },
+      message: { type: "string", default: "" },
+      duration: { type: "number", default: 4000 },
+      dismissible: { type: "boolean", default: true },
+    },
+    theme: {
+      "tc-toast-info": "var(--tc-color-info, #3a5b8c)",
+      "tc-toast-success": "var(--tc-color-success, #207a5b)",
+      "tc-toast-warning": "var(--tc-color-warning, #a87326)",
+      "tc-toast-error": "var(--tc-color-danger, #b3261e)",
+      "tc-toast-fg": "var(--tc-color-surface, #ffffff)",
+      "tc-toast-radius": "var(--tc-radius-lg, 10px)",
+      "tc-toast-shadow":
+        "var(--tc-shadow-lg, 0 12px 30px rgba(20, 23, 31, 0.18))",
+      "tc-toast-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+    },
+    styles: {
+      display: "block",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const variant = String(props.variant ?? "info");
+      const icon = variant === "success"
+        ? "✓"
+        : variant === "warning"
+        ? "!"
+        : variant === "error"
+        ? "✕"
+        : "i";
+      return html`
+        <div class="toast v-${variant} ${props.open
+          ? "open"
+          : "closed"}" role="status" aria-live="polite">
+          <span class="icon" aria-hidden="true">${unsafe(icon)}</span>
+          <span class="msg">${unsafe(
+            props.message ? esc(props.message) : "<slot></slot>",
+          )}</span>
+          ${unsafe(
+            props.dismissible
+              ? `<button type="button" class="x" aria-label="Close">×</button>`
+              : "",
+          )}
+        </div>
       `;
     },
     events: {

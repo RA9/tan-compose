@@ -19,90 +19,13 @@
  * Theme variables — shared with `<tc-input>` plus a button surface.
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-file";
 
 export const tagName = TAG;
 
-build(
-  TAG,
-  describe({
-    formAssociated: true,
-    props: {
-      name: { type: "string", default: "" },
-      accept: { type: "string", default: "" },
-      multiple: { type: "boolean", default: false, reflect: true },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      buttonText: { type: "string", default: "Choose file" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true },
-    },
-    theme: {
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-radius": "var(--tc-radius-md, 8px)",
-      "tc-input-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-file-zone-bg": "var(--tc-color-surface-alt, #faf8f3)",
-      "tc-file-zone-fg": "var(--tc-color-ink-soft, #4a5061)",
-    },
-    styles: {
-      display: "block",
-    },
-    refs: {
-      input: "input[type='file']",
-    },
-    template: ({ props, state }) => {
-      const showError = Boolean(props.error);
-      const filesState = (state.files as File[] | undefined) ?? [];
-      const filesText = filesState.length === 0
-        ? "No file selected"
-        : filesState.length === 1
-        ? esc(filesState[0].name)
-        : `${filesState.length} files selected`;
-      return `
-        ${
-        props.label
-          ? `<label class="label">${esc(props.label)}${
-            props.required
-              ? ' <span class="req" aria-hidden="true">*</span>'
-              : ""
-          }</label>`
-          : ""
-      }
-        <div class="zone ${props.disabled ? "is-disabled" : ""} ${
-        showError ? "is-invalid" : ""
-      }">
-          <button class="btn" type="button" ${props.disabled ? "disabled" : ""}>
-            ${esc(props.buttonText)}
-          </button>
-          <span class="files">${filesText}</span>
-          <input
-            class="native"
-            type="file"
-            name="${esc(props.name)}"
-            accept="${esc(props.accept)}"
-            ${props.multiple ? "multiple" : ""}
-            ${props.disabled ? "disabled" : ""}
-            ${props.required ? "required" : ""}
-            tabindex="-1"
-            aria-hidden="true"
-          />
-        </div>
-        ${
-        props.error || props.helper
-          ? `<div class="${showError ? "error" : "helper"}">${
-            esc(props.error || props.helper)
-          }</div>`
-          : ""
-      }
-        <style>
+const STYLE = `
           :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
           .label {
             display: block; font-size: 0.82rem; font-weight: 600;
@@ -147,7 +70,88 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    formAssociated: true,
+    props: {
+      name: { type: "string", default: "" },
+      accept: { type: "string", default: "" },
+      multiple: { type: "boolean", default: false, reflect: true },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      buttonText: { type: "string", default: "Choose file" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true },
+    },
+    theme: {
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
+      "tc-input-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-file-zone-bg": "var(--tc-color-surface-alt, #faf8f3)",
+      "tc-file-zone-fg": "var(--tc-color-ink-soft, #4a5061)",
+    },
+    styles: {
+      display: "block",
+    },
+    stylesheet: STYLE,
+    refs: {
+      input: "input[type='file']",
+    },
+    template: ({ props, state }) => {
+      const showError = Boolean(props.error);
+      const filesState = (state.files as File[] | undefined) ?? [];
+      const filesText = filesState.length === 0
+        ? "No file selected"
+        : filesState.length === 1
+        ? esc(filesState[0].name)
+        : `${filesState.length} files selected`;
+      return html`
+        ${unsafe(
+          props.label
+            ? `<label class="label">${esc(props.label)}${
+              props.required
+                ? ' <span class="req" aria-hidden="true">*</span>'
+                : ""
+            }</label>`
+            : "",
+        )}
+        <div class="zone ${props.disabled ? "is-disabled" : ""} ${showError
+          ? "is-invalid"
+          : ""}">
+          <button class="btn" type="button" ${unsafe(
+            props.disabled ? "disabled" : "",
+          )}>
+            ${props.buttonText}
+          </button>
+          <span class="files">${unsafe(filesText)}</span>
+          <input
+            class="native"
+            type="file"
+            name="${props.name}"
+            accept="${props.accept}"
+            ${unsafe(props.multiple ? "multiple" : "")}
+            ${unsafe(props.disabled ? "disabled" : "")}
+            ${unsafe(props.required ? "required" : "")}
+            tabindex="-1"
+            aria-hidden="true"
+          />
+        </div>
+        ${unsafe(
+          props.error || props.helper
+            ? `<div class="${showError ? "error" : "helper"}">${
+              esc(props.error || props.helper)
+            }</div>`
+            : "",
+        )}
       `;
     },
     events: {

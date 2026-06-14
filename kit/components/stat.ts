@@ -15,69 +15,13 @@
  *   --tc-stat-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-stat";
 
 export const tagName = TAG;
 
-build(
-  TAG,
-  describe({
-    props: {
-      label: { type: "string", default: "" },
-      value: { type: "string", default: "" },
-      delta: { type: "string", default: "" },
-      trend: { type: "string", default: "neutral" },
-      prefix: { type: "string", default: "" },
-      suffix: { type: "string", default: "" },
-    },
-    theme: {
-      "tc-stat-surface": "var(--tc-color-surface, #ffffff)",
-      "tc-stat-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-stat-label": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-stat-value": "var(--tc-color-ink, #14171f)",
-      "tc-stat-up": "var(--tc-color-success, #207a5b)",
-      "tc-stat-down": "var(--tc-color-danger, #b3261e)",
-      "tc-stat-neutral": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-stat-radius": "var(--tc-radius-lg, 12px)",
-      "tc-stat-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-    },
-    styles: {
-      // Stretch in flex / grid containers so multiple stats in a row
-      // share a baseline height. `display: block` (not flex) so the
-      // host's box fills the grid cell uniformly — flex on the host
-      // makes the inner container size to its content and the cards
-      // end up unevenly wide.
-      display: "block",
-      height: "100%",
-    },
-    template: ({ props }) => {
-      const trend = String(props.trend ?? "neutral");
-      const arrow = trend === "up" ? "▲" : trend === "down" ? "▼" : "•";
-      return `
-        <div class="card">
-          ${props.label ? `<div class="label">${esc(props.label)}</div>` : ""}
-          <div class="value">
-            ${
-        props.prefix ? `<span class="prefix">${esc(props.prefix)}</span>` : ""
-      }
-            <span class="num">${esc(props.value)}</span>
-            ${
-        props.suffix ? `<span class="suffix">${esc(props.suffix)}</span>` : ""
-      }
-          </div>
-          ${
-        props.delta
-          ? `<div class="delta t-${esc(trend)}">
-                  <span class="arrow" aria-hidden="true">${arrow}</span>
-                  <span>${esc(props.delta)}</span>
-                </div>`
-          : ""
-      }
-        </div>
-        <style>
+const STYLE = `
           :host { display: block; height: 100%; }
           .card {
             background: var(--tc-stat-surface);
@@ -125,7 +69,65 @@ build(
           .delta.t-down    { color: var(--tc-stat-down); }
           .delta.t-neutral { color: var(--tc-stat-neutral); }
           .arrow { font-size: 0.7rem; }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    props: {
+      label: { type: "string", default: "" },
+      value: { type: "string", default: "" },
+      delta: { type: "string", default: "" },
+      trend: { type: "string", default: "neutral" },
+      prefix: { type: "string", default: "" },
+      suffix: { type: "string", default: "" },
+    },
+    theme: {
+      "tc-stat-surface": "var(--tc-color-surface, #ffffff)",
+      "tc-stat-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-stat-label": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-stat-value": "var(--tc-color-ink, #14171f)",
+      "tc-stat-up": "var(--tc-color-success, #207a5b)",
+      "tc-stat-down": "var(--tc-color-danger, #b3261e)",
+      "tc-stat-neutral": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-stat-radius": "var(--tc-radius-lg, 12px)",
+      "tc-stat-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+    },
+    styles: {
+      // Stretch in flex / grid containers so multiple stats in a row
+      // share a baseline height. `display: block` (not flex) so the
+      // host's box fills the grid cell uniformly — flex on the host
+      // makes the inner container size to its content and the cards
+      // end up unevenly wide.
+      display: "block",
+      height: "100%",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const trend = String(props.trend ?? "neutral");
+      const arrow = trend === "up" ? "▲" : trend === "down" ? "▼" : "•";
+      return html`
+        <div class="card">
+          ${props.label
+            ? unsafe(`<div class="label">${esc(props.label)}</div>`)
+            : ""}
+          <div class="value">
+            ${props.prefix
+              ? unsafe(`<span class="prefix">${esc(props.prefix)}</span>`)
+              : ""}
+            <span class="num">${props.value}</span>
+            ${props.suffix
+              ? unsafe(`<span class="suffix">${esc(props.suffix)}</span>`)
+              : ""}
+          </div>
+          ${props.delta
+            ? unsafe(`<div class="delta t-${esc(trend)}">
+                  <span class="arrow" aria-hidden="true">${arrow}</span>
+                  <span>${esc(props.delta)}</span>
+                </div>`)
+            : ""}
+        </div>
       `;
     },
   }),

@@ -12,11 +12,22 @@
  *   default — children
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-cluster";
 
 export const tagName = TAG;
+
+const STYLE = `
+  .cluster {
+    display: flex;
+    flex-direction: row;
+    gap: var(--tc-cluster-gap);
+    justify-content: var(--tc-cluster-justify);
+    align-items: var(--tc-cluster-align);
+    flex-wrap: var(--tc-cluster-wrap);
+  }
+`;
 
 build(
   TAG,
@@ -30,68 +41,52 @@ build(
     styles: {
       display: "block",
     },
-    template: ({ props }) => `
-      <div class="cluster" style="
-        --tc-cluster-gap: ${gapValue(props.gap)};
-        --tc-cluster-justify: ${justifyValue(props.justify)};
-        --tc-cluster-align: ${esc(props.align)};
-        --tc-cluster-wrap: ${props.wrap ? "wrap" : "nowrap"};
-      ">
-        <slot></slot>
-      </div>
-      <style>
-        .cluster {
-          display: flex;
-          flex-direction: row;
-          gap: var(--tc-cluster-gap);
-          justify-content: var(--tc-cluster-justify);
-          align-items: var(--tc-cluster-align);
-          flex-wrap: var(--tc-cluster-wrap);
-        }
-      </style>
-    `,
-  }),
-);
+    stylesheet: STYLE,
+    template: ({ props }) =>
+      html`
+        <div
+          class="cluster"
+          style="--tc-cluster-gap: ${gapValue(props.gap)};
+            --tc-cluster-justify: ${justifyValue(props.justify)};
+            --tc-cluster-align: ${props.align};
+            --tc-cluster-wrap: ${props.wrap ? "wrap" : "nowrap"};"
+          >
+            <slot></slot>
+          </div>
+        `,
+    }),
+  );
 
-function justifyValue(j: unknown): string {
-  const s = String(j ?? "start").trim();
-  switch (s) {
-    case "between":
-      return "space-between";
-    case "around":
-      return "space-around";
-    case "evenly":
-      return "space-evenly";
-    default:
-      return s;
+  function justifyValue(j: unknown): string {
+    const s = String(j ?? "start").trim();
+    switch (s) {
+      case "between":
+        return "space-between";
+      case "around":
+        return "space-around";
+      case "evenly":
+        return "space-evenly";
+      default:
+        return s;
+    }
   }
-}
 
-function gapValue(g: unknown): string {
-  const s = String(g ?? "3").trim();
-  if (/^[1-8]$/.test(s)) return `var(--tc-space-${s}, ${defaultSpace(s)})`;
-  return s;
-}
+  function gapValue(g: unknown): string {
+    const s = String(g ?? "3").trim();
+    if (/^[1-8]$/.test(s)) return `var(--tc-space-${s}, ${defaultSpace(s)})`;
+    return s;
+  }
 
-function defaultSpace(n: string): string {
-  const map: Record<string, string> = {
-    "1": "4px",
-    "2": "8px",
-    "3": "12px",
-    "4": "16px",
-    "5": "24px",
-    "6": "32px",
-    "7": "48px",
-    "8": "64px",
-  };
-  return map[n] ?? "12px";
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+  function defaultSpace(n: string): string {
+    const map: Record<string, string> = {
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "5": "24px",
+      "6": "32px",
+      "7": "48px",
+      "8": "64px",
+    };
+    return map[n] ?? "12px";
+  }

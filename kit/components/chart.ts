@@ -60,7 +60,7 @@
  *   --tc-chart-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-chart";
 
@@ -597,7 +597,6 @@ const DEFAULT_PALETTE = [
 ];
 
 const CHART_STYLE = `
-  <style>
     :host { display: block; width: 100%; }
     .root {
       width: 100%;
@@ -829,7 +828,6 @@ const CHART_STYLE = `
         transform: none !important;
       }
     }
-  </style>
 `;
 
 build(
@@ -871,6 +869,7 @@ build(
         "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
     },
     styles: { display: "block" },
+    stylesheet: CHART_STYLE,
     template: ({ props, state }) => {
       const rawType = String(props.type ?? "line").toLowerCase();
       const type =
@@ -939,32 +938,30 @@ build(
       const desc = ariaDescription(type, data);
       const height = esc(String(props.height ?? "240px"));
 
-      return `
-        <div class="root" role="img" aria-label="${
-        esc(props.ariaLabel ?? "Chart")
-      }">
-          <div class="canvas" style="height:${height};">
+      return html`
+        <div class="root" role="img" aria-label="${props.ariaLabel ?? "Chart"}">
+          <div class="canvas" style="height:${unsafe(height)};">
             <svg
               viewBox="0 0 ${W} ${H}"
               preserveAspectRatio="${isDonut ? "xMidYMid meet" : "none"}"
               aria-hidden="true"
-            >${body}</svg>
+            >
+              ${unsafe(body)}
+            </svg>
             <div class="tip" role="tooltip">
               <span class="tip-swatch"></span><span class="tip-text"></span>
             </div>
-            ${stateOverlay}
+            ${unsafe(stateOverlay)}
           </div>
-          ${
-        props.showLegend && !isSparkline && fullData.series &&
-          fullData.series.length > 0
-          ? renderLegend(fullData.series, palette, hidden)
-          : ""
-      }
-          <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">${
-        esc(desc)
-      }</span>
+          ${props.showLegend && !isSparkline && fullData.series &&
+              fullData.series.length > 0
+            ? unsafe(renderLegend(fullData.series, palette, hidden))
+            : ""}
+          <span
+            class="visually-hidden"
+            style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;"
+          >${desc}</span>
         </div>
-        ${CHART_STYLE}
       `;
     },
     events: {

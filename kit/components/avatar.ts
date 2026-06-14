@@ -18,11 +18,68 @@
  *   --tc-avatar-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-avatar";
 
 export const tagName = TAG;
+
+const STYLE = `
+  :host { display: inline-block; vertical-align: middle; position: relative; }
+  .root {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    overflow: visible;
+    font-family: var(--tc-avatar-font);
+    font-weight: 600;
+    color: var(--tc-avatar-tint-fg, var(--tc-avatar-fg));
+    background: var(--tc-avatar-tint-bg, var(--tc-avatar-bg));
+    user-select: none;
+    line-height: 1;
+  }
+  .root img, .root .fallback {
+    width: 100%; height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+  }
+  .root img { display: block; }
+  .root .fallback {
+    display: inline-grid;
+    place-items: center;
+    background: transparent;
+    color: inherit;
+  }
+  .shape-circle { border-radius: 999px; }
+  .shape-square { border-radius: var(--tc-radius-sm, 6px); }
+
+  .size-xs { width: 20px; height: 20px; font-size: 0.62rem; }
+  .size-sm { width: 28px; height: 28px; font-size: 0.74rem; }
+  .size-md { width: 36px; height: 36px; font-size: 0.86rem; }
+  .size-lg { width: 48px; height: 48px; font-size: 1rem; }
+  .size-xl { width: 64px; height: 64px; font-size: 1.2rem; }
+
+  .ringed {
+    box-shadow: 0 0 0 2px var(--tc-avatar-ring);
+  }
+
+  .status {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 28%;
+    height: 28%;
+    min-width: 8px;
+    min-height: 8px;
+    border-radius: 999px;
+    border: 2px solid var(--tc-avatar-ring);
+    box-sizing: content-box;
+  }
+  .status-online { background: var(--tc-avatar-status-online); }
+  .status-away { background: var(--tc-avatar-status-away); }
+  .status-busy { background: var(--tc-avatar-status-busy); }
+  .status-offline { background: var(--tc-avatar-status-offline); }
+`;
 
 function esc(s: unknown): string {
   return String(s ?? "")
@@ -89,6 +146,7 @@ build(
       position: "relative",
       "vertical-align": "middle",
     },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const name = String(props.name ?? "");
       const src = String(props.src ?? "");
@@ -99,86 +157,31 @@ build(
       const ring = !!props.ring;
       const [bg, fg] = tintFor(name);
 
-      return `
-        <span class="root size-${esc(size)} shape-${esc(shape)} ${
-        ring ? "ringed" : ""
-      }"
-              style="--tc-avatar-tint-bg: ${bg}; --tc-avatar-tint-fg: ${fg};">
-          ${
-        src
-          ? `<img src="${esc(src)}" alt="${
-            esc(alt)
-          }" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'${
-            esc(initials(name))
-          }'}))">`
-          : `<span class="fallback" aria-label="${esc(alt)}">${
-            esc(initials(name))
-          }</span>`
-      }
-          ${
-        status
-          ? `<span class="status status-${esc(status)}" aria-label="${
-            esc(status)
-          }"></span>`
-          : ""
-      }
+      return html`
+        <span
+          class="root size-${size} shape-${shape} ${ring ? "ringed" : ""}"
+          style="--tc-avatar-tint-bg: ${bg}; --tc-avatar-tint-fg: ${fg};"
+        >
+          ${src
+            ? unsafe(
+              `<img src="${esc(src)}" alt="${
+                esc(alt)
+              }" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'${
+                esc(initials(name))
+              }'}))">`,
+            )
+            : unsafe(
+              `<span class="fallback" aria-label="${esc(alt)}">${
+                esc(initials(name))
+              }</span>`,
+            )} ${status
+            ? unsafe(
+              `<span class="status status-${esc(status)}" aria-label="${
+                esc(status)
+              }"></span>`,
+            )
+            : ""}
         </span>
-        <style>
-          :host { display: inline-block; vertical-align: middle; position: relative; }
-          .root {
-            position: relative;
-            display: inline-grid;
-            place-items: center;
-            overflow: visible;
-            font-family: var(--tc-avatar-font);
-            font-weight: 600;
-            color: var(--tc-avatar-tint-fg, var(--tc-avatar-fg));
-            background: var(--tc-avatar-tint-bg, var(--tc-avatar-bg));
-            user-select: none;
-            line-height: 1;
-          }
-          .root img, .root .fallback {
-            width: 100%; height: 100%;
-            border-radius: inherit;
-            object-fit: cover;
-          }
-          .root img { display: block; }
-          .root .fallback {
-            display: inline-grid;
-            place-items: center;
-            background: transparent;
-            color: inherit;
-          }
-          .shape-circle { border-radius: 999px; }
-          .shape-square { border-radius: var(--tc-radius-sm, 6px); }
-
-          .size-xs { width: 20px; height: 20px; font-size: 0.62rem; }
-          .size-sm { width: 28px; height: 28px; font-size: 0.74rem; }
-          .size-md { width: 36px; height: 36px; font-size: 0.86rem; }
-          .size-lg { width: 48px; height: 48px; font-size: 1rem; }
-          .size-xl { width: 64px; height: 64px; font-size: 1.2rem; }
-
-          .ringed {
-            box-shadow: 0 0 0 2px var(--tc-avatar-ring);
-          }
-
-          .status {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 28%;
-            height: 28%;
-            min-width: 8px;
-            min-height: 8px;
-            border-radius: 999px;
-            border: 2px solid var(--tc-avatar-ring);
-            box-sizing: content-box;
-          }
-          .status-online { background: var(--tc-avatar-status-online); }
-          .status-away { background: var(--tc-avatar-status-away); }
-          .status-busy { background: var(--tc-avatar-status-busy); }
-          .status-offline { background: var(--tc-avatar-status-offline); }
-        </style>
       `;
     },
   }),

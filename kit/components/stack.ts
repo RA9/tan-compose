@@ -11,11 +11,20 @@
  *   default — children
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-stack";
 
 export const tagName = TAG;
+
+const STYLE = `
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tc-stack-gap);
+    align-items: var(--tc-stack-align);
+  }
+`;
 
 build(
   TAG,
@@ -27,21 +36,18 @@ build(
     styles: {
       display: "block",
     },
-    template: ({ props }) => `
-      <div class="stack" style="--tc-stack-gap: ${
-      gapValue(props.gap)
-    }; --tc-stack-align: ${esc(props.align)};">
-        <slot></slot>
-      </div>
-      <style>
-        .stack {
-          display: flex;
-          flex-direction: column;
-          gap: var(--tc-stack-gap);
-          align-items: var(--tc-stack-align);
-        }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: ({ props }) =>
+      html`
+        <div
+          class="stack"
+          style="--tc-stack-gap: ${gapValue(
+            props.gap,
+          )}; --tc-stack-align: ${props.align};"
+        >
+          <slot></slot>
+        </div>
+      `,
   }),
 );
 
@@ -65,13 +71,4 @@ function defaultSpace(n: string): string {
     "8": "64px",
   };
   return map[n] ?? "16px";
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }

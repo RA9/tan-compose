@@ -16,7 +16,7 @@
  *   plus per-variant overrides like --tc-callout-warning-bg etc.
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-callout";
 
@@ -40,6 +40,47 @@ const ICONS: Record<string, string> = {
   danger:
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
 };
+
+const STYLE = `
+  :host { display: block; }
+  .callout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: var(--tc-callout-radius);
+    border-left: 3px solid var(--callout-border);
+    background: var(--callout-bg);
+    color: var(--callout-fg);
+    font-family: var(--tc-callout-font);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .callout.compact { padding: 10px 14px; font-size: 0.9rem; }
+
+  .v-note    { --callout-bg: var(--tc-callout-note-bg);    --callout-fg: var(--tc-callout-note-fg);    --callout-border: var(--tc-callout-note-border); }
+  .v-info    { --callout-bg: var(--tc-callout-info-bg);    --callout-fg: var(--tc-callout-info-fg);    --callout-border: var(--tc-callout-info-border); }
+  .v-success { --callout-bg: var(--tc-callout-success-bg); --callout-fg: var(--tc-callout-success-fg); --callout-border: var(--tc-callout-success-border); }
+  .v-warning { --callout-bg: var(--tc-callout-warning-bg); --callout-fg: var(--tc-callout-warning-fg); --callout-border: var(--tc-callout-warning-border); }
+  .v-danger  { --callout-bg: var(--tc-callout-danger-bg);  --callout-fg: var(--tc-callout-danger-fg);  --callout-border: var(--tc-callout-danger-border); }
+
+  .icon {
+    display: inline-flex;
+    width: 20px; height: 20px;
+    margin-top: 2px;
+    color: var(--callout-border);
+  }
+  .icon svg { width: 100%; height: 100%; }
+
+  .title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--callout-fg);
+  }
+
+  .content ::slotted(p:first-child) { margin-top: 0; }
+  .content ::slotted(p:last-child)  { margin-bottom: 0; }
+`;
 
 build(
   TAG,
@@ -79,70 +120,26 @@ build(
     styles: {
       display: "block",
     },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const variant = String(props.variant ?? "note");
       const symbol = ICONS[variant] ?? ICONS.note;
-      return `
+      return html`
         <aside
-          class="callout v-${esc(variant)} ${props.compact ? "compact" : ""}"
+          class="callout v-${variant} ${props.compact ? "compact" : ""}"
           role="${variant === "danger" ? "alert" : "note"}"
         >
-          <span class="icon" aria-hidden="true">${symbol}</span>
+          <span class="icon" aria-hidden="true">${unsafe(symbol)}</span>
           <div class="body">
-            ${props.title ? `<div class="title">${esc(props.title)}</div>` : ""}
+            ${props.title
+              ? html`
+                <div class="title">${props.title}</div>
+              `
+              : ""}
             <div class="content"><slot></slot></div>
           </div>
         </aside>
-        <style>
-          :host { display: block; }
-          .callout {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 12px;
-            padding: 14px 18px;
-            border-radius: var(--tc-callout-radius);
-            border-left: 3px solid var(--callout-border);
-            background: var(--callout-bg);
-            color: var(--callout-fg);
-            font-family: var(--tc-callout-font);
-            font-size: 0.95rem;
-            line-height: 1.6;
-          }
-          .callout.compact { padding: 10px 14px; font-size: 0.9rem; }
-
-          .v-note    { --callout-bg: var(--tc-callout-note-bg);    --callout-fg: var(--tc-callout-note-fg);    --callout-border: var(--tc-callout-note-border); }
-          .v-info    { --callout-bg: var(--tc-callout-info-bg);    --callout-fg: var(--tc-callout-info-fg);    --callout-border: var(--tc-callout-info-border); }
-          .v-success { --callout-bg: var(--tc-callout-success-bg); --callout-fg: var(--tc-callout-success-fg); --callout-border: var(--tc-callout-success-border); }
-          .v-warning { --callout-bg: var(--tc-callout-warning-bg); --callout-fg: var(--tc-callout-warning-fg); --callout-border: var(--tc-callout-warning-border); }
-          .v-danger  { --callout-bg: var(--tc-callout-danger-bg);  --callout-fg: var(--tc-callout-danger-fg);  --callout-border: var(--tc-callout-danger-border); }
-
-          .icon {
-            display: inline-flex;
-            width: 20px; height: 20px;
-            margin-top: 2px;
-            color: var(--callout-border);
-          }
-          .icon svg { width: 100%; height: 100%; }
-
-          .title {
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--callout-fg);
-          }
-
-          .content ::slotted(p:first-child) { margin-top: 0; }
-          .content ::slotted(p:last-child)  { margin-bottom: 0; }
-        </style>
       `;
     },
   }),
 );
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}

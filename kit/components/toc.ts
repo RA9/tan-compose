@@ -17,7 +17,7 @@
  *   --tc-toc-label, --tc-toc-font, --tc-toc-top
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-toc";
 
@@ -33,6 +33,46 @@ const STATE = new WeakMap<
   HTMLElement,
   { observer?: IntersectionObserver; activeId: string }
 >();
+
+const STYLE = `
+  :host { display: block; font-family: var(--tc-toc-font); }
+  .toc {
+    font-size: 0.9rem;
+    color: var(--tc-toc-fg-muted);
+    padding-left: 14px;
+    border-left: 1px solid var(--tc-toc-rule);
+  }
+  .toc.sticky { position: sticky; top: var(--tc-toc-top); }
+  .label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--tc-toc-label);
+    margin-bottom: 10px;
+  }
+  .list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .list a {
+    display: block;
+    padding: 4px 0;
+    color: var(--tc-toc-fg-muted);
+    text-decoration: none;
+    line-height: 1.4;
+    transition: color 0.15s ease;
+  }
+  .list a:hover { color: var(--tc-toc-fg); }
+  .list .active > a {
+    color: var(--tc-toc-active);
+    font-weight: 600;
+  }
+  .lvl-3 a { padding-left: 12px; font-size: 0.86rem; }
+  .lvl-4 a { padding-left: 24px; font-size: 0.84rem; }
+  .lvl-5 a, .lvl-6 a { padding-left: 36px; font-size: 0.82rem; }
+  .empty { color: var(--tc-toc-fg-muted); font-size: 0.86rem; margin: 0; }
+`;
 
 build(
   TAG,
@@ -56,66 +96,31 @@ build(
     styles: {
       display: "block",
     },
+    stylesheet: STYLE,
     template: ({ props, state }) => {
       const items = (state.items as Item[] | undefined) ?? [];
       const active = (state.activeId as string | undefined) ?? "";
-      return `
+      return html`
         <nav
           class="toc${props.sticky ? " sticky" : ""}"
           aria-label="Table of contents"
         >
-          ${props.label ? `<div class="label">${esc(props.label)}</div>` : ""}
-          ${
-        items.length === 0
-          ? `<p class="empty">No sections yet.</p>`
-          : `<ol class="list">${
-            items.map((it) =>
-              `<li class="lvl-${it.level}${
-                it.id === active ? " active" : ""
-              }"><a href="#${esc(it.id)}">${esc(it.text)}</a></li>`
-            ).join("")
-          }</ol>`
-      }
+          ${props.label
+            ? html`
+              <div class="label">${props.label}</div>
+            `
+            : ""} ${items.length === 0
+            ? unsafe(`<p class="empty">No sections yet.</p>`)
+            : unsafe(
+              `<ol class="list">${
+                items.map((it) =>
+                  `<li class="lvl-${it.level}${
+                    it.id === active ? " active" : ""
+                  }"><a href="#${esc(it.id)}">${esc(it.text)}</a></li>`
+                ).join("")
+              }</ol>`,
+            )}
         </nav>
-        <style>
-          :host { display: block; font-family: var(--tc-toc-font); }
-          .toc {
-            font-size: 0.9rem;
-            color: var(--tc-toc-fg-muted);
-            padding-left: 14px;
-            border-left: 1px solid var(--tc-toc-rule);
-          }
-          .toc.sticky { position: sticky; top: var(--tc-toc-top); }
-          .label {
-            font-size: 0.74rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--tc-toc-label);
-            margin-bottom: 10px;
-          }
-          .list {
-            list-style: none; padding: 0; margin: 0;
-            display: flex; flex-direction: column; gap: 4px;
-          }
-          .list a {
-            display: block;
-            padding: 4px 0;
-            color: var(--tc-toc-fg-muted);
-            text-decoration: none;
-            line-height: 1.4;
-            transition: color 0.15s ease;
-          }
-          .list a:hover { color: var(--tc-toc-fg); }
-          .list .active > a {
-            color: var(--tc-toc-active);
-            font-weight: 600;
-          }
-          .lvl-3 a { padding-left: 12px; font-size: 0.86rem; }
-          .lvl-4 a { padding-left: 24px; font-size: 0.84rem; }
-          .lvl-5 a, .lvl-6 a { padding-left: 36px; font-size: 0.82rem; }
-          .empty { color: var(--tc-toc-fg-muted); font-size: 0.86rem; margin: 0; }
-        </style>
       `;
     },
     afterMount() {

@@ -17,7 +17,7 @@
  *   --tc-avatar-group-overflow-fg
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-avatar-group";
 
@@ -29,6 +29,46 @@ interface HostExtras {
   size: string;
   _agroupCleanup?: () => void;
 }
+
+const STYLE = `
+  :host {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  .row {
+    display: inline-flex;
+    align-items: center;
+  }
+  ::slotted(tc-avatar) {
+    box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
+    border-radius: 999px;
+    transition: transform 0.15s ease;
+  }
+  :host([spacing="tight"]) ::slotted(tc-avatar) { margin-left: -10px; }
+  :host([spacing="normal"]) ::slotted(tc-avatar),
+  :host(:not([spacing])) ::slotted(tc-avatar) { margin-left: -8px; }
+  :host([spacing="loose"]) ::slotted(tc-avatar) { margin-left: -4px; }
+  ::slotted(tc-avatar:first-child) { margin-left: 0 !important; }
+  ::slotted(tc-avatar:hover) { transform: translateY(-2px); z-index: 1; }
+  .overflow {
+    display: inline-grid;
+    place-items: center;
+    background: var(--tc-avatar-group-overflow-bg);
+    color: var(--tc-avatar-group-overflow-fg);
+    font-weight: 600;
+    font-family: var(--tc-font-sans, system-ui, sans-serif);
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
+    line-height: 1;
+    user-select: none;
+  }
+  :host([size="xs"]) .overflow { width: 20px; height: 20px; font-size: 0.55rem; margin-left: -10px; }
+  :host([size="sm"]) .overflow { width: 28px; height: 28px; font-size: 0.68rem; margin-left: -8px; }
+  :host(:not([size])) .overflow,
+  :host([size="md"]) .overflow { width: 36px; height: 36px; font-size: 0.78rem; margin-left: -8px; }
+  :host([size="lg"]) .overflow { width: 48px; height: 48px; font-size: 0.88rem; margin-left: -6px; }
+  :host([size="xl"]) .overflow { width: 64px; height: 64px; font-size: 1rem; margin-left: -4px; }
+`;
 
 build(
   TAG,
@@ -46,48 +86,11 @@ build(
     styles: {
       display: "inline-flex",
     },
-    template: () => `
-      <span class="row"><slot></slot><span class="overflow" hidden></span></span>
-      <style>
-        :host {
-          display: inline-flex;
-          vertical-align: middle;
-        }
-        .row {
-          display: inline-flex;
-          align-items: center;
-        }
-        ::slotted(tc-avatar) {
-          box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
-          border-radius: 999px;
-          transition: transform 0.15s ease;
-        }
-        :host([spacing="tight"]) ::slotted(tc-avatar) { margin-left: -10px; }
-        :host([spacing="normal"]) ::slotted(tc-avatar),
-        :host(:not([spacing])) ::slotted(tc-avatar) { margin-left: -8px; }
-        :host([spacing="loose"]) ::slotted(tc-avatar) { margin-left: -4px; }
-        ::slotted(tc-avatar:first-child) { margin-left: 0 !important; }
-        ::slotted(tc-avatar:hover) { transform: translateY(-2px); z-index: 1; }
-        .overflow {
-          display: inline-grid;
-          place-items: center;
-          background: var(--tc-avatar-group-overflow-bg);
-          color: var(--tc-avatar-group-overflow-fg);
-          font-weight: 600;
-          font-family: var(--tc-font-sans, system-ui, sans-serif);
-          border-radius: 999px;
-          box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
-          line-height: 1;
-          user-select: none;
-        }
-        :host([size="xs"]) .overflow { width: 20px; height: 20px; font-size: 0.55rem; margin-left: -10px; }
-        :host([size="sm"]) .overflow { width: 28px; height: 28px; font-size: 0.68rem; margin-left: -8px; }
-        :host(:not([size])) .overflow,
-        :host([size="md"]) .overflow { width: 36px; height: 36px; font-size: 0.78rem; margin-left: -8px; }
-        :host([size="lg"]) .overflow { width: 48px; height: 48px; font-size: 0.88rem; margin-left: -6px; }
-        :host([size="xl"]) .overflow { width: 64px; height: 64px; font-size: 1rem; margin-left: -4px; }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: () =>
+      html`
+        <span class="row"><slot></slot><span class="overflow" hidden></span></span>
+      `,
     afterMount() {
       const host = this as unknown as HTMLElement & HostExtras;
       const apply = () => applyGroup(host);

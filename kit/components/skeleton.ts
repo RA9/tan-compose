@@ -11,11 +11,39 @@
  *   --tc-skeleton-base, --tc-skeleton-shine, --tc-skeleton-radius
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-skeleton";
 
 export const tagName = TAG;
+
+const STYLE = `
+  .bone {
+    display: inline-block;
+    background: var(--tc-skeleton-base);
+    border-radius: var(--tc-skeleton-radius);
+    position: relative; overflow: hidden;
+  }
+  .bone.round { border-radius: 50%; }
+  .bone.pulse::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--tc-skeleton-shine),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: tc-shimmer 1.4s infinite;
+  }
+  @keyframes tc-shimmer {
+    to { transform: translateX(100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bone.pulse::after { animation: none; opacity: 0.4; }
+  }
+`;
 
 build(
   TAG,
@@ -35,50 +63,16 @@ build(
       display: "inline-block",
       "vertical-align": "middle",
     },
-    template: ({ props }) => `
-      <span
-        class="bone ${props.pulse ? "pulse" : ""} ${
-      props.rounded ? "round" : ""
-    }"
-        aria-hidden="true"
-        style="width: ${esc(props.width)}; height: ${esc(props.height)};"
-      ></span>
-      <style>
-        .bone {
-          display: inline-block;
-          background: var(--tc-skeleton-base);
-          border-radius: var(--tc-skeleton-radius);
-          position: relative; overflow: hidden;
-        }
-        .bone.round { border-radius: 50%; }
-        .bone.pulse::after {
-          content: "";
-          position: absolute; inset: 0;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            var(--tc-skeleton-shine),
-            transparent
-          );
-          transform: translateX(-100%);
-          animation: tc-shimmer 1.4s infinite;
-        }
-        @keyframes tc-shimmer {
-          to { transform: translateX(100%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .bone.pulse::after { animation: none; opacity: 0.4; }
-        }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: ({ props }) =>
+      html`
+        <span
+          class="bone ${props.pulse ? "pulse" : ""} ${props.rounded
+            ? "round"
+            : ""}"
+          aria-hidden="true"
+          style="width: ${props.width}; height: ${props.height};"
+        ></span>
+      `,
   }),
 );
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}

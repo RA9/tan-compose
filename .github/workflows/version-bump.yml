@@ -35,6 +35,33 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Validate version matches latest tag
+        run: |
+          # Read current version from deno.json
+          CURRENT_VERSION=$(deno eval "console.log(JSON.parse(Deno.readTextFileSync('deno.json')).version)")
+          echo "Current version in deno.json: $CURRENT_VERSION"
+
+          # Get the latest version tag (vX.Y.Z format, sorted by version)
+          LATEST_TAG=$(git tag --list 'v[0-9]*' --sort=-version:refname | head -n 1)
+          echo "Latest git tag: $LATEST_TAG"
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No version tags found — skipping validation."
+            exit 0
+          fi
+
+          # Strip the 'v' prefix from the tag
+          LATEST_TAG_VERSION="${LATEST_TAG#v}"
+
+          if [ "$CURRENT_VERSION" != "$LATEST_TAG_VERSION" ]; then
+            echo "::error::Version mismatch! deno.json has v$CURRENT_VERSION but the latest git tag is $LATEST_TAG."
+            echo "This usually means the version was bumped manually without creating a tag."
+            echo "Either create the missing tag (git tag v$CURRENT_VERSION && git push origin v$CURRENT_VERSION) or reset deno.json to $LATEST_TAG_VERSION before running this workflow."
+            exit 1
+          fi
+
+          echo "Version is in sync with git tags."
+
       - name: Bump version
         id: bump
         run: |

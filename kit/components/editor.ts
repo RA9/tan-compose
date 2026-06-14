@@ -46,7 +46,7 @@
  *   --tc-editor-line-height
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-editor";
 export const tagName = TAG;
@@ -251,7 +251,6 @@ const TOOLBAR_REGISTRY: Record<string, ToolbarEntry> = {
 };
 
 const STYLE = `
-  <style>
     :host {
       display: block;
       font-family: var(--tc-editor-font, var(--tc-font-sans, "Inter", system-ui, sans-serif));
@@ -388,7 +387,6 @@ const STYLE = `
     }
 
     ::slotted([slot="toolbar-extra"]) { display: contents; }
-  </style>
 `;
 
 build(
@@ -421,6 +419,7 @@ build(
       "tc-editor-line-height": "1.6",
     },
     styles: { display: "block" },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const toolbar = String(props.toolbar ?? DEFAULT_TOOLBAR);
       const readonly = !!props.readonly;
@@ -453,22 +452,22 @@ build(
         maxHeight ? `--tc-editor-max-height: ${esc(maxHeight)};` : ""
       }`;
 
-      return `
-        <div class="root" style="${styleVars}">
+      return html`
+        <div class="root" style="${unsafe(styleVars)}">
           <div class="${toolbarCls}" role="toolbar" aria-label="Formatting">
-            ${buttons}
+            ${unsafe(buttons)}
             <slot name="toolbar-extra"></slot>
           </div>
           <div
             class="surface"
             contenteditable="${readonly ? "false" : "true"}"
-            data-placeholder="${esc(props.placeholder ?? "")}"
+            data-placeholder="${props.placeholder ?? ""}"
             role="textbox"
             aria-multiline="true"
             spellcheck="true"
-          ></div>
+          >
+          </div>
         </div>
-        ${STYLE}
       `;
     },
     afterMount() {

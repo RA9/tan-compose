@@ -23,7 +23,7 @@
  *   --tc-accordion-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-accordion";
 
@@ -34,6 +34,32 @@ interface HostExtras {
   bordered: boolean;
   _accordionCleanup?: () => void;
 }
+
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-accordion> and runs the first render. This is only
+// the shadow stylesheet; the light-DOM sheet is injected separately via
+// injectLightStyles().
+const STYLE = `
+        :host { display: block; font-family: var(--tc-accordion-font); }
+        .root {
+          background: var(--tc-accordion-bg);
+          color: var(--tc-accordion-ink);
+          border-radius: var(--tc-accordion-radius);
+          overflow: hidden;
+        }
+        .root.bordered {
+          border: 1px solid var(--tc-accordion-rule);
+        }
+        /* Only the top-level slotted node (\`details\`) is reachable from the
+           shadow tree — \`::slotted()\` takes a compound selector, not a
+           combinator. Everything that targets \`summary\` (a descendant of the
+           slotted node) lives in the injected light-DOM sheet below; the
+           --tc-accordion-* vars inherit into the light DOM from :host. */
+        ::slotted(details) {
+          background: transparent;
+        }
+`;
 
 build(
   TAG,
@@ -55,31 +81,13 @@ build(
     styles: {
       display: "block",
     },
-    template: ({ props }) => `
-      <div class="root ${props.bordered ? "bordered" : ""}">
-        <slot></slot>
-      </div>
-      <style>
-        :host { display: block; font-family: var(--tc-accordion-font); }
-        .root {
-          background: var(--tc-accordion-bg);
-          color: var(--tc-accordion-ink);
-          border-radius: var(--tc-accordion-radius);
-          overflow: hidden;
-        }
-        .root.bordered {
-          border: 1px solid var(--tc-accordion-rule);
-        }
-        /* Only the top-level slotted node (\`details\`) is reachable from the
-           shadow tree — \`::slotted()\` takes a compound selector, not a
-           combinator. Everything that targets \`summary\` (a descendant of the
-           slotted node) lives in the injected light-DOM sheet below; the
-           --tc-accordion-* vars inherit into the light DOM from :host. */
-        ::slotted(details) {
-          background: transparent;
-        }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: ({ props }) =>
+      html`
+        <div class="root ${props.bordered ? "bordered" : ""}">
+          <slot></slot>
+        </div>
+      `,
     afterMount() {
       const host = this as unknown as HTMLElement & HostExtras;
 

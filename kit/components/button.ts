@@ -46,7 +46,7 @@
  *     `initial`) preserves the sm/md/lg defaults.
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-button";
 
@@ -55,11 +55,10 @@ export const tagName = TAG;
 // Declared BEFORE build() because customElements.define() will
 // synchronously upgrade any <tc-button> elements already in the DOM
 // — that triggers the template, which reads this constant. If declared
-// after build(), the first render fires while BUTTON_STYLE is still in
+// after build(), the first render fires while STYLE is still in
 // the TDZ (var) / undefined (const-after-define), producing buttons
-// with no <style> at all.
-const BUTTON_STYLE = `
-      <style>
+// with no styles at all.
+const STYLE = `
         .root {
           font-family: var(--tc-btn-font);
           font-weight: 500;
@@ -139,7 +138,6 @@ const BUTTON_STYLE = `
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
-      </style>
 `;
 
 build(
@@ -176,6 +174,7 @@ build(
       display: "inline-block",
       "vertical-align": "middle",
     },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const cls = `root v-${esc(props.variant)} s-${esc(props.size)}${
         props.block ? " block" : ""
@@ -204,14 +203,18 @@ build(
         const hrefAttr = isDisabled ? "" : ` href="${esc(href)}"`;
         const ariaDisabled = isDisabled ? ` aria-disabled="true"` : "";
         const tabIndex = isDisabled ? ` tabindex="-1"` : "";
-        return `
-      <a
-        part="button"
-        class="${cls}"${hrefAttr}${targetAttr}${relAttr}${ariaDisabled}${tabIndex}
-        role="button"
-      >
-        ${inner}
-      </a>${BUTTON_STYLE}`;
+        return html`
+          <a
+            part="button"
+            class="${unsafe(cls)}"
+            ${unsafe(hrefAttr)}${unsafe(targetAttr)}${unsafe(relAttr)}${unsafe(
+              ariaDisabled,
+            )}${unsafe(tabIndex)}
+            role="button"
+          >
+            ${unsafe(inner)}
+          </a>
+        `;
       }
 
       const rawType = String(props.type ?? "button");
@@ -219,15 +222,16 @@ build(
         ? rawType
         : "button";
 
-      return `
-      <button
-        part="button"
-        class="${cls}"
-        ${isDisabled ? "disabled" : ""}
-        type="${btnType}"
-      >
-        ${inner}
-      </button>${BUTTON_STYLE}`;
+      return html`
+        <button
+          part="button"
+          class="${unsafe(cls)}"
+          ${unsafe(isDisabled ? "disabled" : "")}
+          type="${btnType}"
+        >
+          ${unsafe(inner)}
+        </button>
+      `;
     },
     events: {
       "click .root": (_event, ctx) => {

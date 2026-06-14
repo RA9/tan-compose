@@ -25,11 +25,43 @@
  *   --tc-popover-min-width, --tc-popover-max-width, --tc-popover-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-popover";
 
 export const tagName = TAG;
+
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-popover> and runs the first render.
+const STYLE = `
+        :host { display: inline-block; }
+        .trigger-wrap { display: inline-block; }
+        .panel {
+          position: fixed;
+          margin: 0;
+          padding: var(--tc-popover-padding);
+          background: var(--tc-popover-bg);
+          color: var(--tc-popover-fg);
+          border: 1px solid var(--tc-popover-rule);
+          border-radius: var(--tc-popover-radius);
+          box-shadow: var(--tc-popover-shadow);
+          font-family: var(--tc-popover-font);
+          font-size: 0.92rem;
+          min-width: var(--tc-popover-min-width);
+          max-width: var(--tc-popover-max-width);
+          opacity: 0;
+          transform: translateY(-4px);
+          transition: opacity 0.14s ease, transform 0.14s ease;
+        }
+        .panel:popover-open {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .panel { transition: none; transform: none; }
+        }
+`;
 
 interface HostExtras {
   open: boolean;
@@ -65,45 +97,19 @@ build(
       display: "inline-block",
       position: "relative",
     },
-    template: () => `
-      <span class="trigger-wrap"><slot name="trigger"></slot></span>
-      <div
-        class="panel"
-        popover="manual"
-        role="dialog"
-        part="panel"
-      >
-        <slot></slot>
-      </div>
-      <style>
-        :host { display: inline-block; }
-        .trigger-wrap { display: inline-block; }
-        .panel {
-          position: fixed;
-          margin: 0;
-          padding: var(--tc-popover-padding);
-          background: var(--tc-popover-bg);
-          color: var(--tc-popover-fg);
-          border: 1px solid var(--tc-popover-rule);
-          border-radius: var(--tc-popover-radius);
-          box-shadow: var(--tc-popover-shadow);
-          font-family: var(--tc-popover-font);
-          font-size: 0.92rem;
-          min-width: var(--tc-popover-min-width);
-          max-width: var(--tc-popover-max-width);
-          opacity: 0;
-          transform: translateY(-4px);
-          transition: opacity 0.14s ease, transform 0.14s ease;
-        }
-        .panel:popover-open {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .panel { transition: none; transform: none; }
-        }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: () =>
+      html`
+        <span class="trigger-wrap"><slot name="trigger"></slot></span>
+        <div
+          class="panel"
+          popover="manual"
+          role="dialog"
+          part="panel"
+        >
+          <slot></slot>
+        </div>
+      `,
     events: {
       "click .trigger-wrap": (_e, ctx) => {
         const host = ctx.host as HTMLElement & HostExtras;

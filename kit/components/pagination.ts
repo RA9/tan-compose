@@ -30,12 +30,38 @@
  *   - Clicking the current page is a no-op (no event fired).
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 import "./button.ts";
 
 const TAG = "tc-pagination";
 
 export const tagName = TAG;
+
+const STYLE = `
+          :host { display: block; }
+          nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+          }
+          .pages {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+          .ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            color: var(--tc-color-ink-muted, #6b7280);
+            font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
+          }
+          tc-button[aria-current="page"] {
+            pointer-events: none;
+          }
+`;
 
 build(
   TAG,
@@ -53,6 +79,7 @@ build(
     styles: {
       display: "block",
     },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const total = Math.max(1, Number(props.total) | 0);
       const current = clamp(Number(props.current) | 0, 1, total);
@@ -83,47 +110,24 @@ build(
         })
         .join("");
 
-      return `
-        <nav aria-label="${esc(String(props.label ?? "Pagination"))}">
+      return html`
+        <nav aria-label="${String(props.label ?? "Pagination")}">
           <tc-button
             class="prev"
-            size="${size}"
+            size="${unsafe(size)}"
             variant="ghost"
-            data-page="${current - 1}"${prevDisabled}
-          >← ${esc(String(props["prev-label"] ?? "Prev"))}</tc-button>
-          <span class="pages">${pages}</span>
+            data-page="${current - 1}"
+            ${unsafe(prevDisabled)}
+          >← ${String(props["prev-label"] ?? "Prev")}</tc-button>
+          <span class="pages">${unsafe(pages)}</span>
           <tc-button
             class="next"
-            size="${size}"
+            size="${unsafe(size)}"
             variant="ghost"
-            data-page="${current + 1}"${nextDisabled}
-          >${esc(String(props["next-label"] ?? "Next"))} →</tc-button>
+            data-page="${current + 1}"
+            ${unsafe(nextDisabled)}
+          >${String(props["next-label"] ?? "Next")} →</tc-button>
         </nav>
-        <style>
-          :host { display: block; }
-          nav {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-          }
-          .pages {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-          }
-          .ellipsis {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 28px;
-            color: var(--tc-color-ink-muted, #6b7280);
-            font-family: var(--tc-font-mono, "JetBrains Mono", monospace);
-          }
-          tc-button[aria-current="page"] {
-            pointer-events: none;
-          }
-        </style>
       `;
     },
     events: {

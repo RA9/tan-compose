@@ -27,126 +27,13 @@
  *   --tc-slider-fg-muted
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-slider";
 
 export const tagName = TAG;
 
-interface HostExtras {
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  disabled: boolean;
-  showValue: boolean;
-  showTicks: boolean;
-  label: string;
-  suffix: string;
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-build(
-  TAG,
-  describe({
-    props: {
-      value: { type: "number", default: 0, reflect: true },
-      min: { type: "number", default: 0 },
-      max: { type: "number", default: 100 },
-      step: { type: "number", default: 1 },
-      disabled: { type: "boolean", default: false, reflect: true },
-      showValue: { type: "boolean", default: false },
-      showTicks: { type: "boolean", default: false },
-      label: { type: "string", default: "" },
-      suffix: { type: "string", default: "" },
-    },
-    theme: {
-      "tc-slider-track": "var(--tc-color-rule, #ece5d3)",
-      "tc-slider-fill": "var(--tc-color-accent, #a16939)",
-      "tc-slider-thumb": "var(--tc-color-surface, #ffffff)",
-      "tc-slider-thumb-ring": "var(--tc-color-accent, #a16939)",
-      "tc-slider-radius": "999px",
-      "tc-slider-thumb-size": "20px",
-      "tc-slider-track-size": "6px",
-      "tc-slider-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-slider-fg": "var(--tc-color-ink, #14171f)",
-      "tc-slider-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
-    },
-    styles: {
-      display: "block",
-    },
-    template: ({ props }) => {
-      const value = Number(props.value ?? 0);
-      const min = Number(props.min ?? 0);
-      const max = Number(props.max ?? 100);
-      const step = Number(props.step ?? 1);
-      const disabled = !!props.disabled;
-      const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
-      const label = String(props.label ?? "");
-      const suffix = String(props.suffix ?? "");
-      const showValue = !!props.showValue;
-      const showTicks = !!props.showTicks;
-
-      let ticks = "";
-      if (showTicks && step > 0) {
-        const n = Math.floor((max - min) / step) + 1;
-        // Cap ticks to avoid runaway DOM on tiny step.
-        if (n <= 50) {
-          const parts: string[] = [];
-          for (let i = 0; i < n; i++) {
-            const v = min + i * step;
-            const p = ((v - min) / (max - min)) * 100;
-            parts.push(
-              `<span class="tick" style="left:${p.toFixed(2)}%"></span>`,
-            );
-          }
-          ticks = parts.join("");
-        }
-      }
-
-      return `
-        ${
-        label || showValue
-          ? `<div class="head">
-              ${
-            label
-              ? `<label for="r" class="lbl">${esc(label)}</label>`
-              : "<span></span>"
-          }
-              ${
-            showValue
-              ? `<span class="val">${esc(String(value))}${esc(suffix)}</span>`
-              : ""
-          }
-            </div>`
-          : ""
-      }
-        <div class="rail" style="--tc-slider-pct: ${pct.toFixed(2)}%;">
-          <div class="track-bg"></div>
-          <div class="track-fill"></div>
-          ${ticks}
-          <input
-            id="r"
-            class="range"
-            type="range"
-            min="${min}"
-            max="${max}"
-            step="${step}"
-            value="${value}"
-            ${disabled ? "disabled" : ""}
-            aria-valuetext="${esc(String(value) + suffix)}"
-          />
-        </div>
-        <style>
+const STYLE = `
           :host { display: block; font-family: var(--tc-slider-font); color: var(--tc-slider-fg); }
           .head {
             display: flex;
@@ -249,7 +136,122 @@ build(
           .range:focus-visible::-moz-range-thumb {
             box-shadow: 0 0 0 4px color-mix(in srgb, var(--tc-slider-thumb-ring) 25%, transparent);
           }
-        </style>
+`;
+
+interface HostExtras {
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  disabled: boolean;
+  showValue: boolean;
+  showTicks: boolean;
+  label: string;
+  suffix: string;
+}
+
+function esc(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+build(
+  TAG,
+  describe({
+    props: {
+      value: { type: "number", default: 0, reflect: true },
+      min: { type: "number", default: 0 },
+      max: { type: "number", default: 100 },
+      step: { type: "number", default: 1 },
+      disabled: { type: "boolean", default: false, reflect: true },
+      showValue: { type: "boolean", default: false },
+      showTicks: { type: "boolean", default: false },
+      label: { type: "string", default: "" },
+      suffix: { type: "string", default: "" },
+    },
+    theme: {
+      "tc-slider-track": "var(--tc-color-rule, #ece5d3)",
+      "tc-slider-fill": "var(--tc-color-accent, #a16939)",
+      "tc-slider-thumb": "var(--tc-color-surface, #ffffff)",
+      "tc-slider-thumb-ring": "var(--tc-color-accent, #a16939)",
+      "tc-slider-radius": "999px",
+      "tc-slider-thumb-size": "20px",
+      "tc-slider-track-size": "6px",
+      "tc-slider-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-slider-fg": "var(--tc-color-ink, #14171f)",
+      "tc-slider-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
+    },
+    styles: {
+      display: "block",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const value = Number(props.value ?? 0);
+      const min = Number(props.min ?? 0);
+      const max = Number(props.max ?? 100);
+      const step = Number(props.step ?? 1);
+      const disabled = !!props.disabled;
+      const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
+      const label = String(props.label ?? "");
+      const suffix = String(props.suffix ?? "");
+      const showValue = !!props.showValue;
+      const showTicks = !!props.showTicks;
+
+      let ticks = "";
+      if (showTicks && step > 0) {
+        const n = Math.floor((max - min) / step) + 1;
+        // Cap ticks to avoid runaway DOM on tiny step.
+        if (n <= 50) {
+          const parts: string[] = [];
+          for (let i = 0; i < n; i++) {
+            const v = min + i * step;
+            const p = ((v - min) / (max - min)) * 100;
+            parts.push(
+              `<span class="tick" style="left:${p.toFixed(2)}%"></span>`,
+            );
+          }
+          ticks = parts.join("");
+        }
+      }
+
+      return html`
+        ${unsafe(
+          label || showValue
+            ? `<div class="head">
+              ${
+              label
+                ? `<label for="r" class="lbl">${esc(label)}</label>`
+                : "<span></span>"
+            }
+              ${
+              showValue
+                ? `<span class="val">${esc(String(value))}${esc(suffix)}</span>`
+                : ""
+            }
+            </div>`
+            : "",
+        )}
+        <div class="rail" style="--tc-slider-pct: ${pct.toFixed(2)}%;">
+          <div class="track-bg"></div>
+          <div class="track-fill"></div>
+          ${unsafe(ticks)}
+          <input
+            id="r"
+            class="range"
+            type="range"
+            min="${min}"
+            max="${max}"
+            step="${step}"
+            value="${value}"
+            ${unsafe(disabled ? "disabled" : "")}
+            aria-valuetext="${String(value) + suffix}"
+          />
+        </div>
       `;
     },
     refs: {

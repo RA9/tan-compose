@@ -3,7 +3,26 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
-## [1.12.0] - 2026-05-18
+## [1.12.0] - 2026-06-14
+
+### Changed — adopt the v1.2 core templating APIs (internal)
+
+Every component now builds its template with the core's `html` tagged
+template (auto-escaping) and moves its static CSS into the new
+`stylesheet` describe field, which installs the CSS once as a shared
+**adopted stylesheet** instead of re-parsing a `<style>` block on every
+render. This is an internal change — **rendered output and the public
+API are unchanged** — but it removes the per-render CSS reparse for 32
+components and replaces hand-rolled `esc()` interpolation with
+structural escaping (raw markup is passed through with `unsafe()`).
+
+Four components keep an inline `<style>` because their CSS interpolates
+per-instance props that can't live in a shared static sheet: `tc-modal`
+(width), `tc-progress` (size/height), `tc-rating` and `tc-stepper`
+(cursor). `tc-table` continues to carry its CSS in a child element.
+
+This requires core `@ra9/tan-compose@^1.2.0` (for `html`, `unsafe`, and
+`stylesheet`); the dependency range was tightened accordingly.
 
 ### Added — `<tc-button>` form submission
 

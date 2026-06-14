@@ -18,11 +18,28 @@
  *   --tc-badge-danger-bg,  --tc-badge-danger-fg
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html } from "@ra9/tan-compose";
 
 const TAG = "tc-badge";
 
 export const tagName = TAG;
+
+const STYLE = `
+  .badge {
+    display: inline-flex; align-items: center;
+    font-family: var(--tc-badge-font); font-weight: 600;
+    line-height: 1; white-space: nowrap;
+    border-radius: var(--tc-badge-radius);
+  }
+  .badge.pill { border-radius: 999px; }
+  .s-sm { font-size: 0.7rem; padding: 3px 7px; }
+  .s-md { font-size: 0.78rem; padding: 4px 9px; }
+  .v-neutral { background: var(--tc-badge-neutral-bg); color: var(--tc-badge-neutral-fg); }
+  .v-info    { background: var(--tc-badge-info-bg);    color: var(--tc-badge-info-fg); }
+  .v-success { background: var(--tc-badge-success-bg); color: var(--tc-badge-success-fg); }
+  .v-warning { background: var(--tc-badge-warning-bg); color: var(--tc-badge-warning-fg); }
+  .v-danger  { background: var(--tc-badge-danger-bg);  color: var(--tc-badge-danger-fg); }
+`;
 
 build(
   TAG,
@@ -50,37 +67,14 @@ build(
     styles: {
       display: "inline-block",
     },
-    template: ({ props }) => `
-      <span class="badge v-${esc(props.variant)} s-${esc(props.size)} ${
-      props.pill ? "pill" : ""
-    }">
-        <slot></slot>
-      </span>
-      <style>
-        .badge {
-          display: inline-flex; align-items: center;
-          font-family: var(--tc-badge-font); font-weight: 600;
-          line-height: 1; white-space: nowrap;
-          border-radius: var(--tc-badge-radius);
-        }
-        .badge.pill { border-radius: 999px; }
-        .s-sm { font-size: 0.7rem; padding: 3px 7px; }
-        .s-md { font-size: 0.78rem; padding: 4px 9px; }
-        .v-neutral { background: var(--tc-badge-neutral-bg); color: var(--tc-badge-neutral-fg); }
-        .v-info    { background: var(--tc-badge-info-bg);    color: var(--tc-badge-info-fg); }
-        .v-success { background: var(--tc-badge-success-bg); color: var(--tc-badge-success-fg); }
-        .v-warning { background: var(--tc-badge-warning-bg); color: var(--tc-badge-warning-fg); }
-        .v-danger  { background: var(--tc-badge-danger-bg);  color: var(--tc-badge-danger-fg); }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: ({ props }) =>
+      html`
+        <span class="badge v-${props.variant} s-${props.size} ${props.pill
+          ? "pill"
+          : ""}">
+          <slot></slot>
+        </span>
+      `,
   }),
 );
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}

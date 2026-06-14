@@ -25,11 +25,46 @@
  *   --tc-tooltip-max-width
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-tooltip";
 
 export const tagName = TAG;
+
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-tooltip> and runs the first render.
+const STYLE = `
+        :host { display: inline-block; }
+        .trigger { display: inline-block; }
+        .tip {
+          position: fixed;
+          margin: 0;
+          padding: var(--tc-tooltip-padding);
+          background: var(--tc-tooltip-bg);
+          color: var(--tc-tooltip-fg);
+          border: none;
+          border-radius: var(--tc-tooltip-radius);
+          box-shadow: var(--tc-tooltip-shadow);
+          font-family: var(--tc-tooltip-font);
+          font-size: 0.78rem;
+          line-height: 1.4;
+          max-width: var(--tc-tooltip-max-width);
+          overflow: visible;
+          pointer-events: none;
+          opacity: 0;
+          transform: translateY(2px);
+          transition: opacity 0.12s ease, transform 0.12s ease;
+        }
+        .tip:popover-open {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .tip[data-placement="bottom"]:popover-open { transform: translateY(0); }
+        @media (prefers-reduced-motion: reduce) {
+          .tip { transition: none; transform: none; }
+        }
+`;
 
 interface HostExtras {
   text: string;
@@ -74,49 +109,24 @@ build(
       display: "inline-block",
       position: "relative",
     },
-    template: ({ props }) => `
-      <span class="trigger" tabindex="-1"><slot></slot></span>
-      <div
-        class="tip"
-        popover="manual"
-        role="tooltip"
-        part="tip"
-      >
-        ${props.text ? `<span class="tip-text">${esc(props.text)}</span>` : ""}
-        <slot name="content"></slot>
-      </div>
-      <style>
-        :host { display: inline-block; }
-        .trigger { display: inline-block; }
-        .tip {
-          position: fixed;
-          margin: 0;
-          padding: var(--tc-tooltip-padding);
-          background: var(--tc-tooltip-bg);
-          color: var(--tc-tooltip-fg);
-          border: none;
-          border-radius: var(--tc-tooltip-radius);
-          box-shadow: var(--tc-tooltip-shadow);
-          font-family: var(--tc-tooltip-font);
-          font-size: 0.78rem;
-          line-height: 1.4;
-          max-width: var(--tc-tooltip-max-width);
-          overflow: visible;
-          pointer-events: none;
-          opacity: 0;
-          transform: translateY(2px);
-          transition: opacity 0.12s ease, transform 0.12s ease;
-        }
-        .tip:popover-open {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .tip[data-placement="bottom"]:popover-open { transform: translateY(0); }
-        @media (prefers-reduced-motion: reduce) {
-          .tip { transition: none; transform: none; }
-        }
-      </style>
-    `,
+    stylesheet: STYLE,
+    template: ({ props }) =>
+      html`
+        <span class="trigger" tabindex="-1"><slot></slot></span>
+        <div
+          class="tip"
+          popover="manual"
+          role="tooltip"
+          part="tip"
+        >
+          ${unsafe(
+            props.text
+              ? `<span class="tip-text">${esc(props.text)}</span>`
+              : "",
+          )}
+          <slot name="content"></slot>
+        </div>
+      `,
     afterMount() {
       const host = this as unknown as HTMLElement & HostExtras;
       const root = host.shadowRoot;

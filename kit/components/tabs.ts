@@ -17,7 +17,7 @@
  *   --tc-tabs-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-tabs";
 
@@ -28,58 +28,10 @@ interface TabDef {
   label: string;
 }
 
-build(
-  TAG,
-  describe({
-    props: {
-      tabs: { type: "json", default: [] },
-      active: { type: "string", default: "", reflect: true },
-    },
-    theme: {
-      "tc-tabs-fg": "var(--tc-color-ink, #14171f)",
-      "tc-tabs-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-tabs-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-tabs-accent": "var(--tc-color-accent, #a16939)",
-      "tc-tabs-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-    },
-    styles: {
-      display: "block",
-      "font-family": "var(--tc-tabs-font)",
-    },
-    template: ({ props }) => {
-      const tabs = (props.tabs as TabDef[] | undefined) ?? [];
-      const active = (props.active as string) || tabs[0]?.id || "";
-      return `
-        <div role="tablist" class="strip">
-          ${
-        tabs.map((t) =>
-          `<button
-              role="tab"
-              type="button"
-              class="tab ${t.id === active ? "active" : ""}"
-              data-tab="${esc(t.id)}"
-              aria-selected="${t.id === active ? "true" : "false"}"
-              aria-controls="panel-${esc(t.id)}"
-              tabindex="${t.id === active ? "0" : "-1"}"
-            >${esc(t.label)}</button>`
-        ).join("")
-      }
-        </div>
-        <div class="panels">
-          ${
-        tabs.map((t) =>
-          `<section
-              role="tabpanel"
-              id="panel-${esc(t.id)}"
-              class="panel"
-              aria-labelledby=""
-              ${t.id === active ? "" : "hidden"}
-            ><slot name="${esc(t.id)}"></slot></section>`
-        ).join("")
-      }
-        </div>
-        <style>
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-tabs> and runs the first render.
+const STYLE = `
           .strip {
             display: flex; gap: 4px;
             border-bottom: 1px solid var(--tc-tabs-rule);
@@ -104,7 +56,60 @@ build(
             border-radius: 4px;
           }
           .panel { color: var(--tc-tabs-fg); line-height: 1.6; }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    props: {
+      tabs: { type: "json", default: [] },
+      active: { type: "string", default: "", reflect: true },
+    },
+    theme: {
+      "tc-tabs-fg": "var(--tc-color-ink, #14171f)",
+      "tc-tabs-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-tabs-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-tabs-accent": "var(--tc-color-accent, #a16939)",
+      "tc-tabs-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+    },
+    styles: {
+      display: "block",
+      "font-family": "var(--tc-tabs-font)",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const tabs = (props.tabs as TabDef[] | undefined) ?? [];
+      const active = (props.active as string) || tabs[0]?.id || "";
+      return html`
+        <div role="tablist" class="strip">
+          ${unsafe(
+            tabs.map((t) =>
+              `<button
+              role="tab"
+              type="button"
+              class="tab ${t.id === active ? "active" : ""}"
+              data-tab="${esc(t.id)}"
+              aria-selected="${t.id === active ? "true" : "false"}"
+              aria-controls="panel-${esc(t.id)}"
+              tabindex="${t.id === active ? "0" : "-1"}"
+            >${esc(t.label)}</button>`
+            ).join(""),
+          )}
+        </div>
+        <div class="panels">
+          ${unsafe(
+            tabs.map((t) =>
+              `<section
+              role="tabpanel"
+              id="panel-${esc(t.id)}"
+              class="panel"
+              aria-labelledby=""
+              ${t.id === active ? "" : "hidden"}
+            ><slot name="${esc(t.id)}"></slot></section>`
+            ).join(""),
+          )}
+        </div>
       `;
     },
     events: {

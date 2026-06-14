@@ -128,6 +128,29 @@ var SafeHtml = class {
 function isSafeHtml(v) {
   return typeof v === "object" && v !== null && v[SAFE] === true;
 }
+function escapeHtml(value) {
+  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function unsafe(value) {
+  return new SafeHtml(String(value ?? ""));
+}
+function resolve(value) {
+  if (value == null || value === false || value === true) {
+    return value === true ? "true" : "";
+  }
+  if (isSafeHtml(value))
+    return value.value;
+  if (Array.isArray(value))
+    return value.map(resolve).join("");
+  return escapeHtml(value);
+}
+function html(strings, ...values) {
+  let out = strings[0];
+  for (let i = 0; i < values.length; i++) {
+    out += resolve(values[i]) + strings[i + 1];
+  }
+  return new SafeHtml(out);
+}
 
 // ../build.ts
 var componentRegistry = /* @__PURE__ */ new Map();
@@ -841,8 +864,7 @@ function reflectAttribute(element, name, value, type) {
 // components/button.ts
 var TAG = "tc-button";
 var tagName = TAG;
-var BUTTON_STYLE = `
-      <style>
+var STYLE = `
         .root {
           font-family: var(--tc-btn-font);
           font-weight: 500;
@@ -922,7 +944,6 @@ var BUTTON_STYLE = `
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
         }
-      </style>
 `;
 build(
   TAG,
@@ -957,6 +978,7 @@ build(
       display: "inline-block",
       "vertical-align": "middle"
     },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const cls = `root v-${esc(props.variant)} s-${esc(props.size)}${props.block ? " block" : ""}`;
       const inner = `${props.loading ? '<span class="spinner" aria-hidden="true"></span>' : ""}
@@ -971,26 +993,31 @@ build(
         const hrefAttr = isDisabled ? "" : ` href="${esc(href)}"`;
         const ariaDisabled = isDisabled ? ` aria-disabled="true"` : "";
         const tabIndex = isDisabled ? ` tabindex="-1"` : "";
-        return `
-      <a
-        part="button"
-        class="${cls}"${hrefAttr}${targetAttr}${relAttr}${ariaDisabled}${tabIndex}
-        role="button"
-      >
-        ${inner}
-      </a>${BUTTON_STYLE}`;
+        return html`
+          <a
+            part="button"
+            class="${unsafe(cls)}"
+            ${unsafe(hrefAttr)}${unsafe(targetAttr)}${unsafe(relAttr)}${unsafe(
+          ariaDisabled
+        )}${unsafe(tabIndex)}
+            role="button"
+          >
+            ${unsafe(inner)}
+          </a>
+        `;
       }
       const rawType = String(props.type ?? "button");
       const btnType = rawType === "submit" || rawType === "reset" ? rawType : "button";
-      return `
-      <button
-        part="button"
-        class="${cls}"
-        ${isDisabled ? "disabled" : ""}
-        type="${btnType}"
-      >
-        ${inner}
-      </button>${BUTTON_STYLE}`;
+      return html`
+        <button
+          part="button"
+          class="${unsafe(cls)}"
+          ${unsafe(isDisabled ? "disabled" : "")}
+          type="${btnType}"
+        >
+          ${unsafe(inner)}
+        </button>
+      `;
     },
     events: {
       "click .root": (_event, ctx) => {
@@ -1031,54 +1058,7 @@ function esc(s) {
 // components/input.ts
 var TAG2 = "tc-input";
 var tagName2 = TAG2;
-build(
-  TAG2,
-  describe({
-    formAssociated: true,
-    props: {
-      value: { type: "string", default: "" },
-      name: { type: "string", default: "" },
-      type: { type: "string", default: "text" },
-      placeholder: { type: "string", default: "" },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true }
-    },
-    theme: {
-      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-radius": "var(--tc-radius-md, 8px)",
-      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "block"
-    },
-    refs: {
-      input: "input"
-    },
-    template: ({ props }) => {
-      const showError = Boolean(props.error);
-      return `
-        ${props.label ? `<label class="label">${esc2(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""}
-        <input
-          class="input ${showError ? "invalid" : ""}"
-          part="input"
-          type="${esc2(props.type)}"
-          value="${esc2(props.value)}"
-          name="${esc2(props.name)}"
-          placeholder="${esc2(props.placeholder)}"
-          ${props.disabled ? "disabled" : ""}
-          ${props.required ? "required" : ""}
-          aria-invalid="${showError ? "true" : "false"}"
-        />
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc2(props.error || props.helper)}</div>` : ""}
-        <style>
+var STYLE2 = `
           :host { font-family: var(--tc-input-font); }
           .label {
             display: block; font-size: 0.82rem; font-weight: 600;
@@ -1117,7 +1097,59 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+build(
+  TAG2,
+  describe({
+    formAssociated: true,
+    props: {
+      value: { type: "string", default: "" },
+      name: { type: "string", default: "" },
+      type: { type: "string", default: "text" },
+      placeholder: { type: "string", default: "" },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true }
+    },
+    theme: {
+      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
+      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE2,
+    refs: {
+      input: "input"
+    },
+    template: ({ props }) => {
+      const showError = Boolean(props.error);
+      return html`
+        ${unsafe(
+        props.label ? `<label class="label">${esc2(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""
+      )}
+        <input
+          class="input ${showError ? "invalid" : ""}"
+          part="input"
+          type="${props.type}"
+          value="${props.value}"
+          name="${props.name}"
+          placeholder="${props.placeholder}"
+          ${unsafe(props.disabled ? "disabled" : "")}
+          ${unsafe(props.required ? "required" : "")}
+          aria-invalid="${showError ? "true" : "false"}"
+        />
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc2(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     events: {
@@ -1141,55 +1173,7 @@ function esc2(s) {
 // components/textarea.ts
 var TAG3 = "tc-textarea";
 var tagName3 = TAG3;
-build(
-  TAG3,
-  describe({
-    formAssociated: true,
-    props: {
-      value: { type: "string", default: "" },
-      name: { type: "string", default: "" },
-      placeholder: { type: "string", default: "" },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      rows: { type: "number", default: 4 },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true },
-      resize: { type: "string", default: "vertical" }
-    },
-    theme: {
-      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-radius": "var(--tc-radius-md, 8px)",
-      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "block"
-    },
-    refs: {
-      input: "textarea"
-    },
-    template: ({ props }) => {
-      const showError = Boolean(props.error);
-      return `
-        ${props.label ? `<label class="label">${esc3(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""}
-        <textarea
-          class="input ${showError ? "invalid" : ""}"
-          part="textarea"
-          name="${esc3(props.name)}"
-          placeholder="${esc3(props.placeholder)}"
-          rows="${esc3(props.rows)}"
-          ${props.disabled ? "disabled" : ""}
-          ${props.required ? "required" : ""}
-          aria-invalid="${showError ? "true" : "false"}"
-          style="resize: ${esc3(props.resize)};"
-        >${esc3(props.value)}</textarea>
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc3(props.error || props.helper)}</div>` : ""}
-        <style>
+var STYLE3 = `
           :host { font-family: var(--tc-input-font); }
           .label {
             display: block; font-size: 0.82rem; font-weight: 600;
@@ -1221,7 +1205,60 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+build(
+  TAG3,
+  describe({
+    formAssociated: true,
+    props: {
+      value: { type: "string", default: "" },
+      name: { type: "string", default: "" },
+      placeholder: { type: "string", default: "" },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      rows: { type: "number", default: 4 },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true },
+      resize: { type: "string", default: "vertical" }
+    },
+    theme: {
+      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
+      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE3,
+    refs: {
+      input: "textarea"
+    },
+    template: ({ props }) => {
+      const showError = Boolean(props.error);
+      return html`
+        ${unsafe(
+        props.label ? `<label class="label">${esc3(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""
+      )}
+        <textarea
+          class="input ${showError ? "invalid" : ""}"
+          part="textarea"
+          name="${props.name}"
+          placeholder="${props.placeholder}"
+          rows="${props.rows}"
+          ${unsafe(props.disabled ? "disabled" : "")}
+          ${unsafe(props.required ? "required" : "")}
+          aria-invalid="${showError ? "true" : "false"}"
+          style="resize: ${props.resize};"
+        >${props.value}</textarea>
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc3(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     events: {
@@ -1245,57 +1282,7 @@ function esc3(s) {
 // components/select.ts
 var TAG4 = "tc-select";
 var tagName4 = TAG4;
-build(
-  TAG4,
-  describe({
-    formAssociated: true,
-    props: {
-      value: { type: "string", default: "" },
-      name: { type: "string", default: "" },
-      options: { type: "json", default: [] },
-      placeholder: { type: "string", default: "" },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true }
-    },
-    theme: {
-      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-radius": "var(--tc-radius-md, 8px)",
-      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "block"
-    },
-    template: ({ props }) => {
-      const opts = props.options ?? [];
-      const showError = Boolean(props.error);
-      return `
-        ${props.label ? `<label class="label">${esc4(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""}
-        <div class="wrap">
-          <select
-            class="select ${showError ? "invalid" : ""}"
-            part="select"
-            name="${esc4(props.name)}"
-            ${props.disabled ? "disabled" : ""}
-            ${props.required ? "required" : ""}
-            aria-invalid="${showError ? "true" : "false"}"
-          >
-            ${props.placeholder ? `<option value="" disabled ${props.value === "" ? "selected" : ""}>${esc4(props.placeholder)}</option>` : ""}
-            ${opts.map(
-        (o) => `<option value="${esc4(o.value)}"${o.disabled ? " disabled" : ""}${o.value === props.value ? " selected" : ""}>${esc4(o.label)}</option>`
-      ).join("")}
-          </select>
-          <span class="caret" aria-hidden="true">\u25BE</span>
-        </div>
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc4(props.error || props.helper)}</div>` : ""}
-        <style>
+var STYLE4 = `
           :host { font-family: var(--tc-input-font); }
           .label {
             display: block; font-size: 0.82rem; font-weight: 600;
@@ -1336,7 +1323,65 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+build(
+  TAG4,
+  describe({
+    formAssociated: true,
+    props: {
+      value: { type: "string", default: "" },
+      name: { type: "string", default: "" },
+      options: { type: "json", default: [] },
+      placeholder: { type: "string", default: "" },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true }
+    },
+    theme: {
+      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
+      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE4,
+    template: ({ props }) => {
+      const opts = props.options ?? [];
+      const showError = Boolean(props.error);
+      return html`
+        ${unsafe(
+        props.label ? `<label class="label">${esc4(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""
+      )}
+        <div class="wrap">
+          <select
+            class="select ${showError ? "invalid" : ""}"
+            part="select"
+            name="${props.name}"
+            ${unsafe(props.disabled ? "disabled" : "")}
+            ${unsafe(props.required ? "required" : "")}
+            aria-invalid="${showError ? "true" : "false"}"
+          >
+            ${unsafe(
+        props.placeholder ? `<option value="" disabled ${props.value === "" ? "selected" : ""}>${esc4(props.placeholder)}</option>` : ""
+      )} ${unsafe(
+        opts.map(
+          (o) => `<option value="${esc4(o.value)}"${o.disabled ? " disabled" : ""}${o.value === props.value ? " selected" : ""}>${esc4(o.label)}</option>`
+        ).join("")
+      )}
+          </select>
+          <span class="caret" aria-hidden="true">▾</span>
+        </div>
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc4(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     events: {
@@ -1360,6 +1405,32 @@ function esc4(s) {
 // components/checkbox.ts
 var TAG5 = "tc-checkbox";
 var tagName5 = TAG5;
+var STYLE5 = `
+          :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
+          .row {
+            display: inline-flex; align-items: center; gap: 10px;
+            cursor: pointer; user-select: none;
+            font-size: 0.95rem;
+          }
+          .row.is-disabled { cursor: not-allowed; opacity: 0.6; }
+          .cb {
+            width: 18px; height: 18px;
+            margin: 0;
+            accent-color: var(--tc-checkbox-accent);
+            cursor: inherit;
+          }
+          .row.is-invalid .cb { outline: 2px solid var(--tc-input-error); border-radius: 3px; }
+          .label { line-height: 1.3; }
+          .req { color: var(--tc-input-error); margin-left: 2px; }
+          .helper {
+            margin-top: 6px; margin-left: 28px;
+            font-size: 0.78rem; color: var(--tc-input-helper);
+          }
+          .error {
+            margin-top: 6px; margin-left: 28px;
+            font-size: 0.78rem; color: var(--tc-input-error);
+          }
+`;
 build(
   TAG5,
   describe({
@@ -1388,49 +1459,28 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE5,
     template: ({ props }) => {
       const showError = Boolean(props.error);
-      return `
+      return html`
         <label class="row ${props.disabled ? "is-disabled" : ""} ${showError ? "is-invalid" : ""}">
           <input
             class="cb"
             type="checkbox"
-            name="${esc5(props.name)}"
-            value="${esc5(props.value)}"
-            ${props.checked ? "checked" : ""}
-            ${props.disabled ? "disabled" : ""}
-            ${props.required ? "required" : ""}
+            name="${props.name}"
+            value="${props.value}"
+            ${unsafe(props.checked ? "checked" : "")}
+            ${unsafe(props.disabled ? "disabled" : "")}
+            ${unsafe(props.required ? "required" : "")}
             aria-invalid="${showError ? "true" : "false"}"
           />
-          ${props.label ? `<span class="label">${esc5(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</span>` : "<span></span>"}
+          ${unsafe(
+        props.label ? `<span class="label">${esc5(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</span>` : "<span></span>"
+      )}
         </label>
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc5(props.error || props.helper)}</div>` : ""}
-        <style>
-          :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
-          .row {
-            display: inline-flex; align-items: center; gap: 10px;
-            cursor: pointer; user-select: none;
-            font-size: 0.95rem;
-          }
-          .row.is-disabled { cursor: not-allowed; opacity: 0.6; }
-          .cb {
-            width: 18px; height: 18px;
-            margin: 0;
-            accent-color: var(--tc-checkbox-accent);
-            cursor: inherit;
-          }
-          .row.is-invalid .cb { outline: 2px solid var(--tc-input-error); border-radius: 3px; }
-          .label { line-height: 1.3; }
-          .req { color: var(--tc-input-error); margin-left: 2px; }
-          .helper {
-            margin-top: 6px; margin-left: 28px;
-            font-size: 0.78rem; color: var(--tc-input-helper);
-          }
-          .error {
-            margin-top: 6px; margin-left: 28px;
-            font-size: 0.78rem; color: var(--tc-input-error);
-          }
-        </style>
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc5(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     refs: {
@@ -1465,49 +1515,7 @@ function esc5(s) {
 // components/switch.ts
 var TAG6 = "tc-switch";
 var tagName6 = TAG6;
-build(
-  TAG6,
-  describe({
-    formAssociated: true,
-    props: {
-      checked: { type: "boolean", default: false, reflect: true },
-      name: { type: "string", default: "" },
-      value: { type: "string", default: "on" },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      disabled: { type: "boolean", default: false, reflect: true }
-    },
-    theme: {
-      "tc-switch-track-off": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-switch-track-on": "var(--tc-color-accent, #a16939)",
-      "tc-switch-thumb": "var(--tc-color-surface, #ffffff)",
-      "tc-switch-fg": "var(--tc-color-ink, #14171f)",
-      "tc-switch-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-switch-error": "var(--tc-color-danger, #b3261e)",
-      "tc-switch-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "block"
-    },
-    template: ({ props }) => {
-      const showError = Boolean(props.error);
-      return `
-        <label class="row ${props.disabled ? "is-disabled" : ""}">
-          <button
-            class="track ${props.checked ? "on" : ""}"
-            type="button"
-            role="switch"
-            aria-checked="${props.checked ? "true" : "false"}"
-            ${props.disabled ? "disabled" : ""}
-            aria-invalid="${showError ? "true" : "false"}"
-          >
-            <span class="thumb"></span>
-          </button>
-          ${props.label ? `<span class="label">${esc6(props.label)}</span>` : ""}
-        </label>
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc6(props.error || props.helper)}</div>` : ""}
-        <style>
+var STYLE6 = `
           :host { font-family: var(--tc-switch-font); color: var(--tc-switch-fg); }
           .row {
             display: inline-flex; align-items: center; gap: 10px;
@@ -1547,7 +1555,54 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-switch-error);
           }
-        </style>
+`;
+build(
+  TAG6,
+  describe({
+    formAssociated: true,
+    props: {
+      checked: { type: "boolean", default: false, reflect: true },
+      name: { type: "string", default: "" },
+      value: { type: "string", default: "on" },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      disabled: { type: "boolean", default: false, reflect: true }
+    },
+    theme: {
+      "tc-switch-track-off": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-switch-track-on": "var(--tc-color-accent, #a16939)",
+      "tc-switch-thumb": "var(--tc-color-surface, #ffffff)",
+      "tc-switch-fg": "var(--tc-color-ink, #14171f)",
+      "tc-switch-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-switch-error": "var(--tc-color-danger, #b3261e)",
+      "tc-switch-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE6,
+    template: ({ props }) => {
+      const showError = Boolean(props.error);
+      return html`
+        <label class="row ${props.disabled ? "is-disabled" : ""}">
+          <button
+            class="track ${props.checked ? "on" : ""}"
+            type="button"
+            role="switch"
+            aria-checked="${props.checked ? "true" : "false"}"
+            ${unsafe(props.disabled ? "disabled" : "")}
+            aria-invalid="${showError ? "true" : "false"}"
+          >
+            <span class="thumb"></span>
+          </button>
+          ${unsafe(
+        props.label ? `<span class="label">${esc6(props.label)}</span>` : ""
+      )}
+        </label>
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc6(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     events: {
@@ -1588,63 +1643,7 @@ function esc6(s) {
 // components/file.ts
 var TAG7 = "tc-file";
 var tagName7 = TAG7;
-build(
-  TAG7,
-  describe({
-    formAssociated: true,
-    props: {
-      name: { type: "string", default: "" },
-      accept: { type: "string", default: "" },
-      multiple: { type: "boolean", default: false, reflect: true },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      buttonText: { type: "string", default: "Choose file" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true }
-    },
-    theme: {
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-radius": "var(--tc-radius-md, 8px)",
-      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-file-zone-bg": "var(--tc-color-surface-alt, #faf8f3)",
-      "tc-file-zone-fg": "var(--tc-color-ink-soft, #4a5061)"
-    },
-    styles: {
-      display: "block"
-    },
-    refs: {
-      input: "input[type='file']"
-    },
-    template: ({ props, state }) => {
-      const showError = Boolean(props.error);
-      const filesState = state.files ?? [];
-      const filesText = filesState.length === 0 ? "No file selected" : filesState.length === 1 ? esc7(filesState[0].name) : `${filesState.length} files selected`;
-      return `
-        ${props.label ? `<label class="label">${esc7(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""}
-        <div class="zone ${props.disabled ? "is-disabled" : ""} ${showError ? "is-invalid" : ""}">
-          <button class="btn" type="button" ${props.disabled ? "disabled" : ""}>
-            ${esc7(props.buttonText)}
-          </button>
-          <span class="files">${filesText}</span>
-          <input
-            class="native"
-            type="file"
-            name="${esc7(props.name)}"
-            accept="${esc7(props.accept)}"
-            ${props.multiple ? "multiple" : ""}
-            ${props.disabled ? "disabled" : ""}
-            ${props.required ? "required" : ""}
-            tabindex="-1"
-            aria-hidden="true"
-          />
-        </div>
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc7(props.error || props.helper)}</div>` : ""}
-        <style>
+var STYLE7 = `
           :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
           .label {
             display: block; font-size: 0.82rem; font-weight: 600;
@@ -1689,7 +1688,70 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+build(
+  TAG7,
+  describe({
+    formAssociated: true,
+    props: {
+      name: { type: "string", default: "" },
+      accept: { type: "string", default: "" },
+      multiple: { type: "boolean", default: false, reflect: true },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      buttonText: { type: "string", default: "Choose file" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true }
+    },
+    theme: {
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
+      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-file-zone-bg": "var(--tc-color-surface-alt, #faf8f3)",
+      "tc-file-zone-fg": "var(--tc-color-ink-soft, #4a5061)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE7,
+    refs: {
+      input: "input[type='file']"
+    },
+    template: ({ props, state }) => {
+      const showError = Boolean(props.error);
+      const filesState = state.files ?? [];
+      const filesText = filesState.length === 0 ? "No file selected" : filesState.length === 1 ? esc7(filesState[0].name) : `${filesState.length} files selected`;
+      return html`
+        ${unsafe(
+        props.label ? `<label class="label">${esc7(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : ""
+      )}
+        <div class="zone ${props.disabled ? "is-disabled" : ""} ${showError ? "is-invalid" : ""}">
+          <button class="btn" type="button" ${unsafe(
+        props.disabled ? "disabled" : ""
+      )}>
+            ${props.buttonText}
+          </button>
+          <span class="files">${unsafe(filesText)}</span>
+          <input
+            class="native"
+            type="file"
+            name="${props.name}"
+            accept="${props.accept}"
+            ${unsafe(props.multiple ? "multiple" : "")}
+            ${unsafe(props.disabled ? "disabled" : "")}
+            ${unsafe(props.required ? "required" : "")}
+            tabindex="-1"
+            aria-hidden="true"
+          />
+        </div>
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc7(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     events: {
@@ -1737,57 +1799,7 @@ function esc7(s) {
 // components/radio-group.ts
 var TAG8 = "tc-radio-group";
 var tagName8 = TAG8;
-build(
-  TAG8,
-  describe({
-    formAssociated: true,
-    props: {
-      value: { type: "string", default: "" },
-      name: { type: "string", default: "" },
-      options: { type: "json", default: [] },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      layout: { type: "string", default: "vertical" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true }
-    },
-    theme: {
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-radio-accent": "var(--tc-color-accent, #a16939)"
-    },
-    styles: {
-      display: "block"
-    },
-    template: ({ props }) => {
-      const opts = props.options ?? [];
-      const showError = Boolean(props.error);
-      const layout = String(props.layout ?? "vertical");
-      return `
-        <fieldset class="group" ${props.disabled ? "disabled" : ""}>
-          ${props.label ? `<legend class="legend">${esc8(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</legend>` : ""}
-          <div class="opts l-${esc8(layout)}" role="radiogroup" aria-invalid="${showError ? "true" : "false"}">
-            ${opts.map(
-        (o, i) => `<label class="opt ${o.disabled ? "is-disabled" : ""}">
-                  <input
-                    type="radio"
-                    class="r"
-                    name="${esc8(props.name) || `__rg_${i}__`}"
-                    value="${esc8(o.value)}"
-                    ${o.value === props.value ? "checked" : ""}
-                    ${o.disabled || props.disabled ? "disabled" : ""}
-                  />
-                  <span>${esc8(o.label)}</span>
-                </label>`
-      ).join("")}
-          </div>
-        </fieldset>
-        ${props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc8(props.error || props.helper)}</div>` : ""}
-        <style>
+var STYLE8 = `
           :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
           .group {
             border: none; padding: 0; margin: 0;
@@ -1820,7 +1832,64 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+build(
+  TAG8,
+  describe({
+    formAssociated: true,
+    props: {
+      value: { type: "string", default: "" },
+      name: { type: "string", default: "" },
+      options: { type: "json", default: [] },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      layout: { type: "string", default: "vertical" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true }
+    },
+    theme: {
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-radio-accent": "var(--tc-color-accent, #a16939)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE8,
+    template: ({ props }) => {
+      const opts = props.options ?? [];
+      const showError = Boolean(props.error);
+      const layout = String(props.layout ?? "vertical");
+      return html`
+        <fieldset class="group" ${unsafe(props.disabled ? "disabled" : "")}>
+          ${unsafe(
+        props.label ? `<legend class="legend">${esc8(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</legend>` : ""
+      )}
+          <div class="opts l-${layout}" role="radiogroup" aria-invalid="${showError ? "true" : "false"}">
+            ${unsafe(
+        opts.map(
+          (o, i) => `<label class="opt ${o.disabled ? "is-disabled" : ""}">
+                  <input
+                    type="radio"
+                    class="r"
+                    name="${esc8(props.name) || `__rg_${i}__`}"
+                    value="${esc8(o.value)}"
+                    ${o.value === props.value ? "checked" : ""}
+                    ${o.disabled || props.disabled ? "disabled" : ""}
+                  />
+                  <span>${esc8(o.label)}</span>
+                </label>`
+        ).join("")
+      )}
+          </div>
+        </fieldset>
+        ${unsafe(
+        props.error || props.helper ? `<div class="${showError ? "error" : "helper"}">${esc8(props.error || props.helper)}</div>` : ""
+      )}
       `;
     },
     events: {
@@ -1973,7 +2042,7 @@ build(
                 template: ({ props, state }) => {
                   const cols = props.columns ?? [];
                   const ts = state;
-                  return `<tr>${cols.map((c) => {
+                  const cells = cols.map((c) => {
                     const isSorted = ts.sortKey === c.key;
                     const sortable = c.sortable !== false;
                     const indicator = isSorted ? ts.sortDir === "asc" ? "\u25B2" : "\u25BC" : "";
@@ -1983,7 +2052,10 @@ build(
                         class="${sortable ? "sortable" : ""}"
                         aria-sort="${ariaSort}"
                       >${esc9(c.label)}<span class="sort">${indicator}</span></th>`;
-                  }).join("")}</tr>`;
+                  }).join("");
+                  return html`
+                    <tr>${unsafe(cells)}</tr>
+                  `;
                 }
               }),
               describe({
@@ -1996,7 +2068,10 @@ build(
                     if: ({ props, state }) => paginated(props, state).length === 0,
                     template: ({ props }) => {
                       const cols = props.columns ?? [];
-                      return `<td colspan="${cols.length || 1}">${esc9(props.emptyText)}</td>`;
+                      const span = cols.length || 1;
+                      return html`
+                        <td colspan="${span}">${props.emptyText}</td>
+                      `;
                     }
                   })
                 ],
@@ -2017,9 +2092,12 @@ build(
                     return describe({
                       tag: "tr",
                       attributes: { "data-row-id": String(r["id"] ?? i) },
-                      template: cols.map(
-                        (c) => `<td>${typeof c.render === "function" ? c.render(r) : esc9(r[c.key] ?? "")}</td>`
-                      ).join("")
+                      template: cols.map((c) => {
+                        const cell = typeof c.render === "function" ? unsafe(c.render(r)) : r[c.key] ?? "";
+                        return html`
+                          <td>${cell}</td>
+                        `.value;
+                      }).join("")
                     });
                   }
                 }
@@ -2039,12 +2117,16 @@ build(
           const totalPages = Math.max(1, Math.ceil(visible.length / size));
           const page = Math.min(ts.page ?? 0, totalPages - 1);
           const total = (props.rows ?? []).length;
-          return `
+          return html`
             <span class="count">${visible.length} of ${total} rows</span>
             <span class="spacer"></span>
-            <button class="prev" type="button" ${page <= 0 ? "disabled" : ""}>\u2039 prev</button>
+            <button class="prev" type="button" ${unsafe(
+            page <= 0 ? "disabled" : ""
+          )}>‹ prev</button>
             <span class="page">page ${page + 1} of ${totalPages}</span>
-            <button class="next" type="button" ${page >= totalPages - 1 ? "disabled" : ""}>next \u203A</button>
+            <button class="next" type="button" ${unsafe(
+            page >= totalPages - 1 ? "disabled" : ""
+          )}>next ›</button>
           `;
         }
       })
@@ -2168,53 +2250,7 @@ function esc9(s) {
 // components/tabs.ts
 var TAG10 = "tc-tabs";
 var tagName10 = TAG10;
-build(
-  TAG10,
-  describe({
-    props: {
-      tabs: { type: "json", default: [] },
-      active: { type: "string", default: "", reflect: true }
-    },
-    theme: {
-      "tc-tabs-fg": "var(--tc-color-ink, #14171f)",
-      "tc-tabs-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-tabs-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-tabs-accent": "var(--tc-color-accent, #a16939)",
-      "tc-tabs-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "block",
-      "font-family": "var(--tc-tabs-font)"
-    },
-    template: ({ props }) => {
-      const tabs = props.tabs ?? [];
-      const active = props.active || tabs[0]?.id || "";
-      return `
-        <div role="tablist" class="strip">
-          ${tabs.map(
-        (t) => `<button
-              role="tab"
-              type="button"
-              class="tab ${t.id === active ? "active" : ""}"
-              data-tab="${esc10(t.id)}"
-              aria-selected="${t.id === active ? "true" : "false"}"
-              aria-controls="panel-${esc10(t.id)}"
-              tabindex="${t.id === active ? "0" : "-1"}"
-            >${esc10(t.label)}</button>`
-      ).join("")}
-        </div>
-        <div class="panels">
-          ${tabs.map(
-        (t) => `<section
-              role="tabpanel"
-              id="panel-${esc10(t.id)}"
-              class="panel"
-              aria-labelledby=""
-              ${t.id === active ? "" : "hidden"}
-            ><slot name="${esc10(t.id)}"></slot></section>`
-      ).join("")}
-        </div>
-        <style>
+var STYLE9 = `
           .strip {
             display: flex; gap: 4px;
             border-bottom: 1px solid var(--tc-tabs-rule);
@@ -2239,7 +2275,58 @@ build(
             border-radius: 4px;
           }
           .panel { color: var(--tc-tabs-fg); line-height: 1.6; }
-        </style>
+`;
+build(
+  TAG10,
+  describe({
+    props: {
+      tabs: { type: "json", default: [] },
+      active: { type: "string", default: "", reflect: true }
+    },
+    theme: {
+      "tc-tabs-fg": "var(--tc-color-ink, #14171f)",
+      "tc-tabs-fg-muted": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-tabs-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-tabs-accent": "var(--tc-color-accent, #a16939)",
+      "tc-tabs-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "block",
+      "font-family": "var(--tc-tabs-font)"
+    },
+    stylesheet: STYLE9,
+    template: ({ props }) => {
+      const tabs = props.tabs ?? [];
+      const active = props.active || tabs[0]?.id || "";
+      return html`
+        <div role="tablist" class="strip">
+          ${unsafe(
+        tabs.map(
+          (t) => `<button
+              role="tab"
+              type="button"
+              class="tab ${t.id === active ? "active" : ""}"
+              data-tab="${esc10(t.id)}"
+              aria-selected="${t.id === active ? "true" : "false"}"
+              aria-controls="panel-${esc10(t.id)}"
+              tabindex="${t.id === active ? "0" : "-1"}"
+            >${esc10(t.label)}</button>`
+        ).join("")
+      )}
+        </div>
+        <div class="panels">
+          ${unsafe(
+        tabs.map(
+          (t) => `<section
+              role="tabpanel"
+              id="panel-${esc10(t.id)}"
+              class="panel"
+              aria-labelledby=""
+              ${t.id === active ? "" : "hidden"}
+            ><slot name="${esc10(t.id)}"></slot></section>`
+        ).join("")
+      )}
+        </div>
       `;
     },
     events: {
@@ -2320,16 +2407,18 @@ build(
     styles: {
       display: "contents"
     },
-    template: ({ props }) => `
-      <dialog class="dlg" aria-labelledby="${props.title ? "title" : ""}">
-        ${props.title || props.dismissible ? `<header class="head">
+    template: ({ props }) => html`
+        <dialog class="dlg" aria-labelledby="${props.title ? "title" : ""}">
+          ${unsafe(
+      props.title || props.dismissible ? `<header class="head">
               ${props.title ? `<h2 id="title" class="title">${esc11(props.title)}</h2>` : "<span></span>"}
               ${props.dismissible ? `<button class="x" type="button" aria-label="Close">\xD7</button>` : ""}
-            </header>` : ""}
-        <div class="body"><slot></slot></div>
-        <footer class="foot"><slot name="footer"></slot></footer>
-      </dialog>
-      <style>
+            </header>` : ""
+    )}
+          <div class="body"><slot></slot></div>
+          <footer class="foot"><slot name="footer"></slot></footer>
+        </dialog>
+        <style>
         .dlg {
           width: ${esc11(props.width)};
           max-width: 92vw;
@@ -2375,8 +2464,8 @@ build(
           border-top: 1px solid var(--tc-modal-rule);
           display: flex; gap: 8px; justify-content: flex-end;
         }
-      </style>
-    `,
+        </style>
+      `,
     refs: {
       dialog: ".dlg"
     },
@@ -2479,39 +2568,7 @@ function esc11(s) {
 var TAG12 = "tc-toast";
 var tagName12 = TAG12;
 var TIMERS = /* @__PURE__ */ new WeakMap();
-build(
-  TAG12,
-  describe({
-    props: {
-      open: { type: "boolean", default: false, reflect: true },
-      variant: { type: "string", default: "info" },
-      message: { type: "string", default: "" },
-      duration: { type: "number", default: 4e3 },
-      dismissible: { type: "boolean", default: true }
-    },
-    theme: {
-      "tc-toast-info": "var(--tc-color-info, #3a5b8c)",
-      "tc-toast-success": "var(--tc-color-success, #207a5b)",
-      "tc-toast-warning": "var(--tc-color-warning, #a87326)",
-      "tc-toast-error": "var(--tc-color-danger, #b3261e)",
-      "tc-toast-fg": "var(--tc-color-surface, #ffffff)",
-      "tc-toast-radius": "var(--tc-radius-lg, 10px)",
-      "tc-toast-shadow": "var(--tc-shadow-lg, 0 12px 30px rgba(20, 23, 31, 0.18))",
-      "tc-toast-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "block"
-    },
-    template: ({ props }) => {
-      const variant = String(props.variant ?? "info");
-      const icon = variant === "success" ? "\u2713" : variant === "warning" ? "!" : variant === "error" ? "\u2715" : "i";
-      return `
-        <div class="toast v-${esc12(variant)} ${props.open ? "open" : "closed"}" role="status" aria-live="polite">
-          <span class="icon" aria-hidden="true">${icon}</span>
-          <span class="msg">${props.message ? esc12(props.message) : "<slot></slot>"}</span>
-          ${props.dismissible ? `<button type="button" class="x" aria-label="Close">\xD7</button>` : ""}
-        </div>
-        <style>
+var STYLE10 = `
           :host { display: block; }
           .toast {
             display: inline-flex; align-items: center; gap: 12px;
@@ -2552,7 +2609,44 @@ build(
             display: inline-flex; align-items: center; justify-content: center;
           }
           .x:hover { background: rgba(255, 255, 255, 0.18); opacity: 1; }
-        </style>
+`;
+build(
+  TAG12,
+  describe({
+    props: {
+      open: { type: "boolean", default: false, reflect: true },
+      variant: { type: "string", default: "info" },
+      message: { type: "string", default: "" },
+      duration: { type: "number", default: 4e3 },
+      dismissible: { type: "boolean", default: true }
+    },
+    theme: {
+      "tc-toast-info": "var(--tc-color-info, #3a5b8c)",
+      "tc-toast-success": "var(--tc-color-success, #207a5b)",
+      "tc-toast-warning": "var(--tc-color-warning, #a87326)",
+      "tc-toast-error": "var(--tc-color-danger, #b3261e)",
+      "tc-toast-fg": "var(--tc-color-surface, #ffffff)",
+      "tc-toast-radius": "var(--tc-radius-lg, 10px)",
+      "tc-toast-shadow": "var(--tc-shadow-lg, 0 12px 30px rgba(20, 23, 31, 0.18))",
+      "tc-toast-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE10,
+    template: ({ props }) => {
+      const variant = String(props.variant ?? "info");
+      const icon = variant === "success" ? "\u2713" : variant === "warning" ? "!" : variant === "error" ? "\u2715" : "i";
+      return html`
+        <div class="toast v-${variant} ${props.open ? "open" : "closed"}" role="status" aria-live="polite">
+          <span class="icon" aria-hidden="true">${unsafe(icon)}</span>
+          <span class="msg">${unsafe(
+        props.message ? esc12(props.message) : "<slot></slot>"
+      )}</span>
+          ${unsafe(
+        props.dismissible ? `<button type="button" class="x" aria-label="Close">\xD7</button>` : ""
+      )}
+        </div>
       `;
     },
     events: {
@@ -2604,54 +2698,7 @@ function esc12(s) {
 // components/stat.ts
 var TAG13 = "tc-stat";
 var tagName13 = TAG13;
-build(
-  TAG13,
-  describe({
-    props: {
-      label: { type: "string", default: "" },
-      value: { type: "string", default: "" },
-      delta: { type: "string", default: "" },
-      trend: { type: "string", default: "neutral" },
-      prefix: { type: "string", default: "" },
-      suffix: { type: "string", default: "" }
-    },
-    theme: {
-      "tc-stat-surface": "var(--tc-color-surface, #ffffff)",
-      "tc-stat-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-stat-label": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-stat-value": "var(--tc-color-ink, #14171f)",
-      "tc-stat-up": "var(--tc-color-success, #207a5b)",
-      "tc-stat-down": "var(--tc-color-danger, #b3261e)",
-      "tc-stat-neutral": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-stat-radius": "var(--tc-radius-lg, 12px)",
-      "tc-stat-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      // Stretch in flex / grid containers so multiple stats in a row
-      // share a baseline height. `display: block` (not flex) so the
-      // host's box fills the grid cell uniformly — flex on the host
-      // makes the inner container size to its content and the cards
-      // end up unevenly wide.
-      display: "block",
-      height: "100%"
-    },
-    template: ({ props }) => {
-      const trend = String(props.trend ?? "neutral");
-      const arrow = trend === "up" ? "\u25B2" : trend === "down" ? "\u25BC" : "\u2022";
-      return `
-        <div class="card">
-          ${props.label ? `<div class="label">${esc13(props.label)}</div>` : ""}
-          <div class="value">
-            ${props.prefix ? `<span class="prefix">${esc13(props.prefix)}</span>` : ""}
-            <span class="num">${esc13(props.value)}</span>
-            ${props.suffix ? `<span class="suffix">${esc13(props.suffix)}</span>` : ""}
-          </div>
-          ${props.delta ? `<div class="delta t-${esc13(trend)}">
-                  <span class="arrow" aria-hidden="true">${arrow}</span>
-                  <span>${esc13(props.delta)}</span>
-                </div>` : ""}
-        </div>
-        <style>
+var STYLE11 = `
           :host { display: block; height: 100%; }
           .card {
             background: var(--tc-stat-surface);
@@ -2699,7 +2746,55 @@ build(
           .delta.t-down    { color: var(--tc-stat-down); }
           .delta.t-neutral { color: var(--tc-stat-neutral); }
           .arrow { font-size: 0.7rem; }
-        </style>
+`;
+build(
+  TAG13,
+  describe({
+    props: {
+      label: { type: "string", default: "" },
+      value: { type: "string", default: "" },
+      delta: { type: "string", default: "" },
+      trend: { type: "string", default: "neutral" },
+      prefix: { type: "string", default: "" },
+      suffix: { type: "string", default: "" }
+    },
+    theme: {
+      "tc-stat-surface": "var(--tc-color-surface, #ffffff)",
+      "tc-stat-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-stat-label": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-stat-value": "var(--tc-color-ink, #14171f)",
+      "tc-stat-up": "var(--tc-color-success, #207a5b)",
+      "tc-stat-down": "var(--tc-color-danger, #b3261e)",
+      "tc-stat-neutral": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-stat-radius": "var(--tc-radius-lg, 12px)",
+      "tc-stat-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      // Stretch in flex / grid containers so multiple stats in a row
+      // share a baseline height. `display: block` (not flex) so the
+      // host's box fills the grid cell uniformly — flex on the host
+      // makes the inner container size to its content and the cards
+      // end up unevenly wide.
+      display: "block",
+      height: "100%"
+    },
+    stylesheet: STYLE11,
+    template: ({ props }) => {
+      const trend = String(props.trend ?? "neutral");
+      const arrow = trend === "up" ? "\u25B2" : trend === "down" ? "\u25BC" : "\u2022";
+      return html`
+        <div class="card">
+          ${props.label ? unsafe(`<div class="label">${esc13(props.label)}</div>`) : ""}
+          <div class="value">
+            ${props.prefix ? unsafe(`<span class="prefix">${esc13(props.prefix)}</span>`) : ""}
+            <span class="num">${props.value}</span>
+            ${props.suffix ? unsafe(`<span class="suffix">${esc13(props.suffix)}</span>`) : ""}
+          </div>
+          ${props.delta ? unsafe(`<div class="delta t-${esc13(trend)}">
+                  <span class="arrow" aria-hidden="true">${arrow}</span>
+                  <span>${esc13(props.delta)}</span>
+                </div>`) : ""}
+        </div>
       `;
     }
   })
@@ -2711,6 +2806,139 @@ function esc13(s) {
 // components/card.ts
 var TAG14 = "tc-card";
 var tagName14 = TAG14;
+var STYLE12 = `
+  :host { display: block; }
+  .card {
+    background: var(--tc-card-surface);
+    color: var(--tc-card-ink);
+    font-family: var(--tc-card-font);
+    border-radius: var(--tc-card-radius);
+    overflow: hidden;
+  }
+  .card.bordered { border: 1px solid var(--tc-card-rule); }
+  .card.elevated { box-shadow: var(--tc-card-shadow); }
+
+  /* Body padding is the deterministic default. The head and foot
+     pad themselves separately. Padding kicks in even if the
+     padded class somehow is not applied to the host, so consumers
+     get a sensibly-padded card out of the box without needing to
+     remember a flag. Override only when padded=false. */
+  .body {
+    padding: var(--tc-card-padding-y) var(--tc-card-padding-x);
+  }
+
+  /* Slot occupancy drives head/foot/media visibility. It's
+     detected in afterMount via slotchange and reflected as
+     has-header-slot / has-footer / has-media classes on .card.
+     We can't do this in pure CSS: :has(::slotted(*)) is invalid
+     (::slotted is a pseudo-element, which :has() rejects) and was
+     silently dropping the footer + media styling entirely. */
+
+  /* Head padding when title/subtitle props are set OR something
+     is slotted into name="header". */
+  .card.has-header .head,
+  .card.has-header-slot .head {
+    padding:
+      var(--tc-card-padding-y)
+      var(--tc-card-padding-x)
+      var(--tc-card-gap);
+  }
+  .card.has-header .head + .body,
+  .card.has-header-slot .head + .body { padding-top: 0; }
+
+  /* Hide an empty head \u2014 neither props nor slotted content. */
+  .card:not(.has-header):not(.has-header-slot) .head { display: none; }
+
+  /* Foot only renders when there's slotted footer content. */
+  .card.has-footer .foot {
+    padding:
+      var(--tc-card-gap)
+      var(--tc-card-padding-x)
+      var(--tc-card-padding-y);
+    border-top: 1px solid var(--tc-card-rule);
+    display: flex;
+    gap: var(--tc-space-2, 8px);
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .card:not(.has-footer) .foot { display: none; }
+
+  /* Media is full-bleed (no horizontal padding). The slotted child
+     stretches to fill the card width and sits flush to the top
+     edge; the body's top padding is unchanged so content below
+     keeps breathing room. ::slotted lives on the slot element. */
+  .card:not(.has-media) .media { display: none; }
+  slot[name="media"]::slotted(*) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Title / subtitle defaults (used inside the slot fallback). */
+  .title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .subtitle {
+    margin-top: 4px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--tc-card-soft);
+  }
+
+  /* padded=false opt-out \u2014 the template applies "nopad" to the
+     host inner .card when the prop is false. */
+  .card.nopad .body,
+  .card.nopad .head,
+  .card.nopad .foot { padding: 0; }
+
+  /* Per-instance size \u2014 overrides the padding tokens so all
+     three padding zones (head, body, foot) and the
+     internal gap scale together. md matches the pre-size-
+     prop default (=var(--tc-space-5, 24 px)) so existing
+     cards don't visibly shrink when adopting v1.9. */
+  .card.size-sm {
+    --tc-card-padding-x: 14px;
+    --tc-card-padding-y: 14px;
+    --tc-card-gap: 8px;
+    font-size: 0.93rem;
+  }
+  .card.size-md {
+    --tc-card-padding-x: 24px;
+    --tc-card-padding-y: 22px;
+    --tc-card-gap: 14px;
+  }
+  .card.size-lg {
+    --tc-card-padding-x: 32px;
+    --tc-card-padding-y: 28px;
+    --tc-card-gap: 18px;
+  }
+  .card.size-sm .title { font-size: 0.96rem; }
+  .card.size-lg .title { font-size: 1.22rem; letter-spacing: -0.015em; }
+  .card.size-lg .subtitle { font-size: 0.96rem; margin-top: 6px; }
+
+  /* Responsive: shrink padding on narrow viewports so cards
+     don't burn ~50 px of horizontal real estate on a 360 px
+     phone. Hits every size variant proportionally. */
+  @media (max-width: 480px) {
+    .card.size-sm {
+      --tc-card-padding-x: 12px;
+      --tc-card-padding-y: 12px;
+    }
+    .card.size-md {
+      --tc-card-padding-x: 16px;
+      --tc-card-padding-y: 16px;
+      --tc-card-gap: 12px;
+    }
+    .card.size-lg {
+      --tc-card-padding-x: 20px;
+      --tc-card-padding-y: 20px;
+      --tc-card-gap: 14px;
+    }
+  }
+`;
 build(
   TAG14,
   describe({
@@ -2738,6 +2966,7 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE12,
     template: ({ props }) => {
       const hasHeaderProps = Boolean(props.title) || Boolean(props.subtitle);
       const rawSize = String(props.size ?? "md").toLowerCase();
@@ -2753,151 +2982,21 @@ build(
         props.padded === false ? "nopad" : "",
         hasHeaderProps ? "has-header" : ""
       ].filter(Boolean).join(" ");
-      return `
+      return html`
         <div class="${classes}">
           <div class="media"><slot name="media"></slot></div>
           <div class="head">
             <slot name="header">
-              ${props.title ? `<div class="title">${esc14(props.title)}</div>` : ""}
-              ${props.subtitle ? `<div class="subtitle">${esc14(props.subtitle)}</div>` : ""}
+              ${props.title ? html`
+                  <div class="title">${props.title}</div>
+                ` : ""} ${props.subtitle ? html`
+                  <div class="subtitle">${props.subtitle}</div>
+                ` : ""}
             </slot>
           </div>
           <div class="body"><slot></slot></div>
           <div class="foot"><slot name="footer"></slot></div>
         </div>
-        <style>
-          :host { display: block; }
-          .card {
-            background: var(--tc-card-surface);
-            color: var(--tc-card-ink);
-            font-family: var(--tc-card-font);
-            border-radius: var(--tc-card-radius);
-            overflow: hidden;
-          }
-          .card.bordered { border: 1px solid var(--tc-card-rule); }
-          .card.elevated { box-shadow: var(--tc-card-shadow); }
-
-          /* Body padding is the deterministic default. The head and foot
-             pad themselves separately. Padding kicks in even if the
-             padded class somehow is not applied to the host, so consumers
-             get a sensibly-padded card out of the box without needing to
-             remember a flag. Override only when padded=false. */
-          .body {
-            padding: var(--tc-card-padding-y) var(--tc-card-padding-x);
-          }
-
-          /* Slot occupancy drives head/foot/media visibility. It's
-             detected in afterMount via slotchange and reflected as
-             has-header-slot / has-footer / has-media classes on .card.
-             We can't do this in pure CSS: :has(::slotted(*)) is invalid
-             (::slotted is a pseudo-element, which :has() rejects) and was
-             silently dropping the footer + media styling entirely. */
-
-          /* Head padding when title/subtitle props are set OR something
-             is slotted into name="header". */
-          .card.has-header .head,
-          .card.has-header-slot .head {
-            padding:
-              var(--tc-card-padding-y)
-              var(--tc-card-padding-x)
-              var(--tc-card-gap);
-          }
-          .card.has-header .head + .body,
-          .card.has-header-slot .head + .body { padding-top: 0; }
-
-          /* Hide an empty head \u2014 neither props nor slotted content. */
-          .card:not(.has-header):not(.has-header-slot) .head { display: none; }
-
-          /* Foot only renders when there's slotted footer content. */
-          .card.has-footer .foot {
-            padding:
-              var(--tc-card-gap)
-              var(--tc-card-padding-x)
-              var(--tc-card-padding-y);
-            border-top: 1px solid var(--tc-card-rule);
-            display: flex;
-            gap: var(--tc-space-2, 8px);
-            justify-content: flex-end;
-            align-items: center;
-          }
-          .card:not(.has-footer) .foot { display: none; }
-
-          /* Media is full-bleed (no horizontal padding). The slotted child
-             stretches to fill the card width and sits flush to the top
-             edge; the body's top padding is unchanged so content below
-             keeps breathing room. ::slotted lives on the slot element. */
-          .card:not(.has-media) .media { display: none; }
-          slot[name="media"]::slotted(*) {
-            display: block;
-            width: 100%;
-            height: auto;
-          }
-
-          /* Title / subtitle defaults (used inside the slot fallback). */
-          .title {
-            font-weight: 700;
-            font-size: 1.05rem;
-            letter-spacing: -0.01em;
-            line-height: 1.3;
-          }
-          .subtitle {
-            margin-top: 4px;
-            font-size: 0.88rem;
-            line-height: 1.45;
-            color: var(--tc-card-soft);
-          }
-
-          /* padded=false opt-out \u2014 the template applies "nopad" to the
-             host inner .card when the prop is false. */
-          .card.nopad .body,
-          .card.nopad .head,
-          .card.nopad .foot { padding: 0; }
-
-          /* Per-instance size \u2014 overrides the padding tokens so all
-             three padding zones (head, body, foot) and the
-             internal gap scale together. md matches the pre-size-
-             prop default (=var(--tc-space-5, 24 px)) so existing
-             cards don't visibly shrink when adopting v1.9. */
-          .card.size-sm {
-            --tc-card-padding-x: 14px;
-            --tc-card-padding-y: 14px;
-            --tc-card-gap: 8px;
-            font-size: 0.93rem;
-          }
-          .card.size-md {
-            --tc-card-padding-x: 24px;
-            --tc-card-padding-y: 22px;
-            --tc-card-gap: 14px;
-          }
-          .card.size-lg {
-            --tc-card-padding-x: 32px;
-            --tc-card-padding-y: 28px;
-            --tc-card-gap: 18px;
-          }
-          .card.size-sm .title { font-size: 0.96rem; }
-          .card.size-lg .title { font-size: 1.22rem; letter-spacing: -0.015em; }
-          .card.size-lg .subtitle { font-size: 0.96rem; margin-top: 6px; }
-
-          /* Responsive: shrink padding on narrow viewports so cards
-             don't burn ~50 px of horizontal real estate on a 360 px
-             phone. Hits every size variant proportionally. */
-          @media (max-width: 480px) {
-            .card.size-sm {
-              --tc-card-padding-x: 12px;
-              --tc-card-padding-y: 12px;
-            }
-            .card.size-md {
-              --tc-card-padding-x: 16px;
-              --tc-card-padding-y: 16px;
-              --tc-card-gap: 12px;
-            }
-            .card.size-lg {
-              --tc-card-padding-x: 20px;
-              --tc-card-padding-y: 20px;
-              --tc-card-gap: 14px;
-            }
-          }
-        </style>
       `;
     },
     afterMount() {
@@ -2937,13 +3036,26 @@ build(
     }
   })
 );
-function esc14(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/badge.ts
 var TAG15 = "tc-badge";
 var tagName15 = TAG15;
+var STYLE13 = `
+  .badge {
+    display: inline-flex; align-items: center;
+    font-family: var(--tc-badge-font); font-weight: 600;
+    line-height: 1; white-space: nowrap;
+    border-radius: var(--tc-badge-radius);
+  }
+  .badge.pill { border-radius: 999px; }
+  .s-sm { font-size: 0.7rem; padding: 3px 7px; }
+  .s-md { font-size: 0.78rem; padding: 4px 9px; }
+  .v-neutral { background: var(--tc-badge-neutral-bg); color: var(--tc-badge-neutral-fg); }
+  .v-info    { background: var(--tc-badge-info-bg);    color: var(--tc-badge-info-fg); }
+  .v-success { background: var(--tc-badge-success-bg); color: var(--tc-badge-success-fg); }
+  .v-warning { background: var(--tc-badge-warning-bg); color: var(--tc-badge-warning-fg); }
+  .v-danger  { background: var(--tc-badge-danger-bg);  color: var(--tc-badge-danger-fg); }
+`;
 build(
   TAG15,
   describe({
@@ -2969,36 +3081,45 @@ build(
     styles: {
       display: "inline-block"
     },
-    template: ({ props }) => `
-      <span class="badge v-${esc15(props.variant)} s-${esc15(props.size)} ${props.pill ? "pill" : ""}">
-        <slot></slot>
-      </span>
-      <style>
-        .badge {
-          display: inline-flex; align-items: center;
-          font-family: var(--tc-badge-font); font-weight: 600;
-          line-height: 1; white-space: nowrap;
-          border-radius: var(--tc-badge-radius);
-        }
-        .badge.pill { border-radius: 999px; }
-        .s-sm { font-size: 0.7rem; padding: 3px 7px; }
-        .s-md { font-size: 0.78rem; padding: 4px 9px; }
-        .v-neutral { background: var(--tc-badge-neutral-bg); color: var(--tc-badge-neutral-fg); }
-        .v-info    { background: var(--tc-badge-info-bg);    color: var(--tc-badge-info-fg); }
-        .v-success { background: var(--tc-badge-success-bg); color: var(--tc-badge-success-fg); }
-        .v-warning { background: var(--tc-badge-warning-bg); color: var(--tc-badge-warning-fg); }
-        .v-danger  { background: var(--tc-badge-danger-bg);  color: var(--tc-badge-danger-fg); }
-      </style>
-    `
+    stylesheet: STYLE13,
+    template: ({ props }) => html`
+        <span class="badge v-${props.variant} s-${props.size} ${props.pill ? "pill" : ""}">
+          <slot></slot>
+        </span>
+      `
   })
 );
-function esc15(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/skeleton.ts
 var TAG16 = "tc-skeleton";
 var tagName16 = TAG16;
+var STYLE14 = `
+  .bone {
+    display: inline-block;
+    background: var(--tc-skeleton-base);
+    border-radius: var(--tc-skeleton-radius);
+    position: relative; overflow: hidden;
+  }
+  .bone.round { border-radius: 50%; }
+  .bone.pulse::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--tc-skeleton-shine),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: tc-shimmer 1.4s infinite;
+  }
+  @keyframes tc-shimmer {
+    to { transform: translateX(100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bone.pulse::after { animation: none; opacity: 0.4; }
+  }
+`;
 build(
   TAG16,
   describe({
@@ -3017,49 +3138,28 @@ build(
       display: "inline-block",
       "vertical-align": "middle"
     },
-    template: ({ props }) => `
-      <span
-        class="bone ${props.pulse ? "pulse" : ""} ${props.rounded ? "round" : ""}"
-        aria-hidden="true"
-        style="width: ${esc16(props.width)}; height: ${esc16(props.height)};"
-      ></span>
-      <style>
-        .bone {
-          display: inline-block;
-          background: var(--tc-skeleton-base);
-          border-radius: var(--tc-skeleton-radius);
-          position: relative; overflow: hidden;
-        }
-        .bone.round { border-radius: 50%; }
-        .bone.pulse::after {
-          content: "";
-          position: absolute; inset: 0;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            var(--tc-skeleton-shine),
-            transparent
-          );
-          transform: translateX(-100%);
-          animation: tc-shimmer 1.4s infinite;
-        }
-        @keyframes tc-shimmer {
-          to { transform: translateX(100%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .bone.pulse::after { animation: none; opacity: 0.4; }
-        }
-      </style>
-    `
+    stylesheet: STYLE14,
+    template: ({ props }) => html`
+        <span
+          class="bone ${props.pulse ? "pulse" : ""} ${props.rounded ? "round" : ""}"
+          aria-hidden="true"
+          style="width: ${props.width}; height: ${props.height};"
+        ></span>
+      `
   })
 );
-function esc16(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/stack.ts
 var TAG17 = "tc-stack";
 var tagName17 = TAG17;
+var STYLE15 = `
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tc-stack-gap);
+    align-items: var(--tc-stack-align);
+  }
+`;
 build(
   TAG17,
   describe({
@@ -3070,19 +3170,17 @@ build(
     styles: {
       display: "block"
     },
-    template: ({ props }) => `
-      <div class="stack" style="--tc-stack-gap: ${gapValue(props.gap)}; --tc-stack-align: ${esc17(props.align)};">
-        <slot></slot>
-      </div>
-      <style>
-        .stack {
-          display: flex;
-          flex-direction: column;
-          gap: var(--tc-stack-gap);
-          align-items: var(--tc-stack-align);
-        }
-      </style>
-    `
+    stylesheet: STYLE15,
+    template: ({ props }) => html`
+        <div
+          class="stack"
+          style="--tc-stack-gap: ${gapValue(
+      props.gap
+    )}; --tc-stack-align: ${props.align};"
+        >
+          <slot></slot>
+        </div>
+      `
   })
 );
 function gapValue(g) {
@@ -3104,13 +3202,20 @@ function defaultSpace(n) {
   };
   return map2[n] ?? "16px";
 }
-function esc17(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/cluster.ts
 var TAG18 = "tc-cluster";
 var tagName18 = TAG18;
+var STYLE16 = `
+  .cluster {
+    display: flex;
+    flex-direction: row;
+    gap: var(--tc-cluster-gap);
+    justify-content: var(--tc-cluster-justify);
+    align-items: var(--tc-cluster-align);
+    flex-wrap: var(--tc-cluster-wrap);
+  }
+`;
 build(
   TAG18,
   describe({
@@ -3123,26 +3228,18 @@ build(
     styles: {
       display: "block"
     },
-    template: ({ props }) => `
-      <div class="cluster" style="
-        --tc-cluster-gap: ${gapValue2(props.gap)};
-        --tc-cluster-justify: ${justifyValue(props.justify)};
-        --tc-cluster-align: ${esc18(props.align)};
-        --tc-cluster-wrap: ${props.wrap ? "wrap" : "nowrap"};
-      ">
-        <slot></slot>
-      </div>
-      <style>
-        .cluster {
-          display: flex;
-          flex-direction: row;
-          gap: var(--tc-cluster-gap);
-          justify-content: var(--tc-cluster-justify);
-          align-items: var(--tc-cluster-align);
-          flex-wrap: var(--tc-cluster-wrap);
-        }
-      </style>
-    `
+    stylesheet: STYLE16,
+    template: ({ props }) => html`
+        <div
+          class="cluster"
+          style="--tc-cluster-gap: ${gapValue2(props.gap)};
+            --tc-cluster-justify: ${justifyValue(props.justify)};
+            --tc-cluster-align: ${props.align};
+            --tc-cluster-wrap: ${props.wrap ? "wrap" : "nowrap"};"
+          >
+            <slot></slot>
+          </div>
+        `
   })
 );
 function justifyValue(j) {
@@ -3177,13 +3274,17 @@ function defaultSpace2(n) {
   };
   return map2[n] ?? "12px";
 }
-function esc18(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/grid.ts
 var TAG19 = "tc-grid";
 var tagName19 = TAG19;
+var STYLE17 = `
+  .grid {
+    display: grid;
+    grid-template-columns: var(--tc-grid-template);
+    gap: var(--tc-grid-gap);
+  }
+`;
 build(
   TAG19,
   describe({
@@ -3195,24 +3296,19 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE17,
     template: ({ props }) => {
       const cols = String(props.columns ?? "").trim();
-      const template = cols ? `repeat(${esc19(cols)}, minmax(0, 1fr))` : `repeat(auto-fit, minmax(${esc19(props.min)}, 1fr))`;
-      return `
-        <div class="grid" style="
-          --tc-grid-template: ${template};
-          --tc-grid-gap: ${gapValue3(props.gap)};
-        ">
-          <slot></slot>
-        </div>
-        <style>
-          .grid {
-            display: grid;
-            grid-template-columns: var(--tc-grid-template);
-            gap: var(--tc-grid-gap);
-          }
-        </style>
-      `;
+      const template = cols ? `repeat(${escapeHtml(cols)}, minmax(0, 1fr))` : `repeat(auto-fit, minmax(${escapeHtml(props.min)}, 1fr))`;
+      return html`
+        <div
+          class="grid"
+          style="--tc-grid-template: ${unsafe(template)};
+            --tc-grid-gap: ${gapValue3(props.gap)};"
+          >
+            <slot></slot>
+          </div>
+        `;
     }
   })
 );
@@ -3235,15 +3331,71 @@ function defaultSpace3(n) {
   };
   return map2[n] ?? "16px";
 }
-function esc19(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/code.ts
 var TAG20 = "tc-code";
 var tagName20 = TAG20;
 var COPY_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
 var CHECK_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+var STYLE18 = `
+  :host { display: block; }
+  .block {
+    background: var(--tc-code-bg);
+    color: var(--tc-code-ink);
+    border-radius: var(--tc-code-radius);
+    font-family: var(--tc-code-font);
+    font-size: 0.84rem;
+    line-height: 1.7;
+    overflow: hidden;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--tc-code-rule);
+    font-size: 0.74rem;
+  }
+  .label {
+    color: var(--tc-code-label);
+    font-family: var(--tc-code-font);
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+  }
+  .copy {
+    font: inherit; font-size: 0.78rem;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent;
+    color: var(--tc-code-label);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .copy:hover {
+    color: var(--tc-code-ink);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--tc-code-rule);
+  }
+  .copy-icon { display: inline-flex; }
+  .copy-icon svg { width: 13px; height: 13px; }
+  pre {
+    margin: 0;
+    padding: var(--tc-code-padding);
+    overflow-x: auto;
+    font-family: inherit;
+  }
+  code { font-family: inherit; }
+  /* Syntax-highlight classes for pre-tokenized code. The slot
+     projects the user's nodes; they keep their light-DOM classes
+     but inherit our colors via the parts protocol below. */
+  ::slotted(.tc-kw)  { color: var(--tc-code-kw); }
+  ::slotted(.tc-str) { color: var(--tc-code-str); }
+  ::slotted(.tc-com) { color: var(--tc-code-com); font-style: italic; }
+  ::slotted(.tc-num) { color: var(--tc-code-num); }
+  ::slotted(.tc-tag) { color: var(--tc-code-tag); }
+`;
 build(
   TAG20,
   describe({
@@ -3269,81 +3421,25 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE18,
     template: ({ props, state }) => {
       const label = props.filename || props.language || "";
       const copied = state.copied === true;
-      return `
+      return html`
         <div class="block">
-          ${label || props.copy ? `
+          ${label || props.copy ? unsafe(`
             <header class="bar">
-              <span class="label">${esc20(label)}</span>
+              <span class="label">${esc14(label)}</span>
               ${props.copy ? `<button type="button" class="copy" aria-label="Copy code">
                     <span class="copy-icon" aria-hidden="true">${copied ? CHECK_SVG : COPY_SVG}</span>
                     <span class="copy-text">${copied ? "Copied" : "Copy"}</span>
                   </button>` : ""}
             </header>
-          ` : ""}
-          <pre><code class="code lang-${esc20(String(props.language || "txt"))}"><slot></slot></code></pre>
+          `) : ""}
+          <pre><code class="code lang-${String(
+        props.language || "txt"
+      )}"><slot></slot></code></pre>
         </div>
-        <style>
-          :host { display: block; }
-          .block {
-            background: var(--tc-code-bg);
-            color: var(--tc-code-ink);
-            border-radius: var(--tc-code-radius);
-            font-family: var(--tc-code-font);
-            font-size: 0.84rem;
-            line-height: 1.7;
-            overflow: hidden;
-          }
-          .bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 14px;
-            border-bottom: 1px solid var(--tc-code-rule);
-            font-size: 0.74rem;
-          }
-          .label {
-            color: var(--tc-code-label);
-            font-family: var(--tc-code-font);
-            text-transform: lowercase;
-            letter-spacing: 0.04em;
-          }
-          .copy {
-            font: inherit; font-size: 0.78rem;
-            display: inline-flex; align-items: center; gap: 6px;
-            background: transparent;
-            color: var(--tc-code-label);
-            border: 1px solid transparent;
-            border-radius: 6px;
-            padding: 4px 8px;
-            cursor: pointer;
-            transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-          }
-          .copy:hover {
-            color: var(--tc-code-ink);
-            background: rgba(255, 255, 255, 0.04);
-            border-color: var(--tc-code-rule);
-          }
-          .copy-icon { display: inline-flex; }
-          .copy-icon svg { width: 13px; height: 13px; }
-          pre {
-            margin: 0;
-            padding: var(--tc-code-padding);
-            overflow-x: auto;
-            font-family: inherit;
-          }
-          code { font-family: inherit; }
-          /* Syntax-highlight classes for pre-tokenized code. The slot
-             projects the user's nodes; they keep their light-DOM classes
-             but inherit our colors via the parts protocol below. */
-          ::slotted(.tc-kw)  { color: var(--tc-code-kw); }
-          ::slotted(.tc-str) { color: var(--tc-code-str); }
-          ::slotted(.tc-com) { color: var(--tc-code-com); font-style: italic; }
-          ::slotted(.tc-num) { color: var(--tc-code-num); }
-          ::slotted(.tc-tag) { color: var(--tc-code-tag); }
-        </style>
       `;
     },
     events: {
@@ -3366,7 +3462,7 @@ build(
     }
   })
 );
-function esc20(s) {
+function esc14(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
@@ -3380,6 +3476,46 @@ var ICONS = {
   warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
   danger: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`
 };
+var STYLE19 = `
+  :host { display: block; }
+  .callout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: var(--tc-callout-radius);
+    border-left: 3px solid var(--callout-border);
+    background: var(--callout-bg);
+    color: var(--callout-fg);
+    font-family: var(--tc-callout-font);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .callout.compact { padding: 10px 14px; font-size: 0.9rem; }
+
+  .v-note    { --callout-bg: var(--tc-callout-note-bg);    --callout-fg: var(--tc-callout-note-fg);    --callout-border: var(--tc-callout-note-border); }
+  .v-info    { --callout-bg: var(--tc-callout-info-bg);    --callout-fg: var(--tc-callout-info-fg);    --callout-border: var(--tc-callout-info-border); }
+  .v-success { --callout-bg: var(--tc-callout-success-bg); --callout-fg: var(--tc-callout-success-fg); --callout-border: var(--tc-callout-success-border); }
+  .v-warning { --callout-bg: var(--tc-callout-warning-bg); --callout-fg: var(--tc-callout-warning-fg); --callout-border: var(--tc-callout-warning-border); }
+  .v-danger  { --callout-bg: var(--tc-callout-danger-bg);  --callout-fg: var(--tc-callout-danger-fg);  --callout-border: var(--tc-callout-danger-border); }
+
+  .icon {
+    display: inline-flex;
+    width: 20px; height: 20px;
+    margin-top: 2px;
+    color: var(--callout-border);
+  }
+  .icon svg { width: 100%; height: 100%; }
+
+  .title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--callout-fg);
+  }
+
+  .content ::slotted(p:first-child) { margin-top: 0; }
+  .content ::slotted(p:last-child)  { margin-bottom: 0; }
+`;
 build(
   TAG21,
   describe({
@@ -3412,72 +3548,71 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE19,
     template: ({ props }) => {
       const variant = String(props.variant ?? "note");
       const symbol = ICONS[variant] ?? ICONS.note;
-      return `
+      return html`
         <aside
-          class="callout v-${esc21(variant)} ${props.compact ? "compact" : ""}"
+          class="callout v-${variant} ${props.compact ? "compact" : ""}"
           role="${variant === "danger" ? "alert" : "note"}"
         >
-          <span class="icon" aria-hidden="true">${symbol}</span>
+          <span class="icon" aria-hidden="true">${unsafe(symbol)}</span>
           <div class="body">
-            ${props.title ? `<div class="title">${esc21(props.title)}</div>` : ""}
+            ${props.title ? html`
+                <div class="title">${props.title}</div>
+              ` : ""}
             <div class="content"><slot></slot></div>
           </div>
         </aside>
-        <style>
-          :host { display: block; }
-          .callout {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 12px;
-            padding: 14px 18px;
-            border-radius: var(--tc-callout-radius);
-            border-left: 3px solid var(--callout-border);
-            background: var(--callout-bg);
-            color: var(--callout-fg);
-            font-family: var(--tc-callout-font);
-            font-size: 0.95rem;
-            line-height: 1.6;
-          }
-          .callout.compact { padding: 10px 14px; font-size: 0.9rem; }
-
-          .v-note    { --callout-bg: var(--tc-callout-note-bg);    --callout-fg: var(--tc-callout-note-fg);    --callout-border: var(--tc-callout-note-border); }
-          .v-info    { --callout-bg: var(--tc-callout-info-bg);    --callout-fg: var(--tc-callout-info-fg);    --callout-border: var(--tc-callout-info-border); }
-          .v-success { --callout-bg: var(--tc-callout-success-bg); --callout-fg: var(--tc-callout-success-fg); --callout-border: var(--tc-callout-success-border); }
-          .v-warning { --callout-bg: var(--tc-callout-warning-bg); --callout-fg: var(--tc-callout-warning-fg); --callout-border: var(--tc-callout-warning-border); }
-          .v-danger  { --callout-bg: var(--tc-callout-danger-bg);  --callout-fg: var(--tc-callout-danger-fg);  --callout-border: var(--tc-callout-danger-border); }
-
-          .icon {
-            display: inline-flex;
-            width: 20px; height: 20px;
-            margin-top: 2px;
-            color: var(--callout-border);
-          }
-          .icon svg { width: 100%; height: 100%; }
-
-          .title {
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--callout-fg);
-          }
-
-          .content ::slotted(p:first-child) { margin-top: 0; }
-          .content ::slotted(p:last-child)  { margin-bottom: 0; }
-        </style>
       `;
     }
   })
 );
-function esc21(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // components/toc.ts
 var TAG22 = "tc-toc";
 var tagName22 = TAG22;
 var STATE = /* @__PURE__ */ new WeakMap();
+var STYLE20 = `
+  :host { display: block; font-family: var(--tc-toc-font); }
+  .toc {
+    font-size: 0.9rem;
+    color: var(--tc-toc-fg-muted);
+    padding-left: 14px;
+    border-left: 1px solid var(--tc-toc-rule);
+  }
+  .toc.sticky { position: sticky; top: var(--tc-toc-top); }
+  .label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--tc-toc-label);
+    margin-bottom: 10px;
+  }
+  .list {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .list a {
+    display: block;
+    padding: 4px 0;
+    color: var(--tc-toc-fg-muted);
+    text-decoration: none;
+    line-height: 1.4;
+    transition: color 0.15s ease;
+  }
+  .list a:hover { color: var(--tc-toc-fg); }
+  .list .active > a {
+    color: var(--tc-toc-active);
+    font-weight: 600;
+  }
+  .lvl-3 a { padding-left: 12px; font-size: 0.86rem; }
+  .lvl-4 a { padding-left: 24px; font-size: 0.84rem; }
+  .lvl-5 a, .lvl-6 a { padding-left: 36px; font-size: 0.82rem; }
+  .empty { color: var(--tc-toc-fg-muted); font-size: 0.86rem; margin: 0; }
+`;
 build(
   TAG22,
   describe({
@@ -3499,58 +3634,23 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE20,
     template: ({ props, state }) => {
       const items = state.items ?? [];
       const active = state.activeId ?? "";
-      return `
+      return html`
         <nav
           class="toc${props.sticky ? " sticky" : ""}"
           aria-label="Table of contents"
         >
-          ${props.label ? `<div class="label">${esc22(props.label)}</div>` : ""}
-          ${items.length === 0 ? `<p class="empty">No sections yet.</p>` : `<ol class="list">${items.map(
-        (it) => `<li class="lvl-${it.level}${it.id === active ? " active" : ""}"><a href="#${esc22(it.id)}">${esc22(it.text)}</a></li>`
-      ).join("")}</ol>`}
+          ${props.label ? html`
+              <div class="label">${props.label}</div>
+            ` : ""} ${items.length === 0 ? unsafe(`<p class="empty">No sections yet.</p>`) : unsafe(
+        `<ol class="list">${items.map(
+          (it) => `<li class="lvl-${it.level}${it.id === active ? " active" : ""}"><a href="#${esc15(it.id)}">${esc15(it.text)}</a></li>`
+        ).join("")}</ol>`
+      )}
         </nav>
-        <style>
-          :host { display: block; font-family: var(--tc-toc-font); }
-          .toc {
-            font-size: 0.9rem;
-            color: var(--tc-toc-fg-muted);
-            padding-left: 14px;
-            border-left: 1px solid var(--tc-toc-rule);
-          }
-          .toc.sticky { position: sticky; top: var(--tc-toc-top); }
-          .label {
-            font-size: 0.74rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--tc-toc-label);
-            margin-bottom: 10px;
-          }
-          .list {
-            list-style: none; padding: 0; margin: 0;
-            display: flex; flex-direction: column; gap: 4px;
-          }
-          .list a {
-            display: block;
-            padding: 4px 0;
-            color: var(--tc-toc-fg-muted);
-            text-decoration: none;
-            line-height: 1.4;
-            transition: color 0.15s ease;
-          }
-          .list a:hover { color: var(--tc-toc-fg); }
-          .list .active > a {
-            color: var(--tc-toc-active);
-            font-weight: 600;
-          }
-          .lvl-3 a { padding-left: 12px; font-size: 0.86rem; }
-          .lvl-4 a { padding-left: 24px; font-size: 0.84rem; }
-          .lvl-5 a, .lvl-6 a { padding-left: 36px; font-size: 0.82rem; }
-          .empty { color: var(--tc-toc-fg-muted); font-size: 0.86rem; margin: 0; }
-        </style>
       `;
     },
     afterMount() {
@@ -3611,71 +3711,14 @@ function scanAndObserve(host) {
 function slugify(text) {
   return text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-") || "section";
 }
-function esc22(s) {
+function esc15(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 // components/pagination.ts
 var TAG23 = "tc-pagination";
 var tagName23 = TAG23;
-build(
-  TAG23,
-  describe({
-    props: {
-      current: { type: "number", default: 1 },
-      total: { type: "number", default: 1 },
-      siblings: { type: "number", default: 1 },
-      boundaries: { type: "number", default: 1 },
-      size: { type: "string", default: "sm" },
-      "prev-label": { type: "string", default: "Prev" },
-      "next-label": { type: "string", default: "Next" },
-      label: { type: "string", default: "Pagination" }
-    },
-    styles: {
-      display: "block"
-    },
-    template: ({ props }) => {
-      const total = Math.max(1, Number(props.total) | 0);
-      const current = clamp(Number(props.current) | 0, 1, total);
-      const siblings = Math.max(0, Number(props.siblings) | 0);
-      const boundaries = Math.max(0, Number(props.boundaries) | 0);
-      if (total <= 1)
-        return "";
-      const items = buildPageList(current, total, siblings, boundaries);
-      const size = esc23(String(props.size ?? "sm"));
-      const prevDisabled = current <= 1 ? " disabled" : "";
-      const nextDisabled = current >= total ? " disabled" : "";
-      const pages = items.map((it) => {
-        if (it === "\u2026") {
-          return `<span class="ellipsis" aria-hidden="true">\u2026</span>`;
-        }
-        const isActive = it === current;
-        const variant = isActive ? "primary" : "ghost";
-        const ariaCurrent = isActive ? ' aria-current="page"' : "";
-        return `<tc-button
-            class="num"
-            size="${size}"
-            variant="${variant}"
-            data-page="${it}"${ariaCurrent}
-          >${it}</tc-button>`;
-      }).join("");
-      return `
-        <nav aria-label="${esc23(String(props.label ?? "Pagination"))}">
-          <tc-button
-            class="prev"
-            size="${size}"
-            variant="ghost"
-            data-page="${current - 1}"${prevDisabled}
-          >\u2190 ${esc23(String(props["prev-label"] ?? "Prev"))}</tc-button>
-          <span class="pages">${pages}</span>
-          <tc-button
-            class="next"
-            size="${size}"
-            variant="ghost"
-            data-page="${current + 1}"${nextDisabled}
-          >${esc23(String(props["next-label"] ?? "Next"))} \u2192</tc-button>
-        </nav>
-        <style>
+var STYLE21 = `
           :host { display: block; }
           nav {
             display: inline-flex;
@@ -3699,7 +3742,67 @@ build(
           tc-button[aria-current="page"] {
             pointer-events: none;
           }
-        </style>
+`;
+build(
+  TAG23,
+  describe({
+    props: {
+      current: { type: "number", default: 1 },
+      total: { type: "number", default: 1 },
+      siblings: { type: "number", default: 1 },
+      boundaries: { type: "number", default: 1 },
+      size: { type: "string", default: "sm" },
+      "prev-label": { type: "string", default: "Prev" },
+      "next-label": { type: "string", default: "Next" },
+      label: { type: "string", default: "Pagination" }
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE21,
+    template: ({ props }) => {
+      const total = Math.max(1, Number(props.total) | 0);
+      const current = clamp(Number(props.current) | 0, 1, total);
+      const siblings = Math.max(0, Number(props.siblings) | 0);
+      const boundaries = Math.max(0, Number(props.boundaries) | 0);
+      if (total <= 1)
+        return "";
+      const items = buildPageList(current, total, siblings, boundaries);
+      const size = esc16(String(props.size ?? "sm"));
+      const prevDisabled = current <= 1 ? " disabled" : "";
+      const nextDisabled = current >= total ? " disabled" : "";
+      const pages = items.map((it) => {
+        if (it === "\u2026") {
+          return `<span class="ellipsis" aria-hidden="true">\u2026</span>`;
+        }
+        const isActive = it === current;
+        const variant = isActive ? "primary" : "ghost";
+        const ariaCurrent = isActive ? ' aria-current="page"' : "";
+        return `<tc-button
+            class="num"
+            size="${size}"
+            variant="${variant}"
+            data-page="${it}"${ariaCurrent}
+          >${it}</tc-button>`;
+      }).join("");
+      return html`
+        <nav aria-label="${String(props.label ?? "Pagination")}">
+          <tc-button
+            class="prev"
+            size="${unsafe(size)}"
+            variant="ghost"
+            data-page="${current - 1}"
+            ${unsafe(prevDisabled)}
+          >← ${String(props["prev-label"] ?? "Prev")}</tc-button>
+          <span class="pages">${unsafe(pages)}</span>
+          <tc-button
+            class="next"
+            size="${unsafe(size)}"
+            variant="ghost"
+            data-page="${current + 1}"
+            ${unsafe(nextDisabled)}
+          >${String(props["next-label"] ?? "Next")} →</tc-button>
+        </nav>
       `;
     },
     events: {
@@ -3747,7 +3850,7 @@ function buildPageList(current, total, siblings, boundaries) {
   }
   return out;
 }
-function esc23(s) {
+function esc16(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
@@ -3768,8 +3871,7 @@ function joinValues(values) {
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-var COMBOBOX_STYLE = `
-        <style>
+var STYLE22 = `
           :host {
             display: block;
             position: relative;
@@ -3954,7 +4056,6 @@ var COMBOBOX_STYLE = `
             font-family: var(--tc-input-font);
           }
           .helper.error { color: var(--tc-input-error); }
-        </style>
 `;
 build(
   TAG24,
@@ -3993,6 +4094,7 @@ build(
     styles: {
       display: "block"
     },
+    stylesheet: STYLE22,
     refs: {
       search: ".search",
       popup: ".popup"
@@ -4014,36 +4116,36 @@ build(
       const showSingleLabel = !multiple && selected.length === 1 && (!isOpen || !searchable);
       const showPlaceholder = selected.length === 0 && !showSearch && !showSingleLabel;
       const chipsHtml = multiple ? selectedOpts.map(
-        (o) => `<span class="chip" data-value="${esc24(o.value)}">
-              ${o.icon ? `<span class="chip-icon">${esc24(o.icon)}</span>` : ""}
-              <span class="chip-label">${esc24(o.label)}</span>
+        (o) => `<span class="chip" data-value="${esc17(o.value)}">
+              ${o.icon ? `<span class="chip-icon">${esc17(o.icon)}</span>` : ""}
+              <span class="chip-label">${esc17(o.label)}</span>
               <button
                 type="button"
                 class="chip-remove"
-                data-remove="${esc24(o.value)}"
-                aria-label="Remove ${esc24(o.label)}"
+                data-remove="${esc17(o.value)}"
+                aria-label="Remove ${esc17(o.label)}"
                 ${disabled ? "disabled" : ""}
               >&times;</button>
             </span>`
       ).join("") : "";
       const singleLabelHtml = showSingleLabel && selectedOpts[0] ? `<span class="single">
-            ${selectedOpts[0].icon ? `<span class="single-icon">${esc24(selectedOpts[0].icon)}</span>` : ""}
-            <span class="single-label">${esc24(selectedOpts[0].label)}</span>
+            ${selectedOpts[0].icon ? `<span class="single-icon">${esc17(selectedOpts[0].icon)}</span>` : ""}
+            <span class="single-label">${esc17(selectedOpts[0].label)}</span>
           </span>` : "";
-      const placeholderHtml = showPlaceholder ? `<span class="placeholder">${esc24(props.placeholder ?? "")}</span>` : "";
+      const placeholderHtml = showPlaceholder ? `<span class="placeholder">${esc17(props.placeholder ?? "")}</span>` : "";
       const searchHtml = showSearch ? `<input
             type="text"
             class="search"
             part="search"
-            value="${esc24(query)}"
-            placeholder="${esc24(selected.length === 0 ? props.placeholder ?? "" : "")}"
+            value="${esc17(query)}"
+            placeholder="${esc17(selected.length === 0 ? props.placeholder ?? "" : "")}"
             ${disabled ? "disabled" : ""}
             autocomplete="off"
             aria-autocomplete="list"
             aria-expanded="${isOpen ? "true" : "false"}"
             role="combobox"
           />` : "";
-      const optionsHtml = filtered.length === 0 ? `<div class="empty">${esc24(props["empty-text"] ?? "No results")}</div>` : filtered.map((o, i) => {
+      const optionsHtml = filtered.length === 0 ? `<div class="empty">${esc17(props["empty-text"] ?? "No results")}</div>` : filtered.map((o, i) => {
         const checked = selectedSet.has(o.value);
         const isFocused = i === focusedIndex;
         const cls = [
@@ -4055,20 +4157,20 @@ build(
         return `<div
               class="${cls}"
               role="option"
-              data-value="${esc24(o.value)}"
+              data-value="${esc17(o.value)}"
               data-index="${i}"
               aria-selected="${checked ? "true" : "false"}"
               ${o.disabled ? 'aria-disabled="true"' : ""}
             >
               ${multiple ? `<span class="check" aria-hidden="true">${checked ? "\u2713" : ""}</span>` : ""}
-              ${o.icon ? `<span class="opt-icon">${esc24(o.icon)}</span>` : ""}
-              <span class="opt-label">${esc24(o.label)}</span>
+              ${o.icon ? `<span class="opt-icon">${esc17(o.icon)}</span>` : ""}
+              <span class="opt-label">${esc17(o.label)}</span>
             </div>`;
       }).join("");
-      const labelHtml = props.label ? `<label class="label">${esc24(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : "";
-      const helperHtml = showError ? `<div class="helper error">${esc24(props.error)}</div>` : props.helper ? `<div class="helper">${esc24(props.helper)}</div>` : "";
-      return `
-        ${labelHtml}
+      const labelHtml = props.label ? `<label class="label">${esc17(props.label)}${props.required ? ' <span class="req" aria-hidden="true">*</span>' : ""}</label>` : "";
+      const helperHtml = showError ? `<div class="helper error">${esc17(props.error)}</div>` : props.helper ? `<div class="helper">${esc17(props.helper)}</div>` : "";
+      return html`
+        ${unsafe(labelHtml)}
         <div
           class="control ${showError ? "invalid" : ""} ${isOpen ? "open" : ""} ${disabled ? "disabled" : ""}"
           part="control"
@@ -4076,19 +4178,22 @@ build(
           role="${searchable ? "presentation" : "combobox"}"
         >
           <div class="display">
-            ${chipsHtml}${singleLabelHtml}${placeholderHtml}${searchHtml}
+            ${unsafe(chipsHtml)}${unsafe(singleLabelHtml)}${unsafe(
+        placeholderHtml
+      )}${unsafe(searchHtml)}
           </div>
-          <span class="caret" aria-hidden="true">\u25BE</span>
+          <span class="caret" aria-hidden="true">▾</span>
         </div>
         <div
           class="popup"
           part="popup"
           role="listbox"
-          ${multiple ? 'aria-multiselectable="true"' : ""}
+          ${unsafe(multiple ? 'aria-multiselectable="true"' : "")}
           ${isOpen ? "" : "hidden"}
-        >${optionsHtml}</div>
-        ${helperHtml}
-        ${COMBOBOX_STYLE}
+        >
+          ${unsafe(optionsHtml)}
+        </div>
+        ${unsafe(helperHtml)}
       `;
     },
     events: {
@@ -4321,130 +4426,14 @@ function syncFormValue(_ctx, values, host) {
     fd.append(name, v);
   internals.setFormValue(fd);
 }
-function esc24(s) {
+function esc17(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 // components/carousel.ts
 var TAG25 = "tc-carousel";
 var tagName25 = TAG25;
-function esc25(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-function countSlides(host) {
-  let n = 0;
-  for (const child of Array.from(host.children)) {
-    if (child instanceof Element && !child.hasAttribute("slot"))
-      n++;
-  }
-  return n;
-}
-function clampIndex(value, total, loop) {
-  if (total <= 0)
-    return 0;
-  if (loop)
-    return (value % total + total) % total;
-  return Math.max(0, Math.min(total - 1, value));
-}
-function go(host, next) {
-  const total = countSlides(host);
-  if (total === 0)
-    return;
-  const previous = host.value;
-  const idx = clampIndex(next, total, host.loop);
-  if (idx === previous)
-    return;
-  host.value = idx;
-  host.dispatchEvent(
-    new CustomEvent("tc-change", {
-      detail: { index: idx, previous },
-      bubbles: true,
-      composed: true
-    })
-  );
-}
-function startAutoplay(host) {
-  stopAutoplay(host);
-  if (host.autoplay <= 0)
-    return;
-  if (countSlides(host) <= 1)
-    return;
-  host._carouselTimer = globalThis.setInterval(() => {
-    go(host, host.value + 1);
-  }, host.autoplay);
-}
-function stopAutoplay(host) {
-  if (host._carouselTimer !== void 0) {
-    globalThis.clearInterval(host._carouselTimer);
-    host._carouselTimer = void 0;
-  }
-}
-build(
-  TAG25,
-  describe({
-    props: {
-      value: { type: "number", default: 0, reflect: true },
-      autoplay: { type: "number", default: 0 },
-      loop: { type: "boolean", default: true },
-      orientation: { type: "string", default: "horizontal" },
-      transition: { type: "string", default: "slide" },
-      indicators: { type: "boolean", default: true },
-      controls: { type: "boolean", default: true },
-      swipe: { type: "boolean", default: true },
-      pauseOnHover: { type: "boolean", default: true },
-      ariaLabel: { type: "string", default: "Carousel" },
-      height: { type: "string", default: "" }
-    },
-    theme: {
-      "tc-carousel-radius": "var(--tc-radius-lg, 12px)",
-      "tc-carousel-bg": "var(--tc-color-bg, #faf8f3)",
-      "tc-carousel-control-bg": "rgba(255, 255, 255, 0.85)",
-      "tc-carousel-control-bg-hover": "rgba(255, 255, 255, 1)",
-      "tc-carousel-control-fg": "var(--tc-color-ink, #14171f)",
-      "tc-carousel-control-size": "36px",
-      "tc-carousel-indicator": "rgba(20, 23, 31, 0.25)",
-      "tc-carousel-indicator-active": "var(--tc-color-accent, #a16939)",
-      "tc-carousel-duration": "320ms"
-    },
-    styles: {
-      display: "block",
-      position: "relative"
-    },
-    template: ({ props }) => {
-      const value = Number(props.value ?? 0);
-      const vertical = String(props.orientation) === "vertical";
-      const fade = String(props.transition) === "fade";
-      const height = String(props.height ?? "");
-      const showControls = !!props.controls;
-      const showIndicators = !!props.indicators;
-      const ariaLabel = esc25(props.ariaLabel ?? "Carousel");
-      return `
-        <div
-          class="root ${vertical ? "v" : "h"} ${fade ? "fade" : "slide"}"
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="${ariaLabel}"
-          style="${height ? `--tc-carousel-height: ${esc25(height)};` : ""}--tc-carousel-index: ${value};"
-        >
-          <div class="viewport" part="viewport">
-            <slot class="track" part="track"></slot>
-          </div>
-          ${showControls ? `
-            <button type="button" class="ctrl prev" aria-label="Previous slide" part="control">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                ${vertical ? `<polyline points="18 15 12 9 6 15"/>` : `<polyline points="15 18 9 12 15 6"/>`}
-              </svg>
-            </button>
-            <button type="button" class="ctrl next" aria-label="Next slide" part="control">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                ${vertical ? `<polyline points="6 9 12 15 18 9"/>` : `<polyline points="9 18 15 12 9 6"/>`}
-              </svg>
-            </button>
-          ` : ""}
-          ${showIndicators ? `<div class="indicators" role="tablist" part="indicators"></div>` : ""}
-          <div class="sr-status" aria-live="polite" aria-atomic="true"></div>
-        </div>
-        <style>
+var STYLE23 = `
           /* :host width: 100% so the carousel fills its container even
              inside flex parents. Combined with a user-set max-width on
              the host, it becomes min(container, max-width) \u2014 the
@@ -4612,7 +4601,129 @@ build(
               transition: none;
             }
           }
-        </style>
+`;
+function esc18(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function countSlides(host) {
+  let n = 0;
+  for (const child of Array.from(host.children)) {
+    if (child instanceof Element && !child.hasAttribute("slot"))
+      n++;
+  }
+  return n;
+}
+function clampIndex(value, total, loop) {
+  if (total <= 0)
+    return 0;
+  if (loop)
+    return (value % total + total) % total;
+  return Math.max(0, Math.min(total - 1, value));
+}
+function go(host, next) {
+  const total = countSlides(host);
+  if (total === 0)
+    return;
+  const previous = host.value;
+  const idx = clampIndex(next, total, host.loop);
+  if (idx === previous)
+    return;
+  host.value = idx;
+  host.dispatchEvent(
+    new CustomEvent("tc-change", {
+      detail: { index: idx, previous },
+      bubbles: true,
+      composed: true
+    })
+  );
+}
+function startAutoplay(host) {
+  stopAutoplay(host);
+  if (host.autoplay <= 0)
+    return;
+  if (countSlides(host) <= 1)
+    return;
+  host._carouselTimer = globalThis.setInterval(() => {
+    go(host, host.value + 1);
+  }, host.autoplay);
+}
+function stopAutoplay(host) {
+  if (host._carouselTimer !== void 0) {
+    globalThis.clearInterval(host._carouselTimer);
+    host._carouselTimer = void 0;
+  }
+}
+build(
+  TAG25,
+  describe({
+    props: {
+      value: { type: "number", default: 0, reflect: true },
+      autoplay: { type: "number", default: 0 },
+      loop: { type: "boolean", default: true },
+      orientation: { type: "string", default: "horizontal" },
+      transition: { type: "string", default: "slide" },
+      indicators: { type: "boolean", default: true },
+      controls: { type: "boolean", default: true },
+      swipe: { type: "boolean", default: true },
+      pauseOnHover: { type: "boolean", default: true },
+      ariaLabel: { type: "string", default: "Carousel" },
+      height: { type: "string", default: "" }
+    },
+    theme: {
+      "tc-carousel-radius": "var(--tc-radius-lg, 12px)",
+      "tc-carousel-bg": "var(--tc-color-bg, #faf8f3)",
+      "tc-carousel-control-bg": "rgba(255, 255, 255, 0.85)",
+      "tc-carousel-control-bg-hover": "rgba(255, 255, 255, 1)",
+      "tc-carousel-control-fg": "var(--tc-color-ink, #14171f)",
+      "tc-carousel-control-size": "36px",
+      "tc-carousel-indicator": "rgba(20, 23, 31, 0.25)",
+      "tc-carousel-indicator-active": "var(--tc-color-accent, #a16939)",
+      "tc-carousel-duration": "320ms"
+    },
+    styles: {
+      display: "block",
+      position: "relative"
+    },
+    stylesheet: STYLE23,
+    template: ({ props }) => {
+      const value = Number(props.value ?? 0);
+      const vertical = String(props.orientation) === "vertical";
+      const fade = String(props.transition) === "fade";
+      const height = String(props.height ?? "");
+      const showControls = !!props.controls;
+      const showIndicators = !!props.indicators;
+      const ariaLabel = esc18(props.ariaLabel ?? "Carousel");
+      return html`
+        <div
+          class="root ${vertical ? "v" : "h"} ${fade ? "fade" : "slide"}"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="${unsafe(ariaLabel)}"
+          style="${unsafe(
+        height ? `--tc-carousel-height: ${esc18(height)};` : ""
+      )}--tc-carousel-index: ${value};"
+        >
+          <div class="viewport" part="viewport">
+            <slot class="track" part="track"></slot>
+          </div>
+          ${unsafe(
+        showControls ? `
+            <button type="button" class="ctrl prev" aria-label="Previous slide" part="control">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                ${vertical ? `<polyline points="18 15 12 9 6 15"/>` : `<polyline points="15 18 9 12 15 6"/>`}
+              </svg>
+            </button>
+            <button type="button" class="ctrl next" aria-label="Next slide" part="control">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                ${vertical ? `<polyline points="6 9 12 15 18 9"/>` : `<polyline points="9 18 15 12 9 6"/>`}
+              </svg>
+            </button>
+          ` : ""
+      )} ${unsafe(
+        showIndicators ? `<div class="indicators" role="tablist" part="indicators"></div>` : ""
+      )}
+          <div class="sr-status" aria-live="polite" aria-atomic="true"></div>
+        </div>
       `;
     },
     events: {
@@ -4719,13 +4830,13 @@ function syncSlides(host) {
   const indicators = root.querySelector(".indicators");
   if (indicators) {
     const current = host.value;
-    let html2 = "";
+    let dots = "";
     for (let i = 0; i < total; i++) {
-      html2 += `<button type="button" class="dot" role="tab" data-index="${i}"
+      dots += `<button type="button" class="dot" role="tab" data-index="${i}"
         aria-current="${i === current ? "true" : "false"}"
         aria-label="Go to slide ${i + 1}"></button>`;
     }
-    indicators.innerHTML = html2;
+    indicators.innerHTML = dots;
   }
   const slides = Array.from(host.children).filter(
     (el) => el instanceof HTMLElement && !el.hasAttribute("slot")
@@ -4795,6 +4906,26 @@ function installSwipe(host) {
 // components/accordion.ts
 var TAG26 = "tc-accordion";
 var tagName26 = TAG26;
+var STYLE24 = `
+        :host { display: block; font-family: var(--tc-accordion-font); }
+        .root {
+          background: var(--tc-accordion-bg);
+          color: var(--tc-accordion-ink);
+          border-radius: var(--tc-accordion-radius);
+          overflow: hidden;
+        }
+        .root.bordered {
+          border: 1px solid var(--tc-accordion-rule);
+        }
+        /* Only the top-level slotted node (\`details\`) is reachable from the
+           shadow tree \u2014 \`::slotted()\` takes a compound selector, not a
+           combinator. Everything that targets \`summary\` (a descendant of the
+           slotted node) lives in the injected light-DOM sheet below; the
+           --tc-accordion-* vars inherit into the light DOM from :host. */
+        ::slotted(details) {
+          background: transparent;
+        }
+`;
 build(
   TAG26,
   describe({
@@ -4814,31 +4945,12 @@ build(
     styles: {
       display: "block"
     },
-    template: ({ props }) => `
-      <div class="root ${props.bordered ? "bordered" : ""}">
-        <slot></slot>
-      </div>
-      <style>
-        :host { display: block; font-family: var(--tc-accordion-font); }
-        .root {
-          background: var(--tc-accordion-bg);
-          color: var(--tc-accordion-ink);
-          border-radius: var(--tc-accordion-radius);
-          overflow: hidden;
-        }
-        .root.bordered {
-          border: 1px solid var(--tc-accordion-rule);
-        }
-        /* Only the top-level slotted node (\`details\`) is reachable from the
-           shadow tree \u2014 \`::slotted()\` takes a compound selector, not a
-           combinator. Everything that targets \`summary\` (a descendant of the
-           slotted node) lives in the injected light-DOM sheet below; the
-           --tc-accordion-* vars inherit into the light DOM from :host. */
-        ::slotted(details) {
-          background: transparent;
-        }
-      </style>
-    `,
+    stylesheet: STYLE24,
+    template: ({ props }) => html`
+        <div class="root ${props.bordered ? "bordered" : ""}">
+          <slot></slot>
+        </div>
+      `,
     afterMount() {
       const host = this;
       injectLightStyles();
@@ -4981,44 +5093,7 @@ function dispatchChange(host) {
 // components/tooltip.ts
 var TAG27 = "tc-tooltip";
 var tagName27 = TAG27;
-function esc26(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-build(
-  TAG27,
-  describe({
-    props: {
-      text: { type: "string", default: "" },
-      placement: { type: "string", default: "top" },
-      delay: { type: "number", default: 200 },
-      offset: { type: "number", default: 8 },
-      disabled: { type: "boolean", default: false }
-    },
-    theme: {
-      "tc-tooltip-bg": "var(--tc-color-ink, #14171f)",
-      "tc-tooltip-fg": "var(--tc-color-surface, #ffffff)",
-      "tc-tooltip-radius": "var(--tc-radius-sm, 6px)",
-      "tc-tooltip-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-tooltip-shadow": "0 10px 30px rgba(0, 0, 0, 0.25)",
-      "tc-tooltip-padding": "6px 10px",
-      "tc-tooltip-max-width": "240px"
-    },
-    styles: {
-      display: "inline-block",
-      position: "relative"
-    },
-    template: ({ props }) => `
-      <span class="trigger" tabindex="-1"><slot></slot></span>
-      <div
-        class="tip"
-        popover="manual"
-        role="tooltip"
-        part="tip"
-      >
-        ${props.text ? `<span class="tip-text">${esc26(props.text)}</span>` : ""}
-        <slot name="content"></slot>
-      </div>
-      <style>
+var STYLE25 = `
         :host { display: inline-block; }
         .trigger { display: inline-block; }
         .tip {
@@ -5048,8 +5123,48 @@ build(
         @media (prefers-reduced-motion: reduce) {
           .tip { transition: none; transform: none; }
         }
-      </style>
-    `,
+`;
+function esc19(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+build(
+  TAG27,
+  describe({
+    props: {
+      text: { type: "string", default: "" },
+      placement: { type: "string", default: "top" },
+      delay: { type: "number", default: 200 },
+      offset: { type: "number", default: 8 },
+      disabled: { type: "boolean", default: false }
+    },
+    theme: {
+      "tc-tooltip-bg": "var(--tc-color-ink, #14171f)",
+      "tc-tooltip-fg": "var(--tc-color-surface, #ffffff)",
+      "tc-tooltip-radius": "var(--tc-radius-sm, 6px)",
+      "tc-tooltip-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-tooltip-shadow": "0 10px 30px rgba(0, 0, 0, 0.25)",
+      "tc-tooltip-padding": "6px 10px",
+      "tc-tooltip-max-width": "240px"
+    },
+    styles: {
+      display: "inline-block",
+      position: "relative"
+    },
+    stylesheet: STYLE25,
+    template: ({ props }) => html`
+        <span class="trigger" tabindex="-1"><slot></slot></span>
+        <div
+          class="tip"
+          popover="manual"
+          role="tooltip"
+          part="tip"
+        >
+          ${unsafe(
+      props.text ? `<span class="tip-text">${esc19(props.text)}</span>` : ""
+    )}
+          <slot name="content"></slot>
+        </div>
+      `,
     afterMount() {
       const host = this;
       const root = host.shadowRoot;
@@ -5179,41 +5294,7 @@ function position(host, tip) {
 // components/popover.ts
 var TAG28 = "tc-popover";
 var tagName28 = TAG28;
-build(
-  TAG28,
-  describe({
-    props: {
-      open: { type: "boolean", default: false, reflect: true },
-      placement: { type: "string", default: "bottom" },
-      offset: { type: "number", default: 8 },
-      dismissible: { type: "boolean", default: true }
-    },
-    theme: {
-      "tc-popover-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-popover-fg": "var(--tc-color-ink, #14171f)",
-      "tc-popover-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-popover-radius": "var(--tc-radius-md, 8px)",
-      "tc-popover-shadow": "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.18))",
-      "tc-popover-padding": "12px 14px",
-      "tc-popover-min-width": "200px",
-      "tc-popover-max-width": "340px",
-      "tc-popover-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
-    },
-    styles: {
-      display: "inline-block",
-      position: "relative"
-    },
-    template: () => `
-      <span class="trigger-wrap"><slot name="trigger"></slot></span>
-      <div
-        class="panel"
-        popover="manual"
-        role="dialog"
-        part="panel"
-      >
-        <slot></slot>
-      </div>
-      <style>
+var STYLE26 = `
         :host { display: inline-block; }
         .trigger-wrap { display: inline-block; }
         .panel {
@@ -5240,8 +5321,43 @@ build(
         @media (prefers-reduced-motion: reduce) {
           .panel { transition: none; transform: none; }
         }
-      </style>
-    `,
+`;
+build(
+  TAG28,
+  describe({
+    props: {
+      open: { type: "boolean", default: false, reflect: true },
+      placement: { type: "string", default: "bottom" },
+      offset: { type: "number", default: 8 },
+      dismissible: { type: "boolean", default: true }
+    },
+    theme: {
+      "tc-popover-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-popover-fg": "var(--tc-color-ink, #14171f)",
+      "tc-popover-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-popover-radius": "var(--tc-radius-md, 8px)",
+      "tc-popover-shadow": "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.18))",
+      "tc-popover-padding": "12px 14px",
+      "tc-popover-min-width": "200px",
+      "tc-popover-max-width": "340px",
+      "tc-popover-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
+    },
+    styles: {
+      display: "inline-block",
+      position: "relative"
+    },
+    stylesheet: STYLE26,
+    template: () => html`
+        <span class="trigger-wrap"><slot name="trigger"></slot></span>
+        <div
+          class="panel"
+          popover="manual"
+          role="dialog"
+          part="panel"
+        >
+          <slot></slot>
+        </div>
+      `,
     events: {
       "click .trigger-wrap": (_e, ctx) => {
         const host = ctx.host;
@@ -5395,50 +5511,7 @@ function position2(host, panel) {
 // components/drawer.ts
 var TAG29 = "tc-drawer";
 var tagName29 = TAG29;
-var DIALOG_LISTENERS2 = /* @__PURE__ */ new WeakMap();
-function esc27(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-build(
-  TAG29,
-  describe({
-    props: {
-      open: { type: "boolean", default: false, reflect: true },
-      side: { type: "string", default: "right" },
-      size: { type: "string", default: "min(420px, 92vw)" },
-      dismissible: { type: "boolean", default: true },
-      title: { type: "string", default: "" }
-    },
-    theme: {
-      "tc-drawer-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-drawer-ink": "var(--tc-color-ink, #14171f)",
-      "tc-drawer-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-drawer-soft": "var(--tc-color-ink-soft, #5a6072)",
-      "tc-drawer-shadow": "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))",
-      "tc-drawer-backdrop": "rgba(20, 23, 31, 0.5)",
-      "tc-drawer-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-drawer-duration": "260ms"
-    },
-    styles: {
-      display: "contents"
-    },
-    template: ({ props }) => {
-      const side = String(props.side ?? "right");
-      const size = esc27(props.size ?? "min(420px, 92vw)");
-      return `
-        <dialog
-          class="dlg side-${esc27(side)}"
-          aria-labelledby="${props.title ? "title" : ""}"
-          style="--tc-drawer-size: ${size};"
-        >
-          ${props.title || props.dismissible ? `<header class="head">
-                ${props.title ? `<h2 id="title" class="title">${esc27(props.title)}</h2>` : "<span></span>"}
-                ${props.dismissible ? `<button class="x" type="button" aria-label="Close">\xD7</button>` : ""}
-              </header>` : ""}
-          <div class="body"><slot></slot></div>
-          <footer class="foot"><slot name="footer"></slot></footer>
-        </dialog>
-        <style>
+var STYLE27 = `
           /* Reset the modal-dialog UA centering, then re-position per side.
              Use !important to defeat browser UA inset-inline-start: 0 etc.
              that compete with our explicit positioning.
@@ -5565,7 +5638,53 @@ build(
             border-top: 1px solid var(--tc-drawer-rule);
             display: flex; gap: 8px; justify-content: flex-end;
           }
-        </style>
+`;
+var DIALOG_LISTENERS2 = /* @__PURE__ */ new WeakMap();
+function esc20(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+build(
+  TAG29,
+  describe({
+    props: {
+      open: { type: "boolean", default: false, reflect: true },
+      side: { type: "string", default: "right" },
+      size: { type: "string", default: "min(420px, 92vw)" },
+      dismissible: { type: "boolean", default: true },
+      title: { type: "string", default: "" }
+    },
+    theme: {
+      "tc-drawer-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-drawer-ink": "var(--tc-color-ink, #14171f)",
+      "tc-drawer-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-drawer-soft": "var(--tc-color-ink-soft, #5a6072)",
+      "tc-drawer-shadow": "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))",
+      "tc-drawer-backdrop": "rgba(20, 23, 31, 0.5)",
+      "tc-drawer-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-drawer-duration": "260ms"
+    },
+    styles: {
+      display: "contents"
+    },
+    stylesheet: STYLE27,
+    template: ({ props }) => {
+      const side = String(props.side ?? "right");
+      const size = esc20(props.size ?? "min(420px, 92vw)");
+      return html`
+        <dialog
+          class="dlg side-${side}"
+          aria-labelledby="${props.title ? "title" : ""}"
+          style="--tc-drawer-size: ${unsafe(size)};"
+        >
+          ${unsafe(
+        props.title || props.dismissible ? `<header class="head">
+                ${props.title ? `<h2 id="title" class="title">${esc20(props.title)}</h2>` : "<span></span>"}
+                ${props.dismissible ? `<button class="x" type="button" aria-label="Close">\xD7</button>` : ""}
+              </header>` : ""
+      )}
+          <div class="body"><slot></slot></div>
+          <footer class="foot"><slot name="footer"></slot></footer>
+        </dialog>
       `;
     },
     refs: {
@@ -5665,7 +5784,7 @@ function closeDrawer(host, reason) {
 // components/progress.ts
 var TAG30 = "tc-progress";
 var tagName30 = TAG30;
-function esc28(s) {
+function esc21(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function pctOf(value, max) {
@@ -5709,102 +5828,125 @@ build(
         const radius = (dim - stroke) / 2;
         const circ = 2 * Math.PI * radius;
         const dash = indeterminate ? circ * 0.25 : pct / 100 * circ;
-        const ariaProps2 = indeterminate ? `role="progressbar" aria-valuetext="${esc28(labelText)}"` : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
-        return `
-          <div class="circ size-${esc28(size)} ${indeterminate ? "indet" : ""}" ${ariaProps2}>
-            <svg viewBox="0 0 ${dim} ${dim}" width="${dim}" height="${dim}" aria-hidden="true">
-              <circle class="track" cx="${dim / 2}" cy="${dim / 2}" r="${radius}" stroke-width="${stroke}" fill="none" />
+        const ariaProps2 = indeterminate ? `role="progressbar" aria-valuetext="${esc21(labelText)}"` : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
+        return html`
+          <div class="circ size-${size} ${indeterminate ? "indet" : ""}" ${unsafe(ariaProps2)}>
+            <svg
+              viewBox="0 0 ${dim} ${dim}"
+              width="${dim}"
+              height="${dim}"
+              aria-hidden="true"
+            >
+              <circle
+                class="track"
+                cx="${dim / 2}"
+                cy="${dim / 2}"
+                r="${radius}"
+                stroke-width="${stroke}"
+                fill="none"
+              />
               <circle
                 class="fill"
-                cx="${dim / 2}" cy="${dim / 2}" r="${radius}"
-                stroke-width="${stroke}" fill="none"
-                stroke-dasharray="${dash.toFixed(3)} ${(circ - dash).toFixed(3)}"
+                cx="${dim / 2}"
+                cy="${dim / 2}"
+                r="${radius}"
+                stroke-width="${stroke}"
+                fill="none"
+                stroke-dasharray="${dash.toFixed(3)} ${(circ - dash).toFixed(
+          3
+        )}"
                 stroke-dashoffset="${(circ / 4).toFixed(3)}"
                 stroke-linecap="round"
               />
             </svg>
-            ${props.showLabel ? `<span class="label" aria-hidden="true">${esc28(labelText)}</span>` : ""}
+            ${unsafe(
+          props.showLabel ? `<span class="label" aria-hidden="true">${esc21(labelText)}</span>` : ""
+        )}
           </div>
           <style>
-            :host { display: inline-block; vertical-align: middle; }
-            .circ { position: relative; display: inline-grid; place-items: center; }
-            .label {
-              position: absolute;
-              font-family: var(--tc-progress-font);
-              font-size: ${size === "sm" ? "0.55rem" : size === "lg" ? "0.92rem" : "0.74rem"};
-              font-weight: 600;
-              color: var(--tc-progress-fg);
-              line-height: 1;
-            }
-            svg { display: block; transform: rotate(-90deg); }
-            .track { stroke: var(--tc-progress-track); }
-            .fill {
-              stroke: var(--tc-progress-fill);
-              transition: stroke-dasharray 320ms cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .indet svg { animation: tc-prog-spin 1.1s linear infinite; }
-            .indet .fill { transition: none; }
-            @keyframes tc-prog-spin {
-              from { transform: rotate(-90deg); }
-              to { transform: rotate(270deg); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .indet svg { animation-duration: 3s; }
-              .fill { transition: none; }
-            }
+          :host { display: inline-block; vertical-align: middle; }
+          .circ { position: relative; display: inline-grid; place-items: center; }
+          .label {
+            position: absolute;
+            font-family: var(--tc-progress-font);
+            font-size: ${size === "sm" ? "0.55rem" : size === "lg" ? "0.92rem" : "0.74rem"};
+            font-weight: 600;
+            color: var(--tc-progress-fg);
+            line-height: 1;
+          }
+          svg { display: block; transform: rotate(-90deg); }
+          .track { stroke: var(--tc-progress-track); }
+          .fill {
+            stroke: var(--tc-progress-fill);
+            transition: stroke-dasharray 320ms cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .indet svg { animation: tc-prog-spin 1.1s linear infinite; }
+          .indet .fill { transition: none; }
+          @keyframes tc-prog-spin {
+            from { transform: rotate(-90deg); }
+            to { transform: rotate(270deg); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .indet svg { animation-duration: 3s; }
+            .fill { transition: none; }
+          }
           </style>
         `;
       }
       const h = size === "sm" ? 4 : size === "lg" ? 12 : 8;
-      const ariaProps = indeterminate ? `role="progressbar" aria-valuetext="${esc28(labelText)}"` : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
-      return `
-        <div class="bar size-${esc28(size)} ${indeterminate ? "indet" : ""}" ${ariaProps}>
+      const ariaProps = indeterminate ? `role="progressbar" aria-valuetext="${esc21(labelText)}"` : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
+      return html`
+        <div class="bar size-${size} ${indeterminate ? "indet" : ""}" ${unsafe(
+        ariaProps
+      )}>
           <div class="track">
             <div class="fill" style="width: ${pct.toFixed(2)}%"></div>
           </div>
-          ${props.showLabel ? `<span class="label" aria-hidden="true">${esc28(labelText)}</span>` : ""}
+          ${unsafe(
+        props.showLabel ? `<span class="label" aria-hidden="true">${esc21(labelText)}</span>` : ""
+      )}
         </div>
         <style>
-          :host { display: block; }
-          .bar {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 10px;
-          }
-          .track {
-            position: relative;
-            height: ${h}px;
-            background: var(--tc-progress-track);
-            border-radius: var(--tc-progress-radius);
-            overflow: hidden;
-          }
-          .fill {
-            height: 100%;
-            background: var(--tc-progress-fill);
-            border-radius: inherit;
-            transition: width 320ms cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          .label {
-            font-family: var(--tc-progress-font);
-            font-size: ${size === "sm" ? "0.68rem" : size === "lg" ? "0.92rem" : "0.78rem"};
-            font-weight: 500;
-            color: var(--tc-progress-fg);
-            min-width: 3ch;
-            text-align: right;
-          }
-          .indet .fill {
-            width: 35% !important;
-            animation: tc-prog-slide 1.4s ease-in-out infinite;
-          }
-          @keyframes tc-prog-slide {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(285%); }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .fill { transition: none; }
-            .indet .fill { animation-duration: 4s; }
-          }
+        :host { display: block; }
+        .bar {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          gap: 10px;
+        }
+        .track {
+          position: relative;
+          height: ${h}px;
+          background: var(--tc-progress-track);
+          border-radius: var(--tc-progress-radius);
+          overflow: hidden;
+        }
+        .fill {
+          height: 100%;
+          background: var(--tc-progress-fill);
+          border-radius: inherit;
+          transition: width 320ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .label {
+          font-family: var(--tc-progress-font);
+          font-size: ${size === "sm" ? "0.68rem" : size === "lg" ? "0.92rem" : "0.78rem"};
+          font-weight: 500;
+          color: var(--tc-progress-fg);
+          min-width: 3ch;
+          text-align: right;
+        }
+        .indet .fill {
+          width: 35% !important;
+          animation: tc-prog-slide 1.4s ease-in-out infinite;
+        }
+        @keyframes tc-prog-slide {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(285%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .fill { transition: none; }
+          .indet .fill { animation-duration: 4s; }
+        }
         </style>
       `;
     }
@@ -5814,7 +5956,7 @@ build(
 // components/stepper.ts
 var TAG31 = "tc-stepper";
 var tagName31 = TAG31;
-function esc29(s) {
+function esc22(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 build(
@@ -5853,124 +5995,124 @@ build(
             <${clickable ? "button" : "div"} class="row" ${clickable ? `type="button" aria-current="${state === "current" ? "step" : "false"}"` : `aria-current="${state === "current" ? "step" : "false"}"`}>
               <span class="marker" aria-hidden="true">${marker}</span>
               <span class="text">
-                <span class="title">${esc29(s.title)}</span>
-                ${s.description ? `<span class="desc">${esc29(s.description)}</span>` : ""}
+                <span class="title">${esc22(s.title)}</span>
+                ${s.description ? `<span class="desc">${esc22(s.description)}</span>` : ""}
               </span>
             </${clickable ? "button" : "div"}>
             ${i < steps.length - 1 ? `<span class="line ${i < active ? "done" : ""}" aria-hidden="true"></span>` : ""}
           </li>
         `;
       }).join("");
-      return `
+      return html`
         <ol class="root ${vertical ? "v" : "h"} ${clickable ? "clickable" : ""}" aria-label="Progress">
-          ${items}
+          ${unsafe(items)}
         </ol>
         <style>
-          :host { display: block; font-family: var(--tc-stepper-font); color: var(--tc-stepper-ink); }
-          .root {
-            margin: 0; padding: 0; list-style: none;
-            background: var(--tc-stepper-bg);
-            display: flex;
-          }
-          .root.h { flex-direction: row; align-items: flex-start; gap: 0; }
-          .root.v { flex-direction: column; gap: 0; }
+        :host { display: block; font-family: var(--tc-stepper-font); color: var(--tc-stepper-ink); }
+        .root {
+          margin: 0; padding: 0; list-style: none;
+          background: var(--tc-stepper-bg);
+          display: flex;
+        }
+        .root.h { flex-direction: row; align-items: flex-start; gap: 0; }
+        .root.v { flex-direction: column; gap: 0; }
 
-          .step {
-            display: flex;
-            position: relative;
-            flex: 1 1 0;
-          }
-          .root.v .step { flex: 0 0 auto; flex-direction: column; }
-          .root.h .step { flex-direction: column; align-items: center; min-width: 0; }
+        .step {
+          display: flex;
+          position: relative;
+          flex: 1 1 0;
+        }
+        .root.v .step { flex: 0 0 auto; flex-direction: column; }
+        .root.h .step { flex-direction: column; align-items: center; min-width: 0; }
 
-          .row {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: transparent;
-            border: none;
-            font: inherit;
-            color: inherit;
-            text-align: left;
-            padding: 0;
-            cursor: ${clickable ? "pointer" : "default"};
-          }
-          .root.h .row { flex-direction: column; align-items: center; text-align: center; padding: 0 12px; }
-          .root.v .row { padding: 4px 0; }
+        .row {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          background: transparent;
+          border: none;
+          font: inherit;
+          color: inherit;
+          text-align: left;
+          padding: 0;
+          cursor: ${clickable ? "pointer" : "default"};
+        }
+        .root.h .row { flex-direction: column; align-items: center; text-align: center; padding: 0 12px; }
+        .root.v .row { padding: 4px 0; }
 
-          .marker {
-            width: var(--tc-stepper-marker-size);
-            height: var(--tc-stepper-marker-size);
-            border-radius: var(--tc-stepper-radius);
-            display: inline-grid;
-            place-items: center;
-            font-weight: 700;
-            font-size: 0.86rem;
-            font-variant-numeric: tabular-nums;
-            border: 2px solid var(--tc-stepper-rule);
-            color: var(--tc-stepper-soft);
-            background: var(--tc-color-surface, #ffffff);
-            transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-            flex: 0 0 auto;
-          }
-          .state-current .marker {
-            border-color: var(--tc-stepper-accent);
-            color: var(--tc-stepper-accent);
-          }
-          .state-done .marker {
-            background: var(--tc-stepper-done);
-            border-color: var(--tc-stepper-done);
-            color: #fff;
-          }
+        .marker {
+          width: var(--tc-stepper-marker-size);
+          height: var(--tc-stepper-marker-size);
+          border-radius: var(--tc-stepper-radius);
+          display: inline-grid;
+          place-items: center;
+          font-weight: 700;
+          font-size: 0.86rem;
+          font-variant-numeric: tabular-nums;
+          border: 2px solid var(--tc-stepper-rule);
+          color: var(--tc-stepper-soft);
+          background: var(--tc-color-surface, #ffffff);
+          transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+          flex: 0 0 auto;
+        }
+        .state-current .marker {
+          border-color: var(--tc-stepper-accent);
+          color: var(--tc-stepper-accent);
+        }
+        .state-done .marker {
+          background: var(--tc-stepper-done);
+          border-color: var(--tc-stepper-done);
+          color: #fff;
+        }
 
-          .text { display: grid; gap: 1px; min-width: 0; }
-          .title {
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: var(--tc-stepper-ink);
-            line-height: 1.3;
-          }
-          .state-upcoming .title { color: var(--tc-stepper-soft); }
-          .desc {
-            font-size: 0.78rem;
-            color: var(--tc-stepper-soft);
-            line-height: 1.4;
-          }
-          .root.h .desc {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 16ch;
-          }
+        .text { display: grid; gap: 1px; min-width: 0; }
+        .title {
+          font-size: 0.92rem;
+          font-weight: 600;
+          color: var(--tc-stepper-ink);
+          line-height: 1.3;
+        }
+        .state-upcoming .title { color: var(--tc-stepper-soft); }
+        .desc {
+          font-size: 0.78rem;
+          color: var(--tc-stepper-soft);
+          line-height: 1.4;
+        }
+        .root.h .desc {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 16ch;
+        }
 
-          .line {
-            background: var(--tc-stepper-rule);
-            display: block;
-            position: absolute;
-            transition: background 0.2s ease;
-          }
-          .line.done { background: var(--tc-stepper-done); }
-          .root.h .line {
-            top: calc(var(--tc-stepper-marker-size) / 2 - 1px);
-            left: calc(50% + var(--tc-stepper-marker-size) / 2 + 8px);
-            right: calc(-50% + var(--tc-stepper-marker-size) / 2 + 8px);
-            height: 2px;
-          }
-          .root.v .line {
-            left: calc(var(--tc-stepper-marker-size) / 2 - 1px);
-            top: calc(var(--tc-stepper-marker-size) + 4px);
-            bottom: -8px;
-            width: 2px;
-            height: auto;
-          }
-          .root.v .step { padding-bottom: 16px; }
-          .root.v .step:last-child { padding-bottom: 0; }
+        .line {
+          background: var(--tc-stepper-rule);
+          display: block;
+          position: absolute;
+          transition: background 0.2s ease;
+        }
+        .line.done { background: var(--tc-stepper-done); }
+        .root.h .line {
+          top: calc(var(--tc-stepper-marker-size) / 2 - 1px);
+          left: calc(50% + var(--tc-stepper-marker-size) / 2 + 8px);
+          right: calc(-50% + var(--tc-stepper-marker-size) / 2 + 8px);
+          height: 2px;
+        }
+        .root.v .line {
+          left: calc(var(--tc-stepper-marker-size) / 2 - 1px);
+          top: calc(var(--tc-stepper-marker-size) + 4px);
+          bottom: -8px;
+          width: 2px;
+          height: auto;
+        }
+        .root.v .step { padding-bottom: 16px; }
+        .root.v .step:last-child { padding-bottom: 0; }
 
-          .row:focus-visible {
-            outline: 2px solid var(--tc-stepper-accent);
-            outline-offset: 4px;
-            border-radius: 6px;
-          }
+        .row:focus-visible {
+          outline: 2px solid var(--tc-stepper-accent);
+          outline-offset: 4px;
+          border-radius: 6px;
+        }
         </style>
       `;
     },
@@ -5996,7 +6138,63 @@ build(
 // components/avatar.ts
 var TAG32 = "tc-avatar";
 var tagName32 = TAG32;
-function esc30(s) {
+var STYLE28 = `
+  :host { display: inline-block; vertical-align: middle; position: relative; }
+  .root {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    overflow: visible;
+    font-family: var(--tc-avatar-font);
+    font-weight: 600;
+    color: var(--tc-avatar-tint-fg, var(--tc-avatar-fg));
+    background: var(--tc-avatar-tint-bg, var(--tc-avatar-bg));
+    user-select: none;
+    line-height: 1;
+  }
+  .root img, .root .fallback {
+    width: 100%; height: 100%;
+    border-radius: inherit;
+    object-fit: cover;
+  }
+  .root img { display: block; }
+  .root .fallback {
+    display: inline-grid;
+    place-items: center;
+    background: transparent;
+    color: inherit;
+  }
+  .shape-circle { border-radius: 999px; }
+  .shape-square { border-radius: var(--tc-radius-sm, 6px); }
+
+  .size-xs { width: 20px; height: 20px; font-size: 0.62rem; }
+  .size-sm { width: 28px; height: 28px; font-size: 0.74rem; }
+  .size-md { width: 36px; height: 36px; font-size: 0.86rem; }
+  .size-lg { width: 48px; height: 48px; font-size: 1rem; }
+  .size-xl { width: 64px; height: 64px; font-size: 1.2rem; }
+
+  .ringed {
+    box-shadow: 0 0 0 2px var(--tc-avatar-ring);
+  }
+
+  .status {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 28%;
+    height: 28%;
+    min-width: 8px;
+    min-height: 8px;
+    border-radius: 999px;
+    border: 2px solid var(--tc-avatar-ring);
+    box-sizing: content-box;
+  }
+  .status-online { background: var(--tc-avatar-status-online); }
+  .status-away { background: var(--tc-avatar-status-away); }
+  .status-busy { background: var(--tc-avatar-status-busy); }
+  .status-offline { background: var(--tc-avatar-status-offline); }
+`;
+function esc23(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function initials(name) {
@@ -6053,6 +6251,7 @@ build(
       position: "relative",
       "vertical-align": "middle"
     },
+    stylesheet: STYLE28,
     template: ({ props }) => {
       const name = String(props.name ?? "");
       const src = String(props.src ?? "");
@@ -6062,68 +6261,19 @@ build(
       const status = String(props.status ?? "");
       const ring = !!props.ring;
       const [bg, fg] = tintFor(name);
-      return `
-        <span class="root size-${esc30(size)} shape-${esc30(shape)} ${ring ? "ringed" : ""}"
-              style="--tc-avatar-tint-bg: ${bg}; --tc-avatar-tint-fg: ${fg};">
-          ${src ? `<img src="${esc30(src)}" alt="${esc30(alt)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'${esc30(initials(name))}'}))">` : `<span class="fallback" aria-label="${esc30(alt)}">${esc30(initials(name))}</span>`}
-          ${status ? `<span class="status status-${esc30(status)}" aria-label="${esc30(status)}"></span>` : ""}
+      return html`
+        <span
+          class="root size-${size} shape-${shape} ${ring ? "ringed" : ""}"
+          style="--tc-avatar-tint-bg: ${bg}; --tc-avatar-tint-fg: ${fg};"
+        >
+          ${src ? unsafe(
+        `<img src="${esc23(src)}" alt="${esc23(alt)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fallback',textContent:'${esc23(initials(name))}'}))">`
+      ) : unsafe(
+        `<span class="fallback" aria-label="${esc23(alt)}">${esc23(initials(name))}</span>`
+      )} ${status ? unsafe(
+        `<span class="status status-${esc23(status)}" aria-label="${esc23(status)}"></span>`
+      ) : ""}
         </span>
-        <style>
-          :host { display: inline-block; vertical-align: middle; position: relative; }
-          .root {
-            position: relative;
-            display: inline-grid;
-            place-items: center;
-            overflow: visible;
-            font-family: var(--tc-avatar-font);
-            font-weight: 600;
-            color: var(--tc-avatar-tint-fg, var(--tc-avatar-fg));
-            background: var(--tc-avatar-tint-bg, var(--tc-avatar-bg));
-            user-select: none;
-            line-height: 1;
-          }
-          .root img, .root .fallback {
-            width: 100%; height: 100%;
-            border-radius: inherit;
-            object-fit: cover;
-          }
-          .root img { display: block; }
-          .root .fallback {
-            display: inline-grid;
-            place-items: center;
-            background: transparent;
-            color: inherit;
-          }
-          .shape-circle { border-radius: 999px; }
-          .shape-square { border-radius: var(--tc-radius-sm, 6px); }
-
-          .size-xs { width: 20px; height: 20px; font-size: 0.62rem; }
-          .size-sm { width: 28px; height: 28px; font-size: 0.74rem; }
-          .size-md { width: 36px; height: 36px; font-size: 0.86rem; }
-          .size-lg { width: 48px; height: 48px; font-size: 1rem; }
-          .size-xl { width: 64px; height: 64px; font-size: 1.2rem; }
-
-          .ringed {
-            box-shadow: 0 0 0 2px var(--tc-avatar-ring);
-          }
-
-          .status {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 28%;
-            height: 28%;
-            min-width: 8px;
-            min-height: 8px;
-            border-radius: 999px;
-            border: 2px solid var(--tc-avatar-ring);
-            box-sizing: content-box;
-          }
-          .status-online { background: var(--tc-avatar-status-online); }
-          .status-away { background: var(--tc-avatar-status-away); }
-          .status-busy { background: var(--tc-avatar-status-busy); }
-          .status-offline { background: var(--tc-avatar-status-offline); }
-        </style>
       `;
     }
   })
@@ -6132,6 +6282,45 @@ build(
 // components/avatar-group.ts
 var TAG33 = "tc-avatar-group";
 var tagName33 = TAG33;
+var STYLE29 = `
+  :host {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  .row {
+    display: inline-flex;
+    align-items: center;
+  }
+  ::slotted(tc-avatar) {
+    box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
+    border-radius: 999px;
+    transition: transform 0.15s ease;
+  }
+  :host([spacing="tight"]) ::slotted(tc-avatar) { margin-left: -10px; }
+  :host([spacing="normal"]) ::slotted(tc-avatar),
+  :host(:not([spacing])) ::slotted(tc-avatar) { margin-left: -8px; }
+  :host([spacing="loose"]) ::slotted(tc-avatar) { margin-left: -4px; }
+  ::slotted(tc-avatar:first-child) { margin-left: 0 !important; }
+  ::slotted(tc-avatar:hover) { transform: translateY(-2px); z-index: 1; }
+  .overflow {
+    display: inline-grid;
+    place-items: center;
+    background: var(--tc-avatar-group-overflow-bg);
+    color: var(--tc-avatar-group-overflow-fg);
+    font-weight: 600;
+    font-family: var(--tc-font-sans, system-ui, sans-serif);
+    border-radius: 999px;
+    box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
+    line-height: 1;
+    user-select: none;
+  }
+  :host([size="xs"]) .overflow { width: 20px; height: 20px; font-size: 0.55rem; margin-left: -10px; }
+  :host([size="sm"]) .overflow { width: 28px; height: 28px; font-size: 0.68rem; margin-left: -8px; }
+  :host(:not([size])) .overflow,
+  :host([size="md"]) .overflow { width: 36px; height: 36px; font-size: 0.78rem; margin-left: -8px; }
+  :host([size="lg"]) .overflow { width: 48px; height: 48px; font-size: 0.88rem; margin-left: -6px; }
+  :host([size="xl"]) .overflow { width: 64px; height: 64px; font-size: 1rem; margin-left: -4px; }
+`;
 build(
   TAG33,
   describe({
@@ -6148,48 +6337,10 @@ build(
     styles: {
       display: "inline-flex"
     },
-    template: () => `
-      <span class="row"><slot></slot><span class="overflow" hidden></span></span>
-      <style>
-        :host {
-          display: inline-flex;
-          vertical-align: middle;
-        }
-        .row {
-          display: inline-flex;
-          align-items: center;
-        }
-        ::slotted(tc-avatar) {
-          box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
-          border-radius: 999px;
-          transition: transform 0.15s ease;
-        }
-        :host([spacing="tight"]) ::slotted(tc-avatar) { margin-left: -10px; }
-        :host([spacing="normal"]) ::slotted(tc-avatar),
-        :host(:not([spacing])) ::slotted(tc-avatar) { margin-left: -8px; }
-        :host([spacing="loose"]) ::slotted(tc-avatar) { margin-left: -4px; }
-        ::slotted(tc-avatar:first-child) { margin-left: 0 !important; }
-        ::slotted(tc-avatar:hover) { transform: translateY(-2px); z-index: 1; }
-        .overflow {
-          display: inline-grid;
-          place-items: center;
-          background: var(--tc-avatar-group-overflow-bg);
-          color: var(--tc-avatar-group-overflow-fg);
-          font-weight: 600;
-          font-family: var(--tc-font-sans, system-ui, sans-serif);
-          border-radius: 999px;
-          box-shadow: 0 0 0 2px var(--tc-avatar-group-ring);
-          line-height: 1;
-          user-select: none;
-        }
-        :host([size="xs"]) .overflow { width: 20px; height: 20px; font-size: 0.55rem; margin-left: -10px; }
-        :host([size="sm"]) .overflow { width: 28px; height: 28px; font-size: 0.68rem; margin-left: -8px; }
-        :host(:not([size])) .overflow,
-        :host([size="md"]) .overflow { width: 36px; height: 36px; font-size: 0.78rem; margin-left: -8px; }
-        :host([size="lg"]) .overflow { width: 48px; height: 48px; font-size: 0.88rem; margin-left: -6px; }
-        :host([size="xl"]) .overflow { width: 64px; height: 64px; font-size: 1rem; margin-left: -4px; }
-      </style>
-    `,
+    stylesheet: STYLE29,
+    template: () => html`
+        <span class="row"><slot></slot><span class="overflow" hidden></span></span>
+      `,
     afterMount() {
       const host = this;
       const apply = () => applyGroup(host);
@@ -6242,9 +6393,6 @@ function applyGroup(host) {
 // components/rating.ts
 var TAG34 = "tc-rating";
 var tagName34 = TAG34;
-function esc31(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 var STAR_PATH = "M12 17.27 18.18 21 16.54 13.97 22 9.24 14.81 8.63 12 2 9.19 8.63 2 9.24 7.46 13.97 5.82 21z";
 build(
   TAG34,
@@ -6272,7 +6420,7 @@ build(
       const size = String(props.size ?? "md");
       const readonly = !!props.readonly;
       const allowHalf = !!props.allowHalf;
-      const ariaLabel = esc31(props.ariaLabel ?? "Rating");
+      const ariaLabel = String(props.ariaLabel ?? "Rating");
       const pxSize = size === "sm" ? 18 : size === "lg" ? 32 : 24;
       const stars = [];
       for (let i = 1; i <= max; i++) {
@@ -6290,9 +6438,9 @@ build(
           </span>
         `);
       }
-      return `
+      return html`
         <div
-          class="root size-${esc31(size)} ${readonly ? "readonly" : ""}"
+          class="root size-${size} ${readonly ? "readonly" : ""}"
           role="${readonly ? "img" : "slider"}"
           tabindex="${readonly ? "-1" : "0"}"
           aria-label="${ariaLabel}"
@@ -6301,38 +6449,38 @@ build(
           aria-valuemax="${max}"
           aria-valuetext="${value} of ${max}"
         >
-          ${stars.join("")}
+          ${unsafe(stars.join(""))}
         </div>
         <style>
-          :host { display: inline-block; }
-          .root {
-            display: inline-flex;
-            gap: 2px;
-            align-items: center;
-            cursor: ${readonly ? "default" : "pointer"};
-            outline: none;
-          }
-          .root:focus-visible {
-            outline: 2px solid var(--tc-color-accent, #a16939);
-            outline-offset: 4px;
-            border-radius: 4px;
-          }
-          .star {
-            position: relative;
-            display: inline-block;
-            line-height: 0;
-          }
-          .star svg { display: block; }
-          .star:hover .fill { filter: brightness(1.05); }
-          .root.readonly .star { cursor: default; }
-          .hit-left, .hit-right {
-            position: absolute;
-            top: 0;
-            width: 50%;
-            height: 100%;
-          }
-          .hit-left { left: 0; }
-          .hit-right { left: 50%; }
+        :host { display: inline-block; }
+        .root {
+          display: inline-flex;
+          gap: 2px;
+          align-items: center;
+          cursor: ${readonly ? "default" : "pointer"};
+          outline: none;
+        }
+        .root:focus-visible {
+          outline: 2px solid var(--tc-color-accent, #a16939);
+          outline-offset: 4px;
+          border-radius: 4px;
+        }
+        .star {
+          position: relative;
+          display: inline-block;
+          line-height: 0;
+        }
+        .star svg { display: block; }
+        .star:hover .fill { filter: brightness(1.05); }
+        .root.readonly .star { cursor: default; }
+        .hit-left, .hit-right {
+          position: absolute;
+          top: 0;
+          width: 50%;
+          height: 100%;
+        }
+        .hit-left { left: 0; }
+        .hit-right { left: 50%; }
         </style>
       `;
     },
@@ -6410,86 +6558,7 @@ build(
 // components/slider.ts
 var TAG35 = "tc-slider";
 var tagName35 = TAG35;
-function esc32(s) {
-  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-build(
-  TAG35,
-  describe({
-    props: {
-      value: { type: "number", default: 0, reflect: true },
-      min: { type: "number", default: 0 },
-      max: { type: "number", default: 100 },
-      step: { type: "number", default: 1 },
-      disabled: { type: "boolean", default: false, reflect: true },
-      showValue: { type: "boolean", default: false },
-      showTicks: { type: "boolean", default: false },
-      label: { type: "string", default: "" },
-      suffix: { type: "string", default: "" }
-    },
-    theme: {
-      "tc-slider-track": "var(--tc-color-rule, #ece5d3)",
-      "tc-slider-fill": "var(--tc-color-accent, #a16939)",
-      "tc-slider-thumb": "var(--tc-color-surface, #ffffff)",
-      "tc-slider-thumb-ring": "var(--tc-color-accent, #a16939)",
-      "tc-slider-radius": "999px",
-      "tc-slider-thumb-size": "20px",
-      "tc-slider-track-size": "6px",
-      "tc-slider-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-slider-fg": "var(--tc-color-ink, #14171f)",
-      "tc-slider-fg-muted": "var(--tc-color-ink-muted, #6b7280)"
-    },
-    styles: {
-      display: "block"
-    },
-    template: ({ props }) => {
-      const value = Number(props.value ?? 0);
-      const min = Number(props.min ?? 0);
-      const max = Number(props.max ?? 100);
-      const step = Number(props.step ?? 1);
-      const disabled = !!props.disabled;
-      const pct = max > min ? (value - min) / (max - min) * 100 : 0;
-      const label = String(props.label ?? "");
-      const suffix = String(props.suffix ?? "");
-      const showValue = !!props.showValue;
-      const showTicks = !!props.showTicks;
-      let ticks = "";
-      if (showTicks && step > 0) {
-        const n = Math.floor((max - min) / step) + 1;
-        if (n <= 50) {
-          const parts = [];
-          for (let i = 0; i < n; i++) {
-            const v = min + i * step;
-            const p = (v - min) / (max - min) * 100;
-            parts.push(
-              `<span class="tick" style="left:${p.toFixed(2)}%"></span>`
-            );
-          }
-          ticks = parts.join("");
-        }
-      }
-      return `
-        ${label || showValue ? `<div class="head">
-              ${label ? `<label for="r" class="lbl">${esc32(label)}</label>` : "<span></span>"}
-              ${showValue ? `<span class="val">${esc32(String(value))}${esc32(suffix)}</span>` : ""}
-            </div>` : ""}
-        <div class="rail" style="--tc-slider-pct: ${pct.toFixed(2)}%;">
-          <div class="track-bg"></div>
-          <div class="track-fill"></div>
-          ${ticks}
-          <input
-            id="r"
-            class="range"
-            type="range"
-            min="${min}"
-            max="${max}"
-            step="${step}"
-            value="${value}"
-            ${disabled ? "disabled" : ""}
-            aria-valuetext="${esc32(String(value) + suffix)}"
-          />
-        </div>
-        <style>
+var STYLE30 = `
           :host { display: block; font-family: var(--tc-slider-font); color: var(--tc-slider-fg); }
           .head {
             display: flex;
@@ -6592,7 +6661,89 @@ build(
           .range:focus-visible::-moz-range-thumb {
             box-shadow: 0 0 0 4px color-mix(in srgb, var(--tc-slider-thumb-ring) 25%, transparent);
           }
-        </style>
+`;
+function esc24(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+build(
+  TAG35,
+  describe({
+    props: {
+      value: { type: "number", default: 0, reflect: true },
+      min: { type: "number", default: 0 },
+      max: { type: "number", default: 100 },
+      step: { type: "number", default: 1 },
+      disabled: { type: "boolean", default: false, reflect: true },
+      showValue: { type: "boolean", default: false },
+      showTicks: { type: "boolean", default: false },
+      label: { type: "string", default: "" },
+      suffix: { type: "string", default: "" }
+    },
+    theme: {
+      "tc-slider-track": "var(--tc-color-rule, #ece5d3)",
+      "tc-slider-fill": "var(--tc-color-accent, #a16939)",
+      "tc-slider-thumb": "var(--tc-color-surface, #ffffff)",
+      "tc-slider-thumb-ring": "var(--tc-color-accent, #a16939)",
+      "tc-slider-radius": "999px",
+      "tc-slider-thumb-size": "20px",
+      "tc-slider-track-size": "6px",
+      "tc-slider-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-slider-fg": "var(--tc-color-ink, #14171f)",
+      "tc-slider-fg-muted": "var(--tc-color-ink-muted, #6b7280)"
+    },
+    styles: {
+      display: "block"
+    },
+    stylesheet: STYLE30,
+    template: ({ props }) => {
+      const value = Number(props.value ?? 0);
+      const min = Number(props.min ?? 0);
+      const max = Number(props.max ?? 100);
+      const step = Number(props.step ?? 1);
+      const disabled = !!props.disabled;
+      const pct = max > min ? (value - min) / (max - min) * 100 : 0;
+      const label = String(props.label ?? "");
+      const suffix = String(props.suffix ?? "");
+      const showValue = !!props.showValue;
+      const showTicks = !!props.showTicks;
+      let ticks = "";
+      if (showTicks && step > 0) {
+        const n = Math.floor((max - min) / step) + 1;
+        if (n <= 50) {
+          const parts = [];
+          for (let i = 0; i < n; i++) {
+            const v = min + i * step;
+            const p = (v - min) / (max - min) * 100;
+            parts.push(
+              `<span class="tick" style="left:${p.toFixed(2)}%"></span>`
+            );
+          }
+          ticks = parts.join("");
+        }
+      }
+      return html`
+        ${unsafe(
+        label || showValue ? `<div class="head">
+              ${label ? `<label for="r" class="lbl">${esc24(label)}</label>` : "<span></span>"}
+              ${showValue ? `<span class="val">${esc24(String(value))}${esc24(suffix)}</span>` : ""}
+            </div>` : ""
+      )}
+        <div class="rail" style="--tc-slider-pct: ${pct.toFixed(2)}%;">
+          <div class="track-bg"></div>
+          <div class="track-fill"></div>
+          ${unsafe(ticks)}
+          <input
+            id="r"
+            class="range"
+            type="range"
+            min="${min}"
+            max="${max}"
+            step="${step}"
+            value="${value}"
+            ${unsafe(disabled ? "disabled" : "")}
+            aria-valuetext="${String(value) + suffix}"
+          />
+        </div>
       `;
     },
     refs: {
@@ -6704,7 +6855,7 @@ function arcPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
   const innerStart = polar(cx, cy, rInner, startAngle);
   return `M ${outerStart.x} ${outerStart.y} A ${rOuter} ${rOuter} 0 ${large} 1 ${outerEnd.x} ${outerEnd.y} L ${innerEnd.x} ${innerEnd.y} A ${rInner} ${rInner} 0 ${large} 0 ${innerStart.x} ${innerStart.y} Z`;
 }
-function esc33(s) {
+function esc25(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 function fmt(n) {
@@ -6797,7 +6948,7 @@ function renderCartesian(ctx, type) {
       for (const t of ticksInfo.ticks) {
         const y = yAt(t);
         chrome.push(
-          `<text class="axis-label y" x="${padLeft - 8}" y="${y}" text-anchor="end" dominant-baseline="middle">${esc33(fmt(t))}</text>`
+          `<text class="axis-label y" x="${padLeft - 8}" y="${y}" text-anchor="end" dominant-baseline="middle">${esc25(fmt(t))}</text>`
         );
       }
       if (showLabels && labels.length > 0) {
@@ -6806,7 +6957,7 @@ function renderCartesian(ctx, type) {
           if (i % stride !== 0 && i !== labels.length - 1)
             return;
           chrome.push(
-            `<text class="axis-label x" x="${xAt(i)}" y="${ctx.H - padBottom + 16}" text-anchor="middle">${esc33(lab)}</text>`
+            `<text class="axis-label x" x="${xAt(i)}" y="${ctx.H - padBottom + 16}" text-anchor="middle">${esc25(lab)}</text>`
           );
         });
       }
@@ -6850,10 +7001,10 @@ function renderCartesian(ctx, type) {
           y = Math.min(yV, yBase);
           h = Math.abs(yV - yBase);
         }
-        const title = `${esc33(s.name)}${labels[i] ? ` \xB7 ${esc33(labels[i])}` : ""}: ${esc33(fmt(v))}`;
+        const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(fmt(v))}`;
         const barDelay = (i * 0.04).toFixed(3);
         layers.push(
-          `<g class="${cls}"><rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${barDelay}s"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w / 2}" y="${y - 4}" text-anchor="middle">${esc33(fmt(v))}</text>` : "") + `</g>`
+          `<g class="${cls}"><rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${barDelay}s"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w / 2}" y="${y - 4}" text-anchor="middle">${esc25(fmt(v))}</text>` : "") + `</g>`
         );
       });
     });
@@ -6881,7 +7032,7 @@ function renderCartesian(ctx, type) {
         );
         topPts.forEach((p, i) => {
           const v = s.values?.[i] ?? 0;
-          const title = `${esc33(s.name)}${labels[i] ? ` \xB7 ${esc33(labels[i])}` : ""}: ${esc33(fmt(v))}`;
+          const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(fmt(v))}`;
           layers.push(
             `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}"><title>${title}</title></circle>`
           );
@@ -6909,7 +7060,7 @@ function renderCartesian(ctx, type) {
         if (!sparkline) {
           pts.forEach((p, i) => {
             const v = s.values?.[i];
-            const title = `${esc33(s.name)}${labels[i] ? ` \xB7 ${esc33(labels[i])}` : ""}: ${esc33(fmt(v ?? 0))}`;
+            const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(fmt(v ?? 0))}`;
             const pointDelay = (si * 0.15 + i * 0.025 + 0.55).toFixed(3);
             layers.push(
               `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" pointer-events="none" style="animation-delay: ${pointDelay}s"/>`
@@ -6919,7 +7070,7 @@ function renderCartesian(ctx, type) {
             );
             if (showValues) {
               layers.push(
-                `<text class="value-label" x="${p.x}" y="${p.y - 8}" text-anchor="middle" pointer-events="none">${esc33(fmt(v ?? 0))}</text>`
+                `<text class="value-label" x="${p.x}" y="${p.y - 8}" text-anchor="middle" pointer-events="none">${esc25(fmt(v ?? 0))}</text>`
               );
             }
           });
@@ -6950,7 +7101,7 @@ function renderDonut(ctx) {
     const path = arcPath(cx, cy, r, inner, start, end - 0.01);
     const color = colorFor(i, ctx.palette);
     const pct = (value / total * 100).toFixed(1).replace(/\.0$/, "");
-    const title = `${esc33(s.name)}: ${esc33(fmt(value))} (${pct}%)`;
+    const title = `${esc25(s.name)}: ${esc25(fmt(value))} (${pct}%)`;
     const segDelay = (i * 0.08).toFixed(3);
     out.push(
       `<path class="series-segment hit series-${i}" d="${path}" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${segDelay}s"><title>${title}</title></path>`
@@ -6960,7 +7111,7 @@ function renderDonut(ctx) {
       const labelR = (r + inner) / 2;
       const p = polar(cx, cy, labelR, mid);
       out.push(
-        `<text class="value-label donut" x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle">${esc33(pct)}%</text>`
+        `<text class="value-label donut" x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle">${esc25(pct)}%</text>`
       );
     }
     angle = end;
@@ -6974,7 +7125,7 @@ function renderLegend(series, palette, hidden) {
     const color = colorFor(i, palette);
     const isHidden = hidden.includes(s.name);
     const cls = isHidden ? "legend-item is-hidden" : "legend-item";
-    return `<button class="${cls}" type="button" data-series="${esc33(s.name)}" aria-pressed="${isHidden ? "true" : "false"}" title="${isHidden ? "Show" : "Hide"} series '${esc33(s.name)}'"><span class="swatch" style="background:${color}"></span>${esc33(s.name)}</button>`;
+    return `<button class="${cls}" type="button" data-series="${esc25(s.name)}" aria-pressed="${isHidden ? "true" : "false"}" title="${isHidden ? "Show" : "Hide"} series '${esc25(s.name)}'"><span class="swatch" style="background:${color}"></span>${esc25(s.name)}</button>`;
   }).join("") + `</div>`;
 }
 function ariaDescription(type, data) {
@@ -7001,7 +7152,6 @@ var DEFAULT_PALETTE = [
   "var(--tc-chart-color-8, #b0566c)"
 ];
 var CHART_STYLE = `
-  <style>
     :host { display: block; width: 100%; }
     .root {
       width: 100%;
@@ -7233,7 +7383,6 @@ var CHART_STYLE = `
         transform: none !important;
       }
     }
-  </style>
 `;
 build(
   TAG36,
@@ -7273,6 +7422,7 @@ build(
       "tc-chart-font": "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)"
     },
     styles: { display: "block" },
+    stylesheet: CHART_STYLE,
     template: ({ props, state }) => {
       const rawType = String(props.type ?? "line").toLowerCase();
       const type = ["line", "area", "bar", "sparkline", "donut"].includes(rawType) ? rawType : "line";
@@ -7288,7 +7438,7 @@ build(
       const src = String(props.src ?? "");
       const loading = !!state.loading && !hasExplicit && !fetchedData;
       const error = src && state.error ? String(state.error) : "";
-      const stateOverlay = loading ? `<div class="overlay loading">${esc33(String(props.loadingText ?? "Loading chart\u2026"))}</div>` : error ? `<div class="overlay error" role="alert">${esc33(String(props.errorText ?? "Couldn't load chart data"))}<small>${esc33(error)}</small></div>` : "";
+      const stateOverlay = loading ? `<div class="overlay loading">${esc25(String(props.loadingText ?? "Loading chart\u2026"))}</div>` : error ? `<div class="overlay error" role="alert">${esc25(String(props.errorText ?? "Couldn't load chart data"))}<small>${esc25(error)}</small></div>` : "";
       const isSparkline = type === "sparkline";
       const isDonut = type === "donut";
       const customColors = props.colors;
@@ -7312,24 +7462,28 @@ build(
       };
       const body = isDonut ? renderDonut(ctx) : renderCartesian(ctx, type);
       const desc = ariaDescription(type, data);
-      const height = esc33(String(props.height ?? "240px"));
-      return `
-        <div class="root" role="img" aria-label="${esc33(props.ariaLabel ?? "Chart")}">
-          <div class="canvas" style="height:${height};">
+      const height = esc25(String(props.height ?? "240px"));
+      return html`
+        <div class="root" role="img" aria-label="${props.ariaLabel ?? "Chart"}">
+          <div class="canvas" style="height:${unsafe(height)};">
             <svg
               viewBox="0 0 ${W} ${H}"
               preserveAspectRatio="${isDonut ? "xMidYMid meet" : "none"}"
               aria-hidden="true"
-            >${body}</svg>
+            >
+              ${unsafe(body)}
+            </svg>
             <div class="tip" role="tooltip">
               <span class="tip-swatch"></span><span class="tip-text"></span>
             </div>
-            ${stateOverlay}
+            ${unsafe(stateOverlay)}
           </div>
-          ${props.showLegend && !isSparkline && fullData.series && fullData.series.length > 0 ? renderLegend(fullData.series, palette, hidden) : ""}
-          <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">${esc33(desc)}</span>
+          ${props.showLegend && !isSparkline && fullData.series && fullData.series.length > 0 ? unsafe(renderLegend(fullData.series, palette, hidden)) : ""}
+          <span
+            class="visually-hidden"
+            style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;"
+          >${desc}</span>
         </div>
-        ${CHART_STYLE}
       `;
     },
     events: {
@@ -7477,7 +7631,7 @@ function getByPath(obj, path) {
 // components/editor.ts
 var TAG37 = "tc-editor";
 var tagName37 = TAG37;
-function esc34(s) {
+function esc26(s) {
   return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 var ICON = {
@@ -7622,8 +7776,7 @@ var TOOLBAR_REGISTRY = {
     command: "codeblock"
   }
 };
-var STYLE = `
-  <style>
+var STYLE31 = `
     :host {
       display: block;
       font-family: var(--tc-editor-font, var(--tc-font-sans, "Inter", system-ui, sans-serif));
@@ -7760,7 +7913,6 @@ var STYLE = `
     }
 
     ::slotted([slot="toolbar-extra"]) { display: contents; }
-  </style>
 `;
 build(
   TAG37,
@@ -7790,10 +7942,11 @@ build(
       "tc-editor-line-height": "1.6"
     },
     styles: { display: "block" },
+    stylesheet: STYLE31,
     template: ({ props }) => {
       const toolbar = String(props.toolbar ?? DEFAULT_TOOLBAR);
       const readonly = !!props.readonly;
-      const minHeight = esc34(String(props.minHeight ?? "180px"));
+      const minHeight = esc26(String(props.minHeight ?? "180px"));
       const maxHeight = String(props.maxHeight ?? "").trim();
       const items = toolbar.split(",").map((k) => k.trim()).filter(Boolean);
       const buttons = items.map((key) => {
@@ -7803,27 +7956,27 @@ build(
         const t = TOOLBAR_REGISTRY[key];
         if (!t)
           return "";
-        const sc = t.shortcut ? ` (${esc34(t.shortcut)})` : "";
-        return `<button type="button" class="tb-btn" data-cmd="${esc34(t.command)}"${t.value ? ` data-val="${esc34(t.value)}"` : ""} data-key="${esc34(t.key)}" title="${esc34(t.label)}${sc}" aria-label="${esc34(t.label)}">${t.icon}</button>`;
+        const sc = t.shortcut ? ` (${esc26(t.shortcut)})` : "";
+        return `<button type="button" class="tb-btn" data-cmd="${esc26(t.command)}"${t.value ? ` data-val="${esc26(t.value)}"` : ""} data-key="${esc26(t.key)}" title="${esc26(t.label)}${sc}" aria-label="${esc26(t.label)}">${t.icon}</button>`;
       }).join("");
       const toolbarCls = items.length === 0 ? "toolbar empty" : readonly ? "toolbar readonly" : "toolbar";
-      const styleVars = `--tc-editor-min-height: ${minHeight};${maxHeight ? `--tc-editor-max-height: ${esc34(maxHeight)};` : ""}`;
-      return `
-        <div class="root" style="${styleVars}">
+      const styleVars = `--tc-editor-min-height: ${minHeight};${maxHeight ? `--tc-editor-max-height: ${esc26(maxHeight)};` : ""}`;
+      return html`
+        <div class="root" style="${unsafe(styleVars)}">
           <div class="${toolbarCls}" role="toolbar" aria-label="Formatting">
-            ${buttons}
+            ${unsafe(buttons)}
             <slot name="toolbar-extra"></slot>
           </div>
           <div
             class="surface"
             contenteditable="${readonly ? "false" : "true"}"
-            data-placeholder="${esc34(props.placeholder ?? "")}"
+            data-placeholder="${props.placeholder ?? ""}"
             role="textbox"
             aria-multiline="true"
             spellcheck="true"
-          ></div>
+          >
+          </div>
         </div>
-        ${STYLE}
       `;
     },
     afterMount() {
@@ -8410,7 +8563,6 @@ var MD_TOOLBAR = {
 };
 var DEFAULT_TOOLBAR2 = "bold,italic,heading,|,bullet,ordered,quote,|,link,code";
 var MD_STYLE = `
-  <style>
     :host {
       display: block;
       font-family: var(--tc-md-font, var(--tc-font-sans, "Inter", system-ui, sans-serif));
@@ -8643,7 +8795,6 @@ var MD_STYLE = `
       .panes { grid-template-columns: 1fr; }
       .source { border-right: none; border-bottom: 1px solid var(--tc-md-rule); }
     }
-  </style>
 `;
 build(
   TAG38,
@@ -8667,6 +8818,7 @@ build(
       "tc-md-mono-font": "var(--tc-font-mono, 'JetBrains Mono', ui-monospace, monospace)"
     },
     styles: { display: "block" },
+    stylesheet: MD_STYLE,
     refs: {
       source: "textarea",
       preview: ".preview"
@@ -8691,31 +8843,30 @@ build(
         mathRenderer: hostExt.mathRenderer,
         highlight: hostExt.highlight
       }));
-      const html2 = renderer(value);
+      const rendered = renderer(value);
       const panesCls = mode === "source" ? "panes source-only" : mode === "preview" ? "panes preview-only" : "panes";
-      const styleVar = `--tc-md-min-height: ${escHtml(props.minHeight ?? "240px")};`;
-      return `
+      const styleVar = `--tc-md-min-height: ${props.minHeight ?? "240px"};`;
+      return html`
         <div class="root" style="${styleVar}">
           <div class="${items.length === 0 ? "toolbar empty" : "toolbar"}" role="toolbar" aria-label="Markdown formatting">
-            ${buttons}
+            ${unsafe(buttons)}
             <span class="tb-mode" role="tablist" aria-label="View mode">
-              ${modeButton("source", "Source")}
-              ${modeButton("split", "Split")}
-              ${modeButton("preview", "Preview")}
+              ${unsafe(modeButton("source", "Source"))} ${unsafe(
+        modeButton("split", "Split")
+      )} ${unsafe(modeButton("preview", "Preview"))}
             </span>
           </div>
           <div class="${panesCls}">
             <div class="source">
               <textarea
-                placeholder="${escHtml(props.placeholder ?? "")}"
-                ${props.readonly ? "readonly" : ""}
+                placeholder="${props.placeholder ?? ""}"
+                ${unsafe(props.readonly ? "readonly" : "")}
                 spellcheck="true"
-              >${escHtml(value)}</textarea>
+              >${value}</textarea>
             </div>
-            <div class="preview">${html2}</div>
+            <div class="preview">${unsafe(rendered)}</div>
           </div>
         </div>
-        ${MD_STYLE}
       `;
     },
     afterMount() {

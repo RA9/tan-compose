@@ -52,7 +52,7 @@
  * peer of <tc-input> and <tc-select>.
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-combobox";
 
@@ -85,8 +85,7 @@ function escapeRegex(s: string): string {
 // (esbuild minify converts `const` to `var`; a STYLE declared after
 // build() is hoisted-but-undefined when the synchronous define()
 // upgrade runs the template.)
-const COMBOBOX_STYLE = `
-        <style>
+const STYLE = `
           :host {
             display: block;
             position: relative;
@@ -271,7 +270,6 @@ const COMBOBOX_STYLE = `
             font-family: var(--tc-input-font);
           }
           .helper.error { color: var(--tc-input-error); }
-        </style>
 `;
 
 build(
@@ -312,6 +310,7 @@ build(
     styles: {
       display: "block",
     },
+    stylesheet: STYLE,
     refs: {
       search: ".search",
       popup: ".popup",
@@ -438,18 +437,20 @@ build(
         ? `<div class="helper">${esc(props.helper)}</div>`
         : "";
 
-      return `
-        ${labelHtml}
+      return html`
+        ${unsafe(labelHtml)}
         <div
-          class="control ${showError ? "invalid" : ""} ${
-        isOpen ? "open" : ""
-      } ${disabled ? "disabled" : ""}"
+          class="control ${showError ? "invalid" : ""} ${isOpen
+            ? "open"
+            : ""} ${disabled ? "disabled" : ""}"
           part="control"
           tabindex="${disabled ? "-1" : "0"}"
           role="${searchable ? "presentation" : "combobox"}"
         >
           <div class="display">
-            ${chipsHtml}${singleLabelHtml}${placeholderHtml}${searchHtml}
+            ${unsafe(chipsHtml)}${unsafe(singleLabelHtml)}${unsafe(
+              placeholderHtml,
+            )}${unsafe(searchHtml)}
           </div>
           <span class="caret" aria-hidden="true">▾</span>
         </div>
@@ -457,11 +458,12 @@ build(
           class="popup"
           part="popup"
           role="listbox"
-          ${multiple ? 'aria-multiselectable="true"' : ""}
+          ${unsafe(multiple ? 'aria-multiselectable="true"' : "")}
           ${isOpen ? "" : "hidden"}
-        >${optionsHtml}</div>
-        ${helperHtml}
-        ${COMBOBOX_STYLE}
+        >
+          ${unsafe(optionsHtml)}
+        </div>
+        ${unsafe(helperHtml)}
       `;
     },
     events: {

@@ -18,7 +18,7 @@
  *   --tc-progress-fg, --tc-progress-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-progress";
 
@@ -79,60 +79,77 @@ build(
         const ariaProps = indeterminate
           ? `role="progressbar" aria-valuetext="${esc(labelText)}"`
           : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
-        return `
-          <div class="circ size-${esc(size)} ${
-          indeterminate ? "indet" : ""
-        }" ${ariaProps}>
-            <svg viewBox="0 0 ${dim} ${dim}" width="${dim}" height="${dim}" aria-hidden="true">
-              <circle class="track" cx="${dim / 2}" cy="${
-          dim / 2
-        }" r="${radius}" stroke-width="${stroke}" fill="none" />
+        return html`
+          <div class="circ size-${size} ${indeterminate
+            ? "indet"
+            : ""}" ${unsafe(ariaProps)}>
+            <svg
+              viewBox="0 0 ${dim} ${dim}"
+              width="${dim}"
+              height="${dim}"
+              aria-hidden="true"
+            >
+              <circle
+                class="track"
+                cx="${dim / 2}"
+                cy="${dim / 2}"
+                r="${radius}"
+                stroke-width="${stroke}"
+                fill="none"
+              />
               <circle
                 class="fill"
-                cx="${dim / 2}" cy="${dim / 2}" r="${radius}"
-                stroke-width="${stroke}" fill="none"
-                stroke-dasharray="${dash.toFixed(3)} ${
-          (circ - dash).toFixed(3)
-        }"
+                cx="${dim / 2}"
+                cy="${dim / 2}"
+                r="${radius}"
+                stroke-width="${stroke}"
+                fill="none"
+                stroke-dasharray="${dash.toFixed(3)} ${(circ - dash).toFixed(
+                  3,
+                )}"
                 stroke-dashoffset="${(circ / 4).toFixed(3)}"
                 stroke-linecap="round"
               />
             </svg>
-            ${
-          props.showLabel
-            ? `<span class="label" aria-hidden="true">${esc(labelText)}</span>`
-            : ""
-        }
+            ${unsafe(
+              props.showLabel
+                ? `<span class="label" aria-hidden="true">${
+                  esc(labelText)
+                }</span>`
+                : "",
+            )}
           </div>
           <style>
-            :host { display: inline-block; vertical-align: middle; }
-            .circ { position: relative; display: inline-grid; place-items: center; }
-            .label {
-              position: absolute;
-              font-family: var(--tc-progress-font);
-              font-size: ${
-          size === "sm" ? "0.55rem" : size === "lg" ? "0.92rem" : "0.74rem"
-        };
-              font-weight: 600;
-              color: var(--tc-progress-fg);
-              line-height: 1;
-            }
-            svg { display: block; transform: rotate(-90deg); }
-            .track { stroke: var(--tc-progress-track); }
-            .fill {
-              stroke: var(--tc-progress-fill);
-              transition: stroke-dasharray 320ms cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .indet svg { animation: tc-prog-spin 1.1s linear infinite; }
-            .indet .fill { transition: none; }
-            @keyframes tc-prog-spin {
-              from { transform: rotate(-90deg); }
-              to { transform: rotate(270deg); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .indet svg { animation-duration: 3s; }
-              .fill { transition: none; }
-            }
+          :host { display: inline-block; vertical-align: middle; }
+          .circ { position: relative; display: inline-grid; place-items: center; }
+          .label {
+            position: absolute;
+            font-family: var(--tc-progress-font);
+            font-size: ${size === "sm"
+              ? "0.55rem"
+              : size === "lg"
+              ? "0.92rem"
+              : "0.74rem"};
+            font-weight: 600;
+            color: var(--tc-progress-fg);
+            line-height: 1;
+          }
+          svg { display: block; transform: rotate(-90deg); }
+          .track { stroke: var(--tc-progress-track); }
+          .fill {
+            stroke: var(--tc-progress-fill);
+            transition: stroke-dasharray 320ms cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          .indet svg { animation: tc-prog-spin 1.1s linear infinite; }
+          .indet .fill { transition: none; }
+          @keyframes tc-prog-spin {
+            from { transform: rotate(-90deg); }
+            to { transform: rotate(270deg); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .indet svg { animation-duration: 3s; }
+            .fill { transition: none; }
+          }
           </style>
         `;
       }
@@ -142,62 +159,66 @@ build(
       const ariaProps = indeterminate
         ? `role="progressbar" aria-valuetext="${esc(labelText)}"`
         : `role="progressbar" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}"`;
-      return `
-        <div class="bar size-${esc(size)} ${
-        indeterminate ? "indet" : ""
-      }" ${ariaProps}>
+      return html`
+        <div class="bar size-${size} ${indeterminate ? "indet" : ""}" ${unsafe(
+          ariaProps,
+        )}>
           <div class="track">
             <div class="fill" style="width: ${pct.toFixed(2)}%"></div>
           </div>
-          ${
-        props.showLabel
-          ? `<span class="label" aria-hidden="true">${esc(labelText)}</span>`
-          : ""
-      }
+          ${unsafe(
+            props.showLabel
+              ? `<span class="label" aria-hidden="true">${
+                esc(labelText)
+              }</span>`
+              : "",
+          )}
         </div>
         <style>
-          :host { display: block; }
-          .bar {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 10px;
-          }
-          .track {
-            position: relative;
-            height: ${h}px;
-            background: var(--tc-progress-track);
-            border-radius: var(--tc-progress-radius);
-            overflow: hidden;
-          }
-          .fill {
-            height: 100%;
-            background: var(--tc-progress-fill);
-            border-radius: inherit;
-            transition: width 320ms cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          .label {
-            font-family: var(--tc-progress-font);
-            font-size: ${
-        size === "sm" ? "0.68rem" : size === "lg" ? "0.92rem" : "0.78rem"
-      };
-            font-weight: 500;
-            color: var(--tc-progress-fg);
-            min-width: 3ch;
-            text-align: right;
-          }
-          .indet .fill {
-            width: 35% !important;
-            animation: tc-prog-slide 1.4s ease-in-out infinite;
-          }
-          @keyframes tc-prog-slide {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(285%); }
-          }
-          @media (prefers-reduced-motion: reduce) {
-            .fill { transition: none; }
-            .indet .fill { animation-duration: 4s; }
-          }
+        :host { display: block; }
+        .bar {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          gap: 10px;
+        }
+        .track {
+          position: relative;
+          height: ${h}px;
+          background: var(--tc-progress-track);
+          border-radius: var(--tc-progress-radius);
+          overflow: hidden;
+        }
+        .fill {
+          height: 100%;
+          background: var(--tc-progress-fill);
+          border-radius: inherit;
+          transition: width 320ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .label {
+          font-family: var(--tc-progress-font);
+          font-size: ${size === "sm"
+            ? "0.68rem"
+            : size === "lg"
+            ? "0.92rem"
+            : "0.78rem"};
+          font-weight: 500;
+          color: var(--tc-progress-fg);
+          min-width: 3ch;
+          text-align: right;
+        }
+        .indet .fill {
+          width: 35% !important;
+          animation: tc-prog-slide 1.4s ease-in-out infinite;
+        }
+        @keyframes tc-prog-slide {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(285%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .fill { transition: none; }
+          .indet .fill { animation-duration: 4s; }
+        }
         </style>
       `;
     },

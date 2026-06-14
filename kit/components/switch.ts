@@ -18,62 +18,13 @@
  *   --tc-switch-fg, --tc-switch-helper, --tc-switch-error, --tc-switch-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-switch";
 
 export const tagName = TAG;
 
-build(
-  TAG,
-  describe({
-    formAssociated: true,
-    props: {
-      checked: { type: "boolean", default: false, reflect: true },
-      name: { type: "string", default: "" },
-      value: { type: "string", default: "on" },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      disabled: { type: "boolean", default: false, reflect: true },
-    },
-    theme: {
-      "tc-switch-track-off": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-switch-track-on": "var(--tc-color-accent, #a16939)",
-      "tc-switch-thumb": "var(--tc-color-surface, #ffffff)",
-      "tc-switch-fg": "var(--tc-color-ink, #14171f)",
-      "tc-switch-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-switch-error": "var(--tc-color-danger, #b3261e)",
-      "tc-switch-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-    },
-    styles: {
-      display: "block",
-    },
-    template: ({ props }) => {
-      const showError = Boolean(props.error);
-      return `
-        <label class="row ${props.disabled ? "is-disabled" : ""}">
-          <button
-            class="track ${props.checked ? "on" : ""}"
-            type="button"
-            role="switch"
-            aria-checked="${props.checked ? "true" : "false"}"
-            ${props.disabled ? "disabled" : ""}
-            aria-invalid="${showError ? "true" : "false"}"
-          >
-            <span class="thumb"></span>
-          </button>
-          ${props.label ? `<span class="label">${esc(props.label)}</span>` : ""}
-        </label>
-        ${
-        props.error || props.helper
-          ? `<div class="${showError ? "error" : "helper"}">${
-            esc(props.error || props.helper)
-          }</div>`
-          : ""
-      }
-        <style>
+const STYLE = `
           :host { font-family: var(--tc-switch-font); color: var(--tc-switch-fg); }
           .row {
             display: inline-flex; align-items: center; gap: 10px;
@@ -113,7 +64,60 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-switch-error);
           }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    formAssociated: true,
+    props: {
+      checked: { type: "boolean", default: false, reflect: true },
+      name: { type: "string", default: "" },
+      value: { type: "string", default: "on" },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      disabled: { type: "boolean", default: false, reflect: true },
+    },
+    theme: {
+      "tc-switch-track-off": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-switch-track-on": "var(--tc-color-accent, #a16939)",
+      "tc-switch-thumb": "var(--tc-color-surface, #ffffff)",
+      "tc-switch-fg": "var(--tc-color-ink, #14171f)",
+      "tc-switch-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-switch-error": "var(--tc-color-danger, #b3261e)",
+      "tc-switch-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+    },
+    styles: {
+      display: "block",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const showError = Boolean(props.error);
+      return html`
+        <label class="row ${props.disabled ? "is-disabled" : ""}">
+          <button
+            class="track ${props.checked ? "on" : ""}"
+            type="button"
+            role="switch"
+            aria-checked="${props.checked ? "true" : "false"}"
+            ${unsafe(props.disabled ? "disabled" : "")}
+            aria-invalid="${showError ? "true" : "false"}"
+          >
+            <span class="thumb"></span>
+          </button>
+          ${unsafe(
+            props.label ? `<span class="label">${esc(props.label)}</span>` : "",
+          )}
+        </label>
+        ${unsafe(
+          props.error || props.helper
+            ? `<div class="${showError ? "error" : "helper"}">${
+              esc(props.error || props.helper)
+            }</div>`
+            : "",
+        )}
       `;
     },
     events: {

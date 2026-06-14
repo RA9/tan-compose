@@ -22,75 +22,13 @@
  *   --tc-input-error, --tc-input-helper, --tc-input-radius, --tc-input-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-input";
 
 export const tagName = TAG;
 
-build(
-  TAG,
-  describe({
-    formAssociated: true,
-    props: {
-      value: { type: "string", default: "" },
-      name: { type: "string", default: "" },
-      type: { type: "string", default: "text" },
-      placeholder: { type: "string", default: "" },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true },
-    },
-    theme: {
-      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-radius": "var(--tc-radius-md, 8px)",
-      "tc-input-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-    },
-    styles: {
-      display: "block",
-    },
-    refs: {
-      input: "input",
-    },
-    template: ({ props }) => {
-      const showError = Boolean(props.error);
-      return `
-        ${
-        props.label
-          ? `<label class="label">${esc(props.label)}${
-            props.required
-              ? ' <span class="req" aria-hidden="true">*</span>'
-              : ""
-          }</label>`
-          : ""
-      }
-        <input
-          class="input ${showError ? "invalid" : ""}"
-          part="input"
-          type="${esc(props.type)}"
-          value="${esc(props.value)}"
-          name="${esc(props.name)}"
-          placeholder="${esc(props.placeholder)}"
-          ${props.disabled ? "disabled" : ""}
-          ${props.required ? "required" : ""}
-          aria-invalid="${showError ? "true" : "false"}"
-        />
-        ${
-        props.error || props.helper
-          ? `<div class="${showError ? "error" : "helper"}">${
-            esc(props.error || props.helper)
-          }</div>`
-          : ""
-      }
-        <style>
+const STYLE = `
           :host { font-family: var(--tc-input-font); }
           .label {
             display: block; font-size: 0.82rem; font-weight: 600;
@@ -129,7 +67,71 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    formAssociated: true,
+    props: {
+      value: { type: "string", default: "" },
+      name: { type: "string", default: "" },
+      type: { type: "string", default: "text" },
+      placeholder: { type: "string", default: "" },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true },
+    },
+    theme: {
+      "tc-input-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-border-focus": "var(--tc-color-accent, #a16939)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-radius": "var(--tc-radius-md, 8px)",
+      "tc-input-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+    },
+    styles: {
+      display: "block",
+    },
+    stylesheet: STYLE,
+    refs: {
+      input: "input",
+    },
+    template: ({ props }) => {
+      const showError = Boolean(props.error);
+      return html`
+        ${unsafe(
+          props.label
+            ? `<label class="label">${esc(props.label)}${
+              props.required
+                ? ' <span class="req" aria-hidden="true">*</span>'
+                : ""
+            }</label>`
+            : "",
+        )}
+        <input
+          class="input ${showError ? "invalid" : ""}"
+          part="input"
+          type="${props.type}"
+          value="${props.value}"
+          name="${props.name}"
+          placeholder="${props.placeholder}"
+          ${unsafe(props.disabled ? "disabled" : "")}
+          ${unsafe(props.required ? "required" : "")}
+          aria-invalid="${showError ? "true" : "false"}"
+        />
+        ${unsafe(
+          props.error || props.helper
+            ? `<div class="${showError ? "error" : "helper"}">${
+              esc(props.error || props.helper)
+            }</div>`
+            : "",
+        )}
       `;
     },
     events: {

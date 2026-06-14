@@ -19,7 +19,7 @@
  * Theme variables share the input's --tc-input-* tokens plus the accent.
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-radio-group";
 
@@ -31,76 +31,7 @@ interface OptionDef {
   disabled?: boolean;
 }
 
-build(
-  TAG,
-  describe({
-    formAssociated: true,
-    props: {
-      value: { type: "string", default: "" },
-      name: { type: "string", default: "" },
-      options: { type: "json", default: [] },
-      label: { type: "string", default: "" },
-      helper: { type: "string", default: "" },
-      error: { type: "string", default: "" },
-      layout: { type: "string", default: "vertical" },
-      disabled: { type: "boolean", default: false, reflect: true },
-      required: { type: "boolean", default: false, reflect: true },
-    },
-    theme: {
-      "tc-input-fg": "var(--tc-color-ink, #14171f)",
-      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
-      "tc-input-error": "var(--tc-color-danger, #b3261e)",
-      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
-      "tc-input-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-radio-accent": "var(--tc-color-accent, #a16939)",
-    },
-    styles: {
-      display: "block",
-    },
-    template: ({ props }) => {
-      const opts = (props.options as OptionDef[] | undefined) ?? [];
-      const showError = Boolean(props.error);
-      const layout = String(props.layout ?? "vertical");
-      return `
-        <fieldset class="group" ${props.disabled ? "disabled" : ""}>
-          ${
-        props.label
-          ? `<legend class="legend">${esc(props.label)}${
-            props.required
-              ? ' <span class="req" aria-hidden="true">*</span>'
-              : ""
-          }</legend>`
-          : ""
-      }
-          <div class="opts l-${esc(layout)}" role="radiogroup" aria-invalid="${
-        showError ? "true" : "false"
-      }">
-            ${
-        opts.map((o, i) =>
-          `<label class="opt ${o.disabled ? "is-disabled" : ""}">
-                  <input
-                    type="radio"
-                    class="r"
-                    name="${esc(props.name) || `__rg_${i}__`}"
-                    value="${esc(o.value)}"
-                    ${o.value === props.value ? "checked" : ""}
-                    ${o.disabled || props.disabled ? "disabled" : ""}
-                  />
-                  <span>${esc(o.label)}</span>
-                </label>`
-        ).join("")
-      }
-          </div>
-        </fieldset>
-        ${
-        props.error || props.helper
-          ? `<div class="${showError ? "error" : "helper"}">${
-            esc(props.error || props.helper)
-          }</div>`
-          : ""
-      }
-        <style>
+const STYLE = `
           :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
           .group {
             border: none; padding: 0; margin: 0;
@@ -133,7 +64,78 @@ build(
             margin-top: 6px; font-size: 0.78rem;
             color: var(--tc-input-error);
           }
-        </style>
+`;
+
+build(
+  TAG,
+  describe({
+    formAssociated: true,
+    props: {
+      value: { type: "string", default: "" },
+      name: { type: "string", default: "" },
+      options: { type: "json", default: [] },
+      label: { type: "string", default: "" },
+      helper: { type: "string", default: "" },
+      error: { type: "string", default: "" },
+      layout: { type: "string", default: "vertical" },
+      disabled: { type: "boolean", default: false, reflect: true },
+      required: { type: "boolean", default: false, reflect: true },
+    },
+    theme: {
+      "tc-input-fg": "var(--tc-color-ink, #14171f)",
+      "tc-input-border": "var(--tc-color-rule-strong, #d9cfb8)",
+      "tc-input-error": "var(--tc-color-danger, #b3261e)",
+      "tc-input-helper": "var(--tc-color-ink-muted, #6b7280)",
+      "tc-input-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-radio-accent": "var(--tc-color-accent, #a16939)",
+    },
+    styles: {
+      display: "block",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const opts = (props.options as OptionDef[] | undefined) ?? [];
+      const showError = Boolean(props.error);
+      const layout = String(props.layout ?? "vertical");
+      return html`
+        <fieldset class="group" ${unsafe(props.disabled ? "disabled" : "")}>
+          ${unsafe(
+            props.label
+              ? `<legend class="legend">${esc(props.label)}${
+                props.required
+                  ? ' <span class="req" aria-hidden="true">*</span>'
+                  : ""
+              }</legend>`
+              : "",
+          )}
+          <div class="opts l-${layout}" role="radiogroup" aria-invalid="${showError
+            ? "true"
+            : "false"}">
+            ${unsafe(
+              opts.map((o, i) =>
+                `<label class="opt ${o.disabled ? "is-disabled" : ""}">
+                  <input
+                    type="radio"
+                    class="r"
+                    name="${esc(props.name) || `__rg_${i}__`}"
+                    value="${esc(o.value)}"
+                    ${o.value === props.value ? "checked" : ""}
+                    ${o.disabled || props.disabled ? "disabled" : ""}
+                  />
+                  <span>${esc(o.label)}</span>
+                </label>`
+              ).join(""),
+            )}
+          </div>
+        </fieldset>
+        ${unsafe(
+          props.error || props.helper
+            ? `<div class="${showError ? "error" : "helper"}">${
+              esc(props.error || props.helper)
+            }</div>`
+            : "",
+        )}
       `;
     },
     events: {

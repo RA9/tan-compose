@@ -25,92 +25,16 @@
  *   --tc-drawer-duration
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-drawer";
 
 export const tagName = TAG;
 
-// Declared BEFORE build() — see kit/components/button.ts:33-38. afterRender
-// reads DIALOG_LISTENERS.get(this); esbuild minify makes it `var`-hoisted,
-// so it'd be undefined when the synchronous define() upgrade runs the
-// first afterRender on a pre-existing <tc-drawer>.
-const DIALOG_LISTENERS = new WeakMap<
-  HTMLElement,
-  { dialog: HTMLDialogElement; cleanup: () => void }
->();
-
-interface HostExtras {
-  open: boolean;
-  side: string;
-  size: string;
-  dismissible: boolean;
-  title: string;
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-build(
-  TAG,
-  describe({
-    props: {
-      open: { type: "boolean", default: false, reflect: true },
-      side: { type: "string", default: "right" },
-      size: { type: "string", default: "min(420px, 92vw)" },
-      dismissible: { type: "boolean", default: true },
-      title: { type: "string", default: "" },
-    },
-    theme: {
-      "tc-drawer-bg": "var(--tc-color-surface, #ffffff)",
-      "tc-drawer-ink": "var(--tc-color-ink, #14171f)",
-      "tc-drawer-rule": "var(--tc-color-rule, #ece5d3)",
-      "tc-drawer-soft": "var(--tc-color-ink-soft, #5a6072)",
-      "tc-drawer-shadow":
-        "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))",
-      "tc-drawer-backdrop": "rgba(20, 23, 31, 0.5)",
-      "tc-drawer-font":
-        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
-      "tc-drawer-duration": "260ms",
-    },
-    styles: {
-      display: "contents",
-    },
-    template: ({ props }) => {
-      const side = String(props.side ?? "right");
-      const size = esc(props.size ?? "min(420px, 92vw)");
-      return `
-        <dialog
-          class="dlg side-${esc(side)}"
-          aria-labelledby="${props.title ? "title" : ""}"
-          style="--tc-drawer-size: ${size};"
-        >
-          ${
-        props.title || props.dismissible
-          ? `<header class="head">
-                ${
-            props.title
-              ? `<h2 id="title" class="title">${esc(props.title)}</h2>`
-              : "<span></span>"
-          }
-                ${
-            props.dismissible
-              ? `<button class="x" type="button" aria-label="Close">×</button>`
-              : ""
-          }
-              </header>`
-          : ""
-      }
-          <div class="body"><slot></slot></div>
-          <footer class="foot"><slot name="footer"></slot></footer>
-        </dialog>
-        <style>
+// Declared BEFORE build() — esbuild minify hoists const→var, so STYLE
+// after build() would be undefined when define() synchronously upgrades
+// any pre-existing <tc-drawer> and runs the first render.
+const STYLE = `
           /* Reset the modal-dialog UA centering, then re-position per side.
              Use !important to defeat browser UA inset-inline-start: 0 etc.
              that compete with our explicit positioning.
@@ -237,7 +161,88 @@ build(
             border-top: 1px solid var(--tc-drawer-rule);
             display: flex; gap: 8px; justify-content: flex-end;
           }
-        </style>
+`;
+
+// Declared BEFORE build() — see kit/components/button.ts:33-38. afterRender
+// reads DIALOG_LISTENERS.get(this); esbuild minify makes it `var`-hoisted,
+// so it'd be undefined when the synchronous define() upgrade runs the
+// first afterRender on a pre-existing <tc-drawer>.
+const DIALOG_LISTENERS = new WeakMap<
+  HTMLElement,
+  { dialog: HTMLDialogElement; cleanup: () => void }
+>();
+
+interface HostExtras {
+  open: boolean;
+  side: string;
+  size: string;
+  dismissible: boolean;
+  title: string;
+}
+
+function esc(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+build(
+  TAG,
+  describe({
+    props: {
+      open: { type: "boolean", default: false, reflect: true },
+      side: { type: "string", default: "right" },
+      size: { type: "string", default: "min(420px, 92vw)" },
+      dismissible: { type: "boolean", default: true },
+      title: { type: "string", default: "" },
+    },
+    theme: {
+      "tc-drawer-bg": "var(--tc-color-surface, #ffffff)",
+      "tc-drawer-ink": "var(--tc-color-ink, #14171f)",
+      "tc-drawer-rule": "var(--tc-color-rule, #ece5d3)",
+      "tc-drawer-soft": "var(--tc-color-ink-soft, #5a6072)",
+      "tc-drawer-shadow":
+        "var(--tc-shadow-lg, 0 24px 60px rgba(20, 23, 31, 0.25))",
+      "tc-drawer-backdrop": "rgba(20, 23, 31, 0.5)",
+      "tc-drawer-font":
+        "var(--tc-font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif)",
+      "tc-drawer-duration": "260ms",
+    },
+    styles: {
+      display: "contents",
+    },
+    stylesheet: STYLE,
+    template: ({ props }) => {
+      const side = String(props.side ?? "right");
+      const size = esc(props.size ?? "min(420px, 92vw)");
+      return html`
+        <dialog
+          class="dlg side-${side}"
+          aria-labelledby="${props.title ? "title" : ""}"
+          style="--tc-drawer-size: ${unsafe(size)};"
+        >
+          ${unsafe(
+            props.title || props.dismissible
+              ? `<header class="head">
+                ${
+                props.title
+                  ? `<h2 id="title" class="title">${esc(props.title)}</h2>`
+                  : "<span></span>"
+              }
+                ${
+                props.dismissible
+                  ? `<button class="x" type="button" aria-label="Close">×</button>`
+                  : ""
+              }
+              </header>`
+              : "",
+          )}
+          <div class="body"><slot></slot></div>
+          <footer class="foot"><slot name="footer"></slot></footer>
+        </dialog>
       `;
     },
     refs: {

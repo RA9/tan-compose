@@ -21,11 +21,38 @@
  *   --tc-input-font, --tc-checkbox-accent
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-checkbox";
 
 export const tagName = TAG;
+
+const STYLE = `
+          :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
+          .row {
+            display: inline-flex; align-items: center; gap: 10px;
+            cursor: pointer; user-select: none;
+            font-size: 0.95rem;
+          }
+          .row.is-disabled { cursor: not-allowed; opacity: 0.6; }
+          .cb {
+            width: 18px; height: 18px;
+            margin: 0;
+            accent-color: var(--tc-checkbox-accent);
+            cursor: inherit;
+          }
+          .row.is-invalid .cb { outline: 2px solid var(--tc-input-error); border-radius: 3px; }
+          .label { line-height: 1.3; }
+          .req { color: var(--tc-input-error); margin-left: 2px; }
+          .helper {
+            margin-top: 6px; margin-left: 28px;
+            font-size: 0.78rem; color: var(--tc-input-helper);
+          }
+          .error {
+            margin-top: 6px; margin-left: 28px;
+            font-size: 0.78rem; color: var(--tc-input-error);
+          }
+`;
 
 build(
   TAG,
@@ -56,65 +83,40 @@ build(
     styles: {
       display: "block",
     },
+    stylesheet: STYLE,
     template: ({ props }) => {
       const showError = Boolean(props.error);
-      return `
-        <label class="row ${props.disabled ? "is-disabled" : ""} ${
-        showError ? "is-invalid" : ""
-      }">
+      return html`
+        <label class="row ${props.disabled ? "is-disabled" : ""} ${showError
+          ? "is-invalid"
+          : ""}">
           <input
             class="cb"
             type="checkbox"
-            name="${esc(props.name)}"
-            value="${esc(props.value)}"
-            ${props.checked ? "checked" : ""}
-            ${props.disabled ? "disabled" : ""}
-            ${props.required ? "required" : ""}
+            name="${props.name}"
+            value="${props.value}"
+            ${unsafe(props.checked ? "checked" : "")}
+            ${unsafe(props.disabled ? "disabled" : "")}
+            ${unsafe(props.required ? "required" : "")}
             aria-invalid="${showError ? "true" : "false"}"
           />
-          ${
-        props.label
-          ? `<span class="label">${esc(props.label)}${
-            props.required
-              ? ' <span class="req" aria-hidden="true">*</span>'
-              : ""
-          }</span>`
-          : "<span></span>"
-      }
+          ${unsafe(
+            props.label
+              ? `<span class="label">${esc(props.label)}${
+                props.required
+                  ? ' <span class="req" aria-hidden="true">*</span>'
+                  : ""
+              }</span>`
+              : "<span></span>",
+          )}
         </label>
-        ${
-        props.error || props.helper
-          ? `<div class="${showError ? "error" : "helper"}">${
-            esc(props.error || props.helper)
-          }</div>`
-          : ""
-      }
-        <style>
-          :host { font-family: var(--tc-input-font); color: var(--tc-input-fg); }
-          .row {
-            display: inline-flex; align-items: center; gap: 10px;
-            cursor: pointer; user-select: none;
-            font-size: 0.95rem;
-          }
-          .row.is-disabled { cursor: not-allowed; opacity: 0.6; }
-          .cb {
-            width: 18px; height: 18px;
-            margin: 0;
-            accent-color: var(--tc-checkbox-accent);
-            cursor: inherit;
-          }
-          .row.is-invalid .cb { outline: 2px solid var(--tc-input-error); border-radius: 3px; }
-          .label { line-height: 1.3; }
-          .req { color: var(--tc-input-error); margin-left: 2px; }
-          .helper {
-            margin-top: 6px; margin-left: 28px;
-            font-size: 0.78rem; color: var(--tc-input-helper);
-          }
-          .error {
-            margin-top: 6px; margin-left: 28px;
-            font-size: 0.78rem; color: var(--tc-input-error);
-          }
-        </style>
+        ${unsafe(
+          props.error || props.helper
+            ? `<div class="${showError ? "error" : "helper"}">${
+              esc(props.error || props.helper)
+            }</div>`
+            : "",
+        )}
       `;
     },
     refs: {

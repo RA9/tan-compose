@@ -16,7 +16,7 @@
  *   --tc-stepper-marker-size, --tc-stepper-font
  */
 
-import { build, describe } from "@ra9/tan-compose";
+import { build, describe, html, unsafe } from "@ra9/tan-compose";
 
 const TAG = "tc-stepper";
 
@@ -104,118 +104,118 @@ build(
         `;
       }).join("");
 
-      return `
-        <ol class="root ${vertical ? "v" : "h"} ${
-        clickable ? "clickable" : ""
-      }" aria-label="Progress">
-          ${items}
+      return html`
+        <ol class="root ${vertical ? "v" : "h"} ${clickable
+          ? "clickable"
+          : ""}" aria-label="Progress">
+          ${unsafe(items)}
         </ol>
         <style>
-          :host { display: block; font-family: var(--tc-stepper-font); color: var(--tc-stepper-ink); }
-          .root {
-            margin: 0; padding: 0; list-style: none;
-            background: var(--tc-stepper-bg);
-            display: flex;
-          }
-          .root.h { flex-direction: row; align-items: flex-start; gap: 0; }
-          .root.v { flex-direction: column; gap: 0; }
+        :host { display: block; font-family: var(--tc-stepper-font); color: var(--tc-stepper-ink); }
+        .root {
+          margin: 0; padding: 0; list-style: none;
+          background: var(--tc-stepper-bg);
+          display: flex;
+        }
+        .root.h { flex-direction: row; align-items: flex-start; gap: 0; }
+        .root.v { flex-direction: column; gap: 0; }
 
-          .step {
-            display: flex;
-            position: relative;
-            flex: 1 1 0;
-          }
-          .root.v .step { flex: 0 0 auto; flex-direction: column; }
-          .root.h .step { flex-direction: column; align-items: center; min-width: 0; }
+        .step {
+          display: flex;
+          position: relative;
+          flex: 1 1 0;
+        }
+        .root.v .step { flex: 0 0 auto; flex-direction: column; }
+        .root.h .step { flex-direction: column; align-items: center; min-width: 0; }
 
-          .row {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: transparent;
-            border: none;
-            font: inherit;
-            color: inherit;
-            text-align: left;
-            padding: 0;
-            cursor: ${clickable ? "pointer" : "default"};
-          }
-          .root.h .row { flex-direction: column; align-items: center; text-align: center; padding: 0 12px; }
-          .root.v .row { padding: 4px 0; }
+        .row {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          background: transparent;
+          border: none;
+          font: inherit;
+          color: inherit;
+          text-align: left;
+          padding: 0;
+          cursor: ${clickable ? "pointer" : "default"};
+        }
+        .root.h .row { flex-direction: column; align-items: center; text-align: center; padding: 0 12px; }
+        .root.v .row { padding: 4px 0; }
 
-          .marker {
-            width: var(--tc-stepper-marker-size);
-            height: var(--tc-stepper-marker-size);
-            border-radius: var(--tc-stepper-radius);
-            display: inline-grid;
-            place-items: center;
-            font-weight: 700;
-            font-size: 0.86rem;
-            font-variant-numeric: tabular-nums;
-            border: 2px solid var(--tc-stepper-rule);
-            color: var(--tc-stepper-soft);
-            background: var(--tc-color-surface, #ffffff);
-            transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-            flex: 0 0 auto;
-          }
-          .state-current .marker {
-            border-color: var(--tc-stepper-accent);
-            color: var(--tc-stepper-accent);
-          }
-          .state-done .marker {
-            background: var(--tc-stepper-done);
-            border-color: var(--tc-stepper-done);
-            color: #fff;
-          }
+        .marker {
+          width: var(--tc-stepper-marker-size);
+          height: var(--tc-stepper-marker-size);
+          border-radius: var(--tc-stepper-radius);
+          display: inline-grid;
+          place-items: center;
+          font-weight: 700;
+          font-size: 0.86rem;
+          font-variant-numeric: tabular-nums;
+          border: 2px solid var(--tc-stepper-rule);
+          color: var(--tc-stepper-soft);
+          background: var(--tc-color-surface, #ffffff);
+          transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+          flex: 0 0 auto;
+        }
+        .state-current .marker {
+          border-color: var(--tc-stepper-accent);
+          color: var(--tc-stepper-accent);
+        }
+        .state-done .marker {
+          background: var(--tc-stepper-done);
+          border-color: var(--tc-stepper-done);
+          color: #fff;
+        }
 
-          .text { display: grid; gap: 1px; min-width: 0; }
-          .title {
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: var(--tc-stepper-ink);
-            line-height: 1.3;
-          }
-          .state-upcoming .title { color: var(--tc-stepper-soft); }
-          .desc {
-            font-size: 0.78rem;
-            color: var(--tc-stepper-soft);
-            line-height: 1.4;
-          }
-          .root.h .desc {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 16ch;
-          }
+        .text { display: grid; gap: 1px; min-width: 0; }
+        .title {
+          font-size: 0.92rem;
+          font-weight: 600;
+          color: var(--tc-stepper-ink);
+          line-height: 1.3;
+        }
+        .state-upcoming .title { color: var(--tc-stepper-soft); }
+        .desc {
+          font-size: 0.78rem;
+          color: var(--tc-stepper-soft);
+          line-height: 1.4;
+        }
+        .root.h .desc {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 16ch;
+        }
 
-          .line {
-            background: var(--tc-stepper-rule);
-            display: block;
-            position: absolute;
-            transition: background 0.2s ease;
-          }
-          .line.done { background: var(--tc-stepper-done); }
-          .root.h .line {
-            top: calc(var(--tc-stepper-marker-size) / 2 - 1px);
-            left: calc(50% + var(--tc-stepper-marker-size) / 2 + 8px);
-            right: calc(-50% + var(--tc-stepper-marker-size) / 2 + 8px);
-            height: 2px;
-          }
-          .root.v .line {
-            left: calc(var(--tc-stepper-marker-size) / 2 - 1px);
-            top: calc(var(--tc-stepper-marker-size) + 4px);
-            bottom: -8px;
-            width: 2px;
-            height: auto;
-          }
-          .root.v .step { padding-bottom: 16px; }
-          .root.v .step:last-child { padding-bottom: 0; }
+        .line {
+          background: var(--tc-stepper-rule);
+          display: block;
+          position: absolute;
+          transition: background 0.2s ease;
+        }
+        .line.done { background: var(--tc-stepper-done); }
+        .root.h .line {
+          top: calc(var(--tc-stepper-marker-size) / 2 - 1px);
+          left: calc(50% + var(--tc-stepper-marker-size) / 2 + 8px);
+          right: calc(-50% + var(--tc-stepper-marker-size) / 2 + 8px);
+          height: 2px;
+        }
+        .root.v .line {
+          left: calc(var(--tc-stepper-marker-size) / 2 - 1px);
+          top: calc(var(--tc-stepper-marker-size) + 4px);
+          bottom: -8px;
+          width: 2px;
+          height: auto;
+        }
+        .root.v .step { padding-bottom: 16px; }
+        .root.v .step:last-child { padding-bottom: 0; }
 
-          .row:focus-visible {
-            outline: 2px solid var(--tc-stepper-accent);
-            outline-offset: 4px;
-            border-radius: 6px;
-          }
+        .row:focus-visible {
+          outline: 2px solid var(--tc-stepper-accent);
+          outline-offset: 4px;
+          border-radius: 6px;
+        }
         </style>
       `;
     },
