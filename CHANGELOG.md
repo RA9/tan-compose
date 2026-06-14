@@ -6,6 +6,61 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-14
+
+### Added
+
+- **`html` — an auto-escaping tagged template.** `` html`<p>${userInput}</p>` ``
+  escapes every interpolation by default and returns a `SafeHtml` value the
+  renderer trusts verbatim. Nested `html` results pass through un-re-escaped;
+  `null` / `undefined` / `false` render nothing (so ``cond && html`…` `` works).
+  Use `unsafe(str)` to opt a trusted string out of escaping. This makes the
+  safe path the default — no more hand-rolled `esc()` on every interpolation.
+  Also exports `escapeHtml`, `isSafeHtml`, and the `SafeHtml` class.
+- **Composable template helpers:** `when(cond, then, else?)`,
+  `map(items, fn)`, `classMap({ name: cond })`, and
+  `styleMap({ fontSize: "12px" })` (camelCase → kebab, drops empties).
+- **`stylesheet` describe field.** Supply a full component stylesheet (string
+  or string array) that is installed once as a shared **adopted stylesheet**
+  on the shadow root — parsed a single time and reused across every instance,
+  instead of being re-parsed inside `template` on every render. Falls back to
+  a `<style>` element when constructable stylesheets aren't available.
+- **Typed props & state.** `describe<MyProps, MyState>(…)` narrows `ctx.props`
+  and `ctx.state` (and `setState` keys) in templates, event handlers, and
+  predicates. Defaults keep all existing untyped `describe({…})` calls working
+  unchanged.
+- **Capture-phase delegation for non-bubbling events.** Delegated handlers for
+  `focus`, `blur`, `mouseenter`, `mouseleave`, `pointerenter`, `pointerleave`,
+  `load`, `error`, and `scroll` are now attached in the capture phase, so
+  `events: { "blur .field": … }` fires (previously it silently never did).
+
+### Fixed
+
+- **camelCase props now react to their kebab-case attribute.** A prop like
+  `pageSize` is reachable via `page-size` (and `pagesize`) and re-renders on a
+  dynamic `setAttribute`, not only on the initial read. Reflected props write
+  the kebab-case attribute. Previously `observedAttributes` carried the
+  verbatim prop name, which the browser never matched against the lowercased
+  attribute, so post-mount attribute changes to camelCase props were dropped.
+- **Render-loop guard.** An `afterRender` that calls `setState` on every render
+  no longer hangs the page — renders that cascade past 50 in a single
+  synchronous turn abort with a console error. The counter resets each
+  microtask, so legitimate renders across turns are never penalized.
+- **Focus restoration prefers stable identity.** After a re-render, focus is
+  restored by `id`, then `name`, then the positional path — so focus and caret
+  survive structural template changes that would throw off a purely positional
+  walk.
+- **Keyed-list cleanups flush on disconnect for nested/dynamic lists.**
+  Disconnect now flushes every list slot ever created, including lists produced
+  by a parent list's `render()` that aren't present in the static description
+  tree (previously their per-row cleanups could leak).
+
+### Changed
+
+- `template` (host and child) now also accepts a `SafeHtml` value in addition
+  to a string or a function returning either. Plain-string templates are
+  unchanged and still un-sanitized — escape untrusted input or use `html`.
+
 ## [1.1.1] - 2026-05-12
 
 ### Fixed
