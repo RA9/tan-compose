@@ -21,7 +21,7 @@ per-instance props that can't live in a shared static sheet: `tc-modal`
 (width), `tc-progress` (size/height), `tc-rating` and `tc-stepper`
 (cursor). `tc-table` continues to carry its CSS in a child element.
 
-This requires core `@ra9/tan-compose@^1.2.0` (for `html`, `unsafe`, and
+This requires core `@ra9/tan-compose@^1.3.0` (for `html`, `unsafe`, and
 `stylesheet`); the dependency range was tightened accordingly.
 
 ### Added — `<tc-button>` form submission
