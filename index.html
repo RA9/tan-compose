@@ -119,7 +119,9 @@
                 max-width: 520px;
                 margin-bottom: 28px;
             }
-            .install-line .cmd { word-break: break-all; }
+            .install-line .cmd {
+                word-break: break-all;
+            }
             .install-line .prompt {
                 color: var(--tc-color-ink-muted, #6b7280);
                 user-select: none;
@@ -368,8 +370,10 @@
                             <div class="install-line">
                                 <span class="prompt">&lt;script&gt;</span>
                                 <span class="cmd"
-                                    >import "https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span
+                                    >import
+                                    "https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span
                                 >
+                                <span class="prompt">&lt;/script&gt;</span>
                             </div>
 
                             <div class="cta-row">
@@ -478,40 +482,74 @@ build(<span class="str">"my-counter"</span>, describe({
                         plain object. Use it as HTML.
                     </p>
 
-          <h3>Install</h3>
-          <tc-code language="html"><span class="tc-com">&lt;!-- No build step — load from jsDelivr, served straight from GitHub --&gt;</span>
-<span class="tc-tag">&lt;script</span> <span class="tc-kw">type</span>=<span class="tc-str">"module"</span>
-  <span class="tc-kw">src</span>=<span class="tc-str">"https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span><span class="tc-tag">&gt;&lt;/script&gt;</span></tc-code>
+                    <h3>Install</h3>
+                    <tc-code language="html"
+                        ><span class="tc-com"
+                            >&lt;!-- No build step — load from jsDelivr, served
+                            straight from GitHub --&gt;</span
+                        >
+                        <span class="tc-tag">&lt;script</span>
+                        <span class="tc-kw">type</span>=<span class="tc-str"
+                            >"module"</span
+                        >
+                        <span class="tc-kw">src</span>=<span class="tc-str"
+                            >"https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span
+                        ><span class="tc-tag"
+                            >&gt;&lt;/script&gt;</span
+                        ></tc-code
+                    >
 
-          <p style="margin: 14px 0 0; font-size: 0.95rem; color: var(--tc-color-ink-soft, #4a5061);">
-            Or import the ES module directly in your own code — pin a tag, swap
-            <code>@v1.3.0</code> for any release:
-          </p>
-          <tc-code language="ts"><span class="tc-kw">import</span> { describe, build, html } <span class="tc-kw">from</span>
-  <span class="tc-str">"https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span>;</tc-code>
+                    <p
+                        style="
+                            margin: 14px 0 0;
+                            font-size: 0.95rem;
+                            color: var(--tc-color-ink-soft, #4a5061);
+                        "
+                    >
+                        Or import the ES module directly in your own code — pin
+                        a tag, swap
+                        <code>@v1.3.0</code> for any release:
+                    </p>
+                    <tc-code language="ts"
+                        ><span class="tc-kw">import</span> { describe, build,
+                        html } <span class="tc-kw">from</span>
+                        <span class="tc-str"
+                            >"https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span
+                        >;</tc-code
+                    >
 
-          <h3>Define and register</h3>
-          <tc-code language="ts" filename="my-button.ts"><span class="tc-kw">import</span> { describe, build, html } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
+                    <h3>Define and register</h3>
+                    <tc-code language="ts" filename="my-button.ts"
+                        ><span class="tc-kw">import</span> { describe, build,
+                        html } <span class="tc-kw">from</span>
+                        <span class="tc-str">"@ra9/tan-compose"</span>;
 
-<span class="tc-kw">const</span> button = describe({
-  tag: <span class="tc-str">"button"</span>,
-  template: ({ props }) =&gt; html<span class="tc-str">`Click ${props.label ?? <span class="tc-str">"me"</span>}`</span>,
-  props: { label: { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">"me"</span> } },
-  styles: {
-    padding: <span class="tc-str">"10px 18px"</span>,
-    background: <span class="tc-str">"#14171f"</span>,
-    color: <span class="tc-str">"white"</span>,
-    border: <span class="tc-str">"none"</span>,
-    borderRadius: <span class="tc-str">"6px"</span>,
-    cursor: <span class="tc-str">"pointer"</span>,
-  },
-  action: () =&gt; alert(<span class="tc-str">"Hello, Tan Compose!"</span>),
-});
+                        <span class="tc-kw">const</span> button = describe({
+                        tag: <span class="tc-str">"button"</span>, template: ({
+                        props }) =&gt; html<span class="tc-str"
+                            >`Click ${props.label ??
+                            <span class="tc-str">"me"</span>}`</span
+                        >, props: { label: { type:
+                        <span class="tc-str">"string"</span>, default:
+                        <span class="tc-str">"me"</span> } }, styles: { padding:
+                        <span class="tc-str">"10px 18px"</span>, background:
+                        <span class="tc-str">"#14171f"</span>, color:
+                        <span class="tc-str">"white"</span>, border:
+                        <span class="tc-str">"none"</span>, borderRadius:
+                        <span class="tc-str">"6px"</span>, cursor:
+                        <span class="tc-str">"pointer"</span>, }, action: ()
+                        =&gt; alert(<span class="tc-str"
+                            >"Hello, Tan Compose!"</span
+                        >), }); build(<span class="tc-str">"my-button"</span>,
+                        button);</tc-code
+                    >
 
-build(<span class="tc-str">"my-button"</span>, button);</tc-code>
-
-          <h3>Use in HTML</h3>
-          <tc-code language="html"><span class="tc-tag">&lt;my-button&gt;&lt;/my-button&gt;</span></tc-code>
+                    <h3>Use in HTML</h3>
+                    <tc-code language="html"
+                        ><span class="tc-tag"
+                            >&lt;my-button&gt;&lt;/my-button&gt;</span
+                        ></tc-code
+                    >
                 </div>
             </section>
 
