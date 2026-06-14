@@ -652,6 +652,7 @@ function renderPost(post: Post): string {
     <meta name="twitter:title" content="${escapeHtml(post.title)}" />
     <meta name="twitter:description" content="${escapeHtml(desc)}" />
 
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -768,6 +769,7 @@ function renderIndex(posts: Post[]): string {
     <meta name="twitter:title" content="Blog — ${SITE_NAME}" />
     <meta name="twitter:description" content="Release notes, design decisions, and tutorials for tan-compose and the kit." />
 
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -1496,6 +1498,7 @@ function renderComponentPage(c: ComponentPage): string {
     <meta name="twitter:title" content="${escapeHtml(c.tag)} — Tan Compose" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
 
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />

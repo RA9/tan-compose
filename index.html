@@ -106,17 +106,20 @@
             }
             .install-line {
                 font-family: var(--tc-font-mono, monospace);
-                font-size: 0.92rem;
+                font-size: 0.86rem;
+                line-height: 1.5;
                 background: var(--tc-color-surface, #ffffff);
                 border: 1px solid var(--tc-color-rule, #ece5d3);
                 border-radius: var(--tc-radius-md, 10px);
                 padding: 14px 18px;
                 display: flex;
-                align-items: center;
-                gap: 10px;
-                max-width: 460px;
+                align-items: baseline;
+                flex-wrap: wrap;
+                gap: 4px 10px;
+                max-width: 520px;
                 margin-bottom: 28px;
             }
+            .install-line .cmd { word-break: break-all; }
             .install-line .prompt {
                 color: var(--tc-color-ink-muted, #6b7280);
                 user-select: none;
@@ -363,9 +366,9 @@
                             </p>
 
                             <div class="install-line">
-                                <span class="prompt">$</span>
+                                <span class="prompt">&lt;script&gt;</span>
                                 <span class="cmd"
-                                    >deno add jsr:@ra9/tan-compose</span
+                                    >import "https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span
                                 >
                             </div>
 
@@ -385,10 +388,10 @@
 
                         <div class="hero-visual">
                             <div class="file-tab">my-counter.ts</div>
-                            <pre><span class="kw">import</span> { describe, build } <span class="kw">from</span> <span class="str">"@ra9/tan-compose"</span>;
+                            <pre><span class="kw">import</span> { describe, build, html } <span class="kw">from</span> <span class="str">"@ra9/tan-compose"</span>;
 
 build(<span class="str">"my-counter"</span>, describe({
-  <span class="fn">template</span>: ({ state }) =&gt; <span class="str">`</span>
+  <span class="fn">template</span>: ({ state }) =&gt; html<span class="str">`</span>
     <span class="str">&lt;span&gt;${state.count ?? <span class="num">0</span>}&lt;/span&gt;</span>
     <span class="str">&lt;button class="bump"&gt;+&lt;/button&gt;</span>
   <span class="str">`</span>,
@@ -476,18 +479,24 @@ build(<span class="str">"my-counter"</span>, describe({
                     </p>
 
           <h3>Install</h3>
-          <tc-code language="bash"><span class="tc-com"># Deno</span>
-deno add jsr:@ra9/tan-compose
+          <tc-code language="html"><span class="tc-com">&lt;!-- No build step — load from jsDelivr, served straight from GitHub --&gt;</span>
+<span class="tc-tag">&lt;script</span> <span class="tc-kw">type</span>=<span class="tc-str">"module"</span>
+  <span class="tc-kw">src</span>=<span class="tc-str">"https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span><span class="tc-tag">&gt;&lt;/script&gt;</span></tc-code>
 
-<span class="tc-com"># Node / npm (via JSR)</span>
-npx jsr add @ra9/tan-compose</tc-code>
+          <p style="margin: 14px 0 0; font-size: 0.95rem; color: var(--tc-color-ink-soft, #4a5061);">
+            Or import the ES module directly in your own code — pin a tag, swap
+            <code>@v1.3.0</code> for any release:
+          </p>
+          <tc-code language="ts"><span class="tc-kw">import</span> { describe, build, html } <span class="tc-kw">from</span>
+  <span class="tc-str">"https://cdn.jsdelivr.net/gh/RA9/tan-compose@v1.3.0/dist/mod.js"</span>;</tc-code>
 
           <h3>Define and register</h3>
-          <tc-code language="ts" filename="my-button.ts"><span class="tc-kw">import</span> { describe, build } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
+          <tc-code language="ts" filename="my-button.ts"><span class="tc-kw">import</span> { describe, build, html } <span class="tc-kw">from</span> <span class="tc-str">"@ra9/tan-compose"</span>;
 
 <span class="tc-kw">const</span> button = describe({
   tag: <span class="tc-str">"button"</span>,
-  template: <span class="tc-str">"Click me"</span>,
+  template: ({ props }) =&gt; html<span class="tc-str">`Click ${props.label ?? <span class="tc-str">"me"</span>}`</span>,
+  props: { label: { type: <span class="tc-str">"string"</span>, default: <span class="tc-str">"me"</span> } },
   styles: {
     padding: <span class="tc-str">"10px 18px"</span>,
     background: <span class="tc-str">"#14171f"</span>,
