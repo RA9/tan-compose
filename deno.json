@@ -1,11 +1,19 @@
 {
   "name": "@ra9/tan-compose",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "exports": "./mod.ts",
-  "workspace": ["./kit", "./icons", "./site"],
+  "workspace": [
+    "./kit",
+    "./icons",
+    "./site"
+  ],
   "compilerOptions": {
     "strict": true,
-    "lib": ["dom", "esnext", "deno.ns"]
+    "lib": [
+      "dom",
+      "esnext",
+      "deno.ns"
+    ]
   },
   "tasks": {
     "test": "deno test --allow-read --allow-env --allow-net --allow-write",
@@ -19,13 +27,25 @@
     "ci": "deno task fmt:check && deno task lint && deno task check && deno task test"
   },
   "lint": {
-    "exclude": ["dist/", "coverage/"]
+    "exclude": [
+      "dist/",
+      "coverage/"
+    ]
   },
   "fmt": {
-    "exclude": ["**/*.html", "**/*.md", "**/*.svg", "dist/", "coverage/"]
+    "exclude": [
+      "**/*.html",
+      "**/*.md",
+      "**/*.svg",
+      "dist/",
+      "coverage/"
+    ]
   },
   "test": {
-    "exclude": ["dist/", "coverage/"]
+    "exclude": [
+      "dist/",
+      "coverage/"
+    ]
   },
   "publish": {
     "exclude": [
