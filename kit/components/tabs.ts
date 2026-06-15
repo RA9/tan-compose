@@ -36,7 +36,12 @@ const STYLE = `
             display: flex; gap: 4px;
             border-bottom: 1px solid var(--tc-tabs-rule);
             margin-bottom: 16px;
+            /* Scroll the strip on narrow screens instead of clipping the
+               last tab. Scrollbar hidden — it stays swipe/trackpad-scrollable. */
+            overflow-x: auto;
+            scrollbar-width: none;
           }
+          .strip::-webkit-scrollbar { display: none; }
           .tab {
             font: inherit; font-size: 0.92rem; font-weight: 500;
             background: transparent; border: none; cursor: pointer;
@@ -44,6 +49,10 @@ const STYLE = `
             color: var(--tc-tabs-fg-muted);
             border-bottom: 2px solid transparent;
             transition: color 0.15s ease, border-color 0.15s ease;
+            /* Keep each tab its natural width so the strip scrolls rather
+               than squeezing tabs until the last one clips. */
+            flex: 0 0 auto;
+            white-space: nowrap;
           }
           .tab:hover { color: var(--tc-tabs-fg); }
           .tab.active {
