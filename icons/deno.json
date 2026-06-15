@@ -15,16 +15,22 @@
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
     "lint": "deno lint",
-    "ci": "deno task fmt:check && deno task lint && deno task check && deno task test"
+    "ci": "deno task fmt:check && deno task lint && deno task check && deno task test",
+    "bundle": "deno run --allow-read --allow-write --allow-env --allow-net --allow-run bundle.ts",
+    "prepublish": "deno task bundle"
   },
   "fmt": {
-    "exclude": ["coverage/"]
+    "exclude": ["coverage/", "dist/"]
+  },
+  "lint": {
+    "exclude": ["coverage/", "dist/"]
   },
   "publish": {
     "exclude": [
       ".github/",
       "test/",
       "coverage/",
+      "bundle.ts",
       "*.html"
     ]
   },

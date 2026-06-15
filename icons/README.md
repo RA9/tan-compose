@@ -21,6 +21,21 @@ npx jsr add @ra9/tan-compose-icons
 <tc-icon name="settings" size="32" title="Open settings"></tc-icon>
 ```
 
+### From a CDN, no build step
+
+Each release ships a pre-built `icons/dist/icons.min.js` (the
+`<tc-icon>` component with the core inlined). Load it straight from
+jsDelivr — it serves the file byte-for-byte at the matching tag:
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@icons-v0.3.0/icons/dist/icons.min.js"></script>
+
+<tc-icon name="check"></tc-icon>
+```
+
+Swap the tag (`@icons-v0.3.0`) for whichever version you want to pin to.
+
 ## Why a custom element
 
 Icons are markup, not assets. Treating them as components means:

@@ -28,6 +28,10 @@ jobs:
       - name: Run tests (workspace)
         run: deno test --allow-read --allow-env --allow-net --allow-write
 
+      - name: Build CDN bundles (icons/dist)
+        working-directory: icons
+        run: deno task bundle
+
       - name: Publish icons to JSR
         working-directory: icons
         # Use `deno publish` directly instead of `npx jsr publish` —

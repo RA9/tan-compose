@@ -8,6 +8,19 @@ and the project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.3.0] - 2026-05-19
 
+### Added — CDN bundle
+
+A pre-built, CDN-ready ESM bundle is now committed under `icons/dist/`
+(`icons.min.js` + a plain `icons.js` twin), with the core inlined so a
+single `<script>` tag registers `<tc-icon>` with no second fetch. Built
+by `deno task bundle` and produced in CI before each publish, so it's
+deliverable straight from jsDelivr at the release tag:
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@icons-v0.3.0/icons/dist/icons.min.js"></script>
+```
+
 ### Added — 10 original icons (98 total)
 
 Designed for this package, not copied from Lucide. They keep the same
