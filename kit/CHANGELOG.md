@@ -3,7 +3,7 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
-## [1.12.0] - 2026-06-14
+## [1.12.1] - 2026-06-15
 
 ### Fixed — `<tc-tabs>` strip scrolls instead of clipping
 
@@ -11,6 +11,8 @@ On very narrow screens the tab strip used to squeeze tabs until the last
 one clipped. The strip now scrolls horizontally (`overflow-x: auto`, with
 a hidden scrollbar) and each tab keeps its natural width, so every tab
 stays reachable on phones.
+
+## [1.12.0] - 2026-06-14
 
 ### Changed — adopt the v1.2 core templating APIs (internal)
 
