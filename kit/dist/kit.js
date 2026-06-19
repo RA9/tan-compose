@@ -6883,6 +6883,22 @@ function fmt(n) {
 function colorFor(i, palette) {
   return palette[i % palette.length];
 }
+function makeFormatter(token) {
+  switch (token) {
+    case "compact":
+      return fmt;
+    case "none":
+      return (n) => Number.isFinite(n) ? String(n) : "";
+    case "integer":
+      return (n) => Number.isFinite(n) ? Math.round(n).toLocaleString() : "";
+    case "percent":
+      return (n) => Number.isFinite(n) ? `${fmt(n)}%` : "";
+    case "currency":
+      return (n) => Number.isFinite(n) ? `$${fmt(n)}` : "";
+    default:
+      return (n) => Number.isFinite(n) ? `${fmt(n)}${token}` : "";
+  }
+}
 function renderCartesian(ctx, type) {
   const { data, smooth, stacked, showAxes, showGrid, showLabels, showValues } = ctx;
   const labels = data.labels ?? [];
@@ -6911,6 +6927,8 @@ function renderCartesian(ctx, type) {
   } else {
     for (const s of series) {
       for (const v of s.values ?? []) {
+        if (v == null || !Number.isFinite(v))
+          continue;
         if (v < minY)
           minY = v;
         if (v > maxY)
@@ -6957,16 +6975,21 @@ function renderCartesian(ctx, type) {
       for (const t of ticksInfo.ticks) {
         const y = yAt(t);
         chrome.push(
-          `<text class="axis-label y" x="${padLeft - 8}" y="${y}" text-anchor="end" dominant-baseline="middle">${esc25(fmt(t))}</text>`
+          `<text class="axis-label y" x="${padLeft - 8}" y="${y}" text-anchor="end" dominant-baseline="middle">${esc25(ctx.fmtTick(t))}</text>`
         );
       }
       if (showLabels && labels.length > 0) {
-        const stride = Math.max(1, Math.ceil(labels.length / 8));
+        const stride = ctx.labelStride > 0 ? ctx.labelStride : ctx.maxLabels > 0 ? Math.max(1, Math.ceil(labels.length / ctx.maxLabels)) : Math.max(1, Math.ceil(labels.length / 8));
+        const ang = ctx.labelAngle;
+        const anchor = ang === 0 ? "middle" : ang < 0 ? "end" : "start";
         labels.forEach((lab, i) => {
           if (i % stride !== 0 && i !== labels.length - 1)
             return;
+          const lx = xAt(i);
+          const ly = ctx.H - padBottom + 16;
+          const transform = ang !== 0 ? ` transform="rotate(${ang} ${lx} ${ly})"` : "";
           chrome.push(
-            `<text class="axis-label x" x="${xAt(i)}" y="${ctx.H - padBottom + 16}" text-anchor="middle">${esc25(lab)}</text>`
+            `<text class="axis-label x" x="${lx}" y="${ly}" text-anchor="${anchor}"${transform}>${esc25(lab)}</text>`
           );
         });
       }
@@ -6983,10 +7006,11 @@ function renderCartesian(ctx, type) {
     const usableW = groupW - innerPad * 2;
     series.forEach((s, si) => {
       const cls = `series series-${si}`;
-      const color = colorFor(si, ctx.palette);
+      const color = s.color || colorFor(si, ctx.palette);
+      const fo = s.opacity != null ? ` fill-opacity="${s.opacity}"` : "";
       let stackSoFar = 0;
       s.values?.forEach((v, i) => {
-        if (!Number.isFinite(v))
+        if (v == null || !Number.isFinite(v))
           return;
         const xCenter = xAt(i);
         let x;
@@ -7010,10 +7034,11 @@ function renderCartesian(ctx, type) {
           y = Math.min(yV, yBase);
           h = Math.abs(yV - yBase);
         }
-        const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(fmt(v))}`;
+        const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(ctx.fmtV(v))}`;
+        const data2 = `data-tip="${title}" data-color="${color}" data-series="${esc25(s.name)}" data-index="${i}" data-value="${v}" data-label="${esc25(labels[i] ?? "")}"`;
         const barDelay = (i * 0.04).toFixed(3);
         layers.push(
-          `<g class="${cls}"><rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${barDelay}s"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w / 2}" y="${y - 4}" text-anchor="middle">${esc25(fmt(v))}</text>` : "") + `</g>`
+          `<g class="${cls}"><rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}"${fo} ${data2} style="animation-delay: ${barDelay}s"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w / 2}" y="${y - 4}" text-anchor="middle">${esc25(ctx.fmtV(v))}</text>` : "") + `</g>`
         );
       });
     });
@@ -7021,7 +7046,7 @@ function renderCartesian(ctx, type) {
     if (stacked && type === "area") {
       const runningTotals = new Array(xCount).fill(0);
       series.forEach((s, si) => {
-        const color = colorFor(si, ctx.palette);
+        const color = s.color || colorFor(si, ctx.palette);
         const topPts = [];
         const bottomPts = [];
         for (let i = 0; i < xCount; i++) {
@@ -7041,45 +7066,74 @@ function renderCartesian(ctx, type) {
         );
         topPts.forEach((p, i) => {
           const v = s.values?.[i] ?? 0;
-          const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(fmt(v))}`;
+          const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(ctx.fmtV(v))}`;
           layers.push(
-            `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}"><title>${title}</title></circle>`
+            `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}" data-series="${esc25(s.name)}" data-index="${i}" data-value="${v}" data-label="${esc25(labels[i] ?? "")}"><title>${title}</title></circle>`
           );
         });
       });
     } else {
       series.forEach((s, si) => {
-        const color = colorFor(si, ctx.palette);
-        const pts = (s.values ?? []).map((v, i) => ({
-          x: xAt(i),
-          y: yAt(v)
-        }));
-        const d = linePath(pts, smooth);
+        const color = s.color || colorFor(si, ctx.palette);
+        const vals = s.values ?? [];
         const seriesDelay = (si * 0.15).toFixed(3);
+        const styleBits = [`animation-delay: ${seriesDelay}s`];
+        if (s.width != null)
+          styleBits.push(`--tc-sw: ${s.width}`);
+        if (s.opacity != null)
+          styleBits.push(`--tc-so: ${s.opacity}`);
+        if (s.dash)
+          styleBits.push(`--tc-dash: ${esc25(s.dash)}`);
+        const lineStyle = styleBits.join("; ");
+        const lineCls = `series-line series-${si}${s.dash ? " custom-dash" : ""}`;
+        const fillOp = s.opacity != null ? Number(s.opacity) * 0.25 : 0.25;
+        const runs = [];
+        let run = [];
+        vals.forEach((v, i) => {
+          if (v == null || !Number.isFinite(v)) {
+            if (run.length)
+              runs.push(run);
+            run = [];
+            return;
+          }
+          run.push({ x: xAt(i), y: yAt(v) });
+        });
+        if (run.length)
+          runs.push(run);
         if (type === "area") {
           const baseY = yAt(yLo < 0 && yHi > 0 ? 0 : yLo);
-          const fillPath = d + ` L ${pts[pts.length - 1].x} ${baseY} L ${pts[0].x} ${baseY} Z`;
+          for (const r of runs) {
+            const fillPath = linePath(r, smooth) + ` L ${r[r.length - 1].x} ${baseY} L ${r[0].x} ${baseY} Z`;
+            layers.push(
+              `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="${fillOp}" pointer-events="none" style="animation-delay: ${seriesDelay}s"/>`
+            );
+          }
+        }
+        for (const r of runs) {
           layers.push(
-            `<path class="series-fill series-${si}" d="${fillPath}" fill="${color}" fill-opacity="0.25" style="animation-delay: ${seriesDelay}s"/>`
+            `<path class="${lineCls}" d="${linePath(r, smooth)}" stroke="${color}" fill="none" style="${lineStyle}"/>`
           );
         }
-        layers.push(
-          `<path class="series-line series-${si}" d="${d}" stroke="${color}" fill="none" style="animation-delay: ${seriesDelay}s"/>`
-        );
         if (!sparkline) {
-          pts.forEach((p, i) => {
-            const v = s.values?.[i];
-            const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(fmt(v ?? 0))}`;
+          const showPts = s.showPoints !== false;
+          vals.forEach((v, i) => {
+            if (v == null || !Number.isFinite(v))
+              return;
+            const p = { x: xAt(i), y: yAt(v) };
+            const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(ctx.fmtV(v))}`;
+            const data2 = `data-tip="${title}" data-color="${color}" data-series="${esc25(s.name)}" data-index="${i}" data-value="${v}" data-label="${esc25(labels[i] ?? "")}"`;
             const pointDelay = (si * 0.15 + i * 0.025 + 0.55).toFixed(3);
+            if (showPts) {
+              layers.push(
+                `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" pointer-events="none" style="animation-delay: ${pointDelay}s"/>`
+              );
+            }
             layers.push(
-              `<circle class="series-point series-${si}" cx="${p.x}" cy="${p.y}" r="3.5" fill="${color}" pointer-events="none" style="animation-delay: ${pointDelay}s"/>`
-            );
-            layers.push(
-              `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" data-tip="${title}" data-color="${color}"><title>${title}</title></circle>`
+              `<circle class="hit series-${si}" cx="${p.x}" cy="${p.y}" r="12" fill="transparent" ${data2}><title>${title}</title></circle>`
             );
             if (showValues) {
               layers.push(
-                `<text class="value-label" x="${p.x}" y="${p.y - 8}" text-anchor="middle" pointer-events="none">${esc25(fmt(v ?? 0))}</text>`
+                `<text class="value-label" x="${p.x}" y="${p.y - 8}" text-anchor="middle" pointer-events="none">${esc25(ctx.fmtV(v))}</text>`
               );
             }
           });
@@ -7087,9 +7141,184 @@ function renderCartesian(ctx, type) {
       });
     }
   }
+  layers.push(renderRefLines(ctx, xAt, yAt, xCount));
   return chrome.join("") + layers.join("");
 }
-function renderDonut(ctx) {
+function renderRefLines(ctx, xAt, yAt, _xCount) {
+  if (!Array.isArray(ctx.refLines) || ctx.refLines.length === 0)
+    return "";
+  const padLeft = 44;
+  const padRight = 12;
+  const out = [];
+  for (const ref of ctx.refLines) {
+    if (!ref || !Number.isFinite(ref.value))
+      continue;
+    const axis = ref.axis === "x" ? "x" : "y";
+    const color = ref.color || "var(--tc-chart-axis, var(--tc-color-ink-muted, #6b7280))";
+    const dash = ref.dash ?? "5 4";
+    if (axis === "y") {
+      const y = yAt(ref.value);
+      out.push(
+        `<line class="ref-line" x1="${padLeft}" x2="${ctx.W - padRight}" y1="${y}" y2="${y}" stroke="${color}" stroke-dasharray="${esc25(dash)}"/>`
+      );
+      if (ref.label) {
+        out.push(
+          `<text class="ref-label" x="${ctx.W - padRight}" y="${y - 4}" text-anchor="end">${esc25(ref.label)}</text>`
+        );
+      }
+    } else {
+      const x = xAt(ref.value);
+      out.push(
+        `<line class="ref-line" x1="${x}" x2="${x}" y1="16" y2="${ctx.H - (ctx.showAxes && ctx.showLabels ? 28 : 8)}" stroke="${color}" stroke-dasharray="${esc25(dash)}"/>`
+      );
+      if (ref.label) {
+        out.push(
+          `<text class="ref-label" x="${x + 4}" y="22" text-anchor="start">${esc25(ref.label)}</text>`
+        );
+      }
+    }
+  }
+  return out.join("");
+}
+function renderHorizontalBars(ctx) {
+  const { data, stacked, showAxes, showGrid, showLabels, showValues } = ctx;
+  const labels = data.labels ?? [];
+  const series = data.series ?? [];
+  const rowCount = labels.length || series[0]?.values?.length || 0;
+  if (rowCount === 0)
+    return "";
+  const padTop = 16;
+  const padBottom = showAxes ? 28 : 12;
+  const padLeft = showLabels ? 130 : 12;
+  const padRight = 16;
+  const plotW = ctx.W - padLeft - padRight;
+  const plotH = ctx.H - padTop - padBottom;
+  let minV = Infinity;
+  let maxV = -Infinity;
+  if (stacked && series.length > 0) {
+    for (let i = 0; i < rowCount; i++) {
+      const tot = series.reduce((sum, s) => sum + (s.values?.[i] ?? 0), 0);
+      if (tot < minV)
+        minV = tot;
+      if (tot > maxV)
+        maxV = tot;
+    }
+  } else {
+    for (const s of series) {
+      for (const v of s.values ?? []) {
+        if (v == null || !Number.isFinite(v))
+          continue;
+        if (v < minV)
+          minV = v;
+        if (v > maxV)
+          maxV = v;
+      }
+    }
+  }
+  if (!Number.isFinite(minV) || !Number.isFinite(maxV)) {
+    minV = 0;
+    maxV = 1;
+  }
+  if (minV === maxV) {
+    minV -= 1;
+    maxV += 1;
+  }
+  if (minV > 0)
+    minV = 0;
+  const ticksInfo = niceTicks(ctx.yMin ?? minV, ctx.yMax ?? maxV, 5);
+  const vLo = ctx.yMin ?? ticksInfo.min;
+  const vHi = ctx.yMax ?? ticksInfo.max;
+  const vRange = vHi - vLo || 1;
+  const xAtV = (v) => padLeft + (v - vLo) / vRange * plotW;
+  const rowH = plotH / rowCount;
+  const rowY = (i) => padTop + (i + 0.5) * rowH;
+  const chrome = [];
+  if (showGrid) {
+    for (const t of ticksInfo.ticks) {
+      const x = xAtV(t);
+      chrome.push(
+        `<line class="grid" x1="${x}" x2="${x}" y1="${padTop}" y2="${padTop + plotH}"/>`
+      );
+    }
+  }
+  if (showAxes) {
+    for (const t of ticksInfo.ticks) {
+      const x = xAtV(t);
+      chrome.push(
+        `<text class="axis-label x" x="${x}" y="${ctx.H - padBottom + 16}" text-anchor="middle">${esc25(ctx.fmtTick(t))}</text>`
+      );
+    }
+    if (showLabels) {
+      labels.forEach((lab, i) => {
+        chrome.push(
+          `<text class="bar-cat-label" x="${padLeft - 8}" y="${rowY(i)}" text-anchor="end" dominant-baseline="middle">${esc25(lab)}</text>`
+        );
+      });
+    }
+    const baseX = vLo <= 0 && vHi >= 0 ? xAtV(0) : xAtV(vLo);
+    chrome.push(
+      `<line class="axis" x1="${baseX}" x2="${baseX}" y1="${padTop}" y2="${padTop + plotH}"/>`
+    );
+  }
+  const layers = [];
+  const innerPad = rowH * 0.18;
+  const usableH = rowH - innerPad * 2;
+  series.forEach((s, si) => {
+    const color = s.color || colorFor(si, ctx.palette);
+    const fo = s.opacity != null ? ` fill-opacity="${s.opacity}"` : "";
+    let stackSoFar = 0;
+    s.values?.forEach((v, i) => {
+      if (v == null || !Number.isFinite(v))
+        return;
+      const yCenter = rowY(i);
+      let x;
+      let y;
+      let w;
+      let h;
+      if (stacked) {
+        y = yCenter - usableH / 2;
+        h = usableH;
+        const xStart = xAtV(stackSoFar);
+        const xEnd = xAtV(stackSoFar + v);
+        x = Math.min(xStart, xEnd);
+        w = Math.abs(xEnd - xStart);
+        stackSoFar += v;
+      } else {
+        const slot = usableH / series.length;
+        y = yCenter - usableH / 2 + si * slot;
+        h = slot * 0.86;
+        const baseX = xAtV(vLo < 0 && vHi > 0 ? 0 : vLo);
+        const xV = xAtV(v);
+        x = Math.min(xV, baseX);
+        w = Math.abs(xV - baseX);
+      }
+      const title = `${esc25(s.name)}${labels[i] ? ` \xB7 ${esc25(labels[i])}` : ""}: ${esc25(ctx.fmtV(v))}`;
+      const dataAttrs = `data-tip="${title}" data-color="${color}" data-series="${esc25(s.name)}" data-index="${i}" data-value="${v}" data-label="${esc25(labels[i] ?? "")}"`;
+      const barDelay = (i * 0.03).toFixed(3);
+      layers.push(
+        `<g class="series series-${si}"><rect class="hit hbar" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}"${fo} ${dataAttrs} style="animation-delay: ${barDelay}s"><title>${title}</title></rect>` + (showValues ? `<text class="value-label" x="${x + w + 4}" y="${y + h / 2}" text-anchor="start" dominant-baseline="middle">${esc25(ctx.fmtV(v))}</text>` : "") + `</g>`
+      );
+    });
+  });
+  if (Array.isArray(ctx.refLines)) {
+    for (const ref of ctx.refLines) {
+      if (!ref || !Number.isFinite(ref.value))
+        continue;
+      const x = xAtV(ref.value);
+      const color = ref.color || "var(--tc-chart-axis, var(--tc-color-ink-muted, #6b7280))";
+      layers.push(
+        `<line class="ref-line" x1="${x}" x2="${x}" y1="${padTop}" y2="${padTop + plotH}" stroke="${color}" stroke-dasharray="${esc25(ref.dash ?? "5 4")}"/>`
+      );
+      if (ref.label) {
+        layers.push(
+          `<text class="ref-label" x="${x + 4}" y="${padTop + 10}" text-anchor="start">${esc25(ref.label)}</text>`
+        );
+      }
+    }
+  }
+  return chrome.join("") + layers.join("");
+}
+function renderDonut(ctx, props) {
   const series = ctx.data.series ?? [];
   const total = series.reduce((s, x) => s + (x.value ?? 0), 0);
   if (total <= 0)
@@ -7108,12 +7337,12 @@ function renderDonut(ctx) {
     const start = angle;
     const end = angle + sweep;
     const path = arcPath(cx, cy, r, inner, start, end - 0.01);
-    const color = colorFor(i, ctx.palette);
+    const color = s.color || colorFor(i, ctx.palette);
     const pct = (value / total * 100).toFixed(1).replace(/\.0$/, "");
-    const title = `${esc25(s.name)}: ${esc25(fmt(value))} (${pct}%)`;
+    const title = `${esc25(s.name)}: ${esc25(ctx.fmtV(value))} (${pct}%)`;
     const segDelay = (i * 0.08).toFixed(3);
     out.push(
-      `<path class="series-segment hit series-${i}" d="${path}" fill="${color}" data-tip="${title}" data-color="${color}" style="animation-delay: ${segDelay}s"><title>${title}</title></path>`
+      `<path class="series-segment hit series-${i}" d="${path}" fill="${color}" data-tip="${title}" data-color="${color}" data-series="${esc25(s.name)}" data-index="${i}" data-value="${value}" data-label="${esc25(s.name)}" style="animation-delay: ${segDelay}s"><title>${title}</title></path>`
     );
     if (ctx.showValues) {
       const mid = (start + end) / 2;
@@ -7125,6 +7354,20 @@ function renderDonut(ctx) {
     }
     angle = end;
   });
+  const centerValue = String(props.centerValue ?? "");
+  const centerLabel = String(props.centerLabel ?? "");
+  if (inner > 0 && (centerValue || centerLabel)) {
+    if (centerValue) {
+      out.push(
+        `<text class="donut-center-value" x="${cx}" y="${cy - (centerLabel ? 6 : 0)}" text-anchor="middle" dominant-baseline="middle">${esc25(centerValue)}</text>`
+      );
+    }
+    if (centerLabel) {
+      out.push(
+        `<text class="donut-center-label" x="${cx}" y="${cy + (centerValue ? 16 : 0)}" text-anchor="middle" dominant-baseline="middle">${esc25(centerLabel)}</text>`
+      );
+    }
+  }
   return out.join("");
 }
 function renderLegend(series, palette, hidden) {
@@ -7247,6 +7490,25 @@ var CHART_STYLE = `
       .overlay.loading::before { animation-duration: 3s; }
     }
     svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    /* Donut + horizontal bars size to their own aspect (no stretch). */
+    .root.intrinsic .canvas { height: auto; }
+    .root.intrinsic svg { height: auto; }
+    /* Legend placement. */
+    .root.legend-top .legend { margin-top: 0; margin-bottom: 14px; }
+    .root.legend-right {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+    }
+    .root.legend-right .legend {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+      margin-top: 0;
+    }
+    .hit { cursor: var(--tc-chart-hit-cursor, default); }
+    .series-segment.clickable, rect.hit.clickable, .hit.clickable { cursor: pointer; }
     .grid {
       stroke: var(--tc-chart-grid, var(--tc-color-rule, #ece5d3));
       stroke-width: 1;
@@ -7269,11 +7531,36 @@ var CHART_STYLE = `
       fill: var(--tc-chart-label, var(--tc-color-ink-muted, #6b7280));
     }
     .value-label.donut { fill: #fff; }
+    .donut-center-value {
+      font-size: 26px; font-weight: 700;
+      fill: var(--tc-chart-fg, var(--tc-color-ink, #14171f));
+    }
+    .donut-center-label {
+      font-size: 12px;
+      fill: var(--tc-chart-label, var(--tc-color-ink-muted, #6b7280));
+    }
+    .ref-line { stroke-width: 1.5; fill: none; }
+    .ref-label {
+      font-size: 10px; font-weight: 600;
+      fill: var(--tc-chart-label, var(--tc-color-ink-muted, #6b7280));
+    }
+    .bar-cat-label {
+      font-size: 11px;
+      fill: var(--tc-chart-label, var(--tc-color-ink-muted, #6b7280));
+    }
     .series-line {
-      stroke-width: 2;
+      stroke-width: var(--tc-sw, 2);
+      stroke-opacity: var(--tc-so, 1);
       fill: none;
       stroke-linejoin: round;
       stroke-linecap: round;
+    }
+    /* Per-series dash: opt out of the draw-in animation (which hijacks
+       stroke-dasharray) and use the requested pattern instead. */
+    .series-line.custom-dash {
+      animation: none !important;
+      stroke-dasharray: var(--tc-dash, 0);
+      stroke-dashoffset: 0;
     }
     .series-point {
       stroke: var(--tc-chart-bg, var(--tc-color-surface, #ffffff));
@@ -7358,6 +7645,15 @@ var CHART_STYLE = `
       transform-box: fill-box;
       animation: tc-chart-bar-grow 0.55s cubic-bezier(0.4, 0, 0.2, 1) backwards;
     }
+    /* Horizontal bars grow rightward from the value baseline. */
+    rect.hit.hbar {
+      transform-origin: left center;
+      animation-name: tc-chart-hbar-grow;
+    }
+    @keyframes tc-chart-hbar-grow {
+      from { transform: scaleX(0); }
+      to   { transform: scaleX(1); }
+    }
     .series-segment.hit {
       animation: tc-chart-segment-in 0.55s cubic-bezier(0.4, 0, 0.2, 1) backwards;
       transform-origin: center;
@@ -7385,8 +7681,8 @@ var CHART_STYLE = `
 
     @media (prefers-reduced-motion: reduce) {
       .series-point, .series-segment { transition: none; }
-      .series-line, .series-fill, .series-point, rect.hit, .series-segment.hit {
-        animation: none;
+      .series-line, .series-fill, .series-point, rect.hit, rect.hit.hbar, .series-segment.hit {
+        animation: none !important;
         stroke-dashoffset: 0 !important;
         opacity: 1 !important;
         transform: none !important;
@@ -7412,6 +7708,27 @@ build(
       yMax: { type: "json", default: null },
       ariaLabel: { type: "string", default: "Chart" },
       colors: { type: "json", default: null },
+      // Bar orientation: "vertical" (default) or "horizontal". Horizontal
+      // bars give every category a permanent left-aligned label — the right
+      // fit for ranking and for many categories.
+      orientation: { type: "string", default: "vertical" },
+      // x-axis label density. labelStride forces "every Nth"; maxLabels caps
+      // the count (auto-strided to fit); labelAngle rotates ticks (e.g. -35).
+      // Defaults reproduce the prior auto-thinning (~8 labels).
+      labelStride: { type: "number", default: 0 },
+      maxLabels: { type: "number", default: 0 },
+      labelAngle: { type: "number", default: 0 },
+      // Value / tick formatting: "compact" | "integer" | "percent" |
+      // "currency" | "none", or any string treated as a unit suffix.
+      valueFormat: { type: "string", default: "compact" },
+      tickFormat: { type: "string", default: "" },
+      // Threshold / marker lines: [{ axis:"y", value:6e6, label?, dash?, color? }].
+      refLines: { type: "json", default: [] },
+      // Legend placement: "bottom" (default) | "top" | "right".
+      legendPosition: { type: "string", default: "bottom" },
+      // Donut center text.
+      centerLabel: { type: "string", default: "" },
+      centerValue: { type: "string", default: "" },
       // Server-side data: fetch JSON from `src` and use it as `data`.
       // If `data` is set explicitly it always wins. `srcKey` lets the
       // chart drill into the response (e.g. "results.population" maps to
@@ -7452,8 +7769,12 @@ build(
       const isDonut = type === "donut";
       const customColors = props.colors;
       const palette = Array.isArray(customColors) && customColors.length > 0 ? customColors : DEFAULT_PALETTE;
+      const valueFormat = String(props.valueFormat ?? "compact");
+      const tickFormat = String(props.tickFormat ?? "") || valueFormat;
+      const horizontalBar = type === "bar" && String(props.orientation ?? "vertical").toLowerCase() === "horizontal";
       const W = isDonut ? 320 : 800;
-      const H = isDonut ? 320 : 400;
+      const catCount = data.labels?.length ?? data.series[0]?.values?.length ?? 0;
+      const H = isDonut ? 320 : horizontalBar ? Math.max(220, 36 + catCount * 34) : 400;
       const ctx = {
         data,
         smooth: !!props.smooth,
@@ -7467,17 +7788,31 @@ build(
         yMax: props.yMax == null ? null : Number(props.yMax),
         palette,
         W,
-        H
+        H,
+        orientation: horizontalBar ? "horizontal" : "vertical",
+        labelStride: Math.max(0, Number(props.labelStride ?? 0) || 0),
+        maxLabels: Math.max(0, Number(props.maxLabels ?? 0) || 0),
+        labelAngle: Number(props.labelAngle ?? 0) || 0,
+        refLines: Array.isArray(props.refLines) ? props.refLines : [],
+        fmtV: makeFormatter(valueFormat),
+        fmtTick: makeFormatter(tickFormat)
       };
-      const body = isDonut ? renderDonut(ctx) : renderCartesian(ctx, type);
+      const body = isDonut ? renderDonut(ctx, props) : horizontalBar ? renderHorizontalBars(ctx) : renderCartesian(ctx, type);
       const desc = ariaDescription(type, data);
       const height = esc25(String(props.height ?? "240px"));
+      const intrinsic = isDonut || horizontalBar;
+      const legendPos = ["top", "right", "bottom"].includes(
+        String(props.legendPosition ?? "bottom")
+      ) ? String(props.legendPosition) : "bottom";
+      const rootCls = `root legend-${legendPos}${intrinsic ? " intrinsic" : ""}`;
+      const legendHtml = props.showLegend && !isSparkline && fullData.series && fullData.series.length > 0 ? renderLegend(fullData.series, palette, hidden) : "";
       return html`
-        <div class="root" role="img" aria-label="${props.ariaLabel ?? "Chart"}">
-          <div class="canvas" style="height:${unsafe(height)};">
+        <div class="${rootCls}" role="img" aria-label="${props.ariaLabel ?? "Chart"}">
+          ${legendPos === "top" ? unsafe(legendHtml) : ""}
+          <div class="canvas" style="${intrinsic ? "" : `height:${unsafe(height)};`}">
             <svg
               viewBox="0 0 ${W} ${H}"
-              preserveAspectRatio="${isDonut ? "xMidYMid meet" : "none"}"
+              preserveAspectRatio="${intrinsic ? "xMidYMid meet" : "none"}"
               aria-hidden="true"
             >
               ${unsafe(body)}
@@ -7487,7 +7822,7 @@ build(
             </div>
             ${unsafe(stateOverlay)}
           </div>
-          ${props.showLegend && !isSparkline && fullData.series && fullData.series.length > 0 ? unsafe(renderLegend(fullData.series, palette, hidden)) : ""}
+          ${legendPos !== "top" ? unsafe(legendHtml) : ""}
           <span
             class="visually-hidden"
             style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;"
@@ -7496,6 +7831,23 @@ build(
       `;
     },
     events: {
+      // Emit a public click event for points / bars / segments. Consumers
+      // opt in by listening; detail carries the full data coordinate.
+      "click .hit": (e, ctx) => {
+        const target = e.target?.closest(".hit");
+        if (!target || target.dataset.index == null)
+          return;
+        const detail = {
+          series: target.dataset.series ?? "",
+          index: Number(target.dataset.index),
+          label: target.dataset.label ?? "",
+          value: target.dataset.value != null ? Number(target.dataset.value) : null
+        };
+        ctx.emit(
+          target.classList.contains("series-segment") ? "tc-segment-click" : "tc-point-click",
+          detail
+        );
+      },
       "click .legend-item": (e, ctx) => {
         const target = e.target?.closest(".legend-item");
         if (!target)

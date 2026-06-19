@@ -3,6 +3,44 @@
 All notable changes to this kit are documented here. The kit is versioned
 independently of the core `@ra9/tan-compose` library.
 
+## [1.13.0] - 2026-06-18
+
+### Added — `<tc-chart>` enhancements
+
+A batch of charting improvements driven by real dashboard use, focused on
+the gaps that forced hand-rolled workarounds:
+
+- **Configurable x-axis label density.** The old behaviour silently
+  strided labels to ~8 with no override (every other name vanished at 15+
+  categories). New `labelStride` (force "every Nth"), `maxLabels` (cap the
+  count), and `labelAngle` (rotate ticks, e.g. `-35`). Default is
+  unchanged.
+- **Horizontal bars** via `orientation="horizontal"` — categories down the
+  Y-axis (every label shown, left-aligned), values along the X-axis. The
+  natural fit for ranking and many categories. Renders to its intrinsic
+  height (no stretch).
+- **Null = gap.** A `null`/`undefined` in a series' `values` is now a gap
+  (the line breaks, no point/bar) instead of producing `NaN` coordinates.
+  Lets one chart hold "actual at some years, projection at others".
+- **Per-series styling.** Series accept `color`, `dash` (e.g. `"6 6"`),
+  `width`, `opacity`, and `showPoints` — for dashed scenario lines,
+  forecast-vs-actual styling, etc.
+- **Reference lines** via `refLines: [{ axis:"y", value, label?, dash?,
+  color? }]` — horizontal thresholds (or vertical markers / value
+  thresholds on horizontal bars).
+- **Value/tick formatters** via `valueFormat` / `tickFormat`:
+  `"compact"` (default) | `"integer"` | `"percent"` | `"currency"` |
+  `"none"`, or any string used as a unit suffix.
+- **Click events** — `tc-point-click` (line/area/bar) and
+  `tc-segment-click` (donut) emit `{ series, index, label, value }`.
+- **Donut center** via `centerValue` / `centerLabel`.
+- **Legend placement** via `legendPosition` (`"bottom"` | `"top"` |
+  `"right"`).
+
+Donut and horizontal-bar charts now render to their own aspect ratio
+(no non-uniform stretch). Existing charts are unchanged — every new option
+is opt-in and defaults to the prior behaviour.
+
 ## [1.12.1] - 2026-06-15
 
 ### Fixed — `<tc-tabs>` strip scrolls instead of clipping
