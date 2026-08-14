@@ -18,6 +18,9 @@ import "../kit/themes/tokens.ts";
 // Kit components.
 import "../kit/mod.ts";
 
+// Page templates (blocks) — register <tc-block-login>, <tc-block-dashboard>, …
+import "../kit/blocks/mod.ts";
+
 // Icon set — registers <tc-icon>.
 import "../icons/mod.ts";
 

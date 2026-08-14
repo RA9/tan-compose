@@ -302,6 +302,13 @@
           <a href="#callout" data-target="callout">Callout</a>
           <a href="#toc" data-target="toc">TOC</a>
           <a href="#pagination" data-target="pagination">Pagination</a>
+
+          <h3>Page templates</h3>
+          <a href="#page-templates" data-target="page-templates">Login</a>
+          <a href="#page-templates" data-target="page-templates">Signup</a>
+          <a href="#page-templates" data-target="page-templates">Dashboard</a>
+          <a href="#page-templates" data-target="page-templates">Settings</a>
+          <a href="#page-templates" data-target="page-templates">Pricing</a>
         </aside>
 
         <div class="components-content">
@@ -2142,6 +2149,61 @@ document.querySelector("#filters").open = <span class="tc-kw">true</span>;</tc-c
 &lt;tc-chart type="bar" data='{ ... }'&gt;&lt;/tc-chart&gt;
 &lt;tc-chart type="donut" showValues data='{ "series": [...] }'&gt;&lt;/tc-chart&gt;
 &lt;tc-chart type="sparkline" height="32px" showLegend="false" data='{ ... }'&gt;&lt;/tc-chart&gt;</tc-code>
+        </div>
+      </section>
+
+      <section class="demo" id="page-templates">
+        <div class="wrap">
+          <div class="demo-head">
+            <div class="demo-tag">
+              <span>&lt;tc-block-login&gt; · &lt;tc-block-signup&gt; · &lt;tc-block-dashboard&gt; · &lt;tc-block-settings&gt; · &lt;tc-block-pricing&gt;</span>
+              <a class="docs-link" href="./demo/blocks/">Live demo &rarr;</a>
+            </div>
+            <h2>Page templates (blocks)</h2>
+            <p class="demo-lede">
+              Complete page templates composed from the kit primitives — a
+              login page, signup, an admin shell, a settings page, and
+              pricing. Each one is a single element that emits an event on
+              interaction, and each has its own docs page.
+            </p>
+          </div>
+          <div class="stage" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; align-items: stretch;">
+            <tc-card title="tc-block-login" subtitle="Split-screen sign-in page">
+              <p style="font-size: 0.9rem; color: var(--tc-color-ink-soft, #4a5061); line-height: 1.5; margin-bottom: 12px;">
+                Emits <code>tc-block-login-submit</code> with the typed
+                credentials.
+              </p>
+              <a href="./components/block-login.html" style="font-size: 0.88rem; font-weight: 600; color: #a16939; text-decoration: none;">Docs →</a>
+            </tc-card>
+            <tc-card title="tc-block-signup" subtitle="Registration page">
+              <p style="font-size: 0.9rem; color: var(--tc-color-ink-soft, #4a5061); line-height: 1.5; margin-bottom: 12px;">
+                Emits <code>tc-block-signup-submit</code> with name, email,
+                password, and consent.
+              </p>
+              <a href="./components/block-signup.html" style="font-size: 0.88rem; font-weight: 600; color: #a16939; text-decoration: none;">Docs →</a>
+            </tc-card>
+            <tc-card title="tc-block-dashboard" subtitle="App shell with sidebar + top bar">
+              <p style="font-size: 0.9rem; color: var(--tc-color-ink-soft, #4a5061); line-height: 1.5; margin-bottom: 12px;">
+                Emits <code>tc-block-dashboard-nav</code>. Content is slotted
+                into the main region.
+              </p>
+              <a href="./components/block-dashboard.html" style="font-size: 0.88rem; font-weight: 600; color: #a16939; text-decoration: none;">Docs →</a>
+            </tc-card>
+            <tc-card title="tc-block-settings" subtitle="Settings page with section nav">
+              <p style="font-size: 0.9rem; color: var(--tc-color-ink-soft, #4a5061); line-height: 1.5; margin-bottom: 12px;">
+                Emits <code>tc-block-settings-change</code>. Each section is a
+                named slot.
+              </p>
+              <a href="./components/block-settings.html" style="font-size: 0.88rem; font-weight: 600; color: #a16939; text-decoration: none;">Docs →</a>
+            </tc-card>
+            <tc-card title="tc-block-pricing" subtitle="Pricing grid from JSON">
+              <p style="font-size: 0.9rem; color: var(--tc-color-ink-soft, #4a5061); line-height: 1.5; margin-bottom: 12px;">
+                Emits <code>tc-block-pricing-select</code>. Tiers come from a
+                single JSON prop.
+              </p>
+              <a href="./components/block-pricing.html" style="font-size: 0.88rem; font-weight: 600; color: #a16939; text-decoration: none;">Docs →</a>
+            </tc-card>
+          </div>
         </div>
       </section>
 

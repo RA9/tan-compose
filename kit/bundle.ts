@@ -77,6 +77,25 @@ await esbuild.build({
   sourcemap: true,
 });
 
+// Blocks bundle — page templates + the primitives they compose, so a
+// single <script src="…/blocks.min.js"> registers everything a template
+// needs. Self-contained (core inlined); superset of kit.min.js.
+await esbuild.build({
+  ...sharedConfig,
+  entryPoints: [{ in: "./blocks/mod.ts", out: "blocks.min" }],
+  outdir: "./dist/",
+  minify: true,
+  sourcemap: true,
+});
+
+await esbuild.build({
+  ...sharedConfig,
+  entryPoints: [{ in: "./blocks/mod.ts", out: "blocks" }],
+  outdir: "./dist/",
+  minify: false,
+  sourcemap: true,
+});
+
 // Themes — one bundle each, minified only.
 for (const theme of THEMES) {
   await esbuild.build({
@@ -95,6 +114,8 @@ console.log("kit bundle output:");
 const rows: Array<readonly [string, number]> = [
   ["dist/kit.min.js", (await Deno.stat("./dist/kit.min.js")).size],
   ["dist/kit.js", (await Deno.stat("./dist/kit.js")).size],
+  ["dist/blocks.min.js", (await Deno.stat("./dist/blocks.min.js")).size],
+  ["dist/blocks.js", (await Deno.stat("./dist/blocks.js")).size],
 ];
 for (const t of THEMES) {
   rows.push([

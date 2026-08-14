@@ -1,10 +1,11 @@
 # @ra9/tan-compose-kit
 
 Battle-tested Web Components built on top of
-[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 38 components, 6 theme
-presets, ~225 KB minified (~50 KB gzipped) for the whole bundle. No JSX, no
-compiler, no runtime framework — just custom elements you drop into HTML,
-React, Vue, Astro, or anywhere else custom elements work.
+[`@ra9/tan-compose`](https://jsr.io/@ra9/tan-compose). 38 components, 5 page
+templates (blocks), 6 theme presets, ~225 KB minified (~50 KB gzipped) for
+the whole bundle. No JSX, no compiler, no runtime framework — just custom
+elements you drop into HTML, React, Vue, Astro, or anywhere else custom
+elements work.
 
 ```bash
 deno add jsr:@ra9/tan-compose-kit
@@ -45,6 +46,7 @@ Available theme bundles: `tokens`, `dark`, `bootstrap`, `tailwind`,
 
 [**Live demo**](https://ra9.github.io/tan-compose/components.html) ·
 [**Themes**](https://ra9.github.io/tan-compose/themes.html) ·
+[**Page templates (blocks)**](https://ra9.github.io/tan-compose/demo/blocks/) ·
 [**Admin dashboard**](https://ra9.github.io/tan-compose/demo/admin/) ·
 [**Tutorial: build a tasks app in ~80 lines**](https://ra9.github.io/tan-compose/blog/build-a-tasks-app.html)
 
@@ -133,6 +135,51 @@ by an ancestor's stacking context, `overflow: hidden`, or `transform`.
 | `<tc-code>`    | Code block with syntax-highlight spans and copy button.      |
 | `<tc-callout>` | Aside box (info/success/warning/danger) with optional title. |
 | `<tc-toc>`     | Auto-generated table of contents from a target's headings.   |
+
+## Page templates (blocks)
+
+Five ready-made page templates built from the primitives above. Import the
+whole set or one block at a time — importing a block also registers the
+primitives it composes:
+
+```js
+import "@ra9/tan-compose-kit/blocks";
+// or
+import "@ra9/tan-compose-kit/blocks/login";
+import "@ra9/tan-compose-kit/blocks/dashboard";
+```
+
+| Tag                    | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `<tc-block-login>`     | Split-screen sign-in page. Emits `tc-block-login-submit`.            |
+| `<tc-block-signup>`    | Split-screen registration page. Emits `tc-block-signup-submit`.      |
+| `<tc-block-dashboard>` | App shell: sidebar nav + top bar + content slot. Emits `tc-block-dashboard-nav`. |
+| `<tc-block-settings>`  | Settings page with a section list driving named content slots.       |
+| `<tc-block-pricing>`   | Pricing grid from a JSON `tiers` prop. Emits `tc-block-pricing-select`. |
+
+Every block fires a composed custom event on interaction, so you wire it to
+your app without reaching into the shadow DOM:
+
+```html
+<tc-block-login brand="Acme"></tc-block-login>
+<script type="module">
+  document.querySelector("tc-block-login").addEventListener(
+    "tc-block-login-submit",
+    (e) => console.log(e.detail.values), // { email, password, remember }
+  );
+</script>
+```
+
+A self-contained `blocks.min.js` bundle (templates + the primitives they
+need, core inlined) ships alongside `kit.min.js` for CDN use:
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/gh/RA9/tan-compose@kit-vX.Y.Z/kit/dist/blocks.min.js"></script>
+```
+
+See the [blocks demo](https://ra9.github.io/tan-compose/demo/blocks/) for a
+live, switchable preview of all five templates.
 
 ## Theming
 

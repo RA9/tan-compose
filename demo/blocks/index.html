@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
+    <meta
+      name="description"
+      content="Page templates (blocks) built on @ra9/tan-compose-kit — login, signup, dashboard, settings, pricing."
+    />
+    <title>Blocks — Tan Compose Kit demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #faf8f3;
+        color: #14171f;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Floating switcher — the blocks render full-bleed beneath it. */
+      .switcher {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px;
+        background: #ffffff;
+        border: 1px solid #ece5d3;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(20, 23, 31, 0.1);
+      }
+      .switcher .label {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6b7280;
+        padding: 0 8px;
+      }
+      .switcher button {
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 7px 12px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: #4a5061;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .switcher button:hover {
+        background: #efe2cf;
+        color: #14171f;
+      }
+      .switcher button.active {
+        background: #a16939;
+        color: #ffffff;
+      }
+
+      #stage {
+        min-height: 100vh;
+      }
+
+      /* Native toast + slotted demo content (light DOM). */
+      #toast-host {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+        max-width: 360px;
+      }
+      .native-toast {
+        background: #14171f;
+        color: #ffffff;
+        font-size: 0.88rem;
+        padding: 12px 16px;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(20, 23, 31, 0.16);
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+      .native-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .stat {
+        background: #ffffff;
+        border: 1px solid #ece5d3;
+        border-radius: 12px;
+        padding: 18px 20px;
+      }
+      .stat .label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6b7280;
+        margin-bottom: 8px;
+      }
+      .stat .value {
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      .stat .delta {
+        font-size: 0.84rem;
+        margin-top: 8px;
+        color: #207a5b;
+      }
+
+      .demo-card {
+        background: #ffffff;
+        border: 1px solid #ece5d3;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+      }
+      .demo-card h3 {
+        font-size: 0.92rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .demo-card p {
+        font-size: 0.88rem;
+        color: #4a5061;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="switcher" aria-label="Block previews">
+      <span class="label">Block</span>
+      <button data-block="login" class="active">Login</button>
+      <button data-block="signup">Signup</button>
+      <button data-block="dashboard">Dashboard</button>
+      <button data-block="settings">Settings</button>
+      <button data-block="pricing">Pricing</button>
+    </nav>
+
+    <main id="stage"></main>
+
+    <div id="toast-host" aria-live="polite"></div>
+
+    <script type="module" src="../../kit/dist/themes/tokens.js"></script>
+    <script type="module" src="../../kit/dist/blocks.min.js"></script>
+    <script type="module">
+      const stage = document.getElementById("stage");
+      const toastHost = document.getElementById("toast-host");
+
+      function toast(message) {
+        const t = document.createElement("div");
+        t.className = "native-toast";
+        t.textContent = message;
+        toastHost.appendChild(t);
+        requestAnimationFrame(() => t.classList.add("show"));
+        setTimeout(() => {
+          t.classList.remove("show");
+          setTimeout(() => t.remove(), 300);
+        }, 3200);
+      }
+
+      const builders = {
+        login() {
+          const el = document.createElement("tc-block-login");
+          el.brand = "Acme";
+          el.headline = "Ship faster with your whole team in one workspace.";
+          el.addEventListener("tc-block-login-submit", (e) => {
+            const { email } = e.detail.values;
+            toast(`Signed in as ${email || "you"} (demo).`);
+          });
+          return el;
+        },
+
+        signup() {
+          const el = document.createElement("tc-block-signup");
+          el.brand = "Acme";
+          el.addEventListener("tc-block-signup-submit", (e) => {
+            const { name, email } = e.detail.values;
+            toast(`Welcome, ${name || email || "friend"} (demo).`);
+          });
+          return el;
+        },
+
+        dashboard() {
+          const el = document.createElement("tc-block-dashboard");
+          el.brand = "Acme";
+          el.title = "Overview";
+          el.userName = "Alex Rivera";
+          el.userRole = "Administrator";
+          el.nav = [
+            { id: "overview", label: "Overview", icon: "◉" },
+            { id: "customers", label: "Customers", icon: "◈" },
+            { id: "billing", label: "Billing", icon: "◫" },
+            { id: "settings", label: "Settings", icon: "⚙" },
+          ];
+          el.addEventListener("tc-block-dashboard-nav", (e) => {
+            toast(`Navigating to ${e.detail.item?.label ?? e.detail.id} (demo).`);
+          });
+
+          const stats = document.createElement("div");
+          stats.className = "stat-grid";
+          stats.innerHTML = `
+            <div class="stat">
+              <div class="label">Revenue</div>
+              <div class="value">$48,210</div>
+              <div class="delta">▲ +12.3% vs last month</div>
+            </div>
+            <div class="stat">
+              <div class="label">Active users</div>
+              <div class="value">12,884</div>
+              <div class="delta">▲ +4.1% vs last month</div>
+            </div>
+            <div class="stat">
+              <div class="label">Churn</div>
+              <div class="value">1.2%</div>
+              <div class="delta" style="color:#b3261e">▼ -0.3% vs last month</div>
+            </div>
+          `;
+          const card = document.createElement("div");
+          card.className = "demo-card";
+          card.innerHTML = `
+            <h3>Welcome back</h3>
+            <p>
+              This content is slotted into the dashboard's main region from
+              light DOM. Drop any kit component (or plain HTML) here.
+            </p>
+          `;
+          el.append(stats, card);
+          return el;
+        },
+
+        settings() {
+          const el = document.createElement("tc-block-settings");
+          el.sections = [
+            { id: "profile", label: "Profile", hint: "Name and avatar" },
+            { id: "account", label: "Account", hint: "Email and password" },
+            { id: "notifications", label: "Notifications", hint: "What you hear about" },
+          ];
+
+          const profile = document.createElement("div");
+          profile.slot = "profile";
+          profile.innerHTML = `
+            <div class="demo-card">
+              <h3>Profile</h3>
+              <p>Name, avatar, and public profile details.</p>
+            </div>
+            <tc-input label="Full name" name="name" placeholder="Ada Lovelace"></tc-input>
+          `;
+          const account = document.createElement("div");
+          account.slot = "account";
+          account.innerHTML = `
+            <div class="demo-card">
+              <h3>Account</h3>
+              <p>Sign-in email and password.</p>
+            </div>
+            <tc-input label="Email" name="email" type="email" placeholder="you@example.com"></tc-input>
+            <tc-input label="New password" name="password" type="password"></tc-input>
+          `;
+          const notif = document.createElement("div");
+          notif.slot = "notifications";
+          notif.innerHTML = `
+            <tc-checkbox label="Product updates" checked></tc-checkbox>
+            <tc-checkbox label="Weekly digest"></tc-checkbox>
+            <tc-checkbox label="Security alerts" checked></tc-checkbox>
+          `;
+          el.append(profile, account, notif);
+          el.addEventListener("tc-block-settings-change", (e) => {
+            toast(`Section: ${e.detail.active} (demo).`);
+          });
+          return el;
+        },
+
+        pricing() {
+          const el = document.createElement("tc-block-pricing");
+          el.addEventListener("tc-block-pricing-select", (e) => {
+            toast(`Selected the ${e.detail.tier.name} plan (demo).`);
+          });
+          return el;
+        },
+      };
+
+      const buttons = Array.from(
+        document.querySelectorAll(".switcher button"),
+      );
+
+      function show(name) {
+        buttons.forEach((b) =>
+          b.classList.toggle("active", b.dataset.block === name)
+        );
+        stage.replaceChildren(builders[name]());
+      }
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => show(btn.dataset.block));
+      });
+
+      // Wait for all block tags to be defined before the first render.
+      await Promise.all(
+        [
+          "tc-block-login",
+          "tc-block-signup",
+          "tc-block-dashboard",
+          "tc-block-settings",
+          "tc-block-pricing",
+          "tc-input",
+          "tc-checkbox",
+          "tc-avatar",
+        ].map((tag) => customElements.whenDefined(tag)),
+      );
+
+      show("login");
+    </script>
+  </body>
+</html>
